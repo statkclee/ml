@@ -14,7 +14,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
 
 1. [문제의 정의](01-problem.html)
 1. [데이터(Data)](02-data.html)
-
+1. [데이터를 통한 문제풀이 과정](03-process.html)
 
 
 
