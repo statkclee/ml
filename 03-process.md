@@ -18,6 +18,7 @@ subtitle: 데이터를 통한 문제풀이 과정
 <img src="fig/ml-process.png" alt="기계학습 프로세스" width="70%">
 
 
-> ### feature engineering {.callout}
+> ### 특성 공학(Feature Engineering)이 중요한 이유. {.callout}
 > 
-> [Feature engineering](https://en.wikipedia.org/wiki/Feature_engineering)
+> 다양하고 정교한 기계학습 알고리즘보다 인기가 그만 못하지만, 특성을 뽑는 작업은 기계학습에서 매우 중요한 영역을 차지한다.
+> [Feature Engineering](https://en.wikipedia.org/wiki/Feature_engineering)이 중요한 이유는 잘 고른 특성(feature)을 갖는 단순한 알고리즘이 그저그런 특성을 갖는 정교한 알고리즘보다 성능이 훨씬더 좋기 때문이다. 

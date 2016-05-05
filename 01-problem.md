@@ -21,5 +21,16 @@ subtitle: 문제의 정의
 
 [캐글(Kaggle)](https://www.kaggle.com/)
 
-## 문제의 정의
+## 문제 유형 [^David-Julian]
+
+[^David-Julian]: [David Julian (2016), "Building Machine Learning Systems with Python", Packt Publishing](https://www.packtpub.com/big-data-and-business-intelligence/designing-machine-learning-systems-python)
+
+* 탐색(Exploration): 추세나 변수간 관계 같은 패턴을 데이터에서 찾아, 후속 공정에서 귀무/대립 가설을 생성시킨다.
+* 기술(Descriptive): 평균 소득, 임금 표준오차, 모집단에서 왼손잡이 비율 등 데이터를 요약한다.
+* 추론(Inference): 가설을 지지하는 추론 질문을 생성한다.
+* 예측(Prediction): 미래 행동양상을 예측한다. 소득을 분석해서 평균 기대수명을 예측한다.
+* 인과성(Causality): 인과관계를 파악하는 것으로 흡연과 폐암과의 인과성을 규명한다.
+* 메커니즘(Mechanism): 기계적 메커니즘을 파악한다.
+
+
 

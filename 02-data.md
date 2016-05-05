@@ -10,7 +10,7 @@ subtitle: 데이터(Data)
 
 
 
-## 데이터 원천 [^data-sources]
+## 데이터 원천 [^David-Julian-2016]
 
 데이터를 구할 수 있는 출처에 따라 다음과 같이 데이터가 구분된다.
 
@@ -21,7 +21,7 @@ subtitle: 데이터(Data)
 * API
 * IoT 장비
 
-## 데이터 유형 [^data-type]
+## 데이터 유형 [^wiki-data-type]
 
 데이터를 유형별로 구분하면 다음과 같다.
 
@@ -33,9 +33,14 @@ subtitle: 데이터(Data)
 * 물리학 데이터: 천문학, 지구과학, 시스템, 고에너지 물리학 등
 * 생물학 데이터: 사람, 동물, 식물, 미생물 등
 
+## 데이터 저장소
 
-[^data-type]: [List of datasets for machine learning research](https://en.wikipedia.org/wiki/List_of_datasets_for_machine_learning_research)
+* [UCI 기계학습 데이터 저장소(UCI Machine Learning Dataset Repository)](http://archive.ics.uci.edu/ml/)
+* [WordNet](http://wordnet.princeton.edu/wordnet/)
+* [Google Books Ngram](https://books.google.com/ngrams)
+
+[^wiki-data-type]: [List of datasets for machine learning research](https://en.wikipedia.org/wiki/List_of_datasets_for_machine_learning_research)
 
 
 
-[^data-sources]: [David Julian (2016), "Building Machine Learning Systems with Python", Packt Publishing](https://www.packtpub.com/big-data-and-business-intelligence/building-machine-learning-systems-python)
+[^David-Julian-2016]: [David Julian (2016), "Building Machine Learning Systems with Python", Packt Publishing](https://www.packtpub.com/big-data-and-business-intelligence/building-machine-learning-systems-python)

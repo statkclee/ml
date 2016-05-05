@@ -12,18 +12,27 @@ subtitle: 데이터 과학자가 바라본 기계학습
 
 ## 학습 목차
 
-1. [파이썬기반 기계학습 툴체인(toolchain)](00-toolchain.html): 파이썬 기계학습 생태계
-1. [문제의 정의](01-problem.html)
-1. [데이터(Data)](02-data.html)
-1. [데이터를 통한 문제풀이 과정](03-process.html)
+1. **환경설정**
+    1. [파이썬기반 기계학습 툴체인(toolchain)](00-toolchain.html): 파이썬 기계학습 생태계
+1. **기계학습 준비**    
+    1. [문제의 정의](01-problem.html)
+    1. [데이터(Data)](02-data.html)
+    1. [데이터를 통한 문제풀이 과정](03-process.html)
+    1. [알고리즘](04-algorithm.html)
+1. **기계학습 적용**
+    1. [분류](11-classification.html)
+        1. [표식 분류](13-classify-label.html)
+        1. [문서 분류](12-classify-document.html)
 
+## 기계학습 관련 정보 [^David-Julian-2016]
 
-## 기계학습 질의 응답
-
+* [Kevin Patrick Murphy, Machine Learning: a Probabilistic Perspective](www.cs.ubc.ca/~murphyk/MLbook)
 * [metaoptimize.com](http://metaoptimize.com/qa)
 * [stats.stackexchange.com](http://stats.stackexchange.com/)
 * [캐글 블로그](http://blog.kaggle.com/)
-
+* [MLcomp](http://mlcomp.org/): 기계학습 프로그램 비교 사이트
+* [기계학습 이론 블로그](http://hunch.net)
+* [텍스트 & 데이터 마이닝](http://textanddatamining.blogspot.kr/)
 
 > ### xwMOOC 오픈 교재
 > 
@@ -41,3 +50,5 @@ subtitle: 데이터 과학자가 바라본 기계학습
 > - [R 팩키지](http://r-pkgs.xwmooc.org/)
 > - [기호 수학(Symbolic Math)](http://sympy.xwmooc.org/)
 > - [선거와 투표](http://politics.xwmooc.org/)
+
+[^David-Julian-2016]: [David Julian (2016), "Building Machine Learning Systems with Python", Packt Publishing](https://www.packtpub.com/big-data-and-business-intelligence/building-machine-learning-systems-python)
