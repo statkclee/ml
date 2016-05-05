@@ -38,57 +38,43 @@
       <div class="row">
         <div class="col-md-10 col-md-offset-1">
                     <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
-          <h2 class="subtitle">데이터 과학자가 바라본 기계학습</h2>
-          <section class="challenge panel panel-success">
+          <h2 class="subtitle">파이썬기반 기계학습 툴체인(toolchain)</h2>
+          <section class="objectives panel panel-warning">
 <div class="panel-heading">
-<h3 id="기계와의-경쟁을-준비하며"><span class="glyphicon glyphicon-pencil"></span>기계와의 경쟁을 준비하며…</h3>
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
 </div>
 <div class="panel-body">
-<p>“The future is here, it’s just not evenly distributed yet.”<br />
-- William Gibson</p>
+<ul>
+<li>파이썬으로 기계학습 툴체인을 구축한다.</li>
+</ul>
 </div>
 </section>
-<h2 id="학습-목차">학습 목차</h2>
-<ol style="list-style-type: decimal">
-<li><a href="00-toolchain.html">파이썬기반 기계학습 툴체인(toolchain)</a>: 파이썬 기계학습 생태계</li>
-<li><a href="01-problem.html">문제의 정의</a></li>
-<li><a href="02-data.html">데이터(Data)</a></li>
-<li><a href="03-process.html">데이터를 통한 문제풀이 과정</a></li>
+<h2 id="파이썬기반-기계학습-툴체인toolchain-china-version-scipy-stack-install">파이썬기반 기계학습 툴체인(toolchain) <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></h2>
+<p>파이썬 기계학습을 위해서 먼저 언어로 <a href="https://www.python.org/">파이썬</a>이 필요하고, 데이터 처리를 위해서 <a href="http://www.numpy.org/">넘파이(NumPy)</a>가 필요하고, 과학컴퓨팅을 위한 기본 라이브러리를 <a href="http://scipy.org/">SciPy</a>가 지원하고, 시각화를 위해 <a href="http://matplotlib.org/">Matplotlib</a> 라이브러리가 필요하다. 물론, 그 하단에는 C/C++, 포트란 언어로 개발된 라이브러리 혹은 원시 소스코드를 컴파일해서 파이썬에서 가져다 사용할 수 있는 <a href="http://cython.org/">Cython</a>같은 수많은 팩키지가 숨겨져 있다.</p>
+<p><img src="fig/ml-python-ecosystem.png" alt="기계학습 프로세스" width="70%"></p>
+<ul>
+<li>과학 파이썬 배포판
+<ul>
+<li><a href="https://www.continuum.io/downloads">아나콘다(Anaconda)</a>: 리눅스, 윈도우, 맥</li>
+<li><a href="https://www.enthought.com/products/canopy/">캐노피(Enthought Canopy)</a>: 리눅스, 윈도우, 맥</li>
+<li>기타: <a href="http://python-xy.github.io/">파이썬(x,y)</a>, <a href="http://winpython.github.io/">윈파이썬(WinPython)</a>, <a href="http://www.pyzo.org/">파이조(Pyzo)</a></li>
+</ul></li>
+</ul>
+<aside class="callout panel panel-info">
+<div class="panel-heading">
+<h3 id="feature-engineering"><span class="glyphicon glyphicon-pushpin"></span>feature engineering</h3>
+</div>
+<div class="panel-body">
+<p><a href="https://en.wikipedia.org/wiki/Feature_engineering">Feature engineering</a></p>
+</div>
+</aside>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="http://www.shellsec.com/news/15785.html">Python Ecosystem for Machine Learning</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="http://scipy.org/install.html">Installing the SciPy Stack</a><a href="#fnref2">↩</a></p></li>
 </ol>
-<h2 id="기계학습-질의-응답">기계학습 질의 응답</h2>
-<ul>
-<li><a href="http://metaoptimize.com/qa">metaoptimize.com</a></li>
-<li><a href="http://stats.stackexchange.com/">stats.stackexchange.com</a></li>
-<li><a href="http://blog.kaggle.com/">캐글 블로그</a></li>
-</ul>
-<blockquote>
-<h3 id="xwmooc-오픈-교재">xwMOOC 오픈 교재</h3>
-<ul>
-<li><a href="http://unplugged.xwmooc.org">컴퓨터 과학 언플러그드</a><br />
-</li>
-<li><a href="http://reeborg.xwmooc.org">리보그</a>
-<ul>
-<li><a href="http://rur-ple.xwmooc.org">러플</a><br />
-</li>
-</ul></li>
-<li><a href="http://swcarpentry.github.io/python-novice-turtles/index-kr.html">파이썬 거북이</a><br />
-</li>
-<li><a href="http://python.xwmooc.org">정보과학을 위한 파이썬</a><br />
-</li>
-<li><a href="http://swcarpentry.xwmooc.org">소프트웨어 카펜트리 5.3</a></li>
-<li><a href="http://think-stat.xwmooc.org/">통계적 사고</a></li>
-<li><a href="http://raspberry-pi.xwmooc.org/">IoT 오픈 하드웨어(라즈베리 파이)</a>
-<ul>
-<li><a href="http://computer.xwmooc.org/">$100 오픈 컴퓨터</a><br />
-</li>
-<li><a href="http://computers.xwmooc.org/">$100 오픈 슈퍼컴퓨터</a></li>
-</ul></li>
-<li><a href="http://data-science.xwmooc.org/">R 데이터과학</a></li>
-<li><a href="http://r-pkgs.xwmooc.org/">R 팩키지</a></li>
-<li><a href="http://sympy.xwmooc.org/">기호 수학(Symbolic Math)</a></li>
-<li><a href="http://politics.xwmooc.org/">선거와 투표</a></li>
-</ul>
-</blockquote>
+</div>
         </div>
       </div>
       </article>

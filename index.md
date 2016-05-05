@@ -12,11 +12,17 @@ subtitle: 데이터 과학자가 바라본 기계학습
 
 ## 학습 목차
 
+1. [파이썬기반 기계학습 툴체인(toolchain)](00-toolchain.html): 파이썬 기계학습 생태계
 1. [문제의 정의](01-problem.html)
 1. [데이터(Data)](02-data.html)
 1. [데이터를 통한 문제풀이 과정](03-process.html)
 
 
+## 기계학습 질의 응답
+
+* [metaoptimize.com](http://metaoptimize.com/qa)
+* [stats.stackexchange.com](http://stats.stackexchange.com/)
+* [캐글 블로그](http://blog.kaggle.com/)
 
 
 > ### xwMOOC 오픈 교재
