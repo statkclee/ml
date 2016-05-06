@@ -81,16 +81,32 @@
 </ul></li>
 </ul>
 <h2 id="데이터-정제">2. 데이터 정제</h2>
+<h3 id="행-뽑아내기">2.1 행 뽑아내기</h3>
 <ul>
-<li>명령라인 도구 구성요소
+<li>행 위치정보를 기반으로 해서 행 절대번호를 활용하여 추출한다.
 <ul>
-<li>바이너리 실행파일</li>
-<li>쉘 내장함수</li>
-<li>셀 함수</li>
-<li>쉘 스크립트</li>
-<li>별칭(Alias)</li>
+<li><code>head</code>, <code>sed</code>, <code>awk</code></li>
+</ul></li>
+<li>패턴을 주고 연관된 행만 추출한다.
+<ul>
+<li><code>grep</code> 명령어에 정규표현식으로 패턴을 담아 매칭되는 것만 뽑아낸다.</li>
+<li>사용례: <code>grep -i session paper.txt</code></li>
+</ul></li>
+<li>무작위로 행을 추출한다.
+<ul>
+<li><code>shuf</code> 명령어를 사용한다.</li>
+<li>사용례: <code>shuf -n 10 data.csv</code></li>
 </ul></li>
 </ul>
+<h3 id="값-추출">2.2. 값 추출</h3>
+<p>기본적인 값추출 전략은 <code>grep</code> 명령어로 행을 뽑아내고, <code>cut</code> 명령어로 구분자를 두거나 고정된 열위치에 해당하는 열에서 값을 추출한다. <code>cut</code> 명령어로 열을 쪼개는데 구분자로 <code>,</code>를 사용하고 뽑아내는 열로 <code>-f</code> 인자를 두고 3번째 행이후 모두를 지정한다.</p>
+<pre class="shell"><code>$ `grep -i session paper.txt | cut -d &#39;,&#39; -f3-`
+$ `grep -i session paper.txt | cut -c 7-`</code></pre>
+<h3 id="값-바꾸기">2.3. 값 바꾸기</h3>
+<p>값을 바꾸거나 삭제할 때 사용하는 명령어가 <code>tr</code>로 <code>translate</code> 번역의 약자다.</p>
+<p>공백 <code>`을</code>*`로 바꾼다.</p>
+<pre class="shell"><code>$ echo &#39;We Love Data Science!&#39; | tr &#39; &#39; &#39;*&#39;
+We*Love*Data*Science!</code></pre>
 <h2 id="section"></h2>
 <p><a href="http://datasciencetoolbox.org/">Data Science Toolbox</a></p>
 <aside class="callout panel panel-info">
