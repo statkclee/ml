@@ -8,7 +8,7 @@ subtitle: 파이썬기반 기계학습 툴체인(toolchain)
 >
 > * 파이썬으로 기계학습 툴체인을 구축한다.
 
-## 파이썬기반 기계학습 툴체인(toolchain) [^china-version] [^scipy-stack-install]
+## 파이썬 기계학습 생태계 [^china-version] [^scipy-stack-install]
 
 [^china-version]: [Python Ecosystem for Machine Learning](http://www.shellsec.com/news/15785.html)
 [^scipy-stack-install]: [Installing the SciPy Stack](http://scipy.org/install.html)
@@ -23,6 +23,17 @@ subtitle: 파이썬기반 기계학습 툴체인(toolchain)
     * 기타: [파이썬(x,y)](http://python-xy.github.io/), [윈파이썬(WinPython)](http://winpython.github.io/), [파이조(Pyzo)](http://www.pyzo.org/)
 
 
+## 파이썬 기계학습 툴체인(toolchain) [^china-version] [^scipy-stack-install]
+
+파이썬 기계학습 툴체인은 먼저 유닉스 쉘 명령라인 인터페이스에서 시작하고, 외부 데이터를 가져오면 
+파이썬 판다스(pandas) 팩키지를 통해 데이터 정제 작업을 진행하고 나서, 데이터 과학자 사람을 위한 시각화로 
+[Matplotlib](http://matplotlib.org/), 기계를 위한 [Scikit-learn](http://scikit-learn.org/), 
+[TensorFlow](https://www.tensorflow.org/)를 연결하여 사용한다.
+
+<img src="fig/ml-python-toolchain.png" alt="기계학습 프로세스" width="100%">
+
+## 그외 파이썬 기계학습 라이브러리
+
 * 데이터 전처리
     * [Modular toolkit for Data Processing](http://mdp-toolkit.sourceforge.net/)
 * 강화학습
@@ -34,6 +45,3 @@ subtitle: 파이썬기반 기계학습 툴체인(toolchain)
 * 단어구름: pytagcloud
 
 
-> ### feature engineering {.callout}
-> 
-> [Feature engineering](https://en.wikipedia.org/wiki/Feature_engineering)

@@ -14,6 +14,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
 
 1. **환경설정**
     1. [파이썬기반 기계학습 툴체인(toolchain)](00-toolchain.html): 파이썬 기계학습 생태계
+    1. [명령라인 데이터 분석](00-toolchain-cmd.html)
 1. **기계학습 준비**    
     1. [문제의 정의](01-problem.html)
     1. [데이터(Data)](02-data.html)

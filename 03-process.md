@@ -22,3 +22,16 @@ subtitle: 데이터를 통한 문제풀이 과정
 > 
 > 다양하고 정교한 기계학습 알고리즘보다 인기가 그만 못하지만, 특성을 뽑는 작업은 기계학습에서 매우 중요한 영역을 차지한다.
 > [Feature Engineering](https://en.wikipedia.org/wiki/Feature_engineering)이 중요한 이유는 잘 고른 특성(feature)을 갖는 단순한 알고리즘이 그저그런 특성을 갖는 정교한 알고리즘보다 성능이 훨씬더 좋기 때문이다. 
+
+
+## 통상적인 데이터 과학 추진 과정 [^cmd-data-analysis]
+
+데이터 과학은 **OSEMN** 이다.
+
+* 데이터 수집(**O**btaining data)
+* 데이터 정제(**S**crubbing data)
+* 데이터 탐색(**E**xploring data)
+* 데이터 모형개발(**M**odeling data)
+* 데이터 해석(i**N**terpreting data)
+
+[^cmd-data-analysis]: [Data Science at the Command Line](http://datascienceatthecommandline.com/)
