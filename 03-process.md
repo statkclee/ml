@@ -24,7 +24,9 @@ subtitle: 데이터를 통한 문제풀이 과정
 > [Feature Engineering](https://en.wikipedia.org/wiki/Feature_engineering)이 중요한 이유는 잘 고른 특성(feature)을 갖는 단순한 알고리즘이 그저그런 특성을 갖는 정교한 알고리즘보다 성능이 훨씬더 좋기 때문이다. 
 
 
-## 통상적인 데이터 과학 추진 과정 [^cmd-data-analysis]
+## 통상적인 데이터 과학 추진 과정 [^cmd-data-analysis] [^data-science-taxonomy]
+
+[^data-science-taxonomy]: [A Taxonomy of Data Science](http://www.dataists.com/2010/09/a-taxonomy-of-data-science/)
 
 데이터 과학은 **OSEMN** 이다.
 
@@ -33,5 +35,22 @@ subtitle: 데이터를 통한 문제풀이 과정
 * 데이터 탐색(**E**xploring data)
 * 데이터 모형개발(**M**odeling data)
 * 데이터 해석(i**N**terpreting data)
+
+## 데이터 정제
+
+데이터를 정제하는 과정은 "DJ Patil"이 언급했듯이, 80% 작업시간이 소요되어 상대적으로 멋진 시각화와 정교한 모형개발에는 적은 시간이 소요된다. 
+
+* 행과 열 뽑아내기
+* 새로운 열과 행 생성하기
+* 그룹단위로 통계량 계산하기, 축약하기,
+* 데이터를 붙이고 결합하기.
+* 새로운 값으로 바꾸기
+* 단어 추출하기
+* 결측값 처리
+* A 파일형식에서 B 파일형식으로 변환하기
+
+## 시각화 및 모형 커뮤니케이션
+
+데이터에서 최종 시각화 산출물과 모형이 얻어지면, 성능을 평가하고, 결과물을 시스템에 배포하거나, 별도 보고서로 작성하여 고객에게 전달하는 과정을 끝으로 모든 작업을 마무리하게 된다.
 
 [^cmd-data-analysis]: [Data Science at the Command Line](http://datascienceatthecommandline.com/)

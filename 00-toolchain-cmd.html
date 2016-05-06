@@ -51,6 +51,36 @@
 </section>
 <h2 id="명령라인-데이터-분석-cmd-data-analysis">명령라인 데이터 분석 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h2>
 <p>명령라인 인터페이스를 사용하면, 애자일(Agile), 다른 기술과 증강(Augmenting)이 가능하며, 확장성(Scalable)이 크며, 연장가능(Extensible)하며, 어디서나 사용(Ubiquitous)되는 장점을 갖는다.</p>
+<p>유닉스는 <strong>텍스트(Text)</strong> 가 어디서나 사용되는 인터페이스로, 각 개별 구성요소는 한가지 작업만 매우 잘 처리하게 설계되었고, 복잡하고 난이도가 있는 작업은 한가지 작업만 잘 처리하는 것을 <strong>파이프와 필터</strong> 로 자동화하고, 그리고 <strong>쉘스크립트</strong> 를 통해 추상화한다.</p>
+<h2 id="데이터-가져오기">1. 데이터 가져오기</h2>
+<p>데이터를 가져오는 방식은 결국 텍스트로 유닉스/리눅스 환경으로 불러와야만 된다. <strong><a href="http://csvkit.readthedocs.io/">csvkit</a></strong> 에 <code>in2csv</code>, <code>csvcut</code>, <code>csvlook</code>, <code>sql2csv</code>, <code>csvsql</code>이 포함되어 있다.</p>
+<p><code>sudo pip install csvkit</code> 명령어로 설치한다.</p>
+<ul>
+<li>로컬 파일: <code>cp</code> 복사, 원격파일 복사: <code>scp</code> 복사</li>
+<li>압축파일: <code>tar</code>, <code>unzip</code>, <code>unrar</code> 명령어로 압축된 파일을 푼다.
+<ul>
+<li>압축파일 확장자: <code>.tar.gz</code>, <code>.zip</code>, <code>.rar</code></li>
+<li>압축파일 푸는 종결자 <code>unpack</code></li>
+</ul></li>
+<li>스프레드쉬트: <a href="http://csvkit.readthedocs.io/">in2csv</a>는 표형식 엑셀 데이터를 받아 <code>csv</code> 파일로 변환.
+<ul>
+<li><code>$ in2csv ne_1033_data.xlsx | csvcut -c county,item_name,quantity | csvlook | head</code></li>
+</ul></li>
+<li>데이터베이스: sql2csv
+<ul>
+<li><code>sql2csv --db 'sqlite:///iris.db' --query 'SELECT * FROM iris where petal_length &gt; 6.5' | csvlook</code></li>
+</ul></li>
+<li>인터넷: <a href="https://curl.haxx.se/">curl</a>을 활용하여 인터넷 자원을 긁어온다.
+<ul>
+<li><code>curl -s http://www.gutenberg.org/files/13693/13693-t/13693-t.tex -o number-theory.txt</code><br />
+</li>
+</ul></li>
+<li>API: <a href="https://curl.haxx.se/">curl</a> 물론, API 토큰, 비밀키 등을 설정하거나 일일 이용한도가 있을 수도 있다. 특히, <a href="https://github.com/decklin/curlicue">curlicue</a>를 활용하여 트위터 데이터를 바로 가져와서 활용할 수 있다. 자세한 사항은 <a href="http://arjon.es/2015/07/30/create-your-own-dataset-consuming-twitter-api/">Create Your Own Dataset Consuming Twitter API</a> 블로그를 참조한다.
+<ul>
+<li><a href="https://randomuser.me/">RANDOM USER GENERATOR</a>, <code>curl -s http://api.randomuser.me | jq '.'</code></li>
+</ul></li>
+</ul>
+<h2 id="데이터-정제">2. 데이터 정제</h2>
 <ul>
 <li>명령라인 도구 구성요소
 <ul>
