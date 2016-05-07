@@ -8,14 +8,14 @@ subtitle: 파이썬기반 기계학습 툴체인(toolchain)
 >
 > * 유닉스 명령라인 인터페이스를 통해 데이터 분석을 실시한다.
 
-## 명령라인 데이터 분석 [^cmd-data-analysis] 
+## 명령라인 데이터 분석 [^cmd-data-analysis] [^data-science-toolbox]
 
 [^cmd-data-analysis]: [Data Science at the Command Line](http://datascienceatthecommandline.com/)
+[^data-science-toolbox]: [Data Science Toolbox](http://datasciencetoolbox.org/)
 
 명령라인 인터페이스를 사용하면, 애자일(Agile), 다른 기술과 증강(Augmenting)이 가능하며, 확장성(Scalable)이 크며, 연장가능(Extensible)하며, 어디서나 사용(Ubiquitous)되는 장점을 갖는다.
 
 유닉스는 **텍스트(Text)** 가 어디서나 사용되는 인터페이스로, 각 개별 구성요소는 한가지 작업만 매우 잘 처리하게 설계되었고, 복잡하고 난이도가 있는 작업은 한가지 작업만 잘 처리하는 것을 **파이프와 필터** 로 자동화하고, 그리고 **쉘스크립트** 를 통해 추상화한다.
-
 
 ## 1. 데이터 가져오기
 
@@ -72,14 +72,6 @@ $ echo 'We Love Data Science!' | tr ' ' '*'
 We*Love*Data*Science!
 ~~~
 
-
-
-
-
-
-## 
-
-[Data Science Toolbox](http://datasciencetoolbox.org/)
 
 
 > ### 명령라인 터미널 동영상 제작 {.callout}
