@@ -39,6 +39,9 @@ subtitle: 데이터 과학자가 바라본 기계학습
 * [MLcomp](http://mlcomp.org/): 기계학습 프로그램 비교 사이트
 * [기계학습 이론 블로그](http://hunch.net)
 * [텍스트 & 데이터 마이닝](http://textanddatamining.blogspot.kr/)
+* [Caltech MOOC, Yaser Abu-Mostafa, Introductory Machine Learning, 2012](https://work.caltech.edu/telecourse.html)
+* [Andrew Ng, Machine Learning, Stanford University](https://www.coursera.org/learn/machine-learning/)
+* [Trevor Hastie, Robert Tibshirani, Jerome Friedman, The Elements of Statistical Learning - Data Mining, Inference, and Prediction, 2009](http://statweb.stanford.edu/~tibs/ElemStatLearn/)
 
 > ### xwMOOC 오픈 교재
 > 
