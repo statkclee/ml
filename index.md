@@ -20,13 +20,15 @@ subtitle: 데이터 과학자가 바라본 기계학습
     1. [데이터를 통한 문제풀이 과정](03-process.html)
     1. [알고리즘](04-algorithm.html)
 1. **기계학습 적용**
+    1. [테스트 주도 기계학습](31-ml-tdd.html)
+    1. [알고리즘 성능평가](ml-assessment.html)
     1. [데이터 전처리 및 정제](14-ml-data-munging.html)
         1. [명령라인 데이터 분석](00-toolchain-cmd.html)
     1. [분류](11-classification.html)
         1. [표식 분류](13-classify-label.html)
         1. [문서 분류](12-classify-document.html)
 1. **기계학습 상용화**
-    1. [테스트 주도 기계학습](31-ml-tdd.html)
+
 
 ## 기계학습 관련 정보 [^David-Julian-2016]
 
