@@ -10,9 +10,8 @@ subtitle: 알고리즘(Algorithm)
 
 
 
+
 ## 데이터 마이닝 10대 알고리즘  [^top-10-algorithm]
-
-
 
 [^top-10-algorithm]: [Xindong Wu, Vipin Kumar, J. Ross Quinlan, Joydeep Ghosh, Qiang Yang, Hiroshi Motoda, Geoffrey J. McLachlan, Angus Ng, Bing Liu, Philip S. Yu, Zhi-Hua Zhou, Michael Steinbach, David J. Hand and Dan Steinberg, Top 10 Algorithms in Data Mining, Knowledge and Information Systems, 14(2008), 1: 1-37](http://www.cs.uvm.edu/~icdm/algorithms/10Algorithms-08.pdf)
 
