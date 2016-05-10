@@ -69,13 +69,38 @@
 </ul>
 </div>
 </aside>
-<pre class="shell"><code>$ curl -s http://www.gutenberg.org/cache/epub/76/pg76.txt | \
-tr &#39;[:upper:]&#39; &#39;[:lower:]&#39; | \
+<p>결국에 모두 실패하고, <a href="http://www.jikji.org/">직지(http://www.jikji.org/)</a>에서 수작업으로 <code>.txt</code> 파일을 생성하여 <code>.txt</code> 파일을 웹에 올려 <code>curl</code> 명령어를 통해 바로 다운로드 받게 소설데이터를 준비했다. 소설 데이터는 <strong>B사감과 러브레터</strong> 라 고등학교 인문계에서 필독서로 아주 오래전에 읽었던 기억이 난다. 영화로도 만들어지고, TV에서도 방영되었던 것으로 기억된다.</p>
+<ol style="list-style-type: decimal">
+<li><code>curl</code> 명령어를 통해 <a href="https://raw.githubusercontent.com/statkclee/ml/gh-pages/data/B%EC%82%AC%EA%B0%90%EA%B3%BC_%EB%9F%AC%EB%B8%8C%EB%A0%88%ED%84%B0.txt" class="uri">https://raw.githubusercontent.com/statkclee/ml/gh-pages/data/B사감과_러브레터.txt</a> 파일을 다운로드 한다.</li>
+<li><code>grep</code> 명령어로 정규표현식 패턴을 넣어 단어를 각 행별로 추출하여 쭉 정리해 나간다.</li>
+<li><code>sort</code> 명령어로 오름차순으로 정리한다.</li>
+<li><code>unique</code> 명령어로 중복을 제거하고 <code>-c</code> 인자플래그를 넣어 중복수를 센다.</li>
+<li><code>sort</code> 명령어로 단어갯수를 내림차순으로 정리한다.</li>
+<li><code>head</code> 명령어로 가장 빈도가 높은 단어 5개를 추출한다.</li>
+</ol>
+<pre class="shell"><code>$ curl -s https://raw.githubusercontent.com/statkclee/ml/gh-pages/data/B%EC%82%AC%EA%B0%90%EA%B3%BC_%EB%9F%AC%EB%B8%8C%EB%A0%88%ED%84%B0.txt | \
 grep -oE &#39;\w+&#39; | \
 sort | \
 uniq -c | \
 sort -nr | \
-head -n 10</code></pre>
+head -n 5</code></pre>
+<pre class="output"><code>    138 처음
+    132 직지에
+     65 러브레터
+     47 때
+     26 여학교에서</code></pre>
+<p>만약 두도시 이야기(A Tale of Two Cities)에서 가장 많은 단어를 분석하고자 하는 경우 <a href="http://www.gutenberg.org/cache/epub/98/pg98.txt" class="uri">http://www.gutenberg.org/cache/epub/98/pg98.txt</a>을 인자로 바꿔 넣으면 된다.</p>
+<pre class="shell"><code>$ curl -s http://www.gutenberg.org/cache/epub/98/pg98.txt | \
+grep -oE &#39;\w+&#39; | \
+sort | \
+uniq -c | \
+sort -nr | \
+head -n 5</code></pre>
+<pre class="output"><code>   7577 the
+   4921 and
+   4103 of
+   3601 to
+   2864 a</code></pre>
 <h2 id="명령라인-데이터-분석-cmd-data-analysis-data-science-toolbox">명령라인 데이터 분석 <a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a> <a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a></h2>
 <p>명령라인 인터페이스를 사용하면, 애자일(Agile), 다른 기술과 증강(Augmenting)이 가능하며, 확장성(Scalable)이 크며, 연장가능(Extensible)하며, 어디서나 사용(Ubiquitous)되는 장점을 갖는다.</p>
 <p>유닉스는 <strong>텍스트(Text)</strong> 가 어디서나 사용되는 인터페이스로, 각 개별 구성요소는 한가지 작업만 매우 잘 처리하게 설계되었고, 복잡하고 난이도가 있는 작업은 한가지 작업만 잘 처리하는 것을 <strong>파이프와 필터</strong> 로 자동화하고, 그리고 <strong>쉘스크립트</strong> 를 통해 추상화한다.</p>

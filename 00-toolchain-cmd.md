@@ -28,18 +28,53 @@ subtitle: 파이썬기반 기계학습 툴체인(toolchain)
 [^public-domain]: [공유마당](http://gongu.copyright.or.kr/)
 [^public-domain-summary]: [저작권 걱정없이 이용하기 프로젝트 03. 해외만료저작물 ](http://minheeblog.tistory.com/49)
 
+결국에 모두 실패하고, [직지(http://www.jikji.org/)](http://www.jikji.org/)에서 수작업으로 `.txt` 파일을 생성하여 
+`.txt` 파일을 웹에 올려 `curl` 명령어를 통해 바로 다운로드 받게 소설데이터를 준비했다. 소설 데이터는 **B사감과 러브레터** 라
+고등학교 인문계에서 필독서로 아주 오래전에 읽었던 기억이 난다. 영화로도 만들어지고, TV에서도 방영되었던 것으로 기억된다.
 
+
+1. `curl` 명령어를 통해 [https://raw.githubusercontent.com/statkclee/ml/gh-pages/data/B사감과_러브레터.txt](https://raw.githubusercontent.com/statkclee/ml/gh-pages/data/B%EC%82%AC%EA%B0%90%EA%B3%BC_%EB%9F%AC%EB%B8%8C%EB%A0%88%ED%84%B0.txt) 파일을 다운로드 한다.
+1. `grep` 명령어로 정규표현식 패턴을 넣어 단어를 각 행별로 추출하여 쭉 정리해 나간다.
+1. `sort` 명령어로 오름차순으로 정리한다.
+1. `unique` 명령어로 중복을 제거하고 `-c` 인자플래그를 넣어 중복수를 센다.
+1. `sort` 명령어로 단어갯수를 내림차순으로 정리한다.
+1. `head` 명령어로 가장 빈도가 높은 단어 5개를 추출한다. 
 
 ~~~ {.shell}
-$ curl -s http://www.gutenberg.org/cache/epub/76/pg76.txt | \
-tr '[:upper:]' '[:lower:]' | \
+$ curl -s https://raw.githubusercontent.com/statkclee/ml/gh-pages/data/B%EC%82%AC%EA%B0%90%EA%B3%BC_%EB%9F%AC%EB%B8%8C%EB%A0%88%ED%84%B0.txt | \
 grep -oE '\w+' | \
 sort | \
 uniq -c | \
 sort -nr | \
-head -n 10
+head -n 5
 ~~~
 
+~~~ {.output}
+    138 처음
+    132 직지에
+     65 러브레터
+     47 때
+     26 여학교에서
+~~~
+
+만약 두도시 이야기(A Tale of Two Cities)에서 가장 많은 단어를 분석하고자 하는 경우 [http://www.gutenberg.org/cache/epub/98/pg98.txt](http://www.gutenberg.org/cache/epub/98/pg98.txt)을 인자로 바꿔 넣으면 된다.
+
+~~~ {.shell}
+$ curl -s http://www.gutenberg.org/cache/epub/98/pg98.txt | \
+grep -oE '\w+' | \
+sort | \
+uniq -c | \
+sort -nr | \
+head -n 5
+~~~
+
+~~~ {.output}
+   7577 the
+   4921 and
+   4103 of
+   3601 to
+   2864 a
+~~~
 
 ## 명령라인 데이터 분석 [^cmd-data-analysis] [^data-science-toolbox]
 
