@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">기계학습 적용</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>기계학습과 딥러닝 실제 적용을 준비한다.</li>
+</ul>
+</div>
+</section>
+<h2 id="기계학습-완성-과정">1. 기계학습 완성 과정</h2>
+<ul>
+<li>기계학습 설계 과정
+<ol style="list-style-type: decimal">
+<li>목표 설정: 오차 측도 설정, 목표 변수 설정</li>
+<li>시작과 끝을 잇는 파이프라인 구축: 성능 측정 및 모니터링 측도 포함 자동화 프로세스 구축</li>
+<li>성능 문제점을 잘 파악하도록 시스템을 계측: 성능이 떨어지는 구성요소를 진단하고, 원인이 과대적합, 과소적합, 데이터 혹은 소프트웨어 결함(defect)인지 파악한다.</li>
+<li>지속적인 공정 개선: 신규 데이터 수집, 초모수(hyperparameter) 조정, 알고리듬 변경 등</li>
+</ol></li>
+</ul>
+<h3 id="목표-설정">1.1. 목표 설정</h3>
+<p>오차가 전혀없는 기계학습 알고리듬을 개발하는 것은 불가능하다. 완벽하게 목표변수를 예측하는 데이터 수집이 불가능하기도 하고, 표현하는 알고리즘 자체가 확률적이라 일정부분 오차가 내재하기 때문이다. 또한, 기계학습 알고리듬이 처리할 수 있는 <strong>유효범위(Coverage)</strong> 를 잘 설정하는 것도 반듯이 필요하다.</p>
+<h3 id="파이프-라인-구축">1.2. 파이프 라인 구축</h3>
+<p>다양한 기계학습 알고리듬 적용을 고민할 필요없이, <strong>AI-complete</strong> 범주에 속하는 문제, 즉, 사물인식, 음성인식, 기계번역 등의 경우 기계학습/딥러닝을 적용한다.</p>
+<ol style="list-style-type: decimal">
+<li>기계학습/러닝 모형 선정
+<ul>
+<li>기존 논문에 제시된 가장 성능좋은 혹은 일반적으로 알려진 기계학습/딥러닝 알고리듬을 비교 벤치마킹 대상으로 선정한다.</li>
+<li>고정길이 벡터 입력값이며 지도학습 알고리듬 → 전방향 신경망(feedforward network with fully connected layers)</li>
+<li>영상처럼 위상관계(topology)가 알려진 경우 → 회선 신경망(Convolutional Neural Network)</li>
+<li>입력 혹은 출력이 순열인 경우 → 창구가 있는 재귀 신경망(Gated Recurrent Neural Network), LSTM 혹 GRU</li>
+</ul></li>
+<li>최적화 알고리즘
+<ul>
+<li>학습율, 운동량을 모수로 설정한 <a href="https://en.wikipedia.org/wiki/Stochastic_gradient_descent">SGD</a></li>
+<li><a href="http://sebastianruder.com/optimizing-gradient-descent/index.html#adam">ADAM</a></li>
+<li>배치 정규화(Batch normalization)</li>
+</ul></li>
+<li>알고리듬 과대적합 방지, 오캄의 면도날
+<ul>
+<li>정규화 (Regularization)</li>
+<li>Dropout</li>
+<li>조기 종류(Early Stopping)</li>
+</ul></li>
+</ol>
+<h3 id="기계학습딥러닝-알고리듬-성능-개선">1.3. 기계학습/딥러닝 알고리듬 성능 개선</h3>
+<p>분산과 편향이 높게 나타나서 전체적인 기계학습/딥러닝 알고리듬이 떨어지는 것이 관측되는 경우.</p>
+<ol style="list-style-type: decimal">
+<li>신규 학습 데이터 추가 → 분산이 큰 경우 해결책</li>
+<li>모형에 사용되는 변수를 축소 → 분산이 큰 경우 해결책</li>
+<li>모형에 변수를 추가 → 편향이 큰 경우 해결책</li>
+<li>새로운 변수를 추가 → 편향이 큰 경우 해결책</li>
+<li>최적화 알고리듬을 반복횟수를 증가 → 학습이 덜된 경우 최적화 알고리즘이 해결책</li>
+<li>뉴톤 알고리듬을 적용 → 학습이 덜된 경우 다른 최적화 알고리즘을 탐색</li>
+<li>학습율(learning rate), 운동량(moment)를 다르게 시도 → 학습이 덜된 경우 최적화 알고리즘 모수를 조정하는 것이 해결책</li>
+<li>SVM, RF 등 다양한 학습 알고리듬을 적용 → 학습이 잘 되지 않는 경우 다른 최적화 알고리즘 혹은 모형을 탐색</li>
+</ol>
+<aside class="callout panel panel-info">
+<div class="panel-heading">
+<h3 id="초모수hyperparameter-설정"><span class="glyphicon glyphicon-pushpin"></span>초모수(Hyperparameter) 설정</h3>
+</div>
+<div class="panel-body">
+<p>초모수 설정은 학습훈련 오차, 교차 검증 일반화 오차, 컴퓨터 자원(저장공간, 실행시간)에 영향을 준다.<br />
+* 교차 검증 일반화 오차 최소화 → 실행시간과 저장공간 절약 * 효과적인 기계학습/딥러닝 알고리즘 구축 → 정규화, 조기종료 등을 통해 과대적합을 방지 * 학습율(learning rate)이 시간이 없는 경우, 가장 효과적으로 조정해야 하는 도구.</p>
+</div>
+</aside>
+<p><a href="https://see.stanford.edu/materials/aimlcs229/ML-advice.pdf">Andrew Ng (2015), “Advice for applying Machine Learning”, Standford University</a></p>
+<p><a href="https://www.youtube.com/watch?v=vGPI_JvLoN0">ICLR 2014 Talk: “Multi-digit Number Recognition from Street View Imagery using Deep Convolutional Neural Networks” by Ian J. Goodfellow, Yaroslav Bulatov, Julian Ibarz, Sacha Arnoud, Vinay Shet</a></p>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

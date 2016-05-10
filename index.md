@@ -29,6 +29,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [표식 분류](13-classify-label.html)
         1. [문서 분류](12-classify-document.html)
 1. **기계학습 상용화**
+    1. [기계학습 적용](ml-production.html)
 
 
 ## 기계학습 관련 정보 [^David-Julian-2016]
