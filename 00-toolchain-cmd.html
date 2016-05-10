@@ -45,11 +45,38 @@
 </div>
 <div class="panel-body">
 <ul>
+<li>명령라인 인터페이스의 강력함을 살펴본다.</li>
 <li>유닉스 명령라인 인터페이스를 통해 데이터 분석을 실시한다.</li>
 </ul>
 </div>
 </section>
-<h2 id="명령라인-데이터-분석-cmd-data-analysis-data-science-toolbox">명령라인 데이터 분석 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></h2>
+<h2 id="명령라인-인터페이스-강력함-시연">명령라인 인터페이스 강력함 시연</h2>
+<aside class="callout panel panel-info">
+<div class="panel-heading">
+<h3 id="대표적-국내외-공유-저작물-저장소-public-domain-public-domain-summary"><span class="glyphicon glyphicon-pushpin"></span>대표적 국내외 공유 저작물 저장소 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></h3>
+</div>
+<div class="panel-body">
+<p>저작권 걱정없이 저작물을 받을 수 있는 경로는 여러 곳이 존재한다. 하지만, PDF, HWP, TXT 파일은 압축하여 제공하고 있어 사람손이 몇번씩 가는 문제점이 있다. 작업과정에 추가로 프로세스를 넣어주어야만 된다. 어차치 TXT로 작업하는데 …</p>
+<ul>
+<li>미국: <a href="http://www.gutenberg.org/">구텐베르크(Gutenberg) 프로젝트</a></li>
+<li>일본: <a href="http://www.aozora.gr.jp/">일본판 구텐베르크, 아오조라 문고(靑空文庫, あおぞらぶんこ)</a></li>
+<li><strong>대한민국</strong>
+<ul>
+<li><a href="http://www.kogl.or.kr/">공공누리 포털</a></li>
+<li><a href="http://www.jikji.org/">직지(http://www.jikji.org/)</a></li>
+<li><a href="http://gongu.copyright.or.kr/">공유마당</a></li>
+</ul></li>
+</ul>
+</div>
+</aside>
+<pre class="shell"><code>$ curl -s http://www.gutenberg.org/cache/epub/76/pg76.txt | \
+tr &#39;[:upper:]&#39; &#39;[:lower:]&#39; | \
+grep -oE &#39;\w+&#39; | \
+sort | \
+uniq -c | \
+sort -nr | \
+head -n 10</code></pre>
+<h2 id="명령라인-데이터-분석-cmd-data-analysis-data-science-toolbox">명령라인 데이터 분석 <a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a> <a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a></h2>
 <p>명령라인 인터페이스를 사용하면, 애자일(Agile), 다른 기술과 증강(Augmenting)이 가능하며, 확장성(Scalable)이 크며, 연장가능(Extensible)하며, 어디서나 사용(Ubiquitous)되는 장점을 갖는다.</p>
 <p>유닉스는 <strong>텍스트(Text)</strong> 가 어디서나 사용되는 인터페이스로, 각 개별 구성요소는 한가지 작업만 매우 잘 처리하게 설계되었고, 복잡하고 난이도가 있는 작업은 한가지 작업만 잘 처리하는 것을 <strong>파이프와 필터</strong> 로 자동화하고, 그리고 <strong>쉘스크립트</strong> 를 통해 추상화한다.</p>
 <h2 id="데이터-가져오기">1. 데이터 가져오기</h2>
@@ -118,8 +145,10 @@ We*Love*Data*Science!</code></pre>
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p><a href="http://datascienceatthecommandline.com/">Data Science at the Command Line</a><a href="#fnref1">↩</a></p></li>
-<li id="fn2"><p><a href="http://datasciencetoolbox.org/">Data Science Toolbox</a><a href="#fnref2">↩</a></p></li>
+<li id="fn1"><p><a href="http://gongu.copyright.or.kr/">공유마당</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="http://minheeblog.tistory.com/49">저작권 걱정없이 이용하기 프로젝트 03. 해외만료저작물</a><a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p><a href="http://datascienceatthecommandline.com/">Data Science at the Command Line</a><a href="#fnref3">↩</a></p></li>
+<li id="fn4"><p><a href="http://datasciencetoolbox.org/">Data Science Toolbox</a><a href="#fnref4">↩</a></p></li>
 </ol>
 </div>
         </div>

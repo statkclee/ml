@@ -6,7 +6,40 @@ subtitle: 파이썬기반 기계학습 툴체인(toolchain)
 
 > ## 학습목표 {.objectives}
 >
+> * 명령라인 인터페이스의 강력함을 살펴본다.
 > * 유닉스 명령라인 인터페이스를 통해 데이터 분석을 실시한다.
+
+
+## 명령라인 인터페이스 강력함 시연 
+
+> ### 대표적 국내외 공유 저작물 저장소 [^public-domain] [^public-domain-summary] {.callout}
+>
+> 저작권 걱정없이 저작물을 받을 수 있는 경로는 여러 곳이 존재한다.
+> 하지만, PDF, HWP, TXT 파일은 압축하여 제공하고 있어 사람손이 몇번씩 가는 문제점이 있다.
+> 작업과정에 추가로 프로세스를 넣어주어야만 된다. 어차치 TXT로 작업하는데 ...
+> 
+> * 미국: [구텐베르크(Gutenberg) 프로젝트](http://www.gutenberg.org/)
+> * 일본: [일본판 구텐베르크, 아오조라 문고(靑空文庫, あおぞらぶんこ)](http://www.aozora.gr.jp/)
+> * **대한민국**
+>     * [공공누리 포털](http://www.kogl.or.kr/)
+>     * [직지(http://www.jikji.org/)](http://www.jikji.org/)
+>     * [공유마당](http://gongu.copyright.or.kr/ )
+
+[^public-domain]: [공유마당](http://gongu.copyright.or.kr/)
+[^public-domain-summary]: [저작권 걱정없이 이용하기 프로젝트 03. 해외만료저작물 ](http://minheeblog.tistory.com/49)
+
+
+
+~~~ {.shell}
+$ curl -s http://www.gutenberg.org/cache/epub/76/pg76.txt | \
+tr '[:upper:]' '[:lower:]' | \
+grep -oE '\w+' | \
+sort | \
+uniq -c | \
+sort -nr | \
+head -n 10
+~~~
+
 
 ## 명령라인 데이터 분석 [^cmd-data-analysis] [^data-science-toolbox]
 
