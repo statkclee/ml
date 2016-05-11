@@ -10,9 +10,7 @@ output:
 mainfont: NanumGothic
 ---
  
-``` {r, include=FALSE}
-source("tools/chunk-options.R")
-```
+
 
 ## 기계학습 맛보기 [^credit-scoring]
 
@@ -65,7 +63,8 @@ source("tools/chunk-options.R")
 
 독일신용데이터를 인터넷에서 바로 불러와서, 범주형 변수를 요인변수(Factor)로 변환하고, 이를 훈련데이터(60%)와 검증데이터(40%)로 분리한다.
 
-```{r german-credit, tidy=FALSE}
+
+~~~{.r}
 ##================================================================
 ## 01. 데이터 준비
 ##================================================================
@@ -95,13 +94,14 @@ d <-  sort(sample(nrow(data), nrow(data)*.6))
 
 train <- data[d,] # 60%
 test <- data[-d,] # 40%
-```
+~~~
 
 #### 3.2. 훈련데이터 준비 및 전처리
 
 독일 신용데이터를 이항회귀모형, 나무모형, SVM 3개 모형에 적합시킨다. 
 
-```{r ml-algorithm, tidy=FALSE}
+
+~~~{.r}
 ##================================================================
 ## 03. 모형적합
 ##================================================================
@@ -121,13 +121,14 @@ rpart.fit <- rpart(default~., data=train)
 # 3.3. SVM
 library(e1071)
 svm.fit <- svm(default ~ ., train,  probability = TRUE)
-```
+~~~
 
 #### 3.3. 알고리즘 성능 평가
 
 독일 신용데이터에 적합시킨 이항회귀모형, 나무모형, SVM 3개 모형에 대한 각 모형별 성능평가 작업을 수행한다.
 
-```{r ml-performance, tidy=FALSE}
+
+~~~{.r}
 ##================================================================
 ## 04. 모형 성능평가
 ##================================================================
@@ -139,10 +140,25 @@ test$probs <- predict(logit.m, test, type='response')
 logit.pred <- prediction(test$probs, test$default)
 logit.perf <- performance(logit.pred,"tpr","fpr")
 plot(logit.perf)
+~~~
 
+<img src="fig/ml-performance-1.png" title="plot of chunk ml-performance" alt="plot of chunk ml-performance" style="display: block; margin: auto;" />
+
+~~~{.r}
 ## KS 통계량 (면적)
 max(attr(logit.perf,'y.values')[[1]]-attr(logit.perf,'x.values')[[1]])
+~~~
 
+
+
+~~~{.output}
+[1] 0.3157092
+
+~~~
+
+
+
+~~~{.r}
 ## 신용점수함수에 가장 영향을 주는 변수 3개 추출
 logit.pick.3 <- predict(logit.m, type='terms', test)
 
@@ -163,7 +179,11 @@ rpart_score <- predict(rpart.fit, type='prob', test)
 rpart.pred <- prediction(rpart_score[,2],test$default)
 rpart.perf <- performance(rpart.pred,"tpr","fpr")
 plot(rpart.perf)
+~~~
 
+<img src="fig/ml-performance-2.png" title="plot of chunk ml-performance" alt="plot of chunk ml-performance" style="display: block; margin: auto;" />
+
+~~~{.r}
 #-----------------------------------------------------------------
 # 4.3. SVM
 
@@ -172,13 +192,16 @@ svm.score <- predict(svm.fit, type='prob', test, probability = TRUE)
 svm.pred <- prediction(attr(svm.score, "probabilities")[,1], test$default)
 svm.perf <- performance(svm.pred,"tpr","fpr")
 plot(svm.perf)
-```
+~~~
+
+<img src="fig/ml-performance-3.png" title="plot of chunk ml-performance" alt="plot of chunk ml-performance" style="display: block; margin: auto;" />
 
 #### 3.4. 종합 알고리즘 성능평가
 
 ROC 곡선을 그려봐서 가장 면적이 넓은 기계학습 알고리듬을 눈으로 확인하고, KS 통계량 및 AUC 면적으로 가장 성능이 좋게 나오는 모형을 찾아본다.
 
-```{r ml-performance-summary, tidy=FALSE}
+
+~~~{.r}
 ##================================================================
 ## 04. 종합성능 평가
 ##================================================================
@@ -188,14 +211,84 @@ plot(logit.perf, col='red',lty=1, main='');
 plot(rpart.perf, col='blue',lty=3, add=TRUE);
 plot(svm.perf, col='green',add=TRUE,lty=2);
 legend(0.6,0.6,c('logistic', 'rpart','SVM'), col=c('blue', 'red','green'),lwd=3)
+~~~
 
+<img src="fig/ml-performance-summary-1.png" title="plot of chunk ml-performance-summary" alt="plot of chunk ml-performance-summary" style="display: block; margin: auto;" />
+
+~~~{.r}
 ## KS 통계량 (면적)
 cat("KS 통계량 (Logistic):", max(attr(logit.perf,'y.values')[[1]]-attr(logit.perf,'x.values')[[1]]))
-cat("KS 통계량 (Tree):", max(attr(rpart.perf,'y.values')[[1]]-attr(rpart.perf,'x.values')[[1]]))
-cat("KS 통계량 (SVM):", max(attr(svm.perf,'y.values')[[1]]-attr(svm.perf,'x.values')[[1]]))
+~~~
 
+
+
+~~~{.output}
+KS 통계량 (Logistic): 0.3157092
+
+~~~
+
+
+
+~~~{.r}
+cat("KS 통계량 (Tree):", max(attr(rpart.perf,'y.values')[[1]]-attr(rpart.perf,'x.values')[[1]]))
+~~~
+
+
+
+~~~{.output}
+KS 통계량 (Tree): 0.3625707
+
+~~~
+
+
+
+~~~{.r}
+cat("KS 통계량 (SVM):", max(attr(svm.perf,'y.values')[[1]]-attr(svm.perf,'x.values')[[1]]))
+~~~
+
+
+
+~~~{.output}
+KS 통계량 (SVM): 0.3545561
+
+~~~
+
+
+
+~~~{.r}
 ## AUC (Area Under the ROC Curve)
 cat("AUC 면적 (Logistic):", attr(performance(logit.pred,"auc"), "y.values")[[1]])
+~~~
+
+
+
+~~~{.output}
+AUC 면적 (Logistic): 0.6985556
+
+~~~
+
+
+
+~~~{.r}
 cat("AUC 면적 (Tree):", attr(performance(rpart.pred,"auc"), "y.values")[[1]])
+~~~
+
+
+
+~~~{.output}
+AUC 면적 (Tree): 0.7211041
+
+~~~
+
+
+
+~~~{.r}
 cat("AUC 면적 (SVM):", attr(performance(svm.pred,"auc"), "y.values")[[1]])
-```
+~~~
+
+
+
+~~~{.output}
+AUC 면적 (SVM): 0.7184126
+
+~~~
