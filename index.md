@@ -13,6 +13,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
 ## 학습 목차
 
 1. **환경설정**
+    1. [기계학습 맛보기](ml-taste-with-r.html): 파이썬 기계학습 생태계
     1. [파이썬기반 기계학습 툴체인(toolchain)](00-toolchain.html): 파이썬 기계학습 생태계
 1. **[기계학습 지도](ml-map.html)**
     1. [3가지 기계학습 원리](ml-three-principles.html)
