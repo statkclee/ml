@@ -106,6 +106,7 @@ head(sort(betweenness(g), decreasing = TRUE), 10)
 기계학습에서 많이 활용되는 `caret` (Classification And REgression Training) 팩키지 네트워크 연결성을 살펴보는 것도 인자를 바꾸어서 확인해 보라.
 
 ```{r ml-r-ecosystem-igraph, tidy=FALSE}
+edges <- edges[edges$label != 'Suggests', ]
 deptree <- edges$dep[edges$src == 'twitteR']
 while (!all(edges$dep[edges$src %in% deptree] %in% deptree))
   deptree <- union(deptree, edges$dep[edges$src %in% deptree])
