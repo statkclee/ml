@@ -30,6 +30,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
     1. [분류](11-classification.html)
         1. [표식 분류](13-classify-label.html)
         1. [문서 분류](12-classify-document.html)
+    1. [R 팩키지 사회망 분석](ml-sna-r-ecosystem.html)        
 1. **기계학습 상용화**
     1. [기계학습 적용](ml-production.html)
 
