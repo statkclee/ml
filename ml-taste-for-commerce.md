@@ -10,9 +10,7 @@ output:
 mainfont: NanumGothic
 ---
  
-``` {r, include=FALSE}
-source("tools/chunk-options.R")
-```
+
 
 > ### 신용카드 기계학습 목표 {.getready}
 >
@@ -34,7 +32,8 @@ source("tools/chunk-options.R")
 
 범주형 데이터를 요인변수로 처리해야 하거나, 숫자형 `as.numeric` 혹은 `as.double`로 처리한다. 특히, 연속형 변수를 범주형으로 처리하면 성능향상이 된다는 연구결과도 있다.
 
-```{r preprocessing, tidy=FALSE, eval=FALSE}
+
+~~~{.r}
 # 변수 --> 요인(factor)
 data$property <-as.factor(data$ property)
 # 변수 --> 숫자
@@ -45,7 +44,7 @@ data$amount<-as.double(data$amount)
 # 연속형 변수 --> 범주형 (구간 쪼갬)
 data$amount<-as.factor(ifelse(data$amount<=2500,'0-
 2500',ifelse(data$amount<=5000,'2600-5000','5000+')))
-```
+~~~
 
 #### 1.2. 컷오프 결정
 
@@ -58,7 +57,8 @@ data$amount<-as.factor(ifelse(data$amount<=2500,'0-
 신용카드 발급이 되지 않는 경우 어떤 사유로 카드발급이 되지 않았는지 이유를 제시하여야 한다.
 
 
-```{r top-three-reasons, tidy=FALSE, eval=FALSE}
+
+~~~{.r}
 ## 신용점수함수에 가장 영향을 주는 변수 3개 추출
 g <- predict(m, type='terms', test)
 
@@ -70,7 +70,7 @@ ftopk<- function(x,top=3){
 topk <- apply(g, 1, ftopk, top=3)
 # 테스트 테스트 데이터에 사유가 되는 변수를 부착
 test <- cbind(test, topk)
-```
+~~~
 
 ### 2. 비용함수(행렬)/수익함수(행렬)
 
@@ -125,7 +125,8 @@ $$ 608 \times 10,000,000 \times 0.35 - 192 \times 10,000 = 2.08억$$
 [^profit-analysis-sas]: [Profit Analysis of the German Credit Data Using SAS® Enterprise MinerTM 5.3](http://www.sas.com/technologies/analytics/datamining/miner/trial/german-credit-data.pdf)
 
 
-```{r profit-matrix, tidy=FALSE, eval=FALSE}
+
+~~~{.r}
 ##================================================================
 ## 04. 비용함수/행렬
 ##================================================================
@@ -152,7 +153,7 @@ credit_cost_pred <- predict(c50.cost.m, test)
 CrossTable(test$Creditability, credit_cost_pred,
              prop.chisq = FALSE, prop.c = FALSE, prop.r = FALSE,
              dnn = c('actual default', 'predicted default'))
-```
+~~~
 
 ### 3. 신용평가 모형 배포 
 
@@ -178,8 +179,8 @@ Rule number: 34 [yval=bad cover=7 N=3 Y=4 (1%) prob=0.06]
 [^convert-tree-to-rules]: [DATA MINING Desktop Survival Guide by Graham Williams, Convert Tree to Rules](http://www.togaware.com/datamining/survivor/Convert_Tree.html)
 
 
-```{r credit-scoring-deployment, tidy=FALSE, eval=FALSE}
 
+~~~{.r}
 list.rules.rpart(rpart.fit)
 
 list.rules.rpart <- function(model)
@@ -210,5 +211,4 @@ list.rules.rpart <- function(model)
     }
   }
 }
-
-
+~~~
