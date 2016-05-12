@@ -22,11 +22,6 @@ mainfont: NanumGothic
 
 은행입장에서 보면 저신용자에게 신용카드를 발급하게 되면 빌린 돈을 갚지 못해 손실이 되고, 신용이 높은 사람에게 신용카드를 발급하게 되면 이자를 받아 수익성이 개선된다. 따라서, 은행입장에서는 다음과 같은 최적화문제를 푸는 것으로 정리된다.
 
-> ### 신용카드 기계학습 목표 {.getready}
->
-> 은행입장에서 **수익을 극대화** 하고, **신용위험을 최소화** 한다.
-
-
 ### 2. 데이터 준비
 
 독일 신용데이터는 [Statlog (German Credit Data) Data Set ](http://archive.ics.uci.edu/ml/datasets/Statlog+(German+Credit+Data) [UCI Machine Learning 저장소](http://archive.ics.uci.edu/ml/index.html)에서 다운로드 받을 수 있다. 신용카드를 발급해야 하는지, 발급하지 말아야하는지에 대해 일상과 밀접한 데이터로 [신용평가점수](https://en.wikipedia.org/wiki/Credit_score)와 연관되어 있다.
@@ -36,24 +31,6 @@ mainfont: NanumGothic
 1,000 명이 신용카드발급을 신청했는데 변수 20개로 신용카드발급을 평가하는 기계학습 알고리즘을 개발한다.
 
 각 변수에 대한 자세한 사항은 [Statlog (German Credit Data) Data Set ](http://archive.ics.uci.edu/ml/datasets/Statlog+(German+Credit+Data))를 참조한다.
-
-#### 2.2. 비용함수와 수익함수
-
-비용함수도 포함되어 있는데, 저신용자에게 신용카드를 발급할 경우는 그 반대의 경우에 비해 5배 비용이 많이 소요된다. 아래 **비용함수(Cost Function)** 를 마케팅 캠페인등에 사용하면 **수익함수(Profit Function)** 라고 부르기도 한다. 1종, 2종 오류를 범할 경우 수익/비용에서 차이가 나기 때문이다. 
-
-| | 1 | 2 |
-|----|-----|-----|
-| 1  |  0  |  1  |
-| 2  |  5  |  0  |
-
-기계학습을 활용한 은행이나 카드사는 수익성을 전제로하여 기계학습 알고리듬을 도입한다. 예를 들어, 
-향후 5년간 신용카드발급에서 이자수익이 40% 예상되고, 신용불량으로 인해 대손이 발생된다면 다음과 같이 수익행렬을 작성할 수 있다.
-
-|                 | 정상(예측) | 신용불량(예측) |
-|-----------------|:---------:|:---------:|
-| 정상(실제)         |   0.4     |     0     |
-| 신용불량(실제)      |    -1     |     0     |
-
 
 [참고: Analysis of German Credit Data](https://onlinecourses.science.psu.edu/stat857/node/215)
 
@@ -152,7 +129,7 @@ max(attr(logit.perf,'y.values')[[1]]-attr(logit.perf,'x.values')[[1]])
 
 
 ~~~{.output}
-[1] 0.3157092
+[1] 0.4112681
 
 ~~~
 
@@ -223,7 +200,7 @@ cat("KS 통계량 (Logistic):", max(attr(logit.perf,'y.values')[[1]]-attr(logit.
 
 
 ~~~{.output}
-KS 통계량 (Logistic): 0.3157092
+KS 통계량 (Logistic): 0.4112681
 
 ~~~
 
@@ -236,7 +213,7 @@ cat("KS 통계량 (Tree):", max(attr(rpart.perf,'y.values')[[1]]-attr(rpart.perf
 
 
 ~~~{.output}
-KS 통계량 (Tree): 0.3625707
+KS 통계량 (Tree): 0.3316153
 
 ~~~
 
@@ -249,7 +226,7 @@ cat("KS 통계량 (SVM):", max(attr(svm.perf,'y.values')[[1]]-attr(svm.perf,'x.v
 
 
 ~~~{.output}
-KS 통계량 (SVM): 0.3545561
+KS 통계량 (SVM): 0.3935247
 
 ~~~
 
@@ -263,7 +240,7 @@ cat("AUC 면적 (Logistic):", attr(performance(logit.pred,"auc"), "y.values")[[1
 
 
 ~~~{.output}
-AUC 면적 (Logistic): 0.6985556
+AUC 면적 (Logistic): 0.7498445
 
 ~~~
 
@@ -276,7 +253,7 @@ cat("AUC 면적 (Tree):", attr(performance(rpart.pred,"auc"), "y.values")[[1]])
 
 
 ~~~{.output}
-AUC 면적 (Tree): 0.7211041
+AUC 면적 (Tree): 0.6873871
 
 ~~~
 
@@ -289,6 +266,6 @@ cat("AUC 면적 (SVM):", attr(performance(svm.pred,"auc"), "y.values")[[1]])
 
 
 ~~~{.output}
-AUC 면적 (SVM): 0.7184126
+AUC 면적 (SVM): 0.7502296
 
 ~~~

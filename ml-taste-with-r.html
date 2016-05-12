@@ -43,64 +43,11 @@
 <p>기계학습 맛보기는 전처리가 완료된 데이터를 가져와서 기계학습 모형을 선정하고, 모형이 갖는 성능을 평가하는 것으로 한정한다.</p>
 <h3 id="목표설정">1. 목표설정</h3>
 <p>은행입장에서 보면 저신용자에게 신용카드를 발급하게 되면 빌린 돈을 갚지 못해 손실이 되고, 신용이 높은 사람에게 신용카드를 발급하게 되면 이자를 받아 수익성이 개선된다. 따라서, 은행입장에서는 다음과 같은 최적화문제를 푸는 것으로 정리된다.</p>
-<section class="getready panel panel-warning">
-<div class="panel-heading">
-<h3 id="신용카드-기계학습-목표"><span class="glyphicon glyphicon-check"></span>신용카드 기계학습 목표</h3>
-</div>
-<div class="panel-body">
-<p>은행입장에서 <strong>수익을 극대화</strong> 하고, <strong>신용위험을 최소화</strong> 한다.</p>
-</div>
-</section>
 <h3 id="데이터-준비">2. 데이터 준비</h3>
 <p>독일 신용데이터는 [Statlog (German Credit Data) Data Set ](http://archive.ics.uci.edu/ml/datasets/Statlog+(German+Credit+Data) <a href="http://archive.ics.uci.edu/ml/index.html">UCI Machine Learning 저장소</a>에서 다운로드 받을 수 있다. 신용카드를 발급해야 하는지, 발급하지 말아야하는지에 대해 일상과 밀접한 데이터로 <a href="https://en.wikipedia.org/wiki/Credit_score">신용평가점수</a>와 연관되어 있다.</p>
 <h4 id="독일신용데이터-살펴보기">2.1. 독일신용데이터 살펴보기</h4>
 <p>1,000 명이 신용카드발급을 신청했는데 변수 20개로 신용카드발급을 평가하는 기계학습 알고리즘을 개발한다.</p>
 <p>각 변수에 대한 자세한 사항은 <a href="http://archive.ics.uci.edu/ml/datasets/Statlog+(German+Credit+Data)">Statlog (German Credit Data) Data Set</a>를 참조한다.</p>
-<h4 id="비용함수와-수익함수">2.2. 비용함수와 수익함수</h4>
-<p>비용함수도 포함되어 있는데, 저신용자에게 신용카드를 발급할 경우는 그 반대의 경우에 비해 5배 비용이 많이 소요된다. 아래 <strong>비용함수(Cost Function)</strong> 를 마케팅 캠페인등에 사용하면 <strong>수익함수(Profit Function)</strong> 라고 부르기도 한다. 1종, 2종 오류를 범할 경우 수익/비용에서 차이가 나기 때문이다.</p>
-<table>
-<thead>
-<tr class="header">
-<th align="left"></th>
-<th align="left">1</th>
-<th align="left">2</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">1</td>
-<td align="left">0</td>
-<td align="left">1</td>
-</tr>
-<tr class="even">
-<td align="left">2</td>
-<td align="left">5</td>
-<td align="left">0</td>
-</tr>
-</tbody>
-</table>
-<p>기계학습을 활용한 은행이나 카드사는 수익성을 전제로하여 기계학습 알고리듬을 도입한다. 예를 들어, 향후 5년간 신용카드발급에서 이자수익이 40% 예상되고, 신용불량으로 인해 대손이 발생된다면 다음과 같이 수익행렬을 작성할 수 있다.</p>
-<table>
-<thead>
-<tr class="header">
-<th align="left"></th>
-<th align="center">정상(예측)</th>
-<th align="center">신용불량(예측)</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">정상(실제)</td>
-<td align="center">0.4</td>
-<td align="center">0</td>
-</tr>
-<tr class="even">
-<td align="left">신용불량(실제)</td>
-<td align="center">-1</td>
-<td align="center">0</td>
-</tr>
-</tbody>
-</table>
 <p><a href="https://onlinecourses.science.psu.edu/stat857/node/215">참고: Analysis of German Credit Data</a></p>
 <h3 id="기계학습-알고리듬-개발과정">3. 기계학습 알고리듬 개발과정</h3>
 <h4 id="훈련데이터-준비-및-전처리">3.1. 훈련데이터 준비 및 전처리</h4>
@@ -171,7 +118,7 @@ logit.perf &lt;-<span class="st"> </span><span class="kw">performance</span>(log
 <p><img src="fig/ml-performance-1.png" title="plot of chunk ml-performance" alt="plot of chunk ml-performance" style="display: block; margin: auto;" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## KS 통계량 (면적)
 <span class="kw">max</span>(<span class="kw">attr</span>(logit.perf,<span class="st">&#39;y.values&#39;</span>)[[<span class="dv">1</span>]]-<span class="kw">attr</span>(logit.perf,<span class="st">&#39;x.values&#39;</span>)[[<span class="dv">1</span>]])</code></pre></div>
-<pre class="output"><code>[1] 0.3157092
+<pre class="output"><code>[1] 0.4112681
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## 신용점수함수에 가장 영향을 주는 변수 3개 추출
 logit.pick<span class="fl">.3</span> &lt;-<span class="st"> </span><span class="kw">predict</span>(logit.m, <span class="dt">type=</span><span class="st">&#39;terms&#39;</span>, test)
@@ -217,23 +164,23 @@ svm.perf &lt;-<span class="st"> </span><span class="kw">performance</span>(svm.p
 <p><img src="fig/ml-performance-summary-1.png" title="plot of chunk ml-performance-summary" alt="plot of chunk ml-performance-summary" style="display: block; margin: auto;" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## KS 통계량 (면적)
 <span class="kw">cat</span>(<span class="st">&quot;KS 통계량 (Logistic):&quot;</span>, <span class="kw">max</span>(<span class="kw">attr</span>(logit.perf,<span class="st">&#39;y.values&#39;</span>)[[<span class="dv">1</span>]]-<span class="kw">attr</span>(logit.perf,<span class="st">&#39;x.values&#39;</span>)[[<span class="dv">1</span>]]))</code></pre></div>
-<pre class="output"><code>KS 통계량 (Logistic): 0.3157092
+<pre class="output"><code>KS 통계량 (Logistic): 0.4112681
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cat</span>(<span class="st">&quot;KS 통계량 (Tree):&quot;</span>, <span class="kw">max</span>(<span class="kw">attr</span>(rpart.perf,<span class="st">&#39;y.values&#39;</span>)[[<span class="dv">1</span>]]-<span class="kw">attr</span>(rpart.perf,<span class="st">&#39;x.values&#39;</span>)[[<span class="dv">1</span>]]))</code></pre></div>
-<pre class="output"><code>KS 통계량 (Tree): 0.3625707
+<pre class="output"><code>KS 통계량 (Tree): 0.3316153
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cat</span>(<span class="st">&quot;KS 통계량 (SVM):&quot;</span>, <span class="kw">max</span>(<span class="kw">attr</span>(svm.perf,<span class="st">&#39;y.values&#39;</span>)[[<span class="dv">1</span>]]-<span class="kw">attr</span>(svm.perf,<span class="st">&#39;x.values&#39;</span>)[[<span class="dv">1</span>]]))</code></pre></div>
-<pre class="output"><code>KS 통계량 (SVM): 0.3545561
+<pre class="output"><code>KS 통계량 (SVM): 0.3935247
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## AUC (Area Under the ROC Curve)
 <span class="kw">cat</span>(<span class="st">&quot;AUC 면적 (Logistic):&quot;</span>, <span class="kw">attr</span>(<span class="kw">performance</span>(logit.pred,<span class="st">&quot;auc&quot;</span>), <span class="st">&quot;y.values&quot;</span>)[[<span class="dv">1</span>]])</code></pre></div>
-<pre class="output"><code>AUC 면적 (Logistic): 0.6985556
+<pre class="output"><code>AUC 면적 (Logistic): 0.7498445
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cat</span>(<span class="st">&quot;AUC 면적 (Tree):&quot;</span>, <span class="kw">attr</span>(<span class="kw">performance</span>(rpart.pred,<span class="st">&quot;auc&quot;</span>), <span class="st">&quot;y.values&quot;</span>)[[<span class="dv">1</span>]])</code></pre></div>
-<pre class="output"><code>AUC 면적 (Tree): 0.7211041
+<pre class="output"><code>AUC 면적 (Tree): 0.6873871
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cat</span>(<span class="st">&quot;AUC 면적 (SVM):&quot;</span>, <span class="kw">attr</span>(<span class="kw">performance</span>(svm.pred,<span class="st">&quot;auc&quot;</span>), <span class="st">&quot;y.values&quot;</span>)[[<span class="dv">1</span>]])</code></pre></div>
-<pre class="output"><code>AUC 면적 (SVM): 0.7184126
+<pre class="output"><code>AUC 면적 (SVM): 0.7502296
 </code></pre>
 <div class="footnotes">
 <hr />
