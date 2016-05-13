@@ -109,12 +109,12 @@ boy.v <- which(sonagi.word.v == "소년은")
 b.count.v <- rep(NA,length(n.time.v))
 b.count.v[boy.v] <- 1
 
-par(mar=c(1,1,1,1))
+par(mar=c(2,2,3,3))
 par(mfrow=c(2,1))
-plot(w.count.v, main="소나기 소설 속 소녀가 단어 퍼짐 그래프",
+plot(g.count.v, main="소나기 소설 속 소녀가 단어 퍼짐 그래프",
      xlab="소나기 소설 진행시간", ylab="소녀가", type="h", ylim=c(0,1), yaxt='n')
 
-plot(a.count.v, main="소나기 소설 속 소년은 단어 퍼짐 그래프",
+plot(b.count.v, main="소나기 소설 속 소년은 단어 퍼짐 그래프",
      xlab="소나기 소설 진행시간", ylab="소년은", type="h", ylim=c(0,1), yaxt='n')
 ```
 

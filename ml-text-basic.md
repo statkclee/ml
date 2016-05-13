@@ -1,14 +1,4 @@
----
-layout: page
-title: xwMOOC 기계학습
-subtitle: 소설 텍스트 데이터 분석 기초
-output:
-  html_document: 
-    keep_md: yes
-  pdf_document:
-    latex_engine: xelatex
-mainfont: NanumGothic
----
+# xwMOOC 기계학습
  
 
 
@@ -60,7 +50,8 @@ head(sonagi.word.v)
 
 
 ~~~{.output}
-[1] "5"
+[1] "소"         "나"         "기"         "황순원"     "소년은"    
+[6] "개울가에서"
 
 ~~~
 
@@ -85,7 +76,7 @@ sonagi.hits.v/total.words.v
 
 
 ~~~{.output}
-[1] 0
+[1] 0.01439206
 
 ~~~
 
@@ -101,8 +92,9 @@ head(sorted.sonagi.freqs.t, 10)
 
 
 ~~~{.output}
-5 
-1 
+sonagi.word.v
+소녀가 소년은 있었다     한 소녀의     그 소녀는 소년이   있는 그러나 
+    29     29     24     21     14     13     12     12     11     10 
 
 ~~~
 
@@ -117,7 +109,7 @@ plot(sorted.sonagi.rel.freqs.t[1:10], type="b",
 axis(1,1:10, labels=names(sorted.sonagi.rel.freqs.t [1:10]))
 ~~~
 
-<img src="fig/ml-text-sonagi-freq-plot-1.png" title="plot of chunk ml-text-sonagi-freq-plot" alt="plot of chunk ml-text-sonagi-freq-plot" style="display: block; margin: auto;" />
+<img src="fig/ml-text-sonagi-freq-plot-1.png" title="" alt="" style="display: block; margin: auto;" />
 
 ### 1.4. 등장인물 순서 분석
 
@@ -140,32 +132,16 @@ boy.v <- which(sonagi.word.v == "소년은")
 b.count.v <- rep(NA,length(n.time.v))
 b.count.v[boy.v] <- 1
 
-par(mar=c(1,1,1,1))
+par(mar=c(2,2,3,3))
 par(mfrow=c(2,1))
-plot(w.count.v, main="소나기 소설 속 `소녀가' 단어 퍼짐 그래프",
+plot(g.count.v, main="소나기 소설 속 소녀가 단어 퍼짐 그래프",
      xlab="소나기 소설 진행시간", ylab="소녀가", type="h", ylim=c(0,1), yaxt='n')
-~~~
 
-
-
-~~~{.output}
-Error in plot(w.count.v, main = "소나기 소설 속 `소녀가' 단어 퍼짐 그래프", : 객체 'w.count.v'를 찾을 수 없습니다
-
-~~~
-
-
-
-~~~{.r}
-plot(a.count.v, main="소나기 소설 속 `소년은' 단어 퍼짐 그래프",
+plot(b.count.v, main="소나기 소설 속 소년은 단어 퍼짐 그래프",
      xlab="소나기 소설 진행시간", ylab="소년은", type="h", ylim=c(0,1), yaxt='n')
 ~~~
 
-
-
-~~~{.output}
-Error in plot(a.count.v, main = "소나기 소설 속 `소년은' 단어 퍼짐 그래프", : 객체 'a.count.v'를 찾을 수 없습니다
-
-~~~
+<img src="fig/ml-text-sonagi-dispersion-1.png" title="" alt="" style="display: block; margin: auto;" />
 
 
 
