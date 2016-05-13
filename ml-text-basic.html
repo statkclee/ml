@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">소설 텍스트 데이터 분석 기초</h2>
+          <section class="getready panel panel-warning">
+<div class="panel-heading">
+<h3 id="텍스트-데이터-분석-목표"><span class="glyphicon glyphicon-check"></span>텍스트 데이터 분석 목표</h3>
+</div>
+<div class="panel-body">
+<ul>
+<li>한국 소설 텍스트 데이터를 처리한다.</li>
+<li>텍스트 데이터 기본적인 전처리 방법을 숙지한다.</li>
+<li>텍스트 데이터 기초 통계 방법 및 한계를 확인한다.</li>
+</ul>
+</div>
+</section>
+<h2 id="텍스트-데이터-ml-text-analysis-book">1. 텍스트 데이터 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h2>
+<p>텍스트 데이터는 어디서나 확인할 수 있다. 신문, 잡지, 책, 연설문, 노래가사 등 셀 수도 없이 많은 사람들이 텍스트를 뿜어냈고, 앞으로는 로봇이 소설을 쓰고, 기사를 작성하고, 노래도 만들고 있어 저작권 개념도 새롭게 정립해야 하는 시점이 되었다.</p>
+<p>그전에 텍스트 데이터를 특히, 한국어를 R 기계학습 준비로 처리하는 기초적인 방법에 대해서 살펴본다. 우선, 유닉스 기반 기계학습 작업흐름에 맞춰 텍스트 데이터를 분석하려면, 한글 텍스트 데이터를 찾아야 한다. 하지만, 쉽지 않을 것이다. 이유가 여러가지 있지만, 우선 동일한 콘텐츠라고 하더라도 한글과 컴퓨터 아래한글, 마이크로소프트 워드, 아도브 PDF 파일 형태로 저장되어 있는 것이 대부분이다. 왜 이렇게 특정 플랫폼, 소프트웨어에 종속되어 자유, 공유, 협업을 잊어버려야 하는지 아쉬움이 남지만 이것이 현실이다.</p>
+<p>우선 <a href="https://www.usbks.org/bbs/view.php?id=library&amp;page=3&amp;sn1=&amp;divpage=1&amp;sn=off&amp;ss=on&amp;sc=on&amp;select_arrange=headnum&amp;desc=asc&amp;no=15">시애틀 벨뷰 통합한국학교 황순원 소나기</a> 워드 파일을 다운로드 받아 <strong>UTF-8</strong> 인코딩으로 텍스트 파일로 저장한다.</p>
+<h3 id="소나기-소설-데이터-불러오기-ml-text-analysis-book">1.1. 소나기 소설 데이터 불러오기 <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></h3>
+<p>R은 기본적으로 텍스트 인코딩환경이 설정하기 나름이지만, <strong>UTF-8</strong> 으로 설정하는 것을 권장한다. 만개에 이상(공식 CRAN 저장소와 비공식 GitHub 저장소 포함)으로 팩키지가 <strong>CP949</strong> 같은 특정 플랫폼에 종속되기 보다는 인터넷 환경의 표준인 <strong>UTF-8</strong> 을 기본으로 작업하는 것이 향후 디버깅이나 후행 작업 편의성과 호환성을 고려하면 훨씬 이득이 크다.</p>
+<p><code>scan</code> 함수를 사용했고, <code>encoding = &quot;UTF-8&quot;</code> 인자를 넣어 처리했으며, <code>sep=&quot;\n&quot;</code> 구분자를 사용해서 각줄을 기준으로된 벡터를 기본 자료구조로 <a href="https://ko.wikipedia.org/wiki/소나기_(소설)">황순원 소나기</a> 소설을 불러온다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sonagi.text.v &lt;-<span class="st"> </span><span class="kw">scan</span>(<span class="st">&quot;data/sonagi.txt&quot;</span>, <span class="dt">what=</span><span class="st">&quot;character&quot;</span>, <span class="dt">sep=</span><span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>, <span class="dt">encoding =</span> <span class="st">&quot;UTF-8&quot;</span>)</code></pre></div>
+<h3 id="소설-텍스트-데이터-전처리">1.2. 소설 텍스트 데이터 전처리</h3>
+<p><code>strsplit</code> 함수를 사용해서 쪼개는데 정규표현식 <code>\\W</code> 을 사용하는데 의미는 단어가 아닌 것(예를 들어, 구두점 문자, 공백문자 등)을 기준으로 쪼갠다는 의미가 된다. 출력값이 리스트 데이터 형이라 이를 벡터 데이터형으로 <code>unlist</code> 함수를 사용해서 변환한다. 이유는 소나기 소설을 단어 단위로 쪼개면 <code>&quot;&quot;</code> 빈문자열도 포함되기 때문에 이를 제거하기 위함이다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sonagi.words.l &lt;-<span class="st"> </span><span class="kw">strsplit</span>(sonagi.text.v, <span class="st">&quot;</span><span class="ch">\\</span><span class="st">W&quot;</span>)
+
+sonagi.word.v &lt;-<span class="st"> </span><span class="kw">unlist</span>(sonagi.words.l)
+
+sonagi.word.v &lt;-<span class="st"> </span>sonagi.word.v[<span class="kw">which</span>(sonagi.word.v !=<span class="st"> &quot;&quot;</span>)]
+
+<span class="kw">head</span>(sonagi.word.v)</code></pre></div>
+<pre class="output"><code>[1] &quot;5&quot;
+</code></pre>
+<h3 id="소설-텍스트-데이터-기초-통계분석">1.3. 소설 텍스트 데이터 기초 통계분석</h3>
+<p><code>sonagi.word.v</code> 벡터에는 단어만 쭉 들어 있는 자료형이다. 관심있는 것은 특정 단어가 얼마나 출현하는지 알고싶다고 가정한다. 예를 들어 <code>소년은</code> 이라는 단어가 얼마나 황순원 소나기 소설에서 출현하는 출현빈도를 계산해 본다. 전체 빈도수는 <code>length(sonagi.word.v)</code> 함수를 통해 계산하고, <code>소년은</code>이 포함된 빈도수는 length(sonagi.word.v[which(sonagi.word.v==“소년은”)])으로 계산한다. 이를 나누면 <code>소년은</code>이 포함된 빈도수를 계산하게 된다.</p>
+<p>가장 출현 빈도수가 높은 단어을 추출하려면, <code>table(sonagi.word.v)</code> 함수로 빈도수를 세고 난 다음에, <code>sort</code> 함수로 내림차순으로 보면 확인하기 쉽다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sonagi.hits.v &lt;-<span class="st"> </span><span class="kw">length</span>(sonagi.word.v[<span class="kw">which</span>(sonagi.word.v==<span class="st">&quot;소년은&quot;</span>)])
+total.words.v &lt;-<span class="st"> </span><span class="kw">length</span>(sonagi.word.v)
+sonagi.hits.v/total.words.v</code></pre></div>
+<pre class="output"><code>[1] 0
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sonagi.freqs.t &lt;-<span class="st"> </span><span class="kw">table</span>(sonagi.word.v)
+sorted.sonagi.freqs.t &lt;-<span class="st"> </span><span class="kw">sort</span>(sonagi.freqs.t , <span class="dt">decreasing=</span><span class="ot">TRUE</span>)
+
+<span class="kw">head</span>(sorted.sonagi.freqs.t, <span class="dv">10</span>)</code></pre></div>
+<pre class="output"><code>5 
+1 
+</code></pre>
+<p>출현빈도가 높은 단어를 파악했는데, 이를 상대적인 빈도비율을 계산해보자.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sorted.sonagi.rel.freqs.t &lt;-<span class="st"> </span><span class="dv">100</span>*(sorted.sonagi.freqs.t/<span class="kw">sum</span>(sorted.sonagi.freqs.t))
+
+<span class="kw">plot</span>(sorted.sonagi.rel.freqs.t[<span class="dv">1</span>:<span class="dv">10</span>], <span class="dt">type=</span><span class="st">&quot;b&quot;</span>,
+     <span class="dt">xlab=</span><span class="st">&quot;최다 출현 단어 10개&quot;</span>, <span class="dt">ylab=</span><span class="st">&quot;소나기 원본 대비 상대빈도율&quot;</span>, <span class="dt">xaxt =</span><span class="st">&quot;n&quot;</span>)
+<span class="kw">axis</span>(<span class="dv">1</span>,<span class="dv">1</span>:<span class="dv">10</span>, <span class="dt">labels=</span><span class="kw">names</span>(sorted.sonagi.rel.freqs.t [<span class="dv">1</span>:<span class="dv">10</span>]))</code></pre></div>
+<p><img src="fig/ml-text-sonagi-freq-plot-1.png" title="plot of chunk ml-text-sonagi-freq-plot" alt="plot of chunk ml-text-sonagi-freq-plot" style="display: block; margin: auto;" /></p>
+<h3 id="등장인물-순서-분석">1.4. 등장인물 순서 분석</h3>
+<p>소녀와 소년이 주인공으로 이 두 주인공이 소설에 어떤 순서로 출현하는지 살펴보는 것도 의미가 있는 분석이 된다.</p>
+<p><code>소녀가</code> 단어와 <code>소년은</code> 단어가 가장 빈도가 높은 것으로 확인되었다. 황순원 소나기 전체 소설에 두 단어가 어떻게 퍼져있는지 살펴보자.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 소녀가 단어 퍼짐 </span>
+n.time.v &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dv">1</span>:<span class="kw">length</span>(sonagi.word.v))
+
+girl.v &lt;-<span class="st"> </span><span class="kw">which</span>(sonagi.word.v ==<span class="st"> &quot;소녀가&quot;</span>)
+g.count.v &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="ot">NA</span>,<span class="kw">length</span>(n.time.v))
+g.count.v[girl.v] &lt;-<span class="st"> </span><span class="dv">1</span>
+
+<span class="co"># 소년은 단어 퍼짐 </span>
+boy.v &lt;-<span class="st"> </span><span class="kw">which</span>(sonagi.word.v ==<span class="st"> &quot;소년은&quot;</span>)
+b.count.v &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="ot">NA</span>,<span class="kw">length</span>(n.time.v))
+b.count.v[boy.v] &lt;-<span class="st"> </span><span class="dv">1</span>
+
+<span class="kw">par</span>(<span class="dt">mar=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>))
+<span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">1</span>))
+<span class="kw">plot</span>(w.count.v, <span class="dt">main=</span><span class="st">&quot;소나기 소설 속 `소녀가&#39; 단어 퍼짐 그래프&quot;</span>,
+     <span class="dt">xlab=</span><span class="st">&quot;소나기 소설 진행시간&quot;</span>, <span class="dt">ylab=</span><span class="st">&quot;소녀가&quot;</span>, <span class="dt">type=</span><span class="st">&quot;h&quot;</span>, <span class="dt">ylim=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="dt">yaxt=</span><span class="st">&#39;n&#39;</span>)</code></pre></div>
+<pre class="output"><code>Error in plot(w.count.v, main = &quot;소나기 소설 속 `소녀가&#39; 단어 퍼짐 그래프&quot;, : 객체 &#39;w.count.v&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(a.count.v, <span class="dt">main=</span><span class="st">&quot;소나기 소설 속 `소년은&#39; 단어 퍼짐 그래프&quot;</span>,
+     <span class="dt">xlab=</span><span class="st">&quot;소나기 소설 진행시간&quot;</span>, <span class="dt">ylab=</span><span class="st">&quot;소년은&quot;</span>, <span class="dt">type=</span><span class="st">&quot;h&quot;</span>, <span class="dt">ylim=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="dt">yaxt=</span><span class="st">&#39;n&#39;</span>)</code></pre></div>
+<pre class="output"><code>Error in plot(a.count.v, main = &quot;소나기 소설 속 `소년은&#39; 단어 퍼짐 그래프&quot;, : 객체 &#39;a.count.v&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="http://www.springer.com/us/book/9783319031637">Matthew Jockers (2014), Text Analysis with R for Students of Literature, Springer International Publishing</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="http://www.springer.com/us/book/9783319031637">Matthew Jockers (2014), Text Analysis with R for Students of Literature, Springer International Publishing</a><a href="#fnref2">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

@@ -10,9 +10,7 @@ output:
 mainfont: NanumGothic
 ---
  
-``` {r, include=FALSE}
-source("tools/chunk-options.R")
-```
+
 
 > ### 텍스트 데이터 분석 목표 {.getready}
 >
@@ -38,16 +36,18 @@ R은 기본적으로 텍스트 인코딩환경이 설정하기 나름이지만, 
 `scan` 함수를 사용했고, `encoding = "UTF-8"` 인자를 넣어 처리했으며, `sep="\n"` 구분자를 사용해서 각줄을 기준으로된
 벡터를 기본 자료구조로 [황순원 소나기](https://ko.wikipedia.org/wiki/소나기_(소설)) 소설을 불러온다.
 
-```{r ml-text-sonagi-import, tidy=FALSE}
+
+~~~{.r}
 sonagi.text.v <- scan("data/sonagi.txt", what="character", sep="\n", encoding = "UTF-8")
-```
+~~~
 
 ### 1.2. 소설 텍스트 데이터 전처리
 
 `strsplit` 함수를 사용해서 쪼개는데 정규표현식 `\\W` 을 사용하는데 의미는 단어가 아닌 것(예를 들어, 구두점 문자, 공백문자 등)을 기준으로 쪼갠다는 의미가 된다. 출력값이 리스트 데이터 형이라 이를 벡터 데이터형으로 `unlist` 함수를 사용해서 변환한다.
 이유는 소나기 소설을 단어 단위로 쪼개면 `""` 빈문자열도 포함되기 때문에 이를 제거하기 위함이다.
 
-```{r ml-text-sonagi-clean, tidy=FALSE}
+
+~~~{.r}
 sonagi.words.l <- strsplit(sonagi.text.v, "\\W")
 
 sonagi.word.v <- unlist(sonagi.words.l)
@@ -55,7 +55,14 @@ sonagi.word.v <- unlist(sonagi.words.l)
 sonagi.word.v <- sonagi.word.v[which(sonagi.word.v != "")]
 
 head(sonagi.word.v)
-```
+~~~
+
+
+
+~~~{.output}
+[1] "5"
+
+~~~
 
 ### 1.3. 소설 텍스트 데이터 기초 통계분석
 
@@ -68,26 +75,49 @@ head(sonagi.word.v)
 가장 출현 빈도수가 높은 단어을 추출하려면, `table(sonagi.word.v)` 함수로 빈도수를 세고 난 다음에,
 `sort` 함수로 내림차순으로 보면 확인하기 쉽다.
 
-```{r ml-text-sonagi-freq, tidy=FALSE}
+
+~~~{.r}
 sonagi.hits.v <- length(sonagi.word.v[which(sonagi.word.v=="소년은")])
 total.words.v <- length(sonagi.word.v)
 sonagi.hits.v/total.words.v
+~~~
 
+
+
+~~~{.output}
+[1] 0
+
+~~~
+
+
+
+~~~{.r}
 sonagi.freqs.t <- table(sonagi.word.v)
 sorted.sonagi.freqs.t <- sort(sonagi.freqs.t , decreasing=TRUE)
 
 head(sorted.sonagi.freqs.t, 10)
-```
+~~~
+
+
+
+~~~{.output}
+5 
+1 
+
+~~~
 
 출현빈도가 높은 단어를 파악했는데, 이를 상대적인 빈도비율을 계산해보자. 
 
-```{r ml-text-sonagi-freq-plot, tidy=FALSE}
+
+~~~{.r}
 sorted.sonagi.rel.freqs.t <- 100*(sorted.sonagi.freqs.t/sum(sorted.sonagi.freqs.t))
 
 plot(sorted.sonagi.rel.freqs.t[1:10], type="b",
      xlab="최다 출현 단어 10개", ylab="소나기 원본 대비 상대빈도율", xaxt ="n")
 axis(1,1:10, labels=names(sorted.sonagi.rel.freqs.t [1:10]))
-```
+~~~
+
+<img src="fig/ml-text-sonagi-freq-plot-1.png" title="plot of chunk ml-text-sonagi-freq-plot" alt="plot of chunk ml-text-sonagi-freq-plot" style="display: block; margin: auto;" />
 
 ### 1.4. 등장인물 순서 분석
 
@@ -96,7 +126,8 @@ axis(1,1:10, labels=names(sorted.sonagi.rel.freqs.t [1:10]))
 `소녀가` 단어와 `소년은` 단어가 가장 빈도가 높은 것으로 확인되었다. 황순원 소나기 전체 소설에 
 두 단어가 어떻게 퍼져있는지 살펴보자.
 
-```{r ml-text-sonagi-dispersion, tidy=FALSE}
+
+~~~{.r}
 # 소녀가 단어 퍼짐 
 n.time.v <- seq(1:length(sonagi.word.v))
 
@@ -111,12 +142,30 @@ b.count.v[boy.v] <- 1
 
 par(mar=c(1,1,1,1))
 par(mfrow=c(2,1))
-plot(w.count.v, main="소나기 소설 속 소녀가 단어 퍼짐 그래프",
+plot(w.count.v, main="소나기 소설 속 `소녀가' 단어 퍼짐 그래프",
      xlab="소나기 소설 진행시간", ylab="소녀가", type="h", ylim=c(0,1), yaxt='n')
+~~~
 
-plot(a.count.v, main="소나기 소설 속 소년은 단어 퍼짐 그래프",
+
+
+~~~{.output}
+Error in plot(w.count.v, main = "소나기 소설 속 `소녀가' 단어 퍼짐 그래프", : 객체 'w.count.v'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+plot(a.count.v, main="소나기 소설 속 `소년은' 단어 퍼짐 그래프",
      xlab="소나기 소설 진행시간", ylab="소년은", type="h", ylim=c(0,1), yaxt='n')
-```
+~~~
+
+
+
+~~~{.output}
+Error in plot(a.count.v, main = "소나기 소설 속 `소년은' 단어 퍼짐 그래프", : 객체 'a.count.v'를 찾을 수 없습니다
+
+~~~
 
 
 
