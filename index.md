@@ -33,6 +33,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
     1. **네트워크 데이터**
         1. [R 팩키지 사회망 분석](ml-sna-r-ecosystem.html)        
     1. [소설 텍스트 데이터 분석 기초](ml-text-basic.html)        
+    1. [태그 혹은 단어 구름(tag or word cloud)](ml-text-worldcloud.html)        
 1. **기계학습 상용화**
     1. [기계학습 적용](ml-production.html)
 
