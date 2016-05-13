@@ -1,4 +1,14 @@
-# xwMOOC 기계학습
+---
+layout: page
+title: xwMOOC 기계학습
+subtitle: R 팩키지 사회망 분석
+output:
+  html_document: 
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
+---
  
 
 
@@ -27,9 +37,9 @@ str(pkgs)
 
 
 ~~~{.output}
- chr [1:8353, 1:17] "A3" "abbyyR" "abc" "ABCanalysis" ...
+ chr [1:8375, 1:17] "A3" "abbyyR" "abc" "ABCanalysis" ...
  - attr(*, "dimnames")=List of 2
-  ..$ : chr [1:8353] "A3" "abbyyR" "abc" "ABCanalysis" ...
+  ..$ : chr [1:8375] "A3" "abbyyR" "abc" "ABCanalysis" ...
   ..$ : chr [1:17] "Package" "Version" "Priority" "Depends" ...
 
 ~~~
@@ -65,13 +75,13 @@ tail(edges)
 
 
 ~~~{.output}
-              src          dep    label
-41144      ztable         MASS Suggests
-41145      ztable     survival Suggests
-41146      ztable     testthat Suggests
-41147      ztable        knitr Suggests
-41148      ztable     moonBook Suggests
-41149 RDCOMClient SWinTypeLibs Suggests
+         src      dep    label
+41221   zoon    spocc Suggests
+41222 ztable     MASS Suggests
+41223 ztable survival Suggests
+41224 ztable testthat Suggests
+41225 ztable    knitr Suggests
+41226 ztable moonBook Suggests
 
 ~~~
 
@@ -94,7 +104,7 @@ str(edges)
 
 
 ~~~{.output}
-'data.frame':	41149 obs. of  3 variables:
+'data.frame':	41226 obs. of  3 variables:
  $ src  : chr  "A3" "A3" "A3" "abbyyR" ...
  $ dep  : chr  "R" "xtable" "pbapply" "R" ...
  $ label: chr  "Depends" "Depends" "Depends" "Depends" ...
@@ -104,38 +114,7 @@ str(edges)
 
 
 ~~~{.r}
-library(igraph)
-~~~
-
-
-
-~~~{.output}
-
-Attaching package: 'igraph'
-
-~~~
-
-
-
-~~~{.output}
-The following objects are masked from 'package:stats':
-
-    decompose, spectrum
-
-~~~
-
-
-
-~~~{.output}
-The following object is masked from 'package:base':
-
-    union
-
-~~~
-
-
-
-~~~{.r}
+suppressMessages(library(igraph))
 g <- graph.data.frame(edges)
 graph.density(g)
 ~~~
@@ -143,7 +122,7 @@ graph.density(g)
 
 
 ~~~{.output}
-[1] 0.0006516397
+[1] 0.0006504013
 
 ~~~
 
@@ -163,9 +142,9 @@ head(sort(table(edges$dep), decreasing = TRUE), 10)
 ~~~{.output}
 
     stats   methods      MASS  testthat     knitr     utils  graphics 
-     1679      1554      1138      1123      1054      1047       974 
+     1681      1559      1135      1126      1056      1045       974 
   ggplot2      Rcpp grDevices 
-      756       626       596 
+      758       634       596 
 
 ~~~
 
@@ -189,15 +168,16 @@ head(sort(betweenness(g), decreasing = TRUE), 10)
 
 ~~~{.output}
      Hmisc    ggplot2       nlme        AER   multcomp       MASS 
- 1226351.0  1147252.5   959316.0   858884.1   823742.9   801552.7 
+ 1222930.5  1151937.5   956897.2   862343.2   830265.1   800043.7 
        sem      MBESS  systemfit robustbase 
-  749094.8   697814.2   622618.9   544732.3 
+  751579.8   700140.0   624658.5   548210.3 
 
 ~~~
 
 ## 4. 시각화 
 
-먼저 `igraph`를 사용해서 네트워크 시각화를 추진해본다. 기계학습에서 많이 활용되는 `caret` (Classification And REgression Training) 팩키지 네트워크 연결성을 살펴본다.
+먼저 `igraph`를 사용해서 네트워크 시각화를 추진해본다. `twitteR` 팩키지에 대한 네트워크 연결성을 우선 살펴본다.
+기계학습에서 많이 활용되는 `caret` (Classification And REgression Training) 팩키지 네트워크 연결성을 살펴보는 것도 인자를 바꾸어서 확인해 보라.
 
 
 ~~~{.r}
@@ -205,26 +185,12 @@ edges <- edges[edges$label != 'Suggests', ]
 deptree <- edges$dep[edges$src == 'twitteR']
 while (!all(edges$dep[edges$src %in% deptree] %in% deptree))
   deptree <- union(deptree, edges$dep[edges$src %in% deptree])
-deptree
-~~~
 
-
-
-~~~{.output}
- [1] "methods"  "bit64"    "rjson"    "DBI"      "httr"     "bit"     
- [7] "utils"    "stats"    "jsonlite" "mime"     "curl"     "openssl" 
-[13] "R6"       "tools"   
-
-~~~
-
-
-
-~~~{.r}
 g <- graph.data.frame(edges[edges$src %in% c('twitteR', deptree), ])
 plot(g)
 ~~~
 
-<img src="fig/ml-r-ecosystem-igraph-1.png" title="" alt="" style="display: block; margin: auto;" />
+<img src="fig/ml-r-ecosystem-igraph-1.png" title="plot of chunk ml-r-ecosystem-igraph" alt="plot of chunk ml-r-ecosystem-igraph" style="display: block; margin: auto;" />
 
 혹은, `tkplot(g, edge.label = NA)` 명령어를 통해서 인터렉티브 사회연결망 분석을 시도할 수도 있다.
 
@@ -249,4 +215,4 @@ plot(g, layout = layout.reingold.tilford(g, root = "twitteR"),
          vertex.shape = 'none')
 ~~~
 
-<img src="fig/ml-r-ecosystem-tree-1.png" title="" alt="" style="display: block; margin: auto;" />
+<img src="fig/ml-r-ecosystem-tree-1.png" title="plot of chunk ml-r-ecosystem-tree" alt="plot of chunk ml-r-ecosystem-tree" style="display: block; margin: auto;" />
