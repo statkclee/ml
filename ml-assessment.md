@@ -2,11 +2,19 @@
 layout: page
 title: xwMOOC 기계학습
 subtitle: 알고리즘 성능평가
+output:
+  html_document: 
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
 ---
-
+ 
 > ## 학습목표 {.objectives}
 >
-> * 기계학습 알고리즘 성능평가를 이해한다.
+> * 기계학습 알고리듬 성능평가를 이해한다.
+> * 범주형, 연속형, 지도학습/비지도학습 알고리듬 성능평가를 이해한다.
+
 
 
 ## 기계학습 알고리즘 성능평가
@@ -57,11 +65,58 @@ $$F_1 = \frac{2}{\frac{1}{정밀도}+\frac{1}{재현율}} = 2 \times \frac{정�
 
 [ROC 곡선](https://en.wikipedia.org/wiki/Receiver_operating_characteristic)은 오인식률(1종오류)과 오거부률(2종오류) 간의 상충관계를 시각적으로 나타낸 그래프로, 정밀도(Precision)와 재현율(Recall)을 유사하게 표현한 것이 PR 그래프로 시각화를 하고, 아래 면적을 측정하여 성능을 평가하기도 한다.
 
-
 ### 2. 연속형 성능평가 
 
-회귀분석 등을 통해서 연속형 변수 성능을 평가하고 모니터링할 경우, 평균제곱오차(Mean Squared Error)를 사용한다. 그렇다고 평균제곱오차가 가장 좋다는 의미는 아니다. 다만, 기본적인 성능평가 추정 모니터링 방법은 다음과 같다.
+#### 2.1. 연속형 성능평가 측정 &rarr; RMSE
 
+평균 제곱근 오차(Root Mean Squared Error, RMSE)가 가장 일반적인 연속형 성능평가 측도가 된다.
+특히, RMSE는 측정 종속변수와 동일한 단위라서 설명하기 쉽고, 표준편차처럼 예측이 얼마나 벗어났는지 정보를 제공한다.
+따라서, 고객당 오차가 10,000원 아래가 되는 고객평생가치(Lifetime value) 모형을 개발하시오... 이런 주문이 가능하다.
+
+$$\operatorname{RMSE}=\sqrt{\frac{\sum_{t=1}^n (\hat y_t - y_t)^2}{n}}$$
+
+$y = x^2$ 모형에서 나온 데이터를 $y=\alpha + \beta \times x$ 모형으로 학습시킬 때 오차를 확인하면 다음과 같다.
+
+
+~~~{.r}
+# 데이터프레임 데이터 생성
+yvalue.v <- (1:10)**2
+xvalue.v <- 1:10
+
+dat.df <- data.frame(xvalue.v, yvalue.v)
+
+# 선형모형 적합
+reg.m <- lm(yvalue.v ~ xvalue.v, data=dat.df)
+
+# 데이터 프레임에 선형모형 적합값을 부착
+dat.df$pred <- predict(reg.m, newdata=dat.df)
+
+# ggplot2 팩키지로 선형모형 적합에 따른 오차를 시각화
+library('ggplot2')
+
+ggplot(data=dat.df) + geom_point(aes(x=xvalue.v, y=yvalue.v), color='purple') +
+  geom_line(aes(x=xvalue.v, y=pred), color='red') +
+  geom_segment(aes(x=xvalue.v, y=pred, yend=yvalue.v, xend=xvalue.v), color='blue') +
+  scale_y_continuous('')
+~~~
+
+<img src="fig/linear-reg-error-1.png" title="plot of chunk linear-reg-error" alt="plot of chunk linear-reg-error" style="display: block; margin: auto;" />
+
+~~~{.r}
+# 평균제곱근 오차
+sqrt(mean((dat.df$pred-dat.df$yvalue.v)^2))
+~~~
+
+
+
+~~~{.output}
+[1] 7.266361
+
+~~~
+
+#### 2.2. 연속형 성능평가 모니터링
+
+회귀분석 등을 통해서 연속형 변수 성능을 평가하고 모니터링할 경우, 평균제곱오차(Mean Squared Error)를 사용한다. 그렇다고 평균제곱오차가 가장 좋다는 의미는 아니다. 다만, 기본적인 성능평가 추정 모니터링 방법은 다음과 같다.
 
 $(\hat{y} -y)^2 = \epsilon$으로 오차가 되고, 오차 평균은 $\bar{\epsilon}_n = \frac{\epsilon_1 + \epsilon_2 + \dots + \epsilon_n}{n}$ 와 같이 되고, 새로 추가되는 오차는 $\overline{\epsilon_{n+1}} = \frac{\epsilon_1 + \epsilon_2 + \dots + \epsilon_n + \epsilon_{n+1}}{n+1}$와 같이 되고, 정리하면, 
 
