@@ -4,35 +4,35 @@
     <meta charset="utf-8">
     <meta name="generator" content="pandoc">
     <title>Software Carpentry: xwMOOC 기계학습</title>
-    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
-    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
-    <link rel="stylesheet" type="text/css" href="css/swc.css" />
-    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
-    <meta charset="UTF-8" />
-    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    
-    <script>
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-    
-      ga('create', 'UA-59802572-17', 'auto');
-      ga('send', 'pageview');
-    
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
     </script>
   </head>
   <body class="lesson">
     <div class="container card">
-      <div class="banner">
-        <a href="http://software-carpentry.org" title="Software Carpentry">
-          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
-        </a>
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
       </div>
       <article>
       <div class="row">
@@ -45,7 +45,8 @@
 </div>
 <div class="panel-body">
 <ul>
-<li>기계학습 알고리즘 성능평가를 이해한다.</li>
+<li>기계학습 알고리듬 성능평가를 이해한다.</li>
+<li>범주형, 연속형, 지도학습/비지도학습 알고리듬 성능평가를 이해한다.</li>
 </ul>
 </div>
 </section>
@@ -108,6 +109,35 @@
 <h4 id="roc-곡선-pr-그래프">1.1. ROC 곡선, PR 그래프</h4>
 <p><a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">ROC 곡선</a>은 오인식률(1종오류)과 오거부률(2종오류) 간의 상충관계를 시각적으로 나타낸 그래프로, 정밀도(Precision)와 재현율(Recall)을 유사하게 표현한 것이 PR 그래프로 시각화를 하고, 아래 면적을 측정하여 성능을 평가하기도 한다.</p>
 <h3 id="연속형-성능평가">2. 연속형 성능평가</h3>
+<h4 id="연속형-성능평가-측정-rmse">2.1. 연속형 성능평가 측정 → RMSE</h4>
+<p>평균 제곱근 오차(Root Mean Squared Error, RMSE)가 가장 일반적인 연속형 성능평가 측도가 된다. 특히, RMSE는 측정 종속변수와 동일한 단위라서 설명하기 쉽고, 표준편차처럼 예측이 얼마나 벗어났는지 정보를 제공한다. 따라서, 고객당 오차가 10,000원 아래가 되는 고객평생가치(Lifetime value) 모형을 개발하시오… 이런 주문이 가능하다.</p>
+<p><span class="math display">\[\operatorname{RMSE}=\sqrt{\frac{\sum_{t=1}^n (\hat y_t - y_t)^2}{n}}\]</span></p>
+<p><span class="math inline">\(y = x^2\)</span> 모형에서 나온 데이터를 <span class="math inline">\(y=\alpha + \beta \times x\)</span> 모형으로 학습시킬 때 오차를 확인하면 다음과 같다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 데이터프레임 데이터 생성</span>
+yvalue.v &lt;-<span class="st"> </span>(<span class="dv">1</span>:<span class="dv">10</span>)**<span class="dv">2</span>
+xvalue.v &lt;-<span class="st"> </span><span class="dv">1</span>:<span class="dv">10</span>
+
+dat.df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(xvalue.v, yvalue.v)
+
+<span class="co"># 선형모형 적합</span>
+reg.m &lt;-<span class="st"> </span><span class="kw">lm</span>(yvalue.v ~<span class="st"> </span>xvalue.v, <span class="dt">data=</span>dat.df)
+
+<span class="co"># 데이터 프레임에 선형모형 적합값을 부착</span>
+dat.df$pred &lt;-<span class="st"> </span><span class="kw">predict</span>(reg.m, <span class="dt">newdata=</span>dat.df)
+
+<span class="co"># ggplot2 팩키지로 선형모형 적합에 따른 오차를 시각화</span>
+<span class="kw">library</span>(<span class="st">&#39;ggplot2&#39;</span>)
+
+<span class="kw">ggplot</span>(<span class="dt">data=</span>dat.df) +<span class="st"> </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">x=</span>xvalue.v, <span class="dt">y=</span>yvalue.v), <span class="dt">color=</span><span class="st">&#39;purple&#39;</span>) +
+<span class="st">  </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x=</span>xvalue.v, <span class="dt">y=</span>pred), <span class="dt">color=</span><span class="st">&#39;red&#39;</span>) +
+<span class="st">  </span><span class="kw">geom_segment</span>(<span class="kw">aes</span>(<span class="dt">x=</span>xvalue.v, <span class="dt">y=</span>pred, <span class="dt">yend=</span>yvalue.v, <span class="dt">xend=</span>xvalue.v), <span class="dt">color=</span><span class="st">&#39;blue&#39;</span>) +
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="st">&#39;&#39;</span>)</code></pre></div>
+<p><img src="fig/linear-reg-error-1.png" title="plot of chunk linear-reg-error" alt="plot of chunk linear-reg-error" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 평균제곱근 오차</span>
+<span class="kw">sqrt</span>(<span class="kw">mean</span>((dat.df$pred-dat.df$yvalue.v)^<span class="dv">2</span>))</code></pre></div>
+<pre class="output"><code>[1] 7.266361
+</code></pre>
+<h4 id="연속형-성능평가-모니터링">2.2. 연속형 성능평가 모니터링</h4>
 <p>회귀분석 등을 통해서 연속형 변수 성능을 평가하고 모니터링할 경우, 평균제곱오차(Mean Squared Error)를 사용한다. 그렇다고 평균제곱오차가 가장 좋다는 의미는 아니다. 다만, 기본적인 성능평가 추정 모니터링 방법은 다음과 같다.</p>
 <p><span class="math inline">\((\hat{y} -y)^2 = \epsilon\)</span>으로 오차가 되고, 오차 평균은 <span class="math inline">\(\bar{\epsilon}_n = \frac{\epsilon_1 + \epsilon_2 + \dots + \epsilon_n}{n}\)</span> 와 같이 되고, 새로 추가되는 오차는 <span class="math inline">\(\overline{\epsilon_{n+1}} = \frac{\epsilon_1 + \epsilon_2 + \dots + \epsilon_n + \epsilon_{n+1}}{n+1}\)</span>와 같이 되고, 정리하면,</p>
 <p><span class="math display">\[\overline{\epsilon_{n+1}} = \frac{n\times\bar{\epsilon_n} + \epsilon_{n+1}}{n+1}\]</span></p>
@@ -187,16 +217,16 @@
         </div>
       </div>
       </article>
-      <div class="footer">
-        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
-        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
-        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
-        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
       </div>
     </div>
-    <!-- Javascript placed at the end of the document so the pages load faster -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
     <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
   </body>
 </html>
