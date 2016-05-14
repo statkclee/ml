@@ -65,6 +65,114 @@ $$F_1 = \frac{2}{\frac{1}{정밀도}+\frac{1}{재현율}} = 2 \times \frac{정�
 
 [ROC 곡선](https://en.wikipedia.org/wiki/Receiver_operating_characteristic)은 오인식률(1종오류)과 오거부률(2종오류) 간의 상충관계를 시각적으로 나타낸 그래프로, 정밀도(Precision)와 재현율(Recall)을 유사하게 표현한 것이 PR 그래프로 시각화를 하고, 아래 면적을 측정하여 성능을 평가하기도 한다.
 
+#### 1.2. 독일신용평가 데이터 사례
+
+`caret` 팩키지에 포함된 `data("GermanCredit")` 신용평가 데이터를 통해 좀더 직접적인 사례를 확인해 보자.
+
+1. 데이터 준비 단계
+    * 훈련데이터와 검증데이터 분리: 70% 훈련데이터, 30% 검증데이터
+1. 이항회귀모형 적합
+    * 이항회귀모형 변수 설정: 종속변수 Class, 독립변수 그외.
+    * 이항회귀모형 적합
+1. 신용불량확률 예측
+    * 훈련데이터 신용불량확률예측, 검증데이터 신용불량확률예측
+1. 모형 성능평가
+    * `ggplot` 통한 신용불량고객과 정상고객 확률분포 도식화
+    * 컷오프 75% 설정 시 모형이 갖는 함의 파악
+
+
+~~~{.r}
+# 팩키지 및 데이터 준비
+suppressMessages(library(caret))
+data("GermanCredit")
+
+# 훈련데이터와 검증데이터 분리: 70% 훈련데이터, 30% 검증데이터
+d <- sort(sample(nrow(GermanCredit), nrow(GermanCredit)*.7))
+train.df <- GermanCredit[d,]
+test.df <- GermanCredit[-d,]
+
+# 이항회귀모형 변수 설정: 종속변수 Class, 독립변수 그외.
+credit.var <- setdiff(colnames(train.df), list('Class'))
+credit.formula <- as.formula(paste('Class', paste(credit.var,collapse=' + '), sep=' ~ '))
+
+# 이항회귀모형 적합
+credit.m <- glm(credit.formula, family=binomial(link='logit'),data=train.df)
+
+# 훈련데이터 신용불량확률예측, 검증데이터 신용불량확률예측
+train.df$pred <- predict(credit.m, newdata=train.df, type='response')
+~~~
+
+
+
+~~~{.output}
+Warning in predict.lm(object, newdata, se.fit, scale = 1, type =
+ifelse(type == : prediction from a rank-deficient fit may be misleading
+
+~~~
+
+
+
+~~~{.r}
+test.df$pred <- predict(credit.m, newdata=test.df, type='response')
+~~~
+
+
+
+~~~{.output}
+Warning in predict.lm(object, newdata, se.fit, scale = 1, type =
+ifelse(type == : prediction from a rank-deficient fit may be misleading
+
+~~~
+
+
+
+~~~{.r}
+# 검증데이터 속 신용고객 확률밀도분포 도식화
+ggplot(data=test.df) +
+  geom_density(aes(x=pred, color=Class, linetype=Class))
+~~~
+
+<img src="fig/german-credit-logit-1.png" title="plot of chunk german-credit-logit" alt="plot of chunk german-credit-logit" style="display: block; margin: auto;" />
+
+~~~{.r}
+# 컷오프를 75%로 설정했을 경우, 오차행렬
+test.df$results75 <- ifelse(test.df$pred > 0.75, "Good", "Bad")
+
+confusionMatrix(data=test.df$results75, reference=test.df$Class, positive = "Good")
+~~~
+
+
+
+~~~{.output}
+Confusion Matrix and Statistics
+
+          Reference
+Prediction Bad Good
+      Bad   62   55
+      Good  16  167
+                                          
+               Accuracy : 0.7633          
+                 95% CI : (0.7111, 0.8103)
+    No Information Rate : 0.74            
+    P-Value [Acc > NIR] : 0.1969          
+                                          
+                  Kappa : 0.4708          
+ Mcnemar's Test P-Value : 6.49e-06        
+                                          
+            Sensitivity : 0.7523          
+            Specificity : 0.7949          
+         Pos Pred Value : 0.9126          
+         Neg Pred Value : 0.5299          
+             Prevalence : 0.7400          
+         Detection Rate : 0.5567          
+   Detection Prevalence : 0.6100          
+      Balanced Accuracy : 0.7736          
+                                          
+       'Positive' Class : Good            
+                                          
+
+~~~
+
 ### 2. 연속형 성능평가 
 
 #### 2.1. 연속형 성능평가 측정 &rarr; RMSE

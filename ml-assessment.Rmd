@@ -84,7 +84,7 @@ $$F_1 = \frac{2}{\frac{1}{정밀도}+\frac{1}{재현율}} = 2 \times \frac{정�
 
 ```{r german-credit-logit, tidy=FALSE}
 # 팩키지 및 데이터 준비
-library(caret)
+suppressMessages(library(caret))
 data("GermanCredit")
 
 # 훈련데이터와 검증데이터 분리: 70% 훈련데이터, 30% 검증데이터

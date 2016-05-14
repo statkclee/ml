@@ -108,6 +108,88 @@
 <p><span class="math display">\[F_1 = \frac{2}{\frac{1}{정밀도}+\frac{1}{재현율}} = 2 \times \frac{정밀도 \times 재현율}{정밀도 + 재현율}\]</span></p>
 <h4 id="roc-곡선-pr-그래프">1.1. ROC 곡선, PR 그래프</h4>
 <p><a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">ROC 곡선</a>은 오인식률(1종오류)과 오거부률(2종오류) 간의 상충관계를 시각적으로 나타낸 그래프로, 정밀도(Precision)와 재현율(Recall)을 유사하게 표현한 것이 PR 그래프로 시각화를 하고, 아래 면적을 측정하여 성능을 평가하기도 한다.</p>
+<h4 id="독일신용평가-데이터-사례">1.2. 독일신용평가 데이터 사례</h4>
+<p><code>caret</code> 팩키지에 포함된 <code>data(&quot;GermanCredit&quot;)</code> 신용평가 데이터를 통해 좀더 직접적인 사례를 확인해 보자.</p>
+<ol style="list-style-type: decimal">
+<li>데이터 준비 단계
+<ul>
+<li>훈련데이터와 검증데이터 분리: 70% 훈련데이터, 30% 검증데이터</li>
+</ul></li>
+<li>이항회귀모형 적합
+<ul>
+<li>이항회귀모형 변수 설정: 종속변수 Class, 독립변수 그외.</li>
+<li>이항회귀모형 적합</li>
+</ul></li>
+<li>신용불량확률 예측
+<ul>
+<li>훈련데이터 신용불량확률예측, 검증데이터 신용불량확률예측</li>
+</ul></li>
+<li>모형 성능평가
+<ul>
+<li><code>ggplot</code> 통한 신용불량고객과 정상고객 확률분포 도식화</li>
+<li>컷오프 75% 설정 시 모형이 갖는 함의 파악</li>
+</ul></li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 팩키지 및 데이터 준비</span>
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(caret))
+<span class="kw">data</span>(<span class="st">&quot;GermanCredit&quot;</span>)
+
+<span class="co"># 훈련데이터와 검증데이터 분리: 70% 훈련데이터, 30% 검증데이터</span>
+d &lt;-<span class="st"> </span><span class="kw">sort</span>(<span class="kw">sample</span>(<span class="kw">nrow</span>(GermanCredit), <span class="kw">nrow</span>(GermanCredit)*.<span class="dv">7</span>))
+train.df &lt;-<span class="st"> </span>GermanCredit[d,]
+test.df &lt;-<span class="st"> </span>GermanCredit[-d,]
+
+<span class="co"># 이항회귀모형 변수 설정: 종속변수 Class, 독립변수 그외.</span>
+credit.var &lt;-<span class="st"> </span><span class="kw">setdiff</span>(<span class="kw">colnames</span>(train.df), <span class="kw">list</span>(<span class="st">&#39;Class&#39;</span>))
+credit.formula &lt;-<span class="st"> </span><span class="kw">as.formula</span>(<span class="kw">paste</span>(<span class="st">&#39;Class&#39;</span>, <span class="kw">paste</span>(credit.var,<span class="dt">collapse=</span><span class="st">&#39; + &#39;</span>), <span class="dt">sep=</span><span class="st">&#39; ~ &#39;</span>))
+
+<span class="co"># 이항회귀모형 적합</span>
+credit.m &lt;-<span class="st"> </span><span class="kw">glm</span>(credit.formula, <span class="dt">family=</span><span class="kw">binomial</span>(<span class="dt">link=</span><span class="st">&#39;logit&#39;</span>),<span class="dt">data=</span>train.df)
+
+<span class="co"># 훈련데이터 신용불량확률예측, 검증데이터 신용불량확률예측</span>
+train.df$pred &lt;-<span class="st"> </span><span class="kw">predict</span>(credit.m, <span class="dt">newdata=</span>train.df, <span class="dt">type=</span><span class="st">&#39;response&#39;</span>)</code></pre></div>
+<pre class="output"><code>Warning in predict.lm(object, newdata, se.fit, scale = 1, type =
+ifelse(type == : prediction from a rank-deficient fit may be misleading
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">test.df$pred &lt;-<span class="st"> </span><span class="kw">predict</span>(credit.m, <span class="dt">newdata=</span>test.df, <span class="dt">type=</span><span class="st">&#39;response&#39;</span>)</code></pre></div>
+<pre class="output"><code>Warning in predict.lm(object, newdata, se.fit, scale = 1, type =
+ifelse(type == : prediction from a rank-deficient fit may be misleading
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 검증데이터 속 신용고객 확률밀도분포 도식화</span>
+<span class="kw">ggplot</span>(<span class="dt">data=</span>test.df) +
+<span class="st">  </span><span class="kw">geom_density</span>(<span class="kw">aes</span>(<span class="dt">x=</span>pred, <span class="dt">color=</span>Class, <span class="dt">linetype=</span>Class))</code></pre></div>
+<p><img src="fig/german-credit-logit-1.png" title="plot of chunk german-credit-logit" alt="plot of chunk german-credit-logit" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 컷오프를 75%로 설정했을 경우, 오차행렬</span>
+test.df$results75 &lt;-<span class="st"> </span><span class="kw">ifelse</span>(test.df$pred &gt;<span class="st"> </span><span class="fl">0.75</span>, <span class="st">&quot;Good&quot;</span>, <span class="st">&quot;Bad&quot;</span>)
+
+<span class="kw">confusionMatrix</span>(<span class="dt">data=</span>test.df$results75, <span class="dt">reference=</span>test.df$Class, <span class="dt">positive =</span> <span class="st">&quot;Good&quot;</span>)</code></pre></div>
+<pre class="output"><code>Confusion Matrix and Statistics
+
+          Reference
+Prediction Bad Good
+      Bad   62   55
+      Good  16  167
+                                          
+               Accuracy : 0.7633          
+                 95% CI : (0.7111, 0.8103)
+    No Information Rate : 0.74            
+    P-Value [Acc &gt; NIR] : 0.1969          
+                                          
+                  Kappa : 0.4708          
+ Mcnemar&#39;s Test P-Value : 6.49e-06        
+                                          
+            Sensitivity : 0.7523          
+            Specificity : 0.7949          
+         Pos Pred Value : 0.9126          
+         Neg Pred Value : 0.5299          
+             Prevalence : 0.7400          
+         Detection Rate : 0.5567          
+   Detection Prevalence : 0.6100          
+      Balanced Accuracy : 0.7736          
+                                          
+       &#39;Positive&#39; Class : Good            
+                                          
+</code></pre>
 <h3 id="연속형-성능평가">2. 연속형 성능평가</h3>
 <h4 id="연속형-성능평가-측정-rmse">2.1. 연속형 성능평가 측정 → RMSE</h4>
 <p>평균 제곱근 오차(Root Mean Squared Error, RMSE)가 가장 일반적인 연속형 성능평가 측도가 된다. 특히, RMSE는 측정 종속변수와 동일한 단위라서 설명하기 쉽고, 표준편차처럼 예측이 얼마나 벗어났는지 정보를 제공한다. 따라서, 고객당 오차가 10,000원 아래가 되는 고객평생가치(Lifetime value) 모형을 개발하시오… 이런 주문이 가능하다.</p>
