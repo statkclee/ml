@@ -74,6 +74,71 @@
 <li>인과성(Causality): 인과관계를 파악하는 것으로 흡연과 폐암과의 인과성을 규명한다.</li>
 <li>메커니즘(Mechanism): 기계적 메커니즘을 파악한다.</li>
 </ul>
+<h2 id="문제를-기계학습으로-변환">문제를 기계학습으로 변환</h2>
+<ul>
+<li>과거 거래 실적에 근거해서, 고객이 어떤 제품을 구매할 것인지 예측, 혹은 고객이 특정 검색 조건을 제시했을 때, 제품을 제시하는 최적 방법 결정
+<ul>
+<li>비지도 학습으로 유사성과 거리 관계를 기준으로 묶음, 영화추천 등 → K-means 클러스터링, k-최근접 이웃 방법(k-Nearest neighbor)</li>
+<li>장바구니에 함께 구매하는 패턴을 학습 → 연관성 규칙</li>
+<li>웹브라우져 동일 세션에서 웹페이지 예측 → 연관성 규칙</li>
+<li>특정 웹페이지와 Adwords 광고효과 예측 → 연관성 규칙</li>
+</ul></li>
+<li>사기탐지, 해킹 거래 식별
+<ul>
+<li>→ 선형, 이항 회귀모형</li>
+</ul></li>
+<li>다양한 제품 가격을 변경시켰을 때 가격 탄력성 결정 → 회귀 문제</li>
+<li>유사한 집단내 혹은 외부 패턴에 따른 군집분석
+<ul>
+<li>동일한 지역 혹은 동일한 고객 집단에서 가장 인기있는 제품을 식별 → K-means (동일 집단)</li>
+<li>유사한 주제 혹은 정치적 이슈에 가장 활발히 논의되는 신문기사 식별 → K-means (동일 집단)</li>
+<li>다른 유사한 고객의 구매정보에 기반해서 제품 추천 → k-최근접 이웃 방법 (유사 집단)</li>
+<li>과거 거래된 실적 혹은 경매된 실적에 근거해서 최종 가격, 실적 예측 → k-최근접 이웃 방법 (유사 집단)</li>
+</ul></li>
+<li>마케팅 캠페인 효과 분석
+<ul>
+<li>마케팅 캠페인 전과 후 효과 분석 → AB 테스팅</li>
+<li>일정금액 매출 향상 혹은 수익 개선을 예측 → 회귀, 점수(scoring)</li>
+</ul></li>
+</ul>
+<aside class="callout panel panel-info">
+<div class="panel-heading">
+<h3 id="predict-vs-forecast"><span class="glyphicon glyphicon-pushpin"></span>predict vs forecast</h3>
+</div>
+<div class="panel-body">
+<p><code>predict</code>, <code>forecast</code> 모두 예측하다고 번역되지만, 의미는 차이가 있다. <code>predict</code>는 내일 무슨일이 일어날지 예측한다는 의미가 있는 반면, <code>forecast</code>는 무슨일이 발생할 가능성이 10%, 이런 확률적인 의미가 내포되어 있다.</p>
+</div>
+</aside>
+<table style="width:90%;">
+<colgroup>
+<col width="16%" />
+<col width="73%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">분류 알고리즘</th>
+<th align="left">설명</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">나이브 베이즈</td>
+<td align="left">제품 범주화 문제를 해결하는데 적합, 입력변수가 많고, 특히 범주형 변수마다 값 수준도 많을 때 사용</td>
+</tr>
+<tr class="even">
+<td align="left">의사결정 나무</td>
+<td align="left">만약 … 그러면 (If then) 구조를 갖는 경우 적합하고, 특히 비전문가에게 설명하기 용이</td>
+</tr>
+<tr class="odd">
+<td align="left">이항 회귀모형</td>
+<td align="left">이항 회귀모형은 본질적으로 분류기라기 보다는 점수를 매기는 것으로 컷오프를 정해야 하고, 특히 입력값을 조정했을 때 결과확률이 얼마나 영향을 미치는지 파악하는데 용이</td>
+</tr>
+<tr class="even">
+<td align="left">SVM</td>
+<td align="left">SVM은 가정사항이 상대적으로 적고, 입력변수가 많고 서로 복잡한 상호작용이 존재하는 경우 적용이 용이</td>
+</tr>
+</tbody>
+</table>
 <div class="footnotes">
 <hr />
 <ol>
