@@ -101,9 +101,13 @@ levels of accuracy."
 `data(churn)` 명령어를 수행하면 `ls()` 명령어를 통해서 `churnTest`, `churnTrain` 데이터프레임이 생성된 것을 확인하게 된다.
 
 ```{r churn-data, tidy=FALSE}
-library(C50)
+suppressMessages(library(pROC))
+suppressMessages(library(C50))
 data(churn)
 ls()
+suppressMessages(library(doMC))
+registerDoMC(cores=7)
+suppressMessages(library(caret))
 ```
 
 ### 3.2. 기계학습 훈련-검증 데이터 쪼개기
@@ -141,6 +145,7 @@ predictors <- names(churnTrain)[names(churnTrain) != "churn"]
 forGBM <- churnTrain
 forGBM$churn <- ifelse(forGBM$churn == "yes", 1, 0)
 
+suppressMessages(library(gbm))
 ctrl <- trainControl(method = "repeatedcv", repeats = 5,
                      classProbs = TRUE,
                      summaryFunction = twoClassSummary)
