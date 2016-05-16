@@ -16,16 +16,13 @@ mainfont: NanumGothic
 > * 투표 예측모형을 살펴보고 이해한다.
 > * 병렬처리 예측모형을 이해한다.
 
-``` {r, include=FALSE}
-source("tools/chunk-options.R")
-```
+
 
 ## 1. 예측모형 A-Z 
 
 <img src="fig/ml-predictive-model.png" alt="예측모형 A-Z" width="77%">
 
-```{r pm-reg-data, tidy=FALSE}
-```
+
 
 ## 2. 기본 예측모형 개발
 
