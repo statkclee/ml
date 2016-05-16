@@ -15,6 +15,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
 1. **환경설정**
     1. [기계학습 (순수한) 맛보기](ml-taste-with-r.html): 전통적인 통계모형 개발과정 맛보기 
     1. [기계학습 (고객용) 맛보기](ml-taste-for-commerce.html): 전통적인 통계모형에 상업적 요소를 가미
+    1. [명령라인 데이터 분석 맛보기](00-toolchain-cmd.html)    
     1. [파이썬기반 기계학습 툴체인(toolchain)](00-toolchain.html): 파이썬 기계학습 생태계
 1. **[기계학습 지도](ml-map.html)**
     1. [3가지 기계학습 원리](ml-three-principles.html)
@@ -26,8 +27,8 @@ subtitle: 데이터 과학자가 바라본 기계학습
     1. [테스트 주도 기계학습](31-ml-tdd.html)
     1. [알고리즘 성능평가](ml-assessment.html)
     1. [데이터 전처리 및 정제](14-ml-data-munging.html)
-        1. [명령라인 데이터 분석](00-toolchain-cmd.html)
     1. [데이터 적합 모형 개발](ml-modeling.html)
+        1. [예측모형 A-Z](ml-predictive-model.html)
         1. [모형식별 및 선택](ml-model-selection.html)
         1. [문서 분류](12-classify-document.html)
     1. **네트워크 데이터**
