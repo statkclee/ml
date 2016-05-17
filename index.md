@@ -29,6 +29,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
     1. [데이터 전처리 및 정제](14-ml-data-munging.html)
     1. [데이터 적합 모형 개발](ml-modeling.html)
         1. [예측모형 A-Z(연속형)](ml-pm-continuous.html)
+        1. [예측모형 A-Z(연속형) - 콘크리트 강도](ml-pm-continuous-concrete.html)
         1. [예측모형 A-Z(이산형)](ml-pm-discrete.html)        
         1. [모형식별 및 선택](ml-model-selection.html)
         1. [문서 분류](12-classify-document.html)
