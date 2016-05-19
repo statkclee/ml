@@ -27,6 +27,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
     1. [테스트 주도 기계학습](31-ml-tdd.html)
     1. [알고리즘 성능평가](ml-assessment.html)
     1. [데이터 전처리 및 정제](14-ml-data-munging.html)
+        1. [탐색적 데이터 분석(EDA)](ml-eda.html)
     1. [데이터 적합 모형 개발](ml-modeling.html)
         1. [예측모형 A-Z(연속형)](ml-pm-continuous.html)
         1. [예측모형 A-Z(연속형) - 콘크리트 강도](ml-pm-continuous-concrete.html)
