@@ -59,10 +59,10 @@ GitHub 사이트에서 캐글 타이타닉 데이터를 올려놓은 것을 바�
 ##========================================================
 # Titanic: Machine Learning from Disaster, https://www.kaggle.com/c/titanic/data
 
+suppressMessages(library(readr))
+suppressMessages(library(dplyr))
 titanic.train.df <- read_csv("https://raw.githubusercontent.com/agconti/kaggle-titanic/master/data/train.csv")
 titanic.test.df <- read_csv("https://raw.githubusercontent.com/agconti/kaggle-titanic/master/data/test.csv")
-titanic.train.df
-titanic.test.df
 titanic <- bind_rows(titanic.train.df, titanic.test.df)
 ```
 
@@ -87,7 +87,7 @@ summary(titanic)
 sapply(titanic, function(x) sum(is.na(x)))
 sapply(titanic, function(x) length(unique(x)))
 
-library(Amelia)
+suppressMessages(library(Amelia))
 missmap(titanic, main = "결측값과 관측값")
 
 # 2.2. 결측값에 대한 응징
@@ -125,6 +125,7 @@ missmap(titanic, main = "결측값과 관측값")
 ## 03. 모형 적합
 ##========================================================
 ## 
+suppressMessages(library(caret))
 
 #---------------------------------------------------------
 # 3.1. 훈련데이터와 검증데이터 분리
@@ -152,14 +153,14 @@ summary(logit.reduced.m)
 #---------------------------------------------------------
 # 3.3. R^2 결정계수
 
-library(pscl)
+suppressMessages(library(pscl))
 pR2(logit.full.m)
 pR2(logit.reduced.m)
 
 #---------------------------------------------------------
 # 3.4. 모형 평가
 
-library(ROCR)
+suppressMessages(library(ROCR))
 # 전체 모형
 logit.full.pred <- predict(logit.full.m, newdata=titanic.test.df, type="response")
 logit.full.pr <- prediction(logit.full.pred, titanic.test.df$Survived)
