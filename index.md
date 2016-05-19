@@ -27,12 +27,16 @@ subtitle: 데이터 과학자가 바라본 기계학습
     1. [테스트 주도 기계학습](31-ml-tdd.html)
     1. [알고리즘 성능평가](ml-assessment.html)
     1. [데이터 전처리 및 정제](14-ml-data-munging.html)
-        1. [탐색적 데이터 분석(EDA)](ml-eda.html)
+        1. 탐색적 데이터 분석(EDA)
     1. [데이터 적합 모형 개발](ml-modeling.html)
-        1. [예측모형 A-Z(연속형)](ml-pm-continuous.html)
-        1. [예측모형 A-Z(연속형) - 콘크리트 강도](ml-pm-continuous-concrete.html)
-        1. [예측모형 A-Z(이산형)](ml-pm-discrete.html)        
-        1. [모형식별 및 선택](ml-model-selection.html)
+        1. **인간 중심 기계학습 모형**
+            1. [통계적 모형개발 기초](ml-modeling-basic.html)    
+            1. [전통방식 모형개발 -타이타닉 생존 데이터](ml-modeling-titanic.html)
+        1. **기계 중심 기계학습 모형**            
+            1. [예측모형 A-Z(연속형)](ml-pm-continuous.html)
+            1. [예측모형 A-Z(연속형) - 콘크리트 강도](ml-pm-continuous-concrete.html)
+            1. [예측모형 A-Z(이산형)](ml-pm-discrete.html)        
+            1. [모형식별 및 선택](ml-model-selection.html)
         1. [문서 분류](12-classify-document.html)
     1. **네트워크 데이터**
         1. [R 팩키지 사회망 분석](ml-sna-r-ecosystem.html)        
