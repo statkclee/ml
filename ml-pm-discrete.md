@@ -15,10 +15,7 @@ mainfont: NanumGothic
 > * 범주형 예측모형을 이해한다.
 > * 범주형 모형평가 및 활용에 대해 이해한다.
 
-``` {r, include=FALSE}
-source("tools/chunk-options.R")
-options(warn=-1)
-```
+
 
 
 ## 1. 범주형 예측 모형 활용 [^data-mining-larose]
