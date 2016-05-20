@@ -15,10 +15,7 @@ mainfont: NanumGothic
 > * 계량경제학 신용카드 발급데이터에 예측모형을 적용한다.
 > * 인간과 조화되는 예측모형을 선정한다.
 
-``` {r, include=FALSE}
-source("tools/chunk-options.R")
-options(warn=-1)
-```
+
 
 ### 1. 환경설정 및 데이터 가져오기
 
@@ -29,8 +26,8 @@ options(warn=-1)
 * `dplyr` &rarr; 데이터 작업
 * `caret` &rarr; 예측모형 기본 팩키지
 
-```{r card-data, tidy=FALSE}
 
+~~~{.r}
 ##==============================================================================
 ## 00. 환경설정
 ##==============================================================================
@@ -49,7 +46,25 @@ suppressMessages(library(dplyr))
 data(CreditCard)
 CreditCard <- as.tbl(CreditCard)
 head(CreditCard)
-```
+~~~
+
+
+
+~~~{.output}
+Source: local data frame [6 x 12]
+
+    card reports      age income       share expenditure  owner selfemp
+  (fctr)   (dbl)    (dbl)  (dbl)       (dbl)       (dbl) (fctr)  (fctr)
+1    yes       0 37.66667 4.5200 0.033269910  124.983300    yes      no
+2    yes       0 33.25000 2.4200 0.005216942    9.854167     no      no
+3    yes       0 33.66667 4.5000 0.004155556   15.000000    yes      no
+4    yes       0 30.50000 2.5400 0.065213780  137.869200     no      no
+5    yes       0 32.16667 9.7867 0.067050590  546.503300    yes      no
+6    yes       0 23.25000 2.5000 0.044438400   91.996670     no      no
+Variables not shown: dependents (dbl), months (dbl), majorcards (dbl),
+  active (dbl)
+
+~~~
 
 |  변수명     |    변수 설명    |
 |-----------|------------------------------------------------------------|
@@ -85,7 +100,8 @@ head(CreditCard)
 1. 부스팅 나무(Boosted Tree)
 1. 확률숲(RandomForest)
 
-```{r card-modeling, tidy=FALSE}
+
+~~~{.r}
 ##==============================================================================
 ## 03. 모형개발
 ##==============================================================================
@@ -127,6 +143,59 @@ glmBoost.tune <- train(card ~ ., data=cc.train.df,
                        tuneLength=5, 
                        center=TRUE, 
                        family=Binomial(link = c("logit")))
+~~~
+
+
+
+~~~{.output}
+Loading required package: plyr
+
+~~~
+
+
+
+~~~{.output}
+-------------------------------------------------------------------------
+
+~~~
+
+
+
+~~~{.output}
+You have loaded plyr after dplyr - this is likely to cause problems.
+If you need functions from both plyr and dplyr, please load plyr first, then dplyr:
+library(plyr); library(dplyr)
+
+~~~
+
+
+
+~~~{.output}
+-------------------------------------------------------------------------
+
+~~~
+
+
+
+~~~{.output}
+
+Attaching package: 'plyr'
+
+~~~
+
+
+
+~~~{.output}
+The following objects are masked from 'package:dplyr':
+
+    arrange, count, desc, failwith, id, mutate, rename, summarise,
+    summarize
+
+~~~
+
+
+
+~~~{.r}
 # mars
 suppressMessages(library(earth))
 mars.tune <- train(card ~ ., data=cc.train.df, 
@@ -142,7 +211,18 @@ cart.tune <- train(card ~ ., data=cc.train.df,
                    metric="ROC", 
                    trControl = ctrl, 
                    tuneLength=5)
+~~~
 
+
+
+~~~{.output}
+Loading required package: rpart
+
+~~~
+
+
+
+~~~{.r}
 # Boosted tree
 gbm.tune <- train(card ~ ., data=cc.train.df, 
                   method = "gbm", 
@@ -150,7 +230,32 @@ gbm.tune <- train(card ~ ., data=cc.train.df,
                   trControl = ctrl, 
                   verbose=FALSE, 
                   tuneLength=5)
+~~~
 
+
+
+~~~{.output}
+Loading required package: gbm
+
+~~~
+
+
+
+~~~{.output}
+Loading required package: splines
+
+~~~
+
+
+
+~~~{.output}
+Loaded gbm 2.1.1
+
+~~~
+
+
+
+~~~{.r}
 # Random Forest
 rf.tune <- train(card ~ ., data=cc.train.df, 
                  method = "rf", 
@@ -158,13 +263,61 @@ rf.tune <- train(card ~ ., data=cc.train.df,
                  trControl = ctrl, 
                  verbose=FALSE, 
                  tuneLength=5)
-```
+~~~
+
+
+
+~~~{.output}
+Loading required package: randomForest
+
+~~~
+
+
+
+~~~{.output}
+randomForest 4.6-12
+
+~~~
+
+
+
+~~~{.output}
+Type rfNews() to see new features/changes/bug fixes.
+
+~~~
+
+
+
+~~~{.output}
+
+Attaching package: 'randomForest'
+
+~~~
+
+
+
+~~~{.output}
+The following object is masked from 'package:dplyr':
+
+    combine
+
+~~~
+
+
+
+~~~{.output}
+The following object is masked from 'package:ggplot2':
+
+    margin
+
+~~~
 
 ### 4. 모형 성능평가
 
 `ROC` 기준으로 가장 면적이 넓은 모형을 선정한다. 6개 모형이 성능이 가장 좋아야 하고, 성능이 비슷하다면 단순한 모형을 선정한다. `parallelplot()` 시각화 도구를 통해 예측모형의 성능을 시각적으로 바로 확인한다.
 
-```{r card-performane, tidy=FALSE}
+
+~~~{.r}
 ##==============================================================================
 ## 04. 모형성능평가
 ##==============================================================================
@@ -176,22 +329,110 @@ allResamples <- resamples(list(MARS = mars.tune,
                                "Boosted Tree" = gbm.tune,
                                "Random Forest" = rf.tune))
 parallelplot(allResamples, metric = "ROC")
-```
+~~~
+
+<img src="fig/card-performane-1.png" title="plot of chunk card-performane" alt="plot of chunk card-performane" style="display: block; margin: auto;" />
 
 ### 5. 최종모형 선정
 
 MARS를 최종모형으로 선정하고, 모형에 대한 자세한 사항을 `summary()` 함수를 통해 살펴본다.
 또한, MARS는 `plotmo` 기능을 통해 설명변수를 종속변수에 시각적으로 확인도 가능하다. 
 
-```{r card-deploy, tidy=FALSE}
+
+~~~{.r}
 mars.tune
+~~~
 
+
+
+~~~{.output}
+Multivariate Adaptive Regression Spline 
+
+925 samples
+ 11 predictor
+  2 classes: 'no', 'yes' 
+
+No pre-processing
+Resampling: Cross-Validated (5 fold, repeated 10 times) 
+Summary of sample sizes: 739, 741, 740, 740, 740, 739, ... 
+Resampling results across tuning parameters:
+
+  nprune  ROC        Sens       Spec     
+   2      0.9906143  1.0000000  0.9816026
+   5      0.9948481  0.9995238  0.9818823
+   8      0.9967840  0.9918351  0.9825787
+  11      0.9968250  0.9893961  0.9822990
+  14      0.9969465  0.9889082  0.9822990
+
+Tuning parameter 'degree' was held constant at a value of 1
+ROC was used to select the optimal model using  the largest value.
+The final values used for the model were nprune = 14 and degree = 1. 
+
+~~~
+
+
+
+~~~{.r}
 mars.tune$bestTune
+~~~
 
+
+
+~~~{.output}
+  nprune degree
+5     14      1
+
+~~~
+
+
+
+~~~{.r}
 summary(mars.tune)
+~~~
 
+
+
+~~~{.output}
+Call: earth(x=matrix[925,11], y=factor.object, keepxy=TRUE,
+            glm=list(family=function.object), degree=1, nprune=14)
+
+GLM coefficients
+                              yes
+(Intercept)            1177.91257
+h(3-reports)             17.83548
+h(expenditure-6.14583)  -23.92951
+h(54.6467-expenditure)  -22.58263
+h(expenditure-54.6467)   23.93309
+h(1-dependents)           1.94299
+h(3-active)              -0.89667
+
+Earth selected 7 of 17 terms, and 4 of 11 predictors
+Termination condition: RSq changed by less than 0.001 at 17 terms
+Importance: expenditure, reports, active, dependents, age-unused, ...
+Number of terms at each degree of interaction: 1 6 (additive model)
+Earth GCV 0.01428265    RSS 12.84271    GRSq 0.9182345    RSq 0.9203445
+
+GLM null.deviance 986.0438 (924 dof)   deviance 61.65662 (918 dof)   iters 23
+
+~~~
+
+
+
+~~~{.r}
 plotmo(mars.tune$finalModel, type="link")
-```
+~~~
+
+
+
+~~~{.output}
+ grid:    reports      age income      share expenditure owneryes
+                0 31.33333    2.9 0.03947758    101.4942        0
+ selfempyes dependents months majorcards active
+          0          0     30          1      6
+
+~~~
+
+<img src="fig/card-deploy-1.png" title="plot of chunk card-deploy" alt="plot of chunk card-deploy" style="display: block; margin: auto;" />
 
 
 
