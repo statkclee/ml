@@ -31,9 +31,9 @@ subtitle: 데이터 과학자가 바라본 기계학습
     1. [데이터 적합 모형 개발](ml-modeling.html)
         1. **인간 중심 기계학습 모형**
             1. [통계적 모형개발 기초](ml-modeling-basic.html)    
-            1. [전통방식 모형개발 -타이타닉 생존 데이터](ml-modeling-titanic.html)
-            1. [예측모형 활용분야](ml-pm-applications.html)
-        1. **기계 중심 기계학습 모형**            
+            1. [전통방식 모형개발 -타이타닉 생존데이터](ml-modeling-titanic.html)  
+            1. [소매금융 부도예측 - 독일신용 데이터](ml-credit-scoring.html)
+        1. **기계 중심 기계학습 모형**  
             1. [예측모형 A-Z(연속형)](ml-pm-continuous.html)
             1. [예측모형 A-Z(연속형) - 콘크리트 강도](ml-pm-continuous-concrete.html)
             1. [예측모형 A-Z(이산형)](ml-pm-discrete.html)        
@@ -44,6 +44,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
     1. [소설 텍스트 데이터 분석 기초](ml-text-basic.html)        
     1. [태그 혹은 단어 구름(tag or word cloud)](ml-text-worldcloud.html)        
 1. **기계학습 상용화**
+    1. [예측모형 활용분야](ml-pm-applications.html)
     1. [기계학습 적용](ml-production.html)
 
 
