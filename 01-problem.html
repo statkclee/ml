@@ -38,20 +38,64 @@
       <div class="row">
         <div class="col-md-10 col-md-offset-1">
                     <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
-          <h2 class="subtitle">문제의 정의</h2>
+          <h2 class="subtitle">(사업) 문제의 정의</h2>
           <section class="objectives panel panel-warning">
 <div class="panel-heading">
 <h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
 </div>
 <div class="panel-body">
 <ul>
-<li>다양한 데이터를 이해한다.</li>
+<li>통계와 실사업 적용에 대해 이해한다.</li>
+<li>데이터, 모형, 실사업 연관성을 파악한다.</li>
+<li>도대체 사람은 무슨 역할을 하나?</li>
 </ul>
 </div>
 </section>
+<p>기계학습(Machine Learning, ML)은 <strong>기계(Machine)</strong> 가 스스로 작업을 <strong>학습(Learning)</strong> 할 수 있게 가르치는 것으로, 기계학습은 과거 데이터 마이닝(Data Mining), 예측 분석(Predictive Analysis) 등으로 불리기도 했다.</p>
+<h2 id="문제-유형-david-julian">문제 유형 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h2>
+<ul>
+<li>탐색(Exploration): 추세나 변수간 관계 같은 패턴을 데이터에서 찾아, 후속 공정에서 귀무/대립 가설을 생성시킨다.</li>
+<li>기술(Descriptive): 평균 소득, 임금 표준오차, 모집단에서 왼손잡이 비율 등 데이터를 요약한다.</li>
+<li>추론(Inference): 가설을 지지하는 추론 질문을 생성한다.</li>
+<li>예측(Prediction): 미래 행동양상을 예측한다. 소득을 분석해서 평균 기대수명을 예측한다.</li>
+<li>인과성(Causality): 인과관계를 파악하는 것으로 흡연과 폐암과의 인과성을 규명한다.</li>
+<li>메커니즘(Mechanism): 기계적 메커니즘을 파악한다.</li>
+</ul>
+<h3 id="통계기법-구분">통계기법 구분</h3>
+<ul>
+<li>기술 통계: 탐색적 데이터 분석이 이 범주에 속하고 데이터를 단순히 기술하고 이해하는 목적으로 주로 사용한다. 예를 들어, 우리회사 고객의 평균 매출액은 얼마인가?</li>
+<li>추론 통계: 데이터가 생성된 모집단에 대한 추론을 가능하게 한다. 예측모형, 기계학습 등이 이런 범주에 포함된다.</li>
+</ul>
+<h3 id="실사업-질문-사례">실사업 질문 사례</h3>
+<table>
+<thead>
+<tr class="header">
+<th align="left">실사업 질문</th>
+<th align="left">통계 기법</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">가장 수익성 높은 고객은 누구?</td>
+<td align="left">기술 통계</td>
+</tr>
+<tr class="even">
+<td align="left">지방과 수도권 고객간에 수익성에 차이가 있나?</td>
+<td align="left">가설 검정</td>
+</tr>
+<tr class="odd">
+<td align="left">수도권 지방 고객의 일반적인 특징은?</td>
+<td align="left">고객 세분화와 군집분석</td>
+</tr>
+<tr class="even">
+<td align="left">이번 특판행사 고객은 정말 수익성 높은 고객으로 될까?</td>
+<td align="left">예측 모형</td>
+</tr>
+</tbody>
+</table>
 <section class="challenge panel panel-success">
 <div class="panel-heading">
-<h3 id="기계와의-경쟁을-준비하며"><span class="glyphicon glyphicon-pencil"></span>기계와의 경쟁을 준비하며…</h3>
+<h3 id="신경망-모형과-나는-무슨-관계일까"><span class="glyphicon glyphicon-pencil"></span>신경망 모형과 나는 무슨 관계일까?</h3>
 </div>
 <div class="panel-body">
 <ul>
@@ -62,18 +106,6 @@
 </ul>
 </div>
 </section>
-<p>기계학습(Machine Learning, ML)은 <strong>기계(Machine)</strong> 가 스스로 작업을 <strong>학습(Learning)</strong> 할 수 있게 가르치는 것이다.</p>
-<p>기계학습은 과거 데이터 마이닝(Data Mining), 예측 분석(Predictive Analysis) 등으로 불리기도 했다.</p>
-<p><a href="https://www.kaggle.com/">캐글(Kaggle)</a></p>
-<h2 id="문제-유형-david-julian">문제 유형 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h2>
-<ul>
-<li>탐색(Exploration): 추세나 변수간 관계 같은 패턴을 데이터에서 찾아, 후속 공정에서 귀무/대립 가설을 생성시킨다.</li>
-<li>기술(Descriptive): 평균 소득, 임금 표준오차, 모집단에서 왼손잡이 비율 등 데이터를 요약한다.</li>
-<li>추론(Inference): 가설을 지지하는 추론 질문을 생성한다.</li>
-<li>예측(Prediction): 미래 행동양상을 예측한다. 소득을 분석해서 평균 기대수명을 예측한다.</li>
-<li>인과성(Causality): 인과관계를 파악하는 것으로 흡연과 폐암과의 인과성을 규명한다.</li>
-<li>메커니즘(Mechanism): 기계적 메커니즘을 파악한다.</li>
-</ul>
 <h2 id="문제를-기계학습으로-변환">문제를 기계학습으로 변환</h2>
 <ul>
 <li>과거 거래 실적에 근거해서, 고객이 어떤 제품을 구매할 것인지 예측, 혹은 고객이 특정 검색 조건을 제시했을 때, 제품을 제시하는 최적 방법 결정

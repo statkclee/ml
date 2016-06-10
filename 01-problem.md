@@ -1,25 +1,17 @@
 ---
 layout: page
 title: xwMOOC 기계학습
-subtitle: 문제의 정의
+subtitle: (사업) 문제의 정의
 ---
 
 > ## 학습목표 {.objectives}
 >
-> * 다양한 데이터를 이해한다.
+> * 통계와 실사업 적용에 대해 이해한다.
+> * 데이터, 모형, 실사업 연관성을 파악한다.
+> * 도대체 사람은 무슨 역할을 하나?
 
-> ### 기계와의 경쟁을 준비하며... {.challenge}
-> 
-> * Computer Vision = what can NN do for me.  
-> * Machine Learning = what can I do for NN.  
->                                                           - Sanja Fisler
+기계학습(Machine Learning, ML)은 **기계(Machine)** 가 스스로 작업을 **학습(Learning)** 할 수 있게 가르치는 것으로, 기계학습은 과거 데이터 마이닝(Data Mining), 예측 분석(Predictive Analysis) 등으로 불리기도 했다.
 
-기계학습(Machine Learning, ML)은 **기계(Machine)** 가 스스로 작업을 
-**학습(Learning)** 할 수 있게 가르치는 것이다.
-
-기계학습은 과거 데이터 마이닝(Data Mining), 예측 분석(Predictive Analysis) 등으로 불리기도 했다.
-
-[캐글(Kaggle)](https://www.kaggle.com/)
 
 ## 문제 유형 [^David-Julian]
 
@@ -31,6 +23,27 @@ subtitle: 문제의 정의
 * 예측(Prediction): 미래 행동양상을 예측한다. 소득을 분석해서 평균 기대수명을 예측한다.
 * 인과성(Causality): 인과관계를 파악하는 것으로 흡연과 폐암과의 인과성을 규명한다.
 * 메커니즘(Mechanism): 기계적 메커니즘을 파악한다.
+
+### 통계기법 구분
+
+* 기술 통계: 탐색적 데이터 분석이 이 범주에 속하고 데이터를 단순히 기술하고 이해하는 목적으로 주로 사용한다. 예를 들어, 우리회사 고객의 평균 매출액은 얼마인가? 
+* 추론 통계: 데이터가 생성된 모집단에 대한 추론을 가능하게 한다. 예측모형, 기계학습 등이 이런 범주에 포함된다.
+
+### 실사업 질문 사례
+
+
+|      실사업 질문                   |         통계 기법                          |
+|------------------------------------|--------------------------------------------|
+| 가장 수익성 높은 고객은 누구?      |            기술 통계 |
+| 지방과 수도권 고객간에 수익성에 차이가 있나?  |  가설 검정 |
+| 수도권 지방 고객의 일반적인 특징은?           | 고객 세분화와 군집분석 |
+| 이번 특판행사 고객은 정말 수익성 높은 고객으로 될까?  | 예측 모형 |
+
+> ### 신경망 모형과 나는 무슨 관계일까? {.challenge}
+> 
+> * Computer Vision = what can NN do for me.  
+> * Machine Learning = what can I do for NN.  
+>                                                           - Sanja Fisler
 
 ## 문제를 기계학습으로 변환
 
