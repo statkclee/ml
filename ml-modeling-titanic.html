@@ -225,27 +225,27 @@ glm(formula = Survived ~ ., family = binomial(link = &quot;logit&quot;),
 
 Deviance Residuals: 
     Min       1Q   Median       3Q      Max  
--2.4313  -0.6202  -0.4143   0.6357   2.3568  
+-2.7882  -0.5605  -0.3859   0.6278   2.4974  
 
 Coefficients:
-             Estimate Std. Error z value Pr(&gt;|z|)    
-(Intercept)  4.667407   0.660690   7.064 1.61e-12 ***
-Pclass      -1.007740   0.169957  -5.929 3.04e-09 ***
-Sexmale     -2.723194   0.240673 -11.315  &lt; 2e-16 ***
-Age         -0.027363   0.009402  -2.910  0.00361 ** 
-SibSp       -0.389763   0.134999  -2.887  0.00389 ** 
-Parch       -0.156524   0.147544  -1.061  0.28875    
-Fare         0.002806   0.002664   1.054  0.29207    
-EmbarkedQ    0.254004   0.451591   0.562  0.57380    
-EmbarkedS   -0.425267   0.277755  -1.531  0.12575    
+              Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)  5.9124097  0.6813718   8.677  &lt; 2e-16 ***
+Pclass      -1.3132473  0.1731615  -7.584 3.35e-14 ***
+Sexmale     -2.7380153  0.2429523 -11.270  &lt; 2e-16 ***
+Age         -0.0464928  0.0095414  -4.873 1.10e-06 ***
+SibSp       -0.3346004  0.1342922  -2.492   0.0127 *  
+Parch       -0.0915437  0.1484707  -0.617   0.5375    
+Fare         0.0009746  0.0025971   0.375   0.7075    
+EmbarkedQ    0.2813593  0.4585272   0.614   0.5395    
+EmbarkedS   -0.2699759  0.2883458  -0.936   0.3491    
 ---
 Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 
 (Dispersion parameter for binomial family taken to be 1)
 
-    Null deviance: 823.67  on 622  degrees of freedom
-Residual deviance: 546.80  on 614  degrees of freedom
-AIC: 564.8
+    Null deviance: 838.41  on 622  degrees of freedom
+Residual deviance: 540.73  on 614  degrees of freedom
+AIC: 558.73
 
 Number of Fisher Scoring iterations: 5
 </code></pre>
@@ -261,14 +261,14 @@ Response: Survived
 Terms added sequentially (first to last)
 
          Df Deviance Resid. Df Resid. Dev  Pr(&gt;Chi)    
-NULL                       622     823.67              
-Pclass    1   69.080       621     754.59 &lt; 2.2e-16 ***
-Sex       1  178.833       620     575.75 &lt; 2.2e-16 ***
-Age       1    5.110       619     570.64   0.02379 *  
-SibSp     1   15.671       618     554.97 7.537e-05 ***
-Parch     1    1.097       617     553.88   0.29485    
-Fare      1    2.301       616     551.57   0.12928    
-Embarked  2    4.773       614     546.80   0.09197 .  
+NULL                       622     838.41              
+Pclass    1   81.897       621     756.51 &lt; 2.2e-16 ***
+Sex       1  181.439       620     575.07 &lt; 2.2e-16 ***
+Age       1   20.196       619     554.88 6.992e-06 ***
+SibSp     1   10.583       618     544.30  0.001142 ** 
+Parch     1    0.550       617     543.75  0.458227    
+Fare      1    0.456       616     543.29  0.499589    
+Embarked  2    2.562       614     540.73  0.277792    
 ---
 Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 </code></pre>
@@ -284,23 +284,23 @@ glm(formula = Survived ~ Pclass + Sex + Age + SibSp, family = binomial(link = &q
 
 Deviance Residuals: 
     Min       1Q   Median       3Q      Max  
--2.4848  -0.6207  -0.4262   0.6051   2.4995  
+-2.8295  -0.5752  -0.3860   0.6094   2.4585  
 
 Coefficients:
              Estimate Std. Error z value Pr(&gt;|z|)    
-(Intercept)  4.625832   0.566180   8.170 3.08e-16 ***
-Pclass      -1.082819   0.141618  -7.646 2.07e-14 ***
-Sexmale     -2.736644   0.230971 -11.848  &lt; 2e-16 ***
-Age         -0.027605   0.009235  -2.989 0.002797 ** 
-SibSp       -0.447315   0.127738  -3.502 0.000462 ***
+(Intercept)  5.771741   0.595671   9.689  &lt; 2e-16 ***
+Pclass      -1.321349   0.148115  -8.921  &lt; 2e-16 ***
+Sexmale     -2.762281   0.236329 -11.688  &lt; 2e-16 ***
+Age         -0.045853   0.009418  -4.869 1.12e-06 ***
+SibSp       -0.373944   0.127109  -2.942  0.00326 ** 
 ---
 Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 
 (Dispersion parameter for binomial family taken to be 1)
 
-    Null deviance: 823.67  on 622  degrees of freedom
-Residual deviance: 554.97  on 618  degrees of freedom
-AIC: 564.97
+    Null deviance: 838.41  on 622  degrees of freedom
+Residual deviance: 544.30  on 618  degrees of freedom
+AIC: 554.3
 
 Number of Fisher Scoring iterations: 5
 </code></pre>
@@ -310,15 +310,15 @@ Number of Fisher Scoring iterations: 5
 <span class="kw">suppressMessages</span>(<span class="kw">library</span>(pscl))
 <span class="kw">pR2</span>(logit.full.m)</code></pre></div>
 <pre class="output"><code>         llh      llhNull           G2     McFadden         r2ML 
--273.4008118 -411.8332933  276.8649629    0.3361372    0.3587950 
+-270.3643861 -419.2050418  297.6813114    0.3550545    0.3798656 
         r2CU 
-   0.4892052 
+   0.5135687 
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">pR2</span>(logit.reduced.m)</code></pre></div>
 <pre class="output"><code>         llh      llhNull           G2     McFadden         r2ML 
--277.4863222 -411.8332933  268.6939422    0.3262169    0.3503298 
+-272.1482830 -419.2050418  294.1135175    0.3507991    0.3763041 
         r2CU 
-   0.4776632 
+   0.5087535 
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------</span>
 <span class="co"># 3.4. 모형 평가</span>
@@ -334,7 +334,7 @@ logit.full.prf &lt;-<span class="st"> </span><span class="kw">performance</span>
 logit.full.auc &lt;-<span class="st"> </span><span class="kw">performance</span>(logit.full.pr, <span class="dt">measure =</span> <span class="st">&quot;auc&quot;</span>)
 logit.full.auc &lt;-<span class="st"> </span>logit.full.auc@y.values[[<span class="dv">1</span>]]
 logit.full.auc</code></pre></div>
-<pre class="output"><code>[1] 0.8468524
+<pre class="output"><code>[1] 0.8259341
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 축소 모형</span>
 logit.reduced.pred &lt;-<span class="st"> </span><span class="kw">predict</span>(logit.reduced.m, <span class="dt">newdata=</span>titanic.test.df, <span class="dt">type=</span><span class="st">&quot;response&quot;</span>)
@@ -346,7 +346,7 @@ logit.reduced.prf &lt;-<span class="st"> </span><span class="kw">performance</sp
 logit.reduced.auc &lt;-<span class="st"> </span><span class="kw">performance</span>(logit.reduced.pr, <span class="dt">measure =</span> <span class="st">&quot;auc&quot;</span>)
 logit.reduced.auc &lt;-<span class="st"> </span>logit.reduced.auc@y.values[[<span class="dv">1</span>]]
 logit.reduced.auc</code></pre></div>
-<pre class="output"><code>[1] 0.8479692
+<pre class="output"><code>[1] 0.8274411
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------</span>
 <span class="co"># 3.5. ROC 면적비교</span>
@@ -355,10 +355,10 @@ logit.reduced.auc</code></pre></div>
 <span class="kw">plot</span>(logit.reduced.prf, <span class="dt">add=</span><span class="ot">TRUE</span>, <span class="dt">col=</span><span class="st">&quot;red&quot;</span>)</code></pre></div>
 <p><img src="fig/titanic-model-3.png" title="plot of chunk titanic-model" alt="plot of chunk titanic-model" style="display: block; margin: auto;" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">logit.full.auc</code></pre></div>
-<pre class="output"><code>[1] 0.8468524
+<pre class="output"><code>[1] 0.8259341
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">logit.reduced.auc</code></pre></div>
-<pre class="output"><code>[1] 0.8479692
+<pre class="output"><code>[1] 0.8274411
 </code></pre>
 <h2 id="자동-모형-선정-방법">1.4. 자동 모형 선정 방법</h2>
 <p>만약 <span class="math inline">\(p\)</span>개 변수가 있다면 <span class="math inline">\(2^p\)</span> 만큼 가능한 모형이 존재한다. 모형을 모두 적합시켜 <span class="math inline">\(2^p\)</span> 모형중에서 성능 등 기준조건을 만족하는 최적의 모형을 선정한다. 경우의 수가 너무 많고, 성능이 비슷한 모형을 반복적으로 개발할 우려도 있고 해서, 기준조건(Criterion-based) 방법으로 통해 변수를 추출해 나간다. 즉, 가장 성능이 좋은 변수부터 선택해 나가면서 복잡성과 성능을 최적화한다. 가장 일반적으로 많이 사용되는 방식이 <span class="math inline">\(AIC(Akaike Information Criterion)\)</span>, <span class="math inline">\(BIC(Bayes Information Criterion)\)</span>을 들 수 있다.</p>
@@ -373,177 +373,162 @@ logit.null.m &lt;-<span class="st"> </span><span class="kw">glm</span>(Survived 
 logit.full.m &lt;-<span class="st"> </span><span class="kw">glm</span>(Survived ~., <span class="dt">family=</span><span class="kw">binomial</span>(<span class="dt">link=</span><span class="st">&#39;logit&#39;</span>), <span class="dt">data=</span>titanic.train.df)
 
 logit.bic.m &lt;-<span class="st"> </span><span class="kw">step</span>(logit.null.m, <span class="dt">scope=</span><span class="kw">formula</span>(logit.full.m), <span class="dt">direction=</span><span class="st">&quot;both&quot;</span>, <span class="dt">criterion=</span><span class="st">&quot;BIC&quot;</span>, <span class="dt">k=</span><span class="kw">log</span>(<span class="kw">nrow</span>(titanic.train.df)))</code></pre></div>
-<pre class="output"><code>Start:  AIC=830.1
+<pre class="output"><code>Start:  AIC=844.84
 Survived ~ 1
 
            Df Deviance    AIC
-+ Sex       1   638.56 651.43
-+ Pclass    1   754.59 767.46
-+ Fare      1   779.68 792.55
-+ Embarked  2   802.96 822.26
-&lt;none&gt;          823.67 830.10
-+ SibSp     1   819.19 832.06
-+ Parch     1   821.96 834.83
-+ Age       1   823.35 836.22
++ Sex       1   651.61 664.48
++ Pclass    1   756.51 769.38
++ Fare      1   792.64 805.51
++ Embarked  2   822.86 842.16
+&lt;none&gt;          838.41 844.84
++ Age       1   833.74 846.61
++ Parch     1   834.03 846.90
++ SibSp     1   837.61 850.48
 
-Step:  AIC=651.43
+Step:  AIC=664.48
 Survived ~ Sex
 
            Df Deviance    AIC
-+ Pclass    1   575.75 595.06
-+ Fare      1   616.23 635.53
-+ SibSp     1   621.54 640.84
-+ Embarked  2   623.91 649.65
-&lt;none&gt;          638.56 651.43
-+ Parch     1   632.62 651.92
-+ Age       1   637.62 656.93
-- Sex       1   823.67 830.10
++ Pclass    1   575.07 594.38
++ Fare      1   629.44 648.75
++ SibSp     1   643.52 662.82
+&lt;none&gt;          651.61 664.48
++ Embarked  2   640.21 665.95
++ Parch     1   649.67 668.97
++ Age       1   650.72 670.03
+- Sex       1   838.41 844.84
 
-Step:  AIC=595.06
+Step:  AIC=594.38
 Survived ~ Sex + Pclass
 
            Df Deviance    AIC
-+ SibSp     1   564.30 590.03
-&lt;none&gt;          575.75 595.06
-+ Age       1   570.64 596.38
-+ Parch     1   571.41 597.15
-+ Embarked  2   566.78 598.95
-+ Fare      1   575.28 601.02
-- Pclass    1   638.56 651.43
-- Sex       1   754.59 767.46
++ Age       1   554.88 580.62
+&lt;none&gt;          575.07 594.38
++ SibSp     1   570.25 595.99
++ Parch     1   573.70 599.44
++ Fare      1   575.05 600.79
++ Embarked  2   570.94 603.11
+- Pclass    1   651.61 664.48
+- Sex       1   756.51 769.38
 
-Step:  AIC=590.03
-Survived ~ Sex + Pclass + SibSp
-
-           Df Deviance    AIC
-+ Age       1   554.97 587.15
-&lt;none&gt;          564.30 590.03
-+ Fare      1   562.15 594.33
-- SibSp     1   575.75 595.06
-+ Parch     1   563.50 595.67
-+ Embarked  2   557.76 596.36
-- Pclass    1   621.54 640.84
-- Sex       1   752.69 772.00
-
-Step:  AIC=587.15
-Survived ~ Sex + Pclass + SibSp + Age
+Step:  AIC=580.62
+Survived ~ Sex + Pclass + Age
 
            Df Deviance    AIC
-&lt;none&gt;          554.97 587.15
-- Age       1   564.30 590.03
-+ Fare      1   553.36 591.97
-+ Parch     1   553.88 592.48
-+ Embarked  2   548.78 593.82
-- SibSp     1   570.64 596.38
-- Pclass    1   621.54 647.27
-- Sex       1   733.19 758.93
++ SibSp     1   544.30 576.47
+&lt;none&gt;          554.88 580.62
++ Parch     1   551.55 583.72
++ Fare      1   554.84 587.01
++ Embarked  2   550.36 588.97
+- Age       1   575.07 594.38
+- Pclass    1   650.72 670.03
+- Sex       1   723.68 742.98
+
+Step:  AIC=576.47
+Survived ~ Sex + Pclass + Age + SibSp
+
+           Df Deviance    AIC
+&lt;none&gt;          544.30 576.47
+- SibSp     1   554.88 580.62
++ Parch     1   543.75 582.35
++ Fare      1   544.05 582.66
++ Embarked  2   541.18 586.22
+- Age       1   570.25 595.99
+- Pclass    1   640.86 666.60
+- Sex       1   720.76 746.50
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">logit.aic.m &lt;-<span class="st"> </span><span class="kw">step</span>(logit.null.m, <span class="dt">scope=</span><span class="kw">formula</span>(logit.full.m), <span class="dt">direction=</span><span class="st">&quot;both&quot;</span>, <span class="dt">criterion=</span><span class="st">&quot;AIC&quot;</span>, <span class="dt">k=</span><span class="dv">2</span>)</code></pre></div>
-<pre class="output"><code>Start:  AIC=825.67
+<pre class="output"><code>Start:  AIC=840.41
 Survived ~ 1
 
            Df Deviance    AIC
-+ Sex       1   638.56 642.56
-+ Pclass    1   754.59 758.59
-+ Fare      1   779.68 783.68
-+ Embarked  2   802.96 808.96
-+ SibSp     1   819.19 823.19
-&lt;none&gt;          823.67 825.67
-+ Parch     1   821.96 825.96
-+ Age       1   823.35 827.35
++ Sex       1   651.61 655.61
++ Pclass    1   756.51 760.51
++ Fare      1   792.64 796.64
++ Embarked  2   822.86 828.86
++ Age       1   833.74 837.74
++ Parch     1   834.03 838.03
+&lt;none&gt;          838.41 840.41
++ SibSp     1   837.61 841.61
 
-Step:  AIC=642.56
+Step:  AIC=655.61
 Survived ~ Sex
 
            Df Deviance    AIC
-+ Pclass    1   575.75 581.75
-+ Fare      1   616.23 622.23
-+ SibSp     1   621.54 627.54
-+ Embarked  2   623.91 631.91
-+ Parch     1   632.62 638.62
-&lt;none&gt;          638.56 642.56
-+ Age       1   637.62 643.62
-- Sex       1   823.67 825.67
++ Pclass    1   575.07 581.07
++ Fare      1   629.44 635.44
++ Embarked  2   640.21 648.21
++ SibSp     1   643.52 649.52
+&lt;none&gt;          651.61 655.61
++ Parch     1   649.67 655.67
++ Age       1   650.72 656.72
+- Sex       1   838.41 840.41
 
-Step:  AIC=581.75
+Step:  AIC=581.07
 Survived ~ Sex + Pclass
 
            Df Deviance    AIC
-+ SibSp     1   564.30 572.30
-+ Embarked  2   566.78 576.78
-+ Age       1   570.64 578.64
-+ Parch     1   571.41 579.41
-&lt;none&gt;          575.75 581.75
-+ Fare      1   575.28 583.28
-- Pclass    1   638.56 642.56
-- Sex       1   754.59 758.59
++ Age       1   554.88 562.88
++ SibSp     1   570.25 578.25
++ Embarked  2   570.94 580.94
+&lt;none&gt;          575.07 581.07
++ Parch     1   573.70 581.70
++ Fare      1   575.05 583.05
+- Pclass    1   651.61 655.61
+- Sex       1   756.51 760.51
 
-Step:  AIC=572.3
-Survived ~ Sex + Pclass + SibSp
-
-           Df Deviance    AIC
-+ Age       1   554.97 564.97
-+ Embarked  2   557.76 569.76
-+ Fare      1   562.15 572.15
-&lt;none&gt;          564.30 572.30
-+ Parch     1   563.50 573.50
-- SibSp     1   575.75 581.75
-- Pclass    1   621.54 627.54
-- Sex       1   752.69 758.69
-
-Step:  AIC=564.97
-Survived ~ Sex + Pclass + SibSp + Age
+Step:  AIC=562.88
+Survived ~ Sex + Pclass + Age
 
            Df Deviance    AIC
-+ Embarked  2   548.78 562.78
-&lt;none&gt;          554.97 564.97
-+ Fare      1   553.36 565.36
-+ Parch     1   553.88 565.88
-- Age       1   564.30 572.30
-- SibSp     1   570.64 578.64
-- Pclass    1   621.54 629.54
-- Sex       1   733.19 741.19
++ SibSp     1   544.30 554.30
++ Parch     1   551.55 561.55
++ Embarked  2   550.36 562.36
+&lt;none&gt;          554.88 562.88
++ Fare      1   554.84 564.84
+- Age       1   575.07 581.07
+- Pclass    1   650.72 656.72
+- Sex       1   723.68 729.68
 
-Step:  AIC=562.78
-Survived ~ Sex + Pclass + SibSp + Age + Embarked
+Step:  AIC=554.3
+Survived ~ Sex + Pclass + Age + SibSp
 
            Df Deviance    AIC
-&lt;none&gt;          548.78 562.78
-+ Fare      1   547.95 563.95
-+ Parch     1   548.04 564.04
-- Embarked  2   554.97 564.97
-- Age       1   557.76 569.76
-- SibSp     1   561.65 573.65
-- Pclass    1   609.59 621.59
-- Sex       1   715.28 727.28
+&lt;none&gt;          544.30 554.30
++ Embarked  2   541.18 555.18
++ Parch     1   543.75 555.75
++ Fare      1   544.05 556.05
+- SibSp     1   554.88 562.88
+- Age       1   570.25 578.25
+- Pclass    1   640.86 648.86
+- Sex       1   720.76 728.76
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">logit.bic.m</code></pre></div>
 <pre class="output"><code>
-Call:  glm(formula = Survived ~ Sex + Pclass + SibSp + Age, family = binomial(link = &quot;logit&quot;), 
+Call:  glm(formula = Survived ~ Sex + Pclass + Age + SibSp, family = binomial(link = &quot;logit&quot;), 
     data = titanic.train.df)
 
 Coefficients:
-(Intercept)      Sexmale       Pclass        SibSp          Age  
-    4.62583     -2.73664     -1.08282     -0.44731     -0.02761  
+(Intercept)      Sexmale       Pclass          Age        SibSp  
+    5.77174     -2.76228     -1.32135     -0.04585     -0.37394  
 
 Degrees of Freedom: 622 Total (i.e. Null);  618 Residual
-Null Deviance:      823.7 
-Residual Deviance: 555  AIC: 565
+Null Deviance:      838.4 
+Residual Deviance: 544.3    AIC: 554.3
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">logit.aic.m</code></pre></div>
 <pre class="output"><code>
-Call:  glm(formula = Survived ~ Sex + Pclass + SibSp + Age + Embarked, 
-    family = binomial(link = &quot;logit&quot;), data = titanic.train.df)
+Call:  glm(formula = Survived ~ Sex + Pclass + Age + SibSp, family = binomial(link = &quot;logit&quot;), 
+    data = titanic.train.df)
 
 Coefficients:
-(Intercept)      Sexmale       Pclass        SibSp          Age  
-    4.89519     -2.67361     -1.09774     -0.40635     -0.02742  
-  EmbarkedQ    EmbarkedS  
-    0.29854     -0.46714  
+(Intercept)      Sexmale       Pclass          Age        SibSp  
+    5.77174     -2.76228     -1.32135     -0.04585     -0.37394  
 
-Degrees of Freedom: 622 Total (i.e. Null);  616 Residual
-Null Deviance:      823.7 
-Residual Deviance: 548.8    AIC: 562.8
+Degrees of Freedom: 622 Total (i.e. Null);  618 Residual
+Null Deviance:      838.4 
+Residual Deviance: 544.3    AIC: 554.3
 </code></pre>
 <div class="footnotes">
 <hr />

@@ -1,7 +1,7 @@
 ---
 layout: page
-title: xwMOOC 기계<ed>��<ec>��
-subtitle: <ec>��<ed>��방식 모형개발 - <ed><83>�<ec>��<ed><83>�<eb>�� <ec>���<b4> <eb>��<ec>��<ed>��
+title: xwMOOC 기계학습
+subtitle: 전통방식 모형개발 - 타이타닉 생존 데이터
 output:
   html_document: 
     keep_md: yes
@@ -12,29 +12,29 @@ mainfont: NanumGothic
 
 
  
-> ## <ed>��<ec>��목표 {.objectives}
+> ## 학습목표 {.objectives}
 >
-> * <ec>��<ed>��방식 모형개발 방식<ec>�� <ed><83>�<ec>��<ed><83>�<eb>�� <ec>��존데<ec>��<ed>��<ec>�� <ec>��<ec>��<ed>��<eb>��.
-> * CMM 3<ec>��준<ec>�� <ed>��<eb>��<eb>��<eb>�� 모형개발 방식<ec>���<9c> 간주<ed>�� <ec>��<eb>�� <ec>��<eb>��.
+> * 전통방식 모형개발 방식을 타이타닉 생존데이터에 적용한다.
+> * CMM 3수준에 해당되는 모형개발 방식으로 간주할 수도 있다.
 
-## 1. <ed><83>�<ec>��<ed><83>�<eb>�� <ec>���<b4> <eb>��<ec>��<ed>�� [^r-bloggers-logistic]
+## 1. 타이타닉 생존 데이터 [^r-bloggers-logistic]
 
 [^r-bloggers-logistic]: [R-bloggers, How to perform a Logistic Regression in R](http://www.r-bloggers.com/how-to-perform-a-logistic-regression-in-r/)
 
-<ed><83>�<ec>��<ed><83>�<eb>�� <ec>��존데<ec>��<ed>��<eb>�� <ec>��<ed>��로도 만들<ec>��지�<a0>, <ec>��<eb>��가지 <ec>��<ed>��<ec>��<eb>��가 많이 <eb>��<ec>��<ec>��<eb>�� <ec>��<ec>���<9c> <eb>��<ec>��<ed>�� 과학�<bc> <ed>��계학<ec>��<ec>�� 측면<ec>��<ec>�� 바라보면 범주<ed>�� <eb>��<ec>��<ed>���<9c> <ec>��존여부가 종속변<ec>���<9c> <eb>��<ec>��<ec>�� <ec>��<ec>��, <ec>��측모<ed>��<ec>���<9c> <ec>��<ed>��<ec>��<ed>��기도 <ec>��<ec>��<ed>�� <eb>��<ec>��<ed>��<ec>��기도 <ed>��<eb>��.
+타이타닉 생존데이터는 영화로도 만들어지고, 여러가지 에피소드가 많이 들어있는 소재로 데이터 과학과 통계학적인 측면에서 바라보면 범주형 데이터로 생존여부가 종속변수로 녹아져 있어, 예측모형으로 적합시키기도 적절한 데이터이기도 하다.
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/9xoqXVjBEF8" frameborder="0" allowfullscreen></iframe>
 
 
-### 1.1. <ed><83>�<ec>��<ed><83>�<eb>�� <ec>���<b4> <eb>��<ec>��<ed>�� 가<ec>��<ec>���<b0> [^r-blogger-titanic]
+### 1.1. 타이타닉 생존 데이터 가져오기 [^r-blogger-titanic]
 
 [^r-blogger-titanic]: [How to perform a Logistic Regression in R](http://www.r-bloggers.com/how-to-perform-a-logistic-regression-in-r/)
 
-[캐�<b8>� <ed><83>�<ec>��<ed><83>�<eb>�� <eb>��<ec>��<ed>��](https://www.kaggle.com/c/titanic/data)�<bc> <eb>��<ec>��로드 받아 로컬컴퓨<ed>��<ec>��<ec>�� 불러<ec>��<ec>��<ec>��거나,
-GitHub <ec>��<ec>��<ed>��<ec>��<ec>�� 캐�<b8>� <ed><83>�<ec>��<ed><83>�<eb>�� <eb>��<ec>��<ed>���<bc> <ec>��<eb>��<eb>��<ec><9d>� 것을 바로 불러<ec>��<eb>��.
-캐�<b8>� <ed><83>�<ec>��<eb>��<ed>�� <ec>���<b4> <eb>��<ec>��<ed>��<eb>�� `train.csv`<ec><99>� `test.csv`�<9c> <eb>��<eb>��<ec>�� <ec>��<eb>��<eb>�� <ec>��<eb>�� 모두 <ed>���<90> <ed>��<eb>��<ec>�� <eb>��<ec>��<ed>��<ec>��<ec>���<9c> 만들�<a0> <eb>��<ed>��<ec>�� <eb>��<ec>��<ed>���<8c> <ec>��처리 <ec>��<ec>��<ec>�� <ed>���<a0> <ec>��<ed>��<ec>�� 방식<ec>���<9c> <ec>��측하<eb>�� 방법<ec>�� <ec>��개한<eb>��.
+[캐글 타이타닉 데이터](https://www.kaggle.com/c/titanic/data)를 다운로드 받아 로컬컴퓨터에서 불러읽어오거나,
+GitHub 사이트에서 캐글 타이타닉 데이터를 올려놓은 것을 바로 불러온다.
+캐글 타이나틱 생존 데이터는 `train.csv`와 `test.csv`로 나눠져 있는데 일단 모두 합쳐 하나의 데이터셋으로 만들고 난후에 동일하게 전처리 작업을 하고 전통적 방식으로 예측하는 방법을 전개한다.
 
-|  변<ec>���<85>        |          변<ec>���<85> <ec>���<85>            |
+|  변수명        |          변수명 설명            |
 |--------------|------------------------------|
 |  **survival**    |    Survival (0 = No; 1 = Yes)|
 |  pclass      |    Passenger Class  (1 = 1st; 2 = 2nd; 3 = 3rd)|
@@ -48,12 +48,12 @@ GitHub <ec>��<ec>��<ed>��<ec>��<ec>�� 캐�<b8>� <ed><83>�<ec>��<ed><83>�<eb>�� <
 |  cabin       |    Cabin|
 |  embarked    |    Port of Embarkation (C = Cherbourg; Q = Queenstown; S = Southampton)|
 
-`survival` <ec>�� 종속변<ec>��<ec>���<b0>, <eb>��머�<a7>��<bc> <ec>��측�<b3>�<ec>���<9c> <ec>��<ec>��<ed>��<ec>�� <ec>��존을 <ec>��측하<eb>�� 모형<ec>�� 개발<ed>��<eb>��.
+`survival` 이 종속변수이며, 나머지를 예측변수로 사용해서 생존을 예측하는 모형을 개발한다.
 
 
 ~~~{.r}
 ##========================================================
-## 01. <U+653C><U+3E62>��<U+653C><U+3E63>��<U+653C><U+3E64>�� 준�<U+383C><U+3E34>
+## 01. 데이터 준비
 ##========================================================
 # Titanic: Machine Learning from Disaster, https://www.kaggle.com/c/titanic/data
 
@@ -65,22 +65,22 @@ titanic <- bind_rows(titanic.train.df, titanic.test.df)
 ~~~
 
 
-## 1.2. <eb>��<ec>��<ed>�� <ec>��<ec>�� 
+## 1.2. 데이터 정제 
 
-<ed><83>�<ec>��<ed><83>�<eb>�� <ec>��존데<ec>��<ed>���<bc> 불러<ec>�� <eb>��<ec>�� <ed>��<ed>��<ec>�� <ed>��<ec>��<ed>���<a0>, 결측값에 <eb><8c>�<ed>�� <eb><8c>�<ec>��방안<ec>�� 마련<ed>��<eb>��.
-<ec>���<bc> <eb>��<ec>��, 결측값이 <eb>���<b4> 많�<9d>� 경우 변<ec>��(`Cabin`) <ec>��체�<a5><bc> <ec>��거한<eb>��.
-`Name`, `Ticket`처럼 관측점마다 <ec>��<ec>��<ed>�� 변<ec>��<eb>�� <ec>��보로<ec>�� <ec>��미�<b0>� <ec>���<b0> <eb>��문에 <ec>��것도 <ec>��거한<eb>��.
-`Age` 변<ec>��<eb>�� <ed>��균을 매워<eb>��<eb>�� 것으�<9c> <ed>���<a0>, <ec>��<eb><8c>�<ec>��<ec>���<9c> <ec>��<ec><9d>� 결측값이 <ec>��<eb>�� 관측점<ec><9d>� 
-`Embarked`, `Fare`, `Survived`<eb>�� 관측점<ec>�� <ec>��거하<eb>�� 방식<ec>���<9c> <ec>��<ec>�� <ec>��<ec>��<ec>�� <ec>��<ed>��<ed>��<eb>��.
+타이타닉 생존데이터를 불러온 다음 현황을 파악하고, 결측값에 대한 대응방안을 마련한다.
+예를 들어, 결측값이 너무 많은 경우 변수(`Cabin`) 자체를 제거한다.
+`Name`, `Ticket`처럼 관측점마다 유일한 변수는 정보로서 의미가 없기 때문에 이것도 제거한다.
+`Age` 변수는 평균을 매워넣는 것으로 하고, 상대적으로 적은 결측값이 있는 관측점은 
+`Embarked`, `Fare`, `Survived`는 관측점을 제거하는 방식으로 정제 작업을 수행한다.
 
-<ed>��<ed>��, `Amelia` <ed>��<ed>��지<ec>�� `missmap` <ed>��<ec>���<bc> <ec>��<ec>��<ed>��<ec>�� 결측�<92> 진행 <ec>��<ec>��<ec>�� 바로 <ec>��각적<ec>���<9c> <ed>��<ec>��<ed>��<eb>��.
+특히, `Amelia` 팩키지의 `missmap` 함수를 사용해서 결측값 진행 작업을 바로 시각적으로 확인한다.
 
 
 ~~~{.r}
 ##========================================================
-## 02. <U+653C><U+3E62>��<U+653C><U+3E63>��<U+653C><U+3E64>�� <U+653C><U+3E63>��<U+653C><U+3E63>��
+## 02. 데이터 정제
 ##========================================================
-# 2.1. <U+653C><U+3E64>��<U+653C><U+3E64>�� <U+653C><U+3E64>��<U+653C><U+3E63>��
+# 2.1. 현황 파악
 summary(titanic)
 ~~~
 
@@ -164,55 +164,55 @@ missmap(titanic, main = "결측값과 관측값")
 <img src="fig/titanic-clean-1.png" title="plot of chunk titanic-clean" alt="plot of chunk titanic-clean" style="display: block; margin: auto;" />
 
 ~~~{.r}
-# 2.2. 결측값에 <U+653C><U+3E62><U+383C><U+3E63>�<U+653C><U+3E64>�� <U+653C><U+3E63>���<U+393C><U+3E35>
-# 분석<U+653C><U+3E63>�� <U+653C><U+3E63>��<U+653C><U+3E63>��<U+653C><U+3E62>�� 변<U+653C><U+3E63>���<U+383C><U+3E63> <U+653C><U+3E63>��<U+653C><U+3E63>��
+# 2.2. 결측값에 대한 응징
+# 분석에 사용될 변수만 선정
 
 titanic <- titanic %>% 
-  select(Survived, Pclass, Sex, Age, SibSp, Parch, Fare, Embarked) %>%  # 결측값이 많�<U+393C><U+3E64>� Cabin�<U+623C><U+3E63> <U+653C><U+3E63>���<U+383C><U+3E34>, Ticket<U+653C><U+3E63><U+393C><U+3E64>� <U+653C><U+3E63>���<U+623C><U+3E30>
-  mutate(Age = ifelse(is.na(Age), mean(Age, na.rm=TRUE), Age)) %>%  # <U+653C><U+3E62>��<U+653C><U+3E63>���<U+623C><U+3E63> <U+653C><U+3E64>��균값<U+653C><U+3E63>���<U+393C><U+3E63> 치환
-  filter(!is.na(Embarked)) %>%  # 결측�<U+393C><U+3E32> 2�<U+393C><U+3E63> <U+653C><U+3E64>�� <U+653C><U+3E63>���<U+623C><U+3E30>
-  filter(!is.na(Fare)) %>%   # 결측�<U+393C><U+3E32> 1�<U+393C><U+3E63> <U+653C><U+3E64>�� <U+653C><U+3E63>���<U+623C><U+3E30>
-  filter(!is.na(Survived))   # 결측�<U+393C><U+3E32> 418�<U+393C><U+3E63> <U+653C><U+3E64>�� <U+653C><U+3E63>���<U+623C><U+3E30>
+  select(Survived, Pclass, Sex, Age, SibSp, Parch, Fare, Embarked) %>%  # 결측값이 많은 Cabin과 이름, Ticket은 제거
+  mutate(Age = ifelse(is.na(Age), mean(Age, na.rm=TRUE), Age)) %>%  # 나이를 평균값으로 치환
+  filter(!is.na(Embarked)) %>%  # 결측값 2개 행 제거
+  filter(!is.na(Fare)) %>%   # 결측값 1개 행 제거
+  filter(!is.na(Survived))   # 결측값 418개 행 제거
 
 missmap(titanic, main = "결측값과 관측값")
 ~~~
 
 <img src="fig/titanic-clean-2.png" title="plot of chunk titanic-clean" alt="plot of chunk titanic-clean" style="display: block; margin: auto;" />
 
-## 1.3. <ec>��측모<ed>�� <ec>��<ec>��
+## 1.3. 예측모형 적용
 
-`caret` <ed>��<ed>��지 `createDataPartition` <ed>��<ec>���<bc> <ec>��<ec>��<ed>��<ec>�� 7:3<ec>���<9c> <ed>��<eb>��<eb>��<ec>��<ed>��<ec><99>� 검증데<ec>��<ed>���<9c> 구분<ed>��<eb>��.
+`caret` 팩키지 `createDataPartition` 함수를 사용해서 7:3으로 훈련데이터와 검증데이터로 구분한다.
 
-`glm` <ed>��<ec>��<ec>�� `family=binomial(link='logit')` <ec>��<ec>���<bc> <eb>��<ec>�� <ec>��<ed>��<ed>��귀모형<ec>�� <ec>��<ed>��<ec>��<ed>��<eb>��.
-<ed>��<ed>��, <ec>���<b4> 변<ec>���<bc> 모두 <eb>��<ec>�� `Survived ~.` <ec>��존을 <ec>��측하<eb>�� 모형<ec>�� 구축<ed>��<eb>��.
+`glm` 함수에 `family=binomial(link='logit')` 인자를 넣어 이항회귀모형을 적합시킨다.
+특히, 전체 변수를 모두 넣어 `Survived ~.` 생존을 예측하는 모형을 구축한다.
 
-변<ec>���<bc> <ec>��<ec>��<ed>��<eb>�� 방법<ec><9d>� <ec>��<eb>��가지가 <ec>��<ec>��<eb>��, 먼�<a0>� `anova`<ed>��<ec>���<bc> <ec>��<ec>��<ed>��<ec>�� <ed>��<ed>��모델<ec>��<ec>�� 
-<ec>��<ec>��<ec>��<ec>�� 변<ec>��<ec><99>� 그렇지 <ec>��<eb>�� 변<ec>���<bc> 구별<ed>��<eb>��. 비유<ec>��<ec>��<ec>�� 변<ec>���<bc> <ec>��거하�<a0> `logit.reduced.m` 축소<eb>�� 
-<ec>��<ed>��<ed>��귀모형<ec>�� 개발<ed>��<eb>��. 
+변수를 선정하는 방법은 여러가지가 있으나, 먼저 `anova`함수를 사용해서 포화모델에서 
+유의적인 변수와 그렇지 않는 변수를 구별한다. 비유의적인 변수를 제거하고 `logit.reduced.m` 축소된 
+이항회귀모형을 개발한다. 
 
-<ec>��<ed>��<ed>��귀<ec>��<ec>��<eb>�� $R^2$ 결정계수가 <ed>�� <ec>��미�<b0>� <ec>��<eb>���<a0> 주장<ed>��<eb>�� 경우<eb>�� <ec>��<ec>��<eb>��, `pscl` <ed>��<ed>��지<ec>�� 기능<ec>�� <ec>��<ec>��<ed>��<ec>�� 계산<ed>��본다.
+이항회귀식에는 $R^2$ 결정계수가 큰 의미가 없다고 주장하는 경우도 있으나, `pscl` 팩키지의 기능을 사용하여 계산해본다.
 
-`ROCR` <ed>��<ed>��지�<bc> <ec>��<ec>��<ed>��<ec>�� <ed>��<ed>��모형�<bc> 축소모형간에 차이가 <ec>��<eb>��지 ROC 면적�<bc> <eb>��불어 ROC 곡선<ec>�� <eb>��<ec>��<ed>��<ed>��<ec>�� 비교<ed>��<eb>��.
+`ROCR` 팩키지를 사용해서 포화모형과 축소모형간에 차이가 있는지 ROC 면적과 더불어 ROC 곡선을 도식화하여 비교한다.
 
-<eb>�� 모형간에 <ec>��<eb>��<ec>�� 차이<eb>�� <ec>��<ec>�� 보이�<b0>, 4�<9c> 모형<ec>�� <ec>��<ec>��<eb>�� 축약<eb>�� 모형<ec>�� <ed>��<ed>��모형�<bc> 거의 비슷<ed>�� <ec>��<eb>��<ec>�� <eb>���<a0> <ec>��<eb>��.
+두 모형간에 성능의 차이는 없어 보이며, 4개 모형이 사용된 축약된 모형이 포화모형과 거의 비슷한 성능을 내고 있다.
 
 
 ~~~{.r}
 ##========================================================
-## 03. 모형 <U+653C><U+3E63>��<U+653C><U+3E64>��
+## 03. 모형 적합
 ##========================================================
 ## 
 suppressMessages(library(caret))
 
 #---------------------------------------------------------
-# 3.1. <U+653C><U+3E64>��<U+653C><U+3E62>��<U+653C><U+3E62>��<U+653C><U+3E63>��<U+653C><U+3E64>��<U+653C><U+3E63><U+393C><U+3E39>� 검증데<U+653C><U+3E63>��<U+653C><U+3E64>�� 분리
+# 3.1. 훈련데이터와 검증데이터 분리
 
 train.id <- createDataPartition(titanic$Survived, p = 0.7)[[1]] 
 titanic.train.df <- titanic[ train.id,] 
 titanic.test.df <- titanic[-train.id,]
 
 #---------------------------------------------------------
-# 3.1. <U+653C><U+3E63>��<U+653C><U+3E64>��<U+653C><U+3E64>��귀 <U+653C><U+3E63>��<U+653C><U+3E64>��
+# 3.1. 선형회귀 적합
 
 logit.full.m <- glm(Survived ~.,family=binomial(link='logit'), data=titanic.train.df)
 summary(logit.full.m)
@@ -228,27 +228,27 @@ glm(formula = Survived ~ ., family = binomial(link = "logit"),
 
 Deviance Residuals: 
     Min       1Q   Median       3Q      Max  
--2.5871  -0.6017  -0.4179   0.6264   2.4131  
+-2.7882  -0.5605  -0.3859   0.6278   2.4974  
 
 Coefficients:
-             Estimate Std. Error z value Pr(>|z|)    
-(Intercept)  5.170595   0.711947   7.263 3.80e-13 ***
-Pclass      -1.142039   0.179502  -6.362 1.99e-10 ***
-Sexmale     -2.602075   0.241133 -10.791  < 2e-16 ***
-Age         -0.038474   0.009732  -3.953 7.71e-05 ***
-SibSp       -0.344928   0.138358  -2.493   0.0127 *  
-Parch       -0.133834   0.140858  -0.950   0.3420    
-Fare         0.001663   0.003926   0.424   0.6719    
-EmbarkedQ   -0.180700   0.456920  -0.395   0.6925    
-EmbarkedS   -0.280202   0.287094  -0.976   0.3291    
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  5.9124097  0.6813718   8.677  < 2e-16 ***
+Pclass      -1.3132473  0.1731615  -7.584 3.35e-14 ***
+Sexmale     -2.7380153  0.2429523 -11.270  < 2e-16 ***
+Age         -0.0464928  0.0095414  -4.873 1.10e-06 ***
+SibSp       -0.3346004  0.1342922  -2.492   0.0127 *  
+Parch       -0.0915437  0.1484707  -0.617   0.5375    
+Fare         0.0009746  0.0025971   0.375   0.7075    
+EmbarkedQ    0.2813593  0.4585272   0.614   0.5395    
+EmbarkedS   -0.2699759  0.2883458  -0.936   0.3491    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 (Dispersion parameter for binomial family taken to be 1)
 
-    Null deviance: 824.69  on 622  degrees of freedom
-Residual deviance: 554.42  on 614  degrees of freedom
-AIC: 572.42
+    Null deviance: 838.41  on 622  degrees of freedom
+Residual deviance: 540.73  on 614  degrees of freedom
+AIC: 558.73
 
 Number of Fisher Scoring iterations: 5
 
@@ -258,7 +258,7 @@ Number of Fisher Scoring iterations: 5
 
 ~~~{.r}
 #---------------------------------------------------------
-# 3.2. 변<U+653C><U+3E63>��<U+653C><U+3E63>��<U+653C><U+3E64>��
+# 3.2. 변수선택
 anova(logit.full.m, test="Chisq")
 ~~~
 
@@ -274,14 +274,14 @@ Response: Survived
 Terms added sequentially (first to last)
 
          Df Deviance Resid. Df Resid. Dev  Pr(>Chi)    
-NULL                       622     824.69              
-Pclass    1   84.741       621     739.95 < 2.2e-16 ***
-Sex       1  160.268       620     579.68 < 2.2e-16 ***
-Age       1   12.917       619     566.77 0.0003257 ***
-SibSp     1   10.217       618     556.55 0.0013913 ** 
-Parch     1    0.809       617     555.74 0.3683342    
-Fare      1    0.355       616     555.38 0.5514932    
-Embarked  2    0.966       614     554.42 0.6169738    
+NULL                       622     838.41              
+Pclass    1   81.897       621     756.51 < 2.2e-16 ***
+Sex       1  181.439       620     575.07 < 2.2e-16 ***
+Age       1   20.196       619     554.88 6.992e-06 ***
+SibSp     1   10.583       618     544.30  0.001142 ** 
+Parch     1    0.550       617     543.75  0.458227    
+Fare      1    0.456       616     543.29  0.499589    
+Embarked  2    2.562       614     540.73  0.277792    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -307,23 +307,23 @@ glm(formula = Survived ~ Pclass + Sex + Age + SibSp, family = binomial(link = "l
 
 Deviance Residuals: 
     Min       1Q   Median       3Q      Max  
--2.6350  -0.5987  -0.4122   0.6272   2.4755  
+-2.8295  -0.5752  -0.3860   0.6094   2.4585  
 
 Coefficients:
              Estimate Std. Error z value Pr(>|z|)    
-(Intercept)  5.103170   0.566080   9.015  < 2e-16 ***
-Pclass      -1.209210   0.139888  -8.644  < 2e-16 ***
-Sexmale     -2.582587   0.228822 -11.286  < 2e-16 ***
-Age         -0.038695   0.009624  -4.021  5.8e-05 ***
-SibSp       -0.376501   0.129534  -2.907  0.00365 ** 
+(Intercept)  5.771741   0.595671   9.689  < 2e-16 ***
+Pclass      -1.321349   0.148115  -8.921  < 2e-16 ***
+Sexmale     -2.762281   0.236329 -11.688  < 2e-16 ***
+Age         -0.045853   0.009418  -4.869 1.12e-06 ***
+SibSp       -0.373944   0.127109  -2.942  0.00326 ** 
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 (Dispersion parameter for binomial family taken to be 1)
 
-    Null deviance: 824.69  on 622  degrees of freedom
-Residual deviance: 556.55  on 618  degrees of freedom
-AIC: 566.55
+    Null deviance: 838.41  on 622  degrees of freedom
+Residual deviance: 544.30  on 618  degrees of freedom
+AIC: 554.3
 
 Number of Fisher Scoring iterations: 5
 
@@ -343,9 +343,9 @@ pR2(logit.full.m)
 
 ~~~{.output}
          llh      llhNull           G2     McFadden         r2ML 
--277.2089507 -412.3449755  270.2720497    0.3277256    0.3519734 
+-270.3643861 -419.2050418  297.6813114    0.3550545    0.3798656 
         r2CU 
-   0.4796180 
+   0.5135687 
 
 ~~~
 
@@ -359,9 +359,9 @@ pR2(logit.reduced.m)
 
 ~~~{.output}
          llh      llhNull           G2     McFadden         r2ML 
--278.2738423 -412.3449755  268.1422665    0.3251431    0.3497543 
+-272.1482830 -419.2050418  294.1135175    0.3507991    0.3763041 
         r2CU 
-   0.4765941 
+   0.5087535 
 
 ~~~
 
@@ -369,10 +369,10 @@ pR2(logit.reduced.m)
 
 ~~~{.r}
 #---------------------------------------------------------
-# 3.4. 모형 <U+653C><U+3E64>��가
+# 3.4. 모형 평가
 
 suppressMessages(library(ROCR))
-# <U+653C><U+3E63>���<U+623C><U+3E34> 모형
+# 전체 모형
 logit.full.pred <- predict(logit.full.m, newdata=titanic.test.df, type="response")
 logit.full.pr <- prediction(logit.full.pred, titanic.test.df$Survived)
 logit.full.prf <- performance(logit.full.pr, measure = "tpr", x.measure = "fpr")
@@ -391,7 +391,7 @@ logit.full.auc
 
 
 ~~~{.output}
-[1] 0.8632075
+[1] 0.8259341
 
 ~~~
 
@@ -417,7 +417,7 @@ logit.reduced.auc
 
 
 ~~~{.output}
-[1] 0.8604953
+[1] 0.8274411
 
 ~~~
 
@@ -440,7 +440,7 @@ logit.full.auc
 
 
 ~~~{.output}
-[1] 0.8632075
+[1] 0.8259341
 
 ~~~
 
@@ -453,23 +453,23 @@ logit.reduced.auc
 
 
 ~~~{.output}
-[1] 0.8604953
+[1] 0.8274411
 
 ~~~
 
-## 1.4. <ec>��<eb>�� 모형 <ec>��<ec>�� 방법
+## 1.4. 자동 모형 선정 방법
 
-만약 $p$�<9c> 변<ec>��가 <ec>��<eb>���<b4> $2^p$ 만큼 가<eb>��<ed>�� 모형<ec>�� 존재<ed>��<eb>��. 모형<ec>�� 모두 <ec>��<ed>��<ec>���<9c> $2^p$ 모형중에<ec>�� <ec>��<eb>�� <eb>�� 기�<a4>�조건<ec>�� 만족<ed>��<eb>�� 최적<ec>�� 모형<ec>�� <ec>��<ec>��<ed>��<eb>��. 경우<ec>�� <ec>��가 <eb>���<b4> 많고, <ec>��<eb>��<ec>�� 비슷<ed>�� 모형<ec>�� 반복<ec>��<ec>���<9c> 개발<ed>�� <ec>��<eb>��<eb>�� <ec>���<a0> <ed>��<ec>��, 기�<a4>�조건(Criterion-based) 방법<ec>���<9c> <ed>��<ed>�� 변<ec>���<bc> 추출<ed>�� <eb>��간다. �<89>, 가<ec>�� <ec>��<eb>��<ec>�� 좋�<9d>� 변<ec>��부<ed>�� <ec>��<ed>��<ed>�� <eb>��가면서 복잡<ec>���<bc> <ec>��<eb>��<ec>�� 최적<ed>��<ed>��<eb>��. 가<ec>�� <ec>��반적<ec>���<9c> 많이 <ec>��<ec>��<eb>��<eb>�� 방식<ec>�� $AIC(Akaike Information Criterion)$, $BIC(Bayes Information Criterion)$<ec>�� <eb>�� <ec>�� <ec>��<eb>��.
+만약 $p$개 변수가 있다면 $2^p$ 만큼 가능한 모형이 존재한다. 모형을 모두 적합시켜 $2^p$ 모형중에서 성능 등 기준조건을 만족하는 최적의 모형을 선정한다. 경우의 수가 너무 많고, 성능이 비슷한 모형을 반복적으로 개발할 우려도 있고 해서, 기준조건(Criterion-based) 방법으로 통해 변수를 추출해 나간다. 즉, 가장 성능이 좋은 변수부터 선택해 나가면서 복잡성과 성능을 최적화한다. 가장 일반적으로 많이 사용되는 방식이 $AIC(Akaike Information Criterion)$, $BIC(Bayes Information Criterion)$을 들 수 있다.
 
 $$AIC = -2 ln(L) + 2k $$
 $$BIC = -2 ln(L) + k ln(n) $$
 
-$L$<ec><9d>� 모형<ec>�� <eb><8c>�<ed>�� <ec>��<eb>��<ed>��<ec>�� 최�<8c>�값이�<a0>, $k$<eb>�� 모형<ec>�� <ec>��<ec>��<eb>�� 추정모수�<af><ec>��, $n$<ec><9d>� 관측점 �<af><ec>��가 <eb>��<eb>��.
+$L$은 모형에 대한 우도함수 최대값이고, $k$는 모형에 사용된 추정모수갯수, $n$은 관측점 갯수가 된다.
 
 
 ~~~{.r}
 ##========================================================
-## 04. 변<U+653C><U+3E63>��<U+653C><U+3E63>��<U+653C><U+3E64>�� 모형 <U+653C><U+3E63>��<U+653C><U+3E63>��
+## 04. 변수선택 모형 선정
 ##========================================================
 ## 
 
@@ -482,70 +482,70 @@ logit.bic.m <- step(logit.null.m, scope=formula(logit.full.m), direction="both",
 
 
 ~~~{.output}
-Start:  AIC=831.12
+Start:  AIC=844.84
 Survived ~ 1
 
            Df Deviance    AIC
-+ Sex       1   653.99 666.86
-+ Pclass    1   739.95 752.82
-+ Fare      1   761.77 774.64
-+ Embarked  2   808.52 827.82
-<none>          824.69 831.12
-+ Parch     1   821.51 834.38
-+ Age       1   822.26 835.13
-+ SibSp     1   823.40 836.27
++ Sex       1   651.61 664.48
++ Pclass    1   756.51 769.38
++ Fare      1   792.64 805.51
++ Embarked  2   822.86 842.16
+<none>          838.41 844.84
++ Age       1   833.74 846.61
++ Parch     1   834.03 846.90
++ SibSp     1   837.61 850.48
 
-Step:  AIC=666.86
+Step:  AIC=664.48
 Survived ~ Sex
 
            Df Deviance    AIC
-+ Pclass    1   579.68 598.99
-+ Fare      1   626.87 646.17
-+ SibSp     1   645.73 665.03
-<none>          653.99 666.86
-+ Embarked  2   642.48 668.22
++ Pclass    1   575.07 594.38
++ Fare      1   629.44 648.75
++ SibSp     1   643.52 662.82
+<none>          651.61 664.48
++ Embarked  2   640.21 665.95
 + Parch     1   649.67 668.97
-+ Age       1   653.66 672.96
-- Sex       1   824.69 831.12
++ Age       1   650.72 670.03
+- Sex       1   838.41 844.84
 
-Step:  AIC=598.99
+Step:  AIC=594.38
 Survived ~ Sex + Pclass
 
            Df Deviance    AIC
-+ Age       1   566.77 592.50
-<none>          579.68 598.99
-+ SibSp     1   573.90 599.63
-+ Parch     1   577.74 603.48
-+ Fare      1   579.68 605.42
-+ Embarked  2   577.57 609.74
-- Pclass    1   653.99 666.86
-- Sex       1   739.95 752.82
++ Age       1   554.88 580.62
+<none>          575.07 594.38
++ SibSp     1   570.25 595.99
++ Parch     1   573.70 599.44
++ Fare      1   575.05 600.79
++ Embarked  2   570.94 603.11
+- Pclass    1   651.61 664.48
+- Sex       1   756.51 769.38
 
-Step:  AIC=592.5
+Step:  AIC=580.62
 Survived ~ Sex + Pclass + Age
 
            Df Deviance    AIC
-+ SibSp     1   556.55 588.72
-<none>          566.77 592.50
-+ Parch     1   563.38 595.56
-+ Fare      1   566.49 598.67
-- Age       1   579.68 598.99
-+ Embarked  2   564.81 603.41
-- Pclass    1   653.66 672.96
-- Sex       1   717.25 736.55
++ SibSp     1   544.30 576.47
+<none>          554.88 580.62
++ Parch     1   551.55 583.72
++ Fare      1   554.84 587.01
++ Embarked  2   550.36 588.97
+- Age       1   575.07 594.38
+- Pclass    1   650.72 670.03
+- Sex       1   723.68 742.98
 
-Step:  AIC=588.72
+Step:  AIC=576.47
 Survived ~ Sex + Pclass + Age + SibSp
 
            Df Deviance    AIC
-<none>          556.55 588.72
-- SibSp     1   566.77 592.50
-+ Parch     1   555.74 594.35
-+ Fare      1   556.40 595.01
-- Age       1   573.90 599.63
-+ Embarked  2   555.40 600.44
-- Pclass    1   644.24 669.98
-- Sex       1   714.18 739.92
+<none>          544.30 576.47
+- SibSp     1   554.88 580.62
++ Parch     1   543.75 582.35
++ Fare      1   544.05 582.66
++ Embarked  2   541.18 586.22
+- Age       1   570.25 595.99
+- Pclass    1   640.86 666.60
+- Sex       1   720.76 746.50
 
 ~~~
 
@@ -558,70 +558,70 @@ logit.aic.m <- step(logit.null.m, scope=formula(logit.full.m), direction="both",
 
 
 ~~~{.output}
-Start:  AIC=826.69
+Start:  AIC=840.41
 Survived ~ 1
 
            Df Deviance    AIC
-+ Sex       1   653.99 657.99
-+ Pclass    1   739.95 743.95
-+ Fare      1   761.77 765.77
-+ Embarked  2   808.52 814.52
-+ Parch     1   821.51 825.51
-+ Age       1   822.26 826.26
-<none>          824.69 826.69
-+ SibSp     1   823.40 827.40
++ Sex       1   651.61 655.61
++ Pclass    1   756.51 760.51
++ Fare      1   792.64 796.64
++ Embarked  2   822.86 828.86
++ Age       1   833.74 837.74
++ Parch     1   834.03 838.03
+<none>          838.41 840.41
++ SibSp     1   837.61 841.61
 
-Step:  AIC=657.99
+Step:  AIC=655.61
 Survived ~ Sex
 
            Df Deviance    AIC
-+ Pclass    1   579.68 585.68
-+ Fare      1   626.87 632.87
-+ Embarked  2   642.48 650.48
-+ SibSp     1   645.73 651.73
++ Pclass    1   575.07 581.07
++ Fare      1   629.44 635.44
++ Embarked  2   640.21 648.21
++ SibSp     1   643.52 649.52
+<none>          651.61 655.61
 + Parch     1   649.67 655.67
-<none>          653.99 657.99
-+ Age       1   653.66 659.66
-- Sex       1   824.69 826.69
++ Age       1   650.72 656.72
+- Sex       1   838.41 840.41
 
-Step:  AIC=585.68
+Step:  AIC=581.07
 Survived ~ Sex + Pclass
 
            Df Deviance    AIC
-+ Age       1   566.77 574.77
-+ SibSp     1   573.90 581.90
-<none>          579.68 585.68
-+ Parch     1   577.74 585.74
-+ Embarked  2   577.57 587.57
-+ Fare      1   579.68 587.68
-- Pclass    1   653.99 657.99
-- Sex       1   739.95 743.95
++ Age       1   554.88 562.88
++ SibSp     1   570.25 578.25
++ Embarked  2   570.94 580.94
+<none>          575.07 581.07
++ Parch     1   573.70 581.70
++ Fare      1   575.05 583.05
+- Pclass    1   651.61 655.61
+- Sex       1   756.51 760.51
 
-Step:  AIC=574.77
+Step:  AIC=562.88
 Survived ~ Sex + Pclass + Age
 
            Df Deviance    AIC
-+ SibSp     1   556.55 566.55
-+ Parch     1   563.38 573.38
-<none>          566.77 574.77
-+ Fare      1   566.49 576.49
-+ Embarked  2   564.81 576.81
-- Age       1   579.68 585.68
-- Pclass    1   653.66 659.66
-- Sex       1   717.25 723.25
++ SibSp     1   544.30 554.30
++ Parch     1   551.55 561.55
++ Embarked  2   550.36 562.36
+<none>          554.88 562.88
++ Fare      1   554.84 564.84
+- Age       1   575.07 581.07
+- Pclass    1   650.72 656.72
+- Sex       1   723.68 729.68
 
-Step:  AIC=566.55
+Step:  AIC=554.3
 Survived ~ Sex + Pclass + Age + SibSp
 
            Df Deviance    AIC
-<none>          556.55 566.55
-+ Parch     1   555.74 567.74
-+ Fare      1   556.40 568.40
-+ Embarked  2   555.40 569.40
-- SibSp     1   566.77 574.77
-- Age       1   573.90 581.90
-- Pclass    1   644.24 652.24
-- Sex       1   714.18 722.18
+<none>          544.30 554.30
++ Embarked  2   541.18 555.18
++ Parch     1   543.75 555.75
++ Fare      1   544.05 556.05
+- SibSp     1   554.88 562.88
+- Age       1   570.25 578.25
+- Pclass    1   640.86 648.86
+- Sex       1   720.76 728.76
 
 ~~~
 
@@ -640,11 +640,11 @@ Call:  glm(formula = Survived ~ Sex + Pclass + Age + SibSp, family = binomial(li
 
 Coefficients:
 (Intercept)      Sexmale       Pclass          Age        SibSp  
-    5.10317     -2.58259     -1.20921     -0.03869     -0.37650  
+    5.77174     -2.76228     -1.32135     -0.04585     -0.37394  
 
 Degrees of Freedom: 622 Total (i.e. Null);  618 Residual
-Null Deviance:	    824.7 
-Residual Deviance: 556.5 	AIC: 566.5
+Null Deviance:	    838.4 
+Residual Deviance: 544.3 	AIC: 554.3
 
 ~~~
 
@@ -663,10 +663,10 @@ Call:  glm(formula = Survived ~ Sex + Pclass + Age + SibSp, family = binomial(li
 
 Coefficients:
 (Intercept)      Sexmale       Pclass          Age        SibSp  
-    5.10317     -2.58259     -1.20921     -0.03869     -0.37650  
+    5.77174     -2.76228     -1.32135     -0.04585     -0.37394  
 
 Degrees of Freedom: 622 Total (i.e. Null);  618 Residual
-Null Deviance:	    824.7 
-Residual Deviance: 556.5 	AIC: 566.5
+Null Deviance:	    838.4 
+Residual Deviance: 544.3 	AIC: 554.3
 
 ~~~
