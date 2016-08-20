@@ -1,0 +1,53 @@
+---
+layout: page
+title: xwMOOC 기계학습
+subtitle: 신용평점모형 탐색적 데이터 분석
+output:
+  html_document: 
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
+---
+ 
+``` {r, include=FALSE}
+source("tools/chunk-options.R")
+```
+
+> ### 학습목표 {.getready}
+>
+> * 
+
+
+``` {r lendingclub-eda, warning=FALSE, tidy=FALSE}
+##=====================================================================
+## 07. 채무 불이행 예측
+##=====================================================================
+
+bad_indicators <- c("Charged Off",
+                    "Default",
+                    "Does not meet the credit policy. Status:Charged Off",
+                    "In Grace Period", 
+                    "Default Receiver", 
+                    "Late (16-30 days)",
+                    "Late (31-120 days)")
+
+loan.dat$is_bad <- ifelse(loan.dat$loan_status %in% bad_indicators, 0,
+                          ifelse(loan.dat$loan_status=="", NA, 1))
+
+numeric_cols <- sapply(loan.dat, is.numeric)
+library(reshape2)
+loanbook.lng <- melt(loan.dat[,numeric_cols], id="is_bad")
+library(ggplot2)
+p <- ggplot(aes(x = value, group = is_bad, colour = factor(is_bad)), 
+            data = loanbook.lng)
+p + geom_density() + facet_wrap(~variable, scales="free")
+
+install.packages("DT")
+library(DT)
+
+loan.dat %>% 
+  filter(is_bad == '0') %>% 
+  select(annual_inc, int_rate, loan_status) %>% 
+  datatable(., options = list(pageLength = 10))
+```
