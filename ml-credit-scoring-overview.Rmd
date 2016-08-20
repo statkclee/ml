@@ -65,7 +65,9 @@ $\text{기대손실} = \text{채무 불이행 위험} \times \text{채무 불이
 * Application 정보: 나이, 결혼여부, 소득, 자가/전세 등
 * Behaviour 정보: 현재 은행잔고, 연체금액 등
 
-### 2. 랜딩클럽 데이터
+### 2. 랜딩클럽 데이터 [^kaggle-lendingclub]
+
+[^kaggle-lendingclub]: [Eryk Walczak, Initial loan book analysis](https://www.kaggle.com/erykwalczak/d/wendykan/lending-club-loan-data/initial-loan-book-analysis/)
 
 [LendingClub](https://www.lendingclub.com/info/download-data.action) 사이트에서 데이터를 다운로드해도 되고,
 [캐글 대출 데이터(Kaggle Loan Data)](https://www.kaggle.com/wendykan/lending-club-loan-data)를 통해서 데이터를 구해도 좋다.
