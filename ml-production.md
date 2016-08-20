@@ -1,7 +1,7 @@
 ---
 layout: page
 title: xwMOOC 기계학습
-subtitle: 기계학습 적용
+subtitle: 기계학습 운영 - 파이프라인
 ---
 
 > ## 학습목표 {.objectives}
