@@ -12,6 +12,21 @@ mainfont: NanumGothic
  
 ``` {r, include=FALSE}
 source("tools/chunk-options.R")
+
+strategy_bank <- function(prob_of_def){
+  cutoff=rep(NA, 21)
+  bad_rate=rep(NA, 21)
+  accept_rate=seq(1,0,by=-0.05)
+  for (i in 1:21){
+    cutoff[i] = quantile(prob_of_def,accept_rate[i])
+    pred_i = ifelse(prob_of_def> cutoff[i], 1, 0)
+    pred_as_good = test_set$loan_status[pred_i==0]
+    bad_rate[i] = sum(pred_as_good)/length(pred_as_good)}
+  table = cbind(accept_rate,cutoff=round(cutoff,4),bad_rate=round(bad_rate,4))
+  return(list(table=table,bad_rate=bad_rate, accept_rate=accept_rate, cutoff=cutoff))
+}
+
+
 ```
 
 > ### 학습 목표 {.getready}
@@ -19,7 +34,78 @@ source("tools/chunk-options.R")
 > * 
 
 
+### 1. 전략곡선(Strategy Curve)
 
+``` {r lendingclub-strategy, warning=FALSE, tidy=FALSE}
+##=====================================================================
+## 01. 렌딩클럽 데이터 가져오기
+##=====================================================================
+# http://rstudio-pubs-static.s3.amazonaws.com/3588_81e2ebd4de1b41bc9ac2f29f5f7dab2e.html
+library(readr)
+library(dplyr)
+setwd("D:/docs/ml")
+loan.dat <- read_fwf("data/lendingclub_loan_sample.txt", fwf_widths(c(6,11,10,6,15,11,4,8,8)), skip=1)
+names(loan.dat) <- c("seq","loan_status", "loan_amnt grade", "home_ownership", "annual_inc", "age", "emp_cat", "ir_cat")
+loan.dat$seq <- NULL
+
+dim(loan.dat)
+names(loan.dat)
+
+glimpse(loan.dat)
+summary(loan.dat)
+
+##=====================================================================
+## 02. 의사결정나무
+##=====================================================================
+
+train_index <- sample(nrow(loan.dat), 2/3*nrow(loan.dat))
+train_set <- loan.dat[train_index,]
+test_set <- loan.dat[-train_index,]
+
+library(rpart)
+# 02-03.손실함수 설정
+loan_loss_dt <- rpart(loan_status ~ ., method = "class", data =  train_set, 
+                      control = rpart.control(cp = 0.001),
+                      parms = list(loss = matrix(c(0, 10, 1, 0), ncol=2)))
+
+plot(loan_loss_dt, uniform = TRUE)
+text(loan_loss_dt)
+
+#---------------------------------------------------------------------
+# 02-1. 의사결정나무: 가지치기(Prune)
+#---------------------------------------------------------------------
+
+# 01. 가지치기 사례
+plotcp(loan_loss_dt)
+printcp(loan_loss_dt)
+
+ptree_loss <- prune(loan_loss_dt, cp = 0.0020548)
+
+library(rattle)
+library(rpart.plot)
+library(RColorBrewer)
+
+fancyRpartPlot(ptree_loss)
+
+##=====================================================================
+## 03. 전략곡선 도출
+##=====================================================================
+
+prob_default_loss <- predict(ptree_loss, newdata = test_set)[ ,2]
+
+cutoff_loss <- quantile(prob_default_loss, 0.8)  
+binary_pred_loss_80 <- ifelse(prob_default_loss > cutoff_loss, 1, 0)
+
+accepted_status_loss_80 <- test_set$loan_status[binary_pred_loss_80 == 0]
+sum(accepted_status_loss_80) / length(accepted_status_loss_80)
+
+strategy_default_loss <- strategy_bank(prob_default_loss)
+strategy_default_loss$table
+
+plot(strategy_default_loss$accept_rate, strategy_default_loss$bad_rate, 
+     type = "l", xlab = "승인율", ylab = "부실율", 
+     lwd = 2, main = "의사결정나무")
+```     
 
 
 #### 1.1. 신용평가 모형 전처리
@@ -202,5 +288,5 @@ list.rules.rpart <- function(model)
     }
   }
 }
-
+```
 
