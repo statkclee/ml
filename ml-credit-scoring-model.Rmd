@@ -175,3 +175,120 @@ sum(diag(tab_class_logit))/nrow(test_set)
 
 ### 2. 의사결정나무
 
+<img src="fig/ml-credit-scoring-gini.png" alt="지니계수 개요" width="70%" />
+
+
+~~~ {.output}
+지니 이득 = 뿌리 지니값 - 좌측 잎 비율 * 좌측 지니값 -  우측 잎 비율 * 우측 지니값   
+          = 0.292632 – 446/500 * 0.1814334 – 54/500 * 0.3017833   
+          = 0.09820084   
+~~~
+
+``` {r lendingclub-rpart, warning=FALSE, tidy=FALSE}
+##=====================================================================
+## 01. 렌딩클럽 데이터 가져오기
+##=====================================================================
+# http://rstudio-pubs-static.s3.amazonaws.com/3588_81e2ebd4de1b41bc9ac2f29f5f7dab2e.html
+library(readr)
+library(dplyr)
+setwd("D:/docs/ml")
+loan.dat <- read_fwf("data/lendingclub_loan_sample.txt", fwf_widths(c(6,11,10,6,15,11,4,8,8)), skip=1)
+names(loan.dat) <- c("seq","loan_status", "loan_amnt grade", "home_ownership", "annual_inc", "age", "emp_cat", "ir_cat")
+loan.dat$seq <- NULL
+
+dim(loan.dat)
+names(loan.dat)
+
+glimpse(loan.dat)
+summary(loan.dat)
+
+
+##=====================================================================
+## 02. 의사결정나무
+##=====================================================================
+library(rpart)
+
+# 02-01. cp값 0.001 설정
+loan_dt <- rpart(loan_status ~ ., method = "class", data =  loan.dat, 
+                 control = rpart.control(cp = 0.001))
+
+plot(loan_dt, uniform = TRUE)
+text(loan_dt)
+
+# 02-02.사전 확률 설정
+loan_prior_dt <- rpart(loan_status ~ ., method = "class", data =  loan.dat, 
+                       control = rpart.control(cp = 0.001),
+                       parms = list(prior=c(0.7, 0.3)))
+
+plot(loan_prior_dt, uniform = TRUE)
+text(loan_prior_dt)
+
+# 02-03.손실함수 설정
+loan_loss_dt <- rpart(loan_status ~ ., method = "class", data =  loan.dat, 
+                      control = rpart.control(cp = 0.001),
+                      parms = list(loss = matrix(c(0, 10, 1, 0), ncol=2)))
+
+plot(loan_loss_dt, uniform = TRUE)
+text(loan_loss_dt)
+
+# 02-04. CP, 사전확률, 손실함수 모두 설정
+loan_prior_loss_dt <- rpart(loan_status ~ ., method = "class", data =  loan.dat, 
+                            control = rpart.control(cp = 0.001),
+                            parms = list(prior=c(0.7, 0.3),
+                                         loss = matrix(c(0, 10, 1, 0), ncol=2)))
+
+plot(loan_prior_loss_dt, uniform = TRUE)
+text(loan_prior_loss_dt)
+
+#---------------------------------------------------------------------
+# 02-1. 의사결정나무: 가지치기(Prune)
+#---------------------------------------------------------------------
+
+# 01. 가지치기 사례
+plotcp(loan_dt)
+printcp(loan_dt)
+
+index <- which.min(loan_dt$cptable[ , "xerror"])
+tree_min <- loan_dt$cptable[index, "CP"]
+
+ptree_prior <- prune(loan_dt, cp = tree_min)
+
+library(rpart.plot)
+prp(ptree_prior, extra=1)
+
+# 02. 손실함수 가지치기 사례
+
+library(rattle)
+library(rpart.plot)
+library(RColorBrewer)
+
+loan_loss_dt <- rpart(loan_status ~ ., method = "class", data =  loan.dat, 
+                      control = rpart.control(cp = 0.001),
+                      parms = list(prior=c(0.90, 0.10),
+                                   loss = matrix(c(0, 10, 1, 0), ncol=2)))
+
+printcp(loan_loss_dt) # 0.0020928
+ptree_loss_dt <- prune(loan_loss_dt, cp = 0.0020928)
+
+fancyRpartPlot(ptree_loss_dt)
+
+# 03. 자주 사용되는 추가 선택옵션
+
+case_weights <- ifelse(loan.dat$loan_status==1, 3, 1)
+
+loan_loss_wgt_dt <- rpart(loan_status ~ ., method = "class", data =  loan.dat, 
+                          control = rpart.control(minsplit = 5, minbucket = 2, cp = 0.0001), 
+                          weights=case_weights,
+                          parms = list(prior=c(0.90, 0.10),
+                                       loss = matrix(c(0, 10, 1, 0), ncol=2)))
+
+plotcp(loan_loss_wgt_dt)
+printcp(loan_loss_wgt_dt) # 0.00306951
+
+ptree_weights <- prune(loan_loss_wgt_dt, cp=0.00306951)
+
+prp(loan_loss_wgt_dt, extra = 1)
+```
+
+
+
