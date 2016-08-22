@@ -175,10 +175,14 @@ sum(diag(tab_class_logit))/nrow(test_set)
 ```
 
 
-### 2. 의사결정나무
+### 2. 의사결정나무(Decision Tree)
+
+R에서 의사결정나무 모형을 적합시키는데 `rpart`를 사용하고 분기를 하는데 기본 기준으로 지니(Gini)를 사용한다.
+가장 지니 이득(Gini Gain)을 최대화하는 방식으로 나무모형을 적합시켜 나간다.
+
+기본 개념은 다음과 같고, 지니 이득은 다음과 계산된다.
 
 <img src="fig/ml-credit-scoring-gini.png" alt="지니계수 개요" width="70%" />
-
 
 ~~~ {.output}
 지니 이득 = 뿌리 지니값 - 좌측 잎 비율 * 좌측 지니값 -  우측 잎 비율 * 우측 지니값   
@@ -191,24 +195,16 @@ sum(diag(tab_class_logit))/nrow(test_set)
 ## 01. 렌딩클럽 데이터 가져오기
 ##=====================================================================
 # http://rstudio-pubs-static.s3.amazonaws.com/3588_81e2ebd4de1b41bc9ac2f29f5f7dab2e.html
-library(readr)
-library(dplyr)
-setwd("D:/docs/ml")
+suppressMessages(library(readr))
+suppressMessages(library(dplyr))
+
 loan.dat <- read_fwf("data/lendingclub_loan_sample.txt", fwf_widths(c(6,11,10,6,15,11,4,8,8)), skip=1)
 names(loan.dat) <- c("seq","loan_status", "loan_amnt grade", "home_ownership", "annual_inc", "age", "emp_cat", "ir_cat")
-loan.dat$seq <- NULL
-
-dim(loan.dat)
-names(loan.dat)
-
-glimpse(loan.dat)
-summary(loan.dat)
-
 
 ##=====================================================================
 ## 02. 의사결정나무
 ##=====================================================================
-library(rpart)
+suppressMessages(library(rpart))
 
 # 02-01. cp값 0.001 설정
 loan_dt <- rpart(loan_status ~ ., method = "class", data =  loan.dat, 
@@ -241,7 +237,13 @@ loan_prior_loss_dt <- rpart(loan_status ~ ., method = "class", data =  loan.dat,
 
 plot(loan_prior_loss_dt, uniform = TRUE)
 text(loan_prior_loss_dt)
+```
 
+`rpart` 모형을 적합시킬 때, CP, 사전확률, 손실함수 등 다양한 모수를 사전에 설정해야 한다.
+특히, 채무불이행, 사기탐지 등 정상사례와 비교하여 예측하고자 하는 사례가 극도로 균형이 맞지 않는 경우에는
+이런 세세한 부분에 신경을 많이 써서 모형을 적합시켜야 된다.
+
+``` {r lendingclub-rpart-pruning, warning=FALSE, tidy=FALSE}
 #---------------------------------------------------------------------
 # 02-1. 의사결정나무: 가지치기(Prune)
 #---------------------------------------------------------------------
@@ -292,5 +294,84 @@ ptree_weights <- prune(loan_loss_wgt_dt, cp=0.00306951)
 prp(loan_loss_wgt_dt, extra = 1)
 ```
 
+### 3. 비용함수(행렬)/수익함수(행렬)
 
+저신용자에게 신용카드를 발급할 경우는 그 반대의 경우에 비해 5배 비용이 많이 소요된다. 이를 비용함수 혹은 비용행렬이라고 부른다.
+아래 **비용함수(Cost Function)** 를 마케팅 캠페인등에 사용하면 **수익함수(Profit Function)** 라고 부르기도 한다. 1종, 2종 오류를 범할 경우 수익/비용에서 차이가 나기 때문이다. 
+
+|    |  1  |  2  |
+|----|-----|-----|
+| 1  |  0  |  1  |
+| 2  |  5  |  0  |
+
+기계학습을 활용한 은행이나 카드사는 수익성을 전제로하여 기계학습 알고리듬을 도입한다. 예를 들어, 
+향후 5년간 신용카드발급에서 이자수익이 40% 예상되고, 신용불량으로 인해 대손이 발생된다면 다음과 같이 수익행렬을 작성할 수 있다.
+
+|                 | 정상(예측) | 신용불량(예측) |
+|-----------------|:----------:|:--------------:|
+| 정상(실제)      |    0.4     |      0         |
+| 신용불량(실제)  |     -1     |      0         |
+
+#### 3.1. 독일신용 데이터를 통한 사례분석 [^profit-analysis-sas]
+
+독일신용 데이터에는 1,000명의 고객이 있다. 700명이 정상이고, 300명이 신용불량자로 등록되어 있다. 이럴 경우 신용불량으로 인한 대손이 발생하지 않을 경우 35% 수익이 예상되고, 신용불량으로 확정될 경우 100% 손실이 불가피하다. 신용불량이 전혀 없다고 가정하고 대출을 진행할 경우 모의시험을 수행하면 다음과 같다.
+
+|                 | 정상(예측) | 신용불량(예측) |
+|-----------------|:----------:|:--------------:|
+| 정상(실제)      |   0.35     |     0          |
+| 신용불량(실제)  |    -1      |     0          |
+
+1,000명에게 모두 1원씩 한단위 제공한다면, $\frac{700 \times 0.35 - 300 \times 1}{1000} = \frac{-55}{1000} = -0.055$ 만큼 손실이 불가피하다.
+
+좀더 현실적으로 고객당 천만원을 신용카드를 통해 대출을 준다면, $-0.055 \times 10,000,000 * 1000 = -5.5$ 억원 손실이 난다.
+
+
+#### 3.2. 신용평가 알고리듬을 구축한 경우
+
+|                 | 정상(예측) | 신용불량(예측) |
+|-----------------|:----------:|:--------------:|
+| 정상(실제)      |   608      |    46          |
+| 신용불량(실제)  |    192     |   154          |
+
+
+신용평가 알고리듬을 개발하여 다음과 같이 구축했다고 가정하면, 다음과 같은 결과가 예상된다.
+신용불량이라고 예측한 경우 신용카드발급을 통한 대출을 주지 않아 정상적인 고객이 신용카드를 활용하지 못해 손실(+35% 이자수익)이 발생하고, 정상이라고 예측했지만, 신용카드를 발급해서 생기는 손실(-100%)도 있다. 하지만, 정상이라고 예측해서 정상으로 사용되는 경우 생기는 수익이 608명으로부터 나오고, 신용불량으로 예측해서 실제 신용불량을 맞춤으로써 생기는 이익도 함께 존재한다.
+
+이를 정리하여 합치게 되면 다음과 같은 수익이 예상된다.
+
+$$ 608 \times 10,000,000 \times 0.35 - 192 \times 10,000 = 2.08억$$
+
+신용평가 모형을 갖는 것과 갖지않는 전체적인 효과는 $2.08억 - (-5.5억) = 7.58억$ 으로 추산할 수 있다.
+
+[^profit-analysis-sas]: [Profit Analysis of the German Credit Data Using SAS® Enterprise MinerTM 5.3](http://www.sas.com/technologies/analytics/datamining/miner/trial/german-credit-data.pdf)
+
+
+```{r profit-matrix, tidy=FALSE, eval=FALSE}
+##================================================================
+## 04. 비용함수/행렬
+##================================================================
+matrix_dimensions <- list(c("good", "bad"), c("good", "bad"))
+names(matrix_dimensions) <- c("acutual", "predicted")
+
+error_cost <- matrix(c(0.35, -1, 0, 0), nrow = 2,
+                     dimnames = matrix_dimensions)
+#       predicted
+#acutual  good bad
+#   good  0.35   0
+#   bad  -1.00   0
+
+##================================================================
+## 05. 모형 개발
+##================================================================
+library(c50)
+c50.cost.m <- C5.0(train[,-1], train$Creditability, costs = error_cost)
+
+##================================================================
+## 05. 모형 성능평가
+##================================================================
+credit_cost_pred <- predict(c50.cost.m, test)
+CrossTable(test$Creditability, credit_cost_pred,
+             prop.chisq = FALSE, prop.c = FALSE, prop.r = FALSE,
+             dnn = c('actual default', 'predicted default'))
+```
 
