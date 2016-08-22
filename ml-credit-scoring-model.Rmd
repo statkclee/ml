@@ -262,9 +262,9 @@ prp(ptree_prior, extra=1)
 
 # 02. 손실함수 가지치기 사례
 
-library(rattle)
-library(rpart.plot)
-library(RColorBrewer)
+suppressMessages(library(rattle))
+suppressMessages(library(rpart.plot))
+suppressMessages(library(RColorBrewer))
 
 loan_loss_dt <- rpart(loan_status ~ ., method = "class", data =  loan.dat, 
                       control = rpart.control(cp = 0.001),
@@ -287,11 +287,11 @@ loan_loss_wgt_dt <- rpart(loan_status ~ ., method = "class", data =  loan.dat,
                                        loss = matrix(c(0, 10, 1, 0), ncol=2)))
 
 plotcp(loan_loss_wgt_dt)
-printcp(loan_loss_wgt_dt) # 0.00306951
+printcp(loan_loss_wgt_dt) # 0.00400812
 
-ptree_weights <- prune(loan_loss_wgt_dt, cp=0.00306951)
+ptree_weights <- prune(loan_loss_wgt_dt, cp=0.00400812)
 
-prp(loan_loss_wgt_dt, extra = 1)
+prp(ptree_weights, extra = 1)
 ```
 
 ### 3. 비용함수(행렬)/수익함수(행렬)

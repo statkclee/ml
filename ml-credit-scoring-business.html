@@ -38,117 +38,276 @@
       <div class="row">
         <div class="col-md-10 col-md-offset-1">
                     <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
-          <h2 class="subtitle">신용평점모형 개발</h2>
-          <p><code>{r, include=FALSE} source(&quot;tools/chunk-options.R&quot;)</code></p>
-<section class="getready panel panel-warning">
+          <h2 class="subtitle">신용평가와 신용평점모형</h2>
+          <section class="getready panel panel-warning">
 <div class="panel-heading">
-<h3 id="신용평가모형-목표"><span class="glyphicon glyphicon-check"></span>신용평가모형 목표</h3>
+<h3 id="학습-목표"><span class="glyphicon glyphicon-check"></span>학습 목표</h3>
 </div>
 <div class="panel-body">
 <ul>
-<li><strong>수익을 극대화</strong> 하고, <strong>신용위험을 최소화</strong> 하는 신용평점모형을 개발한다.</li>
-<li>랜딩클럽 데이터를 분석하여 실제 데이터를 가지고 신용평점모형을 개발한다.</li>
+<li></li>
 </ul>
 </div>
 </section>
-<h3 id="신용평점모형-ml-credit-scoring-sharma">1. 신용평점모형 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h3>
-<p>대한민국에서 이영애 누님께서 IMF를 극복하고 2000년대 초반에 신용카드로 행복한 삶을 사는 모습을 러닝머신을 타면서 보여주면서 신용카드의 전성기가 도래했지만, 소수의 사람을 빼고 신용카드가 결국 미래 소비를 현재로 앞당겨서 돈을 쓰는 것에 불과하다는 것은 그로부터 몇년 뒤에 명확해졌고, 이를 신용대란이라고 불렀다. 이후 기업금융과 마찬가지로 소매금융도 위험관리가 중요해졌으며, 소매금융에 있어 위험관리 기법으로 신용평점에 따라 엄격하게 관리하는 것이 필요해졌고, 이에 <a href="https://ko.wikipedia.org/wiki/신용_위험">신용평점모형(Credit Scoring Model)</a>과 더불어 이를 자동화한 금융시스템이 각광을 받기 시작했다.</p>
-<p>파이썬은 과학컴퓨팅에 많은 경험과 라이브러리가 구축되어 있는 반면, R은 상대적으로 통계학기반이라 통계학이 많이 사용되는 금융위험관리 분야에 구축된 블로그, 논문, 기고문, 라이브러리가 많다. 현실과 밀접한 신용할당문제를 기계학습에서 대규모 적용할 경우 풀어가는 방식을 R로 살펴보고, 추후 파이썬으로 확장도 고려해 본다. <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> <a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a> <a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a></p>
-<h4 id="신용평점-개요">1.1. 신용평점 개요</h4>
-<p>기본적으로 금융기관에서는 한국은행을 비롯한 다양한 곳에서 자금을 조달하여 이를 관리하고 있다가 자금을 필요로 하는 곳에 자금을 빌려주고 이에 상응하는 이자를 받아 수익을 얻는 것으로 볼 수 있다. 근본적으로 많은 금액을 빌려주고 이를 나누어서 자금을 사용한 곳에서 갚아 나가는 구조다.</p>
-<p><img src="fig/ml-credit-biz.png" alt="금융 사업 개요" width="70%" /></p>
-<p>물론 다수의 고객에게 자금을 빌려주다보니 제때 돈을 갚지 못하거나, 불의의 사고, 실직 등 다양한 이유로 인해서 돈을 갖지 못하는 위험이 발생된다. 이때 기대손실(Expected Loss)을 다음 구성요소를 가지고 정량화한다.</p>
-<ul>
-<li>채무 불이행 위험 : Probability of default</li>
-<li>채무 불이행 노출 : Exposure at default</li>
-<li>채무 불이행에 대한 손실 : Loss given default</li>
-</ul>
-<p><span class="math inline">\(\text{기대손실} = \text{채무 불이행 위험} \times \text{채무 불이행 노출} \times \text{채무 불이행에 대한 손실}\)</span></p>
-<p>따라서 금융기관에서 자금을 빌려주기 전에 다양한 정보를 활용하여 채무 불이행 위험이 적은 고객을 선별하여 가능한 많은 금액을 빌려주어 매출과 수익을 극대화한다.</p>
-<ul>
-<li>Application 정보: 나이, 결혼여부, 소득, 자가/전세 등</li>
-<li>Behaviour 정보: 현재 은행잔고, 연체금액 등</li>
-</ul>
-<h3 id="랜딩클럽-데이터">2. 랜딩클럽 데이터</h3>
-<p><a href="https://www.lendingclub.com/info/download-data.action">LendingClub</a> 사이트에서 데이터를 다운로드해도 되고, <a href="https://www.kaggle.com/wendykan/lending-club-loan-data">캐글 대출 데이터(Kaggle Loan Data)</a>를 통해서 데이터를 구해도 좋다.</p>
-<p>2007-2015까지 <a href="https://www.lendingclub.com/">LendingClub</a> 대출자료가 파일에 담겨있다. 다운로드 받아 압축을 풀면, 다음 파일 세개가 담겨있다.</p>
-<ul>
-<li>database.sqlite (134.64 MB) : sqlite 데이터베이스 파일 형식 대출 데이터 전체</li>
-<li>LCDataDictionary.xlsx (20.5 KB) : 데이터 사전 (변수 설명)</li>
-<li>loan.csv (105.01 MB) : csv 파일 형식 대출 데이터 전체</li>
-</ul>
-<p>``` {r lendingclub-import, tidy=FALSE, warning=FALSE}</p>
-<h2 id="section">=====================================================================</h2>
-<h2 id="렌딩클럽-데이터-가져오기">01. 렌딩클럽 데이터 가져오기</h2>
-<h2 id="section-1">=====================================================================</h2>
-<p>library(readr) library(dplyr) setwd(“D:/”) loan.dat &lt;- read_csv(“lending-club-loan-data/loan.csv”, col_names = TRUE) dim(loan.dat) names(loan.dat)</p>
-<p>glimpse(loan.dat) summary(loan.dat) ```</p>
-<p>``` {r lendingclub-recon, tidy=FALSE, warning=FALSE}</p>
-<h2 id="section-2">=====================================================================</h2>
-<h2 id="렌딩클럽-데이터와-문서-대조작업">02. 렌딩클럽 데이터와 문서 대조작업</h2>
-<h2 id="section-3">=====================================================================</h2>
-<p>library(readxl) dataDictionary &lt;- read_excel(“lending-club-loan-data/LCDataDictionary.xlsx”)</p>
-<p>dd.names &lt;- as.character(na.omit(dataDictionary$LoanStatNew)) loandata.names &lt;- names(loan.dat)</p>
-<p>setdiff(dd.names, loandata.names) ```</p>
-<p>렌딩클럽 데이터(csv 혹은 sqlite)와 데이터 사전에 문서화된 것 사이에 차이가 남을 알 수 있다. 즉, “fico_range_high”, “fico_range_low”, “is_inc_v”, “last_fico_range_high”, “last_fico_range_low”, “verified_status_joint”, “total_rev_hi_lim” 변수는 데이터 사전에 등재되어 있지만, 실제 렌딩클럽 데이터에는 없다. 사실 이런 경우는 흔하게 발생되고 있는 문제로 나중에 심각한 문제가 될 수 있다. 즉, 이런 유산 비용이 쌓이게 되면 정말 되돌이킬 수 없는 시스템이 되어 재앙이 될 수 있다.</p>
-<h4 id="탐색적-데이터-분석">2.1. 탐색적 데이터 분석</h4>
-<p>``` {r lendingclub-eda-continuous, tidy=FALSE, warning=FALSE} ##===================================================================== ## 03. 렌딩클럽 데이터 탐색적 데이터 분석 ##===================================================================== # 02.01. 대출금액 분포 library(DescTools) Desc(loan.dat$loan_amnt, main = “대출금액 분포”, plotit = TRUE)</p>
-<h1 id="대출금액-증가-현황">02.02. 대출금액 증가 현황</h1>
-<p>library(ggplot2) library(lubridate)</p>
-<p>loan.dat<span class="math inline">\(issue_d &lt;- parse_date_time(gsub(&quot;^&quot;, &quot;01-&quot;, loan.dat\)</span>issue_d), orders = c(“d-m-y”, “d-B-Y”, “m/d/y”))</p>
-<p>amnt_df &lt;- loan.dat %&gt;% select(issue_d, loan_amnt) %&gt;% group_by(issue_d) %&gt;% summarise(Amount = sum(loan_amnt))</p>
-<p>ts_amnt &lt;- ggplot(amnt_df, aes(x = issue_d, y = Amount)) ts_amnt + geom_line() + xlab(“대출금 발생일”) + ylab(“대출금”) ```</p>
-<p>``` {r lendingclub-eda-loan-status, tidy=FALSE, warning=FALSE} # 03.03. 대출 상태</p>
-<p>Desc(loan.dat$loan_status, plotit = T)</p>
-<h1 id="대출-상태별-대출금">03.04. 대출 상태별 대출금</h1>
-<p>box_status &lt;- ggplot(loan.dat, aes(loan_status, loan_amnt)) box_status + geom_boxplot(aes(fill = loan_status)) + theme(axis.text.x = element_blank()) + labs(list( title = “대출 상태별 대출금”, x = “대출상태”, y = “대출금”))</p>
-<h1 id="대출-등급별-대출금-추이">03.05. 대출 등급별 대출금 추이</h1>
-<p>amnt_df_grade &lt;- loan.dat %&gt;% select(issue_d, loan_amnt, grade) %&gt;% group_by(issue_d, grade) %&gt;% summarise(Amount = sum(loan_amnt))</p>
-<p>ts_amnt_grade &lt;- ggplot(amnt_df_grade, aes(x = issue_d, y = Amount)) ts_amnt_grade + geom_area(aes(fill=grade)) + xlab(“대출일”)<br />
-```</p>
-<h4 id="지리정보-분석">2.2. 지리정보 분석</h4>
-<p>``` {r lendingclub-geo, tidy=FALSE, warning=FALSE} ##===================================================================== ## 04. 렌딩클럽 데이터 지리정보 분석 ##=====================================================================</p>
-<p>state.df &lt;- “State, Abbreviation, region Alabama, Ala., AL Alaska, Alaska, AK American Samoa, , AS Arizona, Ariz., AZ Arkansas, Ark., AR California, Calif., CA Colorado, Colo., CO Connecticut, Conn., CT Delaware, Del., DE Dist. of Columbia, D.C., DC Florida, Fla., FL Georgia, Ga., GA Guam, Guam, GU Hawaii, Hawaii, HI Idaho, Idaho, ID Illinois, Ill., IL Indiana, Ind., IN Iowa, Iowa, IA Kansas, Kans., KS Kentucky, Ky., KY Louisiana, La., LA Maine, Maine, ME Maryland, Md., MD Marshall Islands, , MH Massachusetts, Mass., MA Michigan, Mich., MI Micronesia, , FM Minnesota, Minn., MN Mississippi, Miss., MS Missouri, Mo., MO Montana, Mont., MT Nebraska, Nebr., NE Nevada, Nev., NV New Hampshire, N.H., NH New Jersey, N.J., NJ New Mexico, N.M., NM New York, N.Y., NY North Carolina, N.C., NC North Dakota, N.D., ND Northern Marianas, , MP Ohio, Ohio, OH Oklahoma, Okla., OK Oregon, Ore., OR Palau, , PW Pennsylvania, Pa., PA Puerto Rico, P.R., PR Rhode Island, R.I., RI South Carolina, S.C., SC South Dakota, S.D., SD Tennessee, Tenn., TN Texas, Tex., TX Utah, Utah, UT Vermont, Vt., VT Virginia, Va., VA Virgin Islands, V.I., VI Washington, Wash., WA West Virginia, W.Va., WV Wisconsin, Wis., WI Wyoming, Wyo., WY”</p>
-<p>state.df &lt;- read_csv(state.df)</p>
-<p>library(zipcode) data(zipcode.civicspace) zipcode.civicspace<span class="math inline">\(zip_code &lt;- substr(zipcode.civicspace\)</span>zip,1,3) zipcode.dic &lt;- zipcode.civicspace %&gt;% group_by(zip_code) %&gt;% select(zip_code, region=state) %&gt;% unique</p>
-<p>loan.dat<span class="math inline">\(zip_code &lt;- substr(loan.dat\)</span>zip_code,1,3) loan.dat &lt;- left_join(loan.dat, zipcode.dic, by=“zip_code”)</p>
-<p>loan.dat<span class="math inline">\(region &lt;- as.factor(loan.dat\)</span>region)</p>
-<h2 id="주별-대출금액">주별 대출금액</h2>
-<p>state_by_value &lt;- loan.dat %&gt;% group_by(region) %&gt;% dplyr::summarise(value = sum(loan_amnt, na.rm=TRUE)) %&gt;% ungroup</p>
-<p>state_by_value &lt;- tapply(loan.dat<span class="math inline">\(loan_amnt, loan.dat\)</span>region, sum)/10^8</p>
-<h1 id="install.packagesrcurl">install.packages(“RCurl”)</h1>
-<h1 id="install.packageschoroplethrmaps">install.packages(“choroplethrMaps”)</h1>
-<p>library(choroplethr) state_choropleth(state_by_value, title = “Value by State”)</p>
-<h2 id="주별-대출-횟수">주별 대출 횟수</h2>
-<p>loan.dat<span class="math inline">\(region &lt;- tolower(loan.dat\)</span>region) loan.dat &lt;- left_join(loan.dat, state.df, by=“region”)</p>
-<p>state_by_volume &lt;- loan.dat %&gt;% group_by(state.y) %&gt;% dplyr::summarise(value = n()) %&gt;% ungroup</p>
-<p>state_choropleth(na.omit(state_by_volume$state.y), title = “Volume by State”) ```</p>
-<h4 id="대출-목적과-단어-구름">2.3. 대출 목적과 단어 구름</h4>
-<p>``` {r lendingclub-purpose-wordcloud, tidy=FALSE, warning=FALSE}}</p>
-<h2 id="section-4">=====================================================================</h2>
-<h2 id="렌딩클럽-대출-목적와-단어구름">05. 렌딩클럽 대출 목적와 단어구름</h2>
-<h2 id="section-5">=====================================================================</h2>
-<h1 id="대출-목적">대출 목적</h1>
-<p>Desc(loan.dat$purpose, main = “대출 목적”, plotit = TRUE)</p>
-<h1 id="단어-구름">단어 구름</h1>
-<p>library(tm) library(RColorBrewer) library(wordcloud)</p>
-<p>loan_descriptions.corpus &lt;- Corpus(DataframeSource(data.frame(head(loan.dat[,“title”], n=10000)))) loan_descriptions.corpus &lt;- tm_map(loan_descriptions.corpus, removePunctuation) loan_descriptions.corpus &lt;- tm_map(loan_descriptions.corpus, content_transformer(tolower))</p>
-<p>wordcloud(loan_descriptions.corpus, max.words = 100, random.order=FALSE, rot.per=0.30, use.r.layout=FALSE, colors=brewer.pal(8, “Paired”)) ```</p>
-<h4 id="대출-등급과-이자율">2.4. 대출 등급과 이자율</h4>
-<pre class="{r}"><code>##=====================================================================
-## 06. 대출 등급과 이자율
+<h3 id="전략곡선strategy-curve">1. 전략곡선(Strategy Curve)</h3>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##=====================================================================
+## 01. 렌딩클럽 데이터 가져오기
+##=====================================================================
+<span class="co"># http://rstudio-pubs-static.s3.amazonaws.com/3588_81e2ebd4de1b41bc9ac2f29f5f7dab2e.html</span>
+<span class="kw">library</span>(readr)
+<span class="kw">library</span>(dplyr)</code></pre></div>
+<pre class="output"><code>
+Attaching package: &#39;dplyr&#39;
+</code></pre>
+<pre class="output"><code>The following objects are masked from &#39;package:stats&#39;:
+
+    filter, lag
+</code></pre>
+<pre class="output"><code>The following objects are masked from &#39;package:base&#39;:
+
+    intersect, setdiff, setequal, union
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">setwd</span>(<span class="st">&quot;D:/docs/ml&quot;</span>)</code></pre></div>
+<pre class="output"><code>Error in setwd(&quot;D:/docs/ml&quot;): 작업디렉토리를 변경할 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">loan.dat &lt;-<span class="st"> </span><span class="kw">read_fwf</span>(<span class="st">&quot;data/lendingclub_loan_sample.txt&quot;</span>, <span class="kw">fwf_widths</span>(<span class="kw">c</span>(<span class="dv">6</span>,<span class="dv">11</span>,<span class="dv">10</span>,<span class="dv">6</span>,<span class="dv">15</span>,<span class="dv">11</span>,<span class="dv">4</span>,<span class="dv">8</span>,<span class="dv">8</span>)), <span class="dt">skip=</span><span class="dv">1</span>)</code></pre></div>
+<pre class="output"><code>Parsed with column specification:
+cols(
+  X1 = col_integer(),
+  X2 = col_integer(),
+  X3 = col_integer(),
+  X4 = col_character(),
+  X5 = col_character(),
+  X6 = col_double(),
+  X7 = col_integer(),
+  X8 = col_character(),
+  X9 = col_character()
+)
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">names</span>(loan.dat) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;seq&quot;</span>,<span class="st">&quot;loan_status&quot;</span>, <span class="st">&quot;loan_amnt grade&quot;</span>, <span class="st">&quot;home_ownership&quot;</span>, <span class="st">&quot;annual_inc&quot;</span>, <span class="st">&quot;age&quot;</span>, <span class="st">&quot;emp_cat&quot;</span>, <span class="st">&quot;ir_cat&quot;</span>)
+loan.dat$seq &lt;-<span class="st"> </span><span class="ot">NULL</span>
+
+<span class="kw">dim</span>(loan.dat)</code></pre></div>
+<pre class="output"><code>[1] 6570    8
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">names</span>(loan.dat)</code></pre></div>
+<pre class="output"><code>[1] &quot;loan_status&quot;     &quot;loan_amnt grade&quot; &quot;home_ownership&quot;  &quot;annual_inc&quot;     
+[5] &quot;age&quot;             &quot;emp_cat&quot;         &quot;ir_cat&quot;          NA               
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">glimpse</span>(loan.dat)</code></pre></div>
+<pre class="output"><code>Observations: 6,570
+Variables: 8
+$ loan_status     &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1...
+$ loan_amnt grade &lt;int&gt; 15000, 6600, 2200, 24250, 2500, 5000, 10000, 1...
+$ home_ownership  &lt;chr&gt; &quot;E&quot;, &quot;D&quot;, &quot;A&quot;, &quot;D&quot;, &quot;C&quot;, &quot;B&quot;, &quot;C&quot;, &quot;B&quot;, &quot;C&quot;, &quot;...
+$ annual_inc      &lt;chr&gt; &quot;RENT&quot;, &quot;RENT&quot;, &quot;MORTGAGE&quot;, &quot;RENT&quot;, &quot;RENT&quot;, &quot;R...
+$ age             &lt;dbl&gt; 62000.0, 30000.0, 45000.0, 136000.0, 18984.0, ...
+$ emp_cat         &lt;int&gt; 21, 29, 31, 31, 22, 45, 36, 28, 27, 37, 22, 25...
+$ ir_cat          &lt;chr&gt; &quot;0-15&quot;, &quot;0-15&quot;, &quot;0-15&quot;, &quot;0-15&quot;, &quot;15-30&quot;, &quot;0-15...
+$ NA              &lt;chr&gt; &quot;13.5+&quot;, &quot;13.5+&quot;, &quot;0-8&quot;, &quot;13.5+&quot;, &quot;13.5+&quot;, &quot;Mi...
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(loan.dat)</code></pre></div>
+<pre class="output"><code>  loan_status     loan_amnt grade home_ownership      annual_inc       
+ Min.   :0.0000   Min.   : 1000   Length:6570        Length:6570       
+ 1st Qu.:0.0000   1st Qu.: 5000   Class :character   Class :character  
+ Median :0.0000   Median : 8000   Mode  :character   Mode  :character  
+ Mean   :0.3333   Mean   : 9494                                        
+ 3rd Qu.:1.0000   3rd Qu.:12000                                        
+ Max.   :1.0000   Max.   :35000                                        
+      age            emp_cat         ir_cat               NA           
+ Min.   :  4080   Min.   :20.00   Length:6570        Length:6570       
+ 1st Qu.: 38000   1st Qu.:23.00   Class :character   Class :character  
+ Median : 55000   Median :26.00   Mode  :character   Mode  :character  
+ Mean   : 64800   Mean   :27.62                                        
+ 3rd Qu.: 79150   3rd Qu.:30.00                                        
+ Max.   :900000   Max.   :78.00                                        
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##=====================================================================
+## 02. 의사결정나무
 ##=====================================================================
 
-Desc(loan.dat$grade, main = &quot;대출 등급&quot;, plotit = TRUE)
+train_index &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="kw">nrow</span>(loan.dat), <span class="dv">2</span>/<span class="dv">3</span>*<span class="kw">nrow</span>(loan.dat))
+train_set &lt;-<span class="st"> </span>loan.dat[train_index,]
+test_set &lt;-<span class="st"> </span>loan.dat[-train_index,]
 
-Desc(int_rate ~ grade, loan.dat, digits = 1, main = &quot;Interest rate by grade&quot;, plotit = TRUE)</code></pre>
+<span class="kw">library</span>(rpart)
+<span class="co"># 02-03.손실함수 설정</span>
+loan_loss_dt &lt;-<span class="st"> </span><span class="kw">rpart</span>(loan_status ~<span class="st"> </span>., <span class="dt">method =</span> <span class="st">&quot;class&quot;</span>, <span class="dt">data =</span>  train_set, 
+                      <span class="dt">control =</span> <span class="kw">rpart.control</span>(<span class="dt">cp =</span> <span class="fl">0.001</span>),
+                      <span class="dt">parms =</span> <span class="kw">list</span>(<span class="dt">loss =</span> <span class="kw">matrix</span>(<span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">10</span>, <span class="dv">1</span>, <span class="dv">0</span>), <span class="dt">ncol=</span><span class="dv">2</span>)))
+
+<span class="kw">plot</span>(loan_loss_dt, <span class="dt">uniform =</span> <span class="ot">TRUE</span>)
+<span class="kw">text</span>(loan_loss_dt)</code></pre></div>
+<p><img src="fig/lendingclub-strategy-1.png" title="plot of chunk lendingclub-strategy" alt="plot of chunk lendingclub-strategy" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#---------------------------------------------------------------------</span>
+<span class="co"># 02-1. 의사결정나무: 가지치기(Prune)</span>
+<span class="co">#---------------------------------------------------------------------</span>
+
+<span class="co"># 01. 가지치기 사례</span>
+<span class="kw">plotcp</span>(loan_loss_dt)</code></pre></div>
+<p><img src="fig/lendingclub-strategy-2.png" title="plot of chunk lendingclub-strategy" alt="plot of chunk lendingclub-strategy" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">printcp</span>(loan_loss_dt)</code></pre></div>
+<pre class="output"><code>
+Classification tree:
+rpart(formula = loan_status ~ ., data = train_set, method = &quot;class&quot;, 
+    parms = list(loss = matrix(c(0, 10, 1, 0), ncol = 2)), control = rpart.control(cp = 0.001))
+
+Variables actually used in tree construction:
+[1] age             annual_inc      emp_cat         home_ownership 
+[5] ir_cat          loan_amnt grade NA             
+
+Root node error: 2939/4380 = 0.671
+
+n= 4380 
+
+          CP nsplit rel error  xerror    xstd
+1  0.0034781      0   1.00000 10.0000 0.10580
+2  0.0030623     15   0.93603  9.5046 0.10807
+3  0.0026370     17   0.92991  9.2974 0.10887
+4  0.0026086     22   0.91596  9.2137 0.10916
+5  0.0024668     27   0.90201  9.1262 0.10946
+6  0.0023818     31   0.89214  8.8904 0.11015
+7  0.0022683     42   0.86560  8.7496 0.11052
+8  0.0020415     46   0.85607  8.5747 0.11088
+9  0.0019281     56   0.83532  8.3702 0.11122
+10 0.0018714     59   0.82953  8.3702 0.11122
+11 0.0017013     64   0.82001  8.3052 0.11129
+12 0.0015311     67   0.81490  8.2110 0.11144
+13 0.0013610     71   0.80810  8.1980 0.11145
+14 0.0012476     84   0.78598  8.0490 0.11160
+15 0.0011909     91   0.77407  7.9721 0.11162
+16 0.0011058     96   0.76557  7.9721 0.11162
+17 0.0010208    105   0.75094  7.8860 0.11167
+18 0.0010000    115   0.74073  7.8765 0.11167
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ptree_loss &lt;-<span class="st"> </span><span class="kw">prune</span>(loan_loss_dt, <span class="dt">cp =</span> <span class="fl">0.0020548</span>)
+
+<span class="kw">library</span>(rattle)</code></pre></div>
+<pre class="output"><code>Error in library(rattle): there is no package called &#39;rattle&#39;
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(rpart.plot)
+<span class="kw">library</span>(RColorBrewer)
+
+<span class="kw">fancyRpartPlot</span>(ptree_loss)</code></pre></div>
+<pre class="output"><code>Error in eval(expr, envir, enclos): 함수 &quot;fancyRpartPlot&quot;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##=====================================================================
+## 03. 전략곡선 도출
+##=====================================================================
+
+prob_default_loss &lt;-<span class="st"> </span><span class="kw">predict</span>(ptree_loss, <span class="dt">newdata =</span> test_set)[ ,<span class="dv">2</span>]
+
+cutoff_loss &lt;-<span class="st"> </span><span class="kw">quantile</span>(prob_default_loss, <span class="fl">0.8</span>)  
+binary_pred_loss_80 &lt;-<span class="st"> </span><span class="kw">ifelse</span>(prob_default_loss &gt;<span class="st"> </span>cutoff_loss, <span class="dv">1</span>, <span class="dv">0</span>)
+
+accepted_status_loss_80 &lt;-<span class="st"> </span>test_set$loan_status[binary_pred_loss_80 ==<span class="st"> </span><span class="dv">0</span>]
+<span class="kw">sum</span>(accepted_status_loss_80) /<span class="st"> </span><span class="kw">length</span>(accepted_status_loss_80)</code></pre></div>
+<pre class="output"><code>[1] 0.3423465
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">strategy_default_loss &lt;-<span class="st"> </span><span class="kw">strategy_bank</span>(prob_default_loss)
+strategy_default_loss$table</code></pre></div>
+<pre class="output"><code>      accept_rate cutoff bad_rate
+ [1,]        1.00 0.7500   0.3420
+ [2,]        0.95 0.4497   0.3423
+ [3,]        0.90 0.4497   0.3423
+ [4,]        0.85 0.4497   0.3423
+ [5,]        0.80 0.4497   0.3423
+ [6,]        0.75 0.4497   0.3423
+ [7,]        0.70 0.4497   0.3423
+ [8,]        0.65 0.4497   0.3423
+ [9,]        0.60 0.3333   0.2850
+[10,]        0.55 0.3303   0.2838
+[11,]        0.50 0.3303   0.2838
+[12,]        0.45 0.3303   0.2838
+[13,]        0.40 0.3303   0.2838
+[14,]        0.35 0.3303   0.2838
+[15,]        0.30 0.2751   0.2270
+[16,]        0.25 0.2751   0.2270
+[17,]        0.20 0.2751   0.2270
+[18,]        0.15 0.1839   0.2173
+[19,]        0.10 0.0000   0.1870
+[20,]        0.05 0.0000   0.1870
+[21,]        0.00 0.0000   0.1870
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(strategy_default_loss$accept_rate, strategy_default_loss$bad_rate, 
+     <span class="dt">type =</span> <span class="st">&quot;l&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;승인율&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;부실율&quot;</span>, 
+     <span class="dt">lwd =</span> <span class="dv">2</span>, <span class="dt">main =</span> <span class="st">&quot;의사결정나무&quot;</span>)</code></pre></div>
+<p><img src="fig/lendingclub-strategy-3.png" title="plot of chunk lendingclub-strategy" alt="plot of chunk lendingclub-strategy" style="display: block; margin: auto;" /></p>
+<h4 id="신용평가-모형-전처리">1.1. 신용평가 모형 전처리</h4>
+<p>범주형 데이터를 요인변수로 처리해야 하거나, 숫자형 <code>as.numeric</code> 혹은 <code>as.double</code>로 처리한다. 특히, 연속형 변수를 범주형으로 처리하면 성능향상이 된다는 연구결과도 있다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 변수 --&gt; 요인(factor)</span>
+data$property &lt;-<span class="kw">as.factor</span>(data$property)
+<span class="co"># 변수 --&gt; 숫자</span>
+data$age &lt;-<span class="kw">as.numeric</span>(data$age)
+<span class="co"># 변수 --&gt; 숫자(double)</span>
+data$amount&lt;-<span class="kw">as.double</span>(data$amount)
+
+<span class="co"># 연속형 변수 --&gt; 범주형 (구간 쪼갬)</span>
+data$amount&lt;-<span class="kw">as.factor</span>(<span class="kw">ifelse</span>(data$amount&lt;=<span class="dv">2500</span>,<span class="st">&#39;0-2500&#39;</span>,<span class="kw">ifelse</span>(data$amount&lt;=<span class="dv">5000</span>,<span class="st">&#39;2600-5000&#39;</span>,<span class="st">&#39;5000+&#39;</span>)))</code></pre></div>
+<h4 id="컷오프-결정">1.2. 컷오프 결정</h4>
+<p>컷오프 결정, 신용카드를 발급할 것인지 말것인지 결정하는데 산업계에서 KS(Kolmogorov-Smirnov) 통계량이 많이 사용되지만, Hand가 KS를 사용하는 것은 잘못되었다는 것을 보였고, 컷오프 결정에 유일한 통계량은 <strong>신용카드 발급이 결정된 상태에서 조건부 부실율</strong> 이 되어야 한다는 것을 보였다. <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></p>
+<h4 id="신용평점에-영향을-주는-변수-식별">1.3 신용평점에 영향을 주는 변수 식별</h4>
+<p>신용카드 발급이 되지 않는 경우 어떤 사유로 카드발급이 되지 않았는지 이유를 제시하여야 한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## 신용점수함수에 가장 영향을 주는 변수 3개 추출
+g &lt;-<span class="st"> </span><span class="kw">predict</span>(m, <span class="dt">type=</span><span class="st">&#39;terms&#39;</span>, test)
+
+ftopk&lt;-<span class="st"> </span>function(x,<span class="dt">top=</span><span class="dv">3</span>){
+  res &lt;-<span class="st"> </span><span class="kw">names</span>(x)[<span class="kw">order</span>(x, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)][<span class="dv">1</span>:top]
+  <span class="kw">paste</span>(res, <span class="dt">collapse=</span><span class="st">&quot;;&quot;</span>, <span class="dt">sep=</span><span class="st">&quot;&quot;</span>)
+}
+<span class="co"># 상위 변수 3개를 추출</span>
+topk &lt;-<span class="st"> </span><span class="kw">apply</span>(g, <span class="dv">1</span>, ftopk, <span class="dt">top=</span><span class="dv">3</span>)
+<span class="co"># 테스트 테스트 데이터에 사유가 되는 변수를 부착</span>
+test &lt;-<span class="st"> </span><span class="kw">cbind</span>(test, topk)</code></pre></div>
+<h3 id="신용평가-모형-배포">3. 신용평가 모형 배포</h3>
+<p>최적의 성능을 자랑하는 기계학습 신용평가 알고리듬 구축이 완료되었으면, 다음 단계로 실운영 시스템(production)으로 이관하는 것이다. 통상 규칙엔진(Rule Engine)을 사용하거나, SQL 문장으로 작성하여 실운영 시스템에 내장되어 활용된다. <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> 학습된 나무모형을 SQL 혹은 규칙엔진으로 전환하면 다음과 같은 결과를 실운영 시스템에서 사용하게 된다.</p>
+<pre class="output"><code>Rule number: 16 [yval=bad cover=220 N=121 Y=99 (37%) prob=0.04]
+     checking&lt; 2.5
+     afford&lt; 54
+     history&lt; 3.5
+     coapp&lt; 2.5
+
+Rule number: 34 [yval=bad cover=7 N=3 Y=4 (1%) prob=0.06]
+     checking&lt; 2.5
+     afford&lt; 54
+     history&lt; 3.5
+     coapp&gt;=2.5
+     age&lt; 27</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">list.rules.rpart</span>(rpart.fit)
+
+list.rules.rpart &lt;-<span class="st"> </span>function(model)
+{
+  if (!<span class="kw">inherits</span>(model, <span class="st">&quot;rpart&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;Not a legitimate rpart tree&quot;</span>)
+  <span class="co">#</span>
+  <span class="co"># Get some information.</span>
+  <span class="co">#</span>
+  frm     &lt;-<span class="st"> </span>model$frame
+  names   &lt;-<span class="st"> </span><span class="kw">row.names</span>(frm)
+  ylevels &lt;-<span class="st"> </span><span class="kw">attr</span>(model, <span class="st">&quot;ylevels&quot;</span>)
+  ds.size &lt;-<span class="st"> </span>model$frame[<span class="dv">1</span>,]$n
+  <span class="co">#</span>
+  <span class="co"># Print each leaf node as a rule.</span>
+  <span class="co">#</span>
+  for (i in <span class="dv">1</span>:<span class="kw">nrow</span>(frm))
+  {
+    if (frm[i,<span class="dv">1</span>] ==<span class="st"> &quot;&lt;leaf&gt;&quot;</span>)
+    {
+      <span class="co"># The following [,5] is hardwired - needs work!</span>
+      <span class="kw">cat</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)
+      <span class="kw">cat</span>(<span class="kw">sprintf</span>(<span class="st">&quot; Rule number: %s &quot;</span>, names[i]))
+      <span class="kw">cat</span>(<span class="kw">sprintf</span>(<span class="st">&quot;[yval=%s cover=%d (%.0f%%) prob=%0.2f]</span><span class="ch">\n</span><span class="st">&quot;</span>,
+                  ylevels[frm[i,]$yval], frm[i,]$n,
+                  <span class="kw">round</span>(<span class="dv">100</span>*frm[i,]$n/ds.size), frm[i,]$yval2[,<span class="dv">5</span>]))
+      pth &lt;-<span class="st"> </span><span class="kw">path.rpart</span>(model, <span class="dt">nodes=</span><span class="kw">as.numeric</span>(names[i]), <span class="dt">print.it=</span><span class="ot">FALSE</span>)
+      <span class="kw">cat</span>(<span class="kw">sprintf</span>(<span class="st">&quot;   %s</span><span class="ch">\n</span><span class="st">&quot;</span>, <span class="kw">unlist</span>(pth)[-<span class="dv">1</span>]), <span class="dt">sep=</span><span class="st">&quot;&quot;</span>)
+    }
+  }
+}</code></pre></div>
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p><a href="https://cran.r-project.org/doc/contrib/Sharma-CreditScoring.pdf">Guide to Credit Scoring in R</a><a href="#fnref1">↩</a></p></li>
-<li id="fn2"><p><a href="http://www.r-bloggers.com/credit-scoring-in-r-101/">Credit Scoring in R 101</a><a href="#fnref2">↩</a></p></li>
-<li id="fn3"><p><a href="http://www.r-bloggers.com/r-credit-scoring-woe-information-value-in-woe-package/">R Credit Scoring – WoE &amp; Information Value in woe Package</a><a href="#fnref3">↩</a></p></li>
-<li id="fn4"><p><a href="http://www.r-bloggers.com/r-package-smbinning-optimal-binning-for-scoring-modeling/">R Package ‘smbinning’: Optimal Binning for Scoring Modeling</a><a href="#fnref4">↩</a></p></li>
+<li id="fn1"><p>Hand, D. J. (2005). Good practice in retail credit score-card assessment. Journal of the Operational Research Society, 56, 1109–1117.<a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="http://www.togaware.com/datamining/survivor/Convert_Tree.html">DATA MINING Desktop Survival Guide by Graham Williams, Convert Tree to Rules</a><a href="#fnref2">↩</a></p></li>
 </ol>
 </div>
         </div>
