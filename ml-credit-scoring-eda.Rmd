@@ -130,9 +130,9 @@ plot(loan.dat$ir_cat)
 
 numeric_cols <- sapply(loan.dat, is.numeric)
 library(reshape2)
-loanbook.lng <- melt(loan.dat[,numeric_cols], id="is_bad")
+loanbook.lng <- melt(loan.dat[,numeric_cols], id="loan_status_yn")
 library(ggplot2)
-p <- ggplot(aes(x = value, group = is_bad, colour = factor(is_bad)), 
+p <- ggplot(aes(x = value, group = loan_status_yn, colour = factor(loan_status_yn)), 
             data = loanbook.lng)
 p + geom_density() + facet_wrap(~variable, scales="free")
 ```
@@ -148,7 +148,7 @@ loan.dat %>%
   filter(loan_status_yn == '1') %>% 
   select(annual_inc, int_rate, loan_status) %>% 
   datatable(., options = list(pageLength = 10))
-
+```
 ### 5. 훈련 데이터와 테스트 데이터
 
 전처리 과정과 피쳐 공학 과정을 거치게 되면, 다음 단계로 훈련 데이터와 테스트 데이터로 나눠 통계모형 개발 혹은
