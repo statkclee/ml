@@ -175,6 +175,7 @@ loandata.names &lt;-<span class="st"> </span><span class="kw">names</span>(loan.
 </code></pre>
 <p>렌딩클럽 데이터(csv 혹은 sqlite)와 데이터 사전에 문서화된 것 사이에 차이가 남을 알 수 있다. 즉, “fico_range_high”, “fico_range_low”, “is_inc_v”, “last_fico_range_high”, “last_fico_range_low”, “verified_status_joint”, “total_rev_hi_lim” 변수는 데이터 사전에 등재되어 있지만, 실제 렌딩클럽 데이터에는 없다. 사실 이런 경우는 흔하게 발생되고 있는 문제로 나중에 심각한 문제가 될 수 있다. 즉, 이런 유산 비용이 쌓이게 되면 정말 되돌이킬 수 없는 시스템이 되어 재앙이 될 수 있다.</p>
 <h4 id="탐색적-데이터-분석">2.1. 탐색적 데이터 분석</h4>
+<p><a href="">캐글</a> 데이터를 분석하게 되면, 많은 캐글러들이 <a href="https://cran.r-project.org/web/packages/DescTools/index.html">DescTools</a> 팩키지를 사용해서 탐색적 데이터 분석을 진행한다. 범주형 데이터와 연속형 데이터, 변수간의 관계에 따라 <a href="https://cran.r-project.org/web/packages/DescTools/index.html">DescTools</a> 팩키지가 많은 부분 자동으로 처리하여 적절한 정보를 제공한다는 점에서 사용할 가치가 충분히 있다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##=====================================================================
 ## 03. 렌딩클럽 데이터 탐색적 데이터 분석
 ##=====================================================================
@@ -255,6 +256,8 @@ ts_amnt_grade &lt;-<span class="st"> </span><span class="kw">ggplot</span>(amnt_
 ts_amnt_grade +<span class="st"> </span><span class="kw">geom_area</span>(<span class="kw">aes</span>(<span class="dt">fill=</span>grade)) +<span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;대출일&quot;</span>)  </code></pre></div>
 <p><img src="fig/lendingclub-eda-loan-status-3.png" title="plot of chunk lendingclub-eda-loan-status" alt="plot of chunk lendingclub-eda-loan-status" style="display: block; margin: auto;" /></p>
 <h4 id="지리정보-분석">2.2. 지리정보 분석</h4>
+<p>상대적으로 미국이 데이터 과학에 선진국이 된 이유는 여러가지가 있을 수 있지만, 인프라가 참 잘 갖춰져있다는 점이다. 우편번호 <code>zipcode</code> 팩키지가 있어 R에서 대한민국은 아니지만, 미국에서는 편리하게 우편번호를 지리정보와 붙여 데이터를 분석하는데 장점을 갖고 있다.</p>
+<p>주별 대출금과 대출횟수를 정량화하는데 <code>state_choropleth</code> 함수를 사용해야 한다. 지리정보가 잘 매칭이 되려면 <code>choroplethr</code> 팩키지에 <code>region</code> 즉, 주명칭을 일치시켜야 한다. 이를 위해 2자리 주명칭 축약어를 <code>choroplethr</code> 팩키지에 <code>region</code>에 매칭하는데 있어, <code>state.regions</code> 데이터셋의 정보를 활용한다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># install.packages(&quot;RCurl&quot;)</span>
 <span class="co"># install.packages(&quot;choroplethrMaps&quot;)</span>
 <span class="co"># install.packages(&quot;choroplethr&quot;)</span>
@@ -294,6 +297,7 @@ state_region_by_volume &lt;-<span class="st"> </span><span class="kw">left_join<
 <span class="kw">state_choropleth</span>(state_region_by_volume, <span class="dt">title =</span> <span class="st">&quot;주별 대출건수&quot;</span>)</code></pre></div>
 <p><img src="fig/lendingclub-geo-2.png" title="plot of chunk lendingclub-geo" alt="plot of chunk lendingclub-geo" style="display: block; margin: auto;" /></p>
 <h4 id="대출-목적과-단어-구름">2.3. 대출 목적과 단어 구름</h4>
+<p>대출목적을 단어구름(Word Cloud)을 사용해서 시각화를 하는 것도 한 방법일 수 있다. 이를 위해 <code>wordcloud</code> 팩키지를 불러오고, 대출목적을 텍스트로 갖춘 변수를 입력변수로 넣어 코퍼스 분석을 통해 <code>wordcloud</code> 함수에 넣어 시각화한다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##=====================================================================
 ## 05. 렌딩클럽 대출 목적와 단어구름
 ##=====================================================================
@@ -340,6 +344,7 @@ loan_descriptions.corpus &lt;-<span class="st"> </span><span class="kw">tm_map</
           <span class="dt">colors=</span><span class="kw">brewer.pal</span>(<span class="dv">8</span>, <span class="st">&quot;Paired&quot;</span>))</code></pre></div>
 <p><img src="fig/lendingclub-purpose-wordcloud-2.png" title="plot of chunk lendingclub-purpose-wordcloud" alt="plot of chunk lendingclub-purpose-wordcloud" style="display: block; margin: auto;" /></p>
 <h4 id="대출-등급과-이자율">2.4. 대출 등급과 이자율</h4>
+<p>단변량 탐색적 데이터 분석이 어느 정도 마무리 되었다면, 이자율과 신용등급, 채무불이행과 이자율 등등 두변량 혹은 다변량 분석을 탐색적으로 진행하는 것도 준비한다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##=====================================================================
 ## 06. 대출 등급과 이자율
 ##=====================================================================
