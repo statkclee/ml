@@ -14,7 +14,6 @@ subtitle: 데이터 과학자가 바라본 기계학습
 
 1. **환경설정**
     1. [기계학습 (순수한) 맛보기](ml-taste-with-r.html): 전통적인 통계모형 개발과정 맛보기 
-    1. [기계학습 (고객용) 맛보기](ml-taste-for-commerce.html): 전통적인 통계모형에 상업적 요소를 가미
     1. [명령라인 데이터 분석 맛보기](00-toolchain-cmd.html)    
     1. [파이썬기반 기계학습 툴체인(toolchain)](00-toolchain.html): 파이썬 기계학습 생태계
 1. **[기계학습 지도](ml-map.html)**
@@ -32,7 +31,6 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. **인간 중심 기계학습 모형**
             1. [통계적 모형개발 기초](ml-modeling-basic.html)    
             1. [전통방식 모형개발 -타이타닉 생존데이터](ml-modeling-titanic.html)  
-            1. [소매금융 부도예측 - 독일신용 데이터](ml-credit-scoring.html)
         1. **인간과 기계가 함께하는 기계학습 예측모형**  
             1. [예측모형 A-Z(연속형)](ml-pm-continuous.html)
             1. [예측모형 A-Z(연속형) - 콘크리트 강도](ml-pm-continuous-concrete.html)
@@ -50,8 +48,13 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [소설 텍스트 데이터 분석 기초](ml-text-basic.html)        
         1. [태그 혹은 단어 구름(tag or word cloud)](ml-text-worldcloud.html)        
 1. **기계학습 상용화**
+    1. [신용평점모형 개발](ml-credit-scoring-overview.html)
+        1. [신용평점모형 탐색적 데이터 분석](ml-credit-scoring-eda.html)
+        1. [신용평점모형](ml-credit-scoring-model.html)
+        1. [신용평가와 신용평점모형](ml-credit-scoring-business.html)
+        1. [소매금융 부도예측 - 독일신용 데이터](ml-credit-scoring.html)
     1. [예측모형 활용분야](ml-pm-applications.html)
-    1. [기계학습 적용](ml-production.html)
+    1. [기계학습 운영 - 파이프라인](ml-production.html)
 
 
 ## 기계학습 관련 정보 [^David-Julian-2016]

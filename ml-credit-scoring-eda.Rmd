@@ -1,0 +1,115 @@
+---
+layout: page
+title: xwMOOC 기계학습
+subtitle: 신용평점모형 탐색적 데이터 분석
+output:
+  html_document: 
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
+---
+ 
+``` {r, include=FALSE}
+source("tools/chunk-options.R")
+```
+
+> ### 학습목표 {.getready}
+>
+> * 
+
+
+``` {r lendingclub-eda, warning=FALSE, tidy=FALSE}
+##=====================================================================
+## 07. 채무 불이행 예측
+##=====================================================================
+# 종속변수 탐색
+bad_indicators <- c("Charged Off",
+                    "Default",
+                    "Does not meet the credit policy. Status:Charged Off",
+                    "In Grace Period", 
+                    "Default Receiver", 
+                    "Late (16-30 days)",
+                    "Late (31-120 days)")
+
+loan.dat$loan_status_yn <- ifelse(loan.dat$loan_status %in% bad_indicators, 1, 0)
+
+# 1. 표를 통한 EDA 분석
+## 단변량 표
+CrossTable(loan.dat$loan_status_yn)
+## 두변수 표
+CrossTable(loan.dat$grade, loan.dat$loan_status_yn, prop.r = TRUE, prop.c=FALSE, prop.t=FALSE, prop.chisq=FALSE)
+
+# 2. 그래프를 통한 EDA 분석
+library(DescTools)
+## 단변량: 히스토그램
+Desc(loan.dat$loan_amnt, plotit=TRUE)
+index_highincome <- which(loan.dat$annual_inc > 2e+06)
+loan.dat2 <- loan.dat[-index_highincome,]
+# Desc(loan.dat$annual_inc, plotit=TRUE)
+Desc(loan.dat2$annual_inc, plotit=TRUE)
+## 다변량: 산점도
+index_sample <- sample(1:nrow(loan.dat2), 0.1*nrow(loan.dat2))
+loan.plot.dat <- loan.dat2[index_sample, ]
+Desc(loan.plot.dat$loan_amnt ~ loan.plot.dat$annual_inc, plotit=TRUE)
+
+# 3. 결측값 처리
+# 결측값 생성하기
+summary(loan.dat$int_rate)
+na_index <- sample(1:nrow(loan.dat), 0.1*nrow(loan.dat))
+loan.dat[na_index, "int_rate"] <- NA
+summary(loan.dat$int_rate)
+
+# 전략1: 결측값 제거
+int_na_index <- which(is.na(loan.dat$int_rate))
+loan.dat.delrow.na <- loan.dat[-int_na_index, ]
+dim(loan.dat.delrow.na)
+
+# 전략2: 결측값 채워넣기
+median_ir <- median(loan.dat$int_rate, na.rm=TRUE)
+mean_ir <- mean(loan.dat$int_rate, na.rm=TRUE)
+loan.dat$int_rate[int_na_index] <- median_ir
+loan.dat$int_rate[int_na_index] <- mean_ir
+
+# 전략3: 결측값 보존 -- 중요한 정보를 갖음
+
+loan.dat$ir_cat <- rep(NA, length(loan.dat$int_rate))
+
+loan.dat$ir_cat[which(loan.dat$int_rate <= 8)] <- "0-8"
+loan.dat$ir_cat[which(loan.dat$int_rate > 8 & loan.dat$int_rate <= 11)] <- "8-11"
+loan.dat$ir_cat[which(loan.dat$int_rate > 11 & loan.dat$int_rate <= 13.5)] <- "11-13.5"
+loan.dat$ir_cat[which(loan.dat$int_rate > 13.5)] <- "13.5+"
+loan.dat$ir_cat[which(is.na(loan.dat$int_rate))] <- "Missing"
+
+loan.dat$ir_cat <- as.factor(loan.dat$ir_cat)
+
+# Look at your new variable using plot()
+plot(loan.dat$ir_cat)
+
+# 심화 탐색
+
+numeric_cols <- sapply(loan.dat, is.numeric)
+library(reshape2)
+loanbook.lng <- melt(loan.dat[,numeric_cols], id="is_bad")
+library(ggplot2)
+p <- ggplot(aes(x = value, group = is_bad, colour = factor(is_bad)), 
+            data = loanbook.lng)
+p + geom_density() + facet_wrap(~variable, scales="free")
+
+install.packages("DT")
+library(DT)
+
+loan.dat %>% 
+  filter(loan_status_yn == '1') %>% 
+  select(annual_inc, int_rate, loan_status) %>% 
+  datatable(., options = list(pageLength = 10))
+
+##=====================================================================
+## 03. 렌딩클럽 데이터 기계학습
+##=====================================================================
+
+# 0. 훈련과 테스트 데이터셋 분리
+index_train <- sample(1:nrow(loan.dat), 2/3*nrow(loan.dat))
+training_set <- loan.dat[index_train, ]
+test_set <- loan.dat[-index_train,]  
+```
