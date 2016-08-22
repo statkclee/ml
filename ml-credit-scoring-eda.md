@@ -214,11 +214,11 @@ Desc(loan.plot.dat$loan_amnt ~ loan.plot.dat$annual_inc, plotit=TRUE)
 loan.plot.dat$loan_amnt ~ loan.plot.dat$annual_inc
 
 Summary: 
-n pairs: 9e+04, valid: 9e+04 (100.0%), missings: 1e+00 (0.0%)
+n pairs: 9e+04, valid: 9e+04 (100.0%), missings: 0 (0.0%)
 
 
-Pearson corr. : 4.301e-01
-Spearman corr.: 5.049e-01
+Pearson corr. : 4.196e-01
+Spearman corr.: 5.064e-01
 Kendall corr. : (sample too large)
 
 ~~~
@@ -347,7 +347,6 @@ loan.dat %>%
 ~~~
 
 <img src="fig/lendingclub-data-table-1.png" title="plot of chunk lendingclub-data-table" alt="plot of chunk lendingclub-data-table" style="display: block; margin: auto;" />
-
 ### 5. 훈련 데이터와 테스트 데이터
 
 전처리 과정과 피쳐 공학 과정을 거치게 되면, 다음 단계로 훈련 데이터와 테스트 데이터로 나눠 통계모형 개발 혹은
