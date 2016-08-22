@@ -17,6 +17,7 @@ source("tools/chunk-options.R")
 > ### 신용평가모형 목표 {.getready}
 >
 > * **수익을 극대화** 하고, **신용위험을 최소화** 하는 신용평점모형을 개발한다.
+> * 로지스틱 회귀모형과 의사결정나무 모형에 대해 살펴본다.
 > * 랜딩클럽 데이터를 분석하여 실제 데이터를 가지고 신용평점모형을 개발한다.
 
 ### 1. 신용평점모형 [^ml-credit-scoring-sharma]
@@ -175,105 +176,44 @@ ts_amnt_grade + geom_area(aes(fill=grade)) + xlab("대출일")
 #### 2.2. 지리정보 분석
 
 ``` {r lendingclub-geo, tidy=FALSE, warning=FALSE}
-##=====================================================================
-## 04. 렌딩클럽 데이터 지리정보 분석
-##=====================================================================
-
-state.df <- "State, Abbreviation, region
-Alabama, Ala., AL
-Alaska, Alaska, AK
-American Samoa,  , AS
-Arizona, Ariz., AZ
-Arkansas, Ark., AR
-California, Calif., CA
-Colorado, Colo., CO
-Connecticut, Conn., CT
-Delaware, Del., DE
-Dist. of Columbia, D.C., DC
-Florida, Fla., FL
-Georgia, Ga., GA
-Guam, Guam, GU
-Hawaii, Hawaii, HI
-Idaho, Idaho, ID
-Illinois, Ill., IL
-Indiana, Ind., IN
-Iowa, Iowa, IA
-Kansas, Kans., KS
-Kentucky, Ky., KY
-Louisiana, La., LA
-Maine, Maine, ME
-Maryland, Md., MD
-Marshall Islands,  , MH
-Massachusetts, Mass., MA
-Michigan, Mich., MI
-Micronesia,  , FM
-Minnesota, Minn., MN
-Mississippi, Miss., MS
-Missouri, Mo., MO
-Montana, Mont., MT
-Nebraska, Nebr., NE
-Nevada, Nev., NV
-New Hampshire, N.H., NH
-New Jersey, N.J., NJ
-New Mexico, N.M., NM
-New York, N.Y., NY
-North Carolina, N.C., NC
-North Dakota, N.D., ND
-Northern Marianas,  , MP
-Ohio, Ohio, OH
-Oklahoma, Okla., OK
-Oregon, Ore., OR
-Palau,  , PW
-Pennsylvania, Pa., PA
-Puerto Rico, P.R., PR
-Rhode Island, R.I., RI
-South Carolina, S.C., SC
-South Dakota, S.D., SD
-Tennessee, Tenn., TN
-Texas, Tex., TX
-Utah, Utah, UT
-Vermont, Vt., VT
-Virginia, Va., VA
-Virgin Islands, V.I., VI
-Washington, Wash., WA
-West Virginia, W.Va., WV
-Wisconsin, Wis., WI
-Wyoming, Wyo., WY"
-
-state.df <- read_csv(state.df)
-
+# install.packages("RCurl")
+# install.packages("choroplethrMaps")
+# install.packages("choroplethr")
+# install.packages("acepack")
+# install.packages("latticeExtra")
+# install.packages("gridExtra")
+library(choroplethr)
 library(zipcode)
 data(zipcode.civicspace)
 zipcode.civicspace$zip_code <- substr(zipcode.civicspace$zip,1,3)
 zipcode.dic <- zipcode.civicspace  %>%  group_by(zip_code)  %>% 
-  select(zip_code, region=state) %>% unique 
+  dplyr::select(zip_code, region=state) %>% unique 
 
 loan.dat$zip_code <- substr(loan.dat$zip_code,1,3)
 loan.dat <- left_join(loan.dat, zipcode.dic, by="zip_code")
 
-loan.dat$region <- as.factor(loan.dat$region)
+# region 각주 명칭정보와 축약 두자리 정보 데이터 가져오기
+library(choroplethrMaps)
+data(state.regions)
 
-## 주별 대출금액
-
+## 주별 대출 금액
 state_by_value <- loan.dat %>% group_by(region) %>% 
-  dplyr::summarise(value = sum(loan_amnt, na.rm=TRUE)) %>% ungroup
+  dplyr::summarise(value = sum(loan_amnt, na.rm=TRUE)) %>% dplyr::select(abb=region, value) %>% ungroup
 
-state_by_value <- tapply(loan.dat$loan_amnt, loan.dat$region, sum)/10^8
+state_region_by_value <- left_join(state.regions, state_by_value, by="abb") %>% 
+  dplyr::select(region, value)
 
-#install.packages("RCurl")
-#install.packages("choroplethrMaps")
-library(choroplethr)
-state_choropleth(state_by_value, title = "Value by State")
+state_choropleth(state_region_by_value, title = "주별 대출금액")
 
 ## 주별 대출 횟수
-
-loan.dat$region <- tolower(loan.dat$region)
-loan.dat <- left_join(loan.dat, state.df, by="region")
-
 state_by_volume <-
-  loan.dat %>% group_by(state.y) %>% dplyr::summarise(value = n()) %>%  ungroup
+  loan.dat %>% group_by(region) %>% dplyr::summarise(value = n()) %>%  dplyr::select(abb=region, value) %>% ungroup
 
-state_choropleth(na.omit(state_by_volume$state.y), title = "Volume by State")
+state_region_by_volume <- left_join(state.regions, state_by_volume, by="abb") %>% 
+  dplyr::select(region, value)
+
+state_choropleth(state_region_by_volume, title = "주별 대출건수")
+
 ```
 
 
