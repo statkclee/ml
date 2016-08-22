@@ -37,7 +37,7 @@ source("tools/chunk-options.R")
 
 suppressMessages(library(readr))
 suppressMessages(library(dplyr))
-setwd("D:/")
+setwd("~")
 loan.dat <- read_csv("lending-club-loan-data/loan.csv", col_names = TRUE)
 
 ##=====================================================================
@@ -91,7 +91,9 @@ $\beta_0 + \beta_1 x_1 + \cdots + \beta_m x_m$은 선형 예측변수가 된다.
 `summary(logit_mod)` 명령어로 이자율로 채무 불이행을 예측한 모형을 살펴본다.
 $\beta_0$ `(Intercept)` 절편은 -4.498306, $\beta_1$ `int_rate` 이자율은 0.139891 으로 추정되고 이를 수식으로 표현하면 다음과 같다.
 
-$$P(\text{loan_status_yn} = 1 | \text{이자율(int_rate)} ) = \frac{1}{1+e^{-(-4.498306+0.139891 \times \text{이자율(int_rate) )}}$$
+$$P(\text{loan_status_yn} = 1 | \text{이자율(int_rate)} ) 
+= \frac{1}{1+e^{-(-4.498306+0.139891 \times 
+  \text{이자율(int_rate)} )}}$$
 
 로지스틱 모형이 완성되어 이자율에 따른 채무 불이행 확률을 계산해본다.
 
@@ -118,7 +120,8 @@ $\beta_0 + \beta_1 \times \text{이자율(int_rate)  = -4.498306+0.139891*19.99 
 R로 계산된 이자율 19.99에 대한 채무 불이행 확률은 `0.15422`으로 확인된다.
 수식으로 확인하면 거의 동일한 결과를 얻게 된다.
 
-$$P(\text{loan_status_yn} = 1 | \text{이자율(int_rate)} ) = \frac{1}{1+e^{-(-4.498306+0.139891 \times \text{이자율(int_rate) )}} = \frac{1}{1+e^{-(-4.498306+0.139891 \times 19.99 )}} = 0.1542192$$
+$$P(\text{loan_status_yn} = 1 | \text{이자율(int_rate)} ) = 
+\frac{1}{1+e^{-(-4.498306+0.139891 \times \text{이자율(int_rate)} )}} = \frac{1}{1+e^{-(-4.498306+0.139891 \times 19.99 )}} = 0.1542192$$
 
 #### 1.2. $\beta$ 회귀계수 해석
 
@@ -134,8 +137,8 @@ $$P(\text{loan_status_yn} = 0 | x_1 , x_2 , \cdots , x_m ) = 1- \frac{1}{1+e^{-(
 $$\frac {P(\text{loan_status_yn} = 1 | x_1 , x_2 , \cdots , x_m )} {P(\text{loan_status_yn} = 0 | x_1 , x_2 , \cdots , x_m )} = e^{\beta_0 + \beta_1 x_1 + \cdots + \beta_m x_m}$$
 
 * 만약 $x_i$ 가 1 단위 증가하게 되면, $e^{\beta_i}$을 오즈값에 곱하게 된다.
-    * $beta_i < 0$ 작게 되면, $e^{\beta_i}<1$ 이 되어, 오즈값은 $x_i$ 가 증가하면 오즈값은 감소한다. 
-    * $beta_i > 0$ 크게 되면, $e^{\beta_i}>1$ 이 되어, 오즈값은 $x_i$ 가 증가하면 오즈값은 증가한다.
+    * $\beta_i < 0$ 작게 되면, $e^{\beta_i}<1$ 이 되어, 오즈값은 $x_i$ 가 증가하면 오즈값은 감소한다. 
+    * $\beta_i > 0$ 크게 되면, $e^{\beta_i}>1$ 이 되어, 오즈값은 $x_i$ 가 증가하면 오즈값은 증가한다.
 * 이자율 모형에 적용하면, 다음과 같은 결과가 도출된다.
     * 이자율이 1만큼 증가하게 되면 (1% 증가하게 되면), 회귀계수 `0.139891`을 곱해야 되고 양수이기 때문에 채무불이행은 확률은 높아진다.
     * 오즈에 $e^{0.139891}$ 을 곱하게 되면, `1.150148` 값이 도출되고, 동일한 조건에 정상인과 비교하여 약 15% 높게 채무 불이행 확률이 예측된다.
