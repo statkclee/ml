@@ -231,6 +231,10 @@ setdiff(dd.names, loandata.names)
 
 #### 2.1. 탐색적 데이터 분석
 
+[캐글]() 데이터를 분석하게 되면, 많은 캐글러들이 [DescTools](https://cran.r-project.org/web/packages/DescTools/index.html) 팩키지를 사용해서 
+탐색적 데이터 분석을 진행한다. 범주형 데이터와 연속형 데이터, 변수간의 관계에 따라 [DescTools](https://cran.r-project.org/web/packages/DescTools/index.html)
+팩키지가 많은 부분 자동으로 처리하여 적절한 정보를 제공한다는 점에서 사용할 가치가 충분히 있다.
+
 
 ~~~{.r}
 ##=====================================================================
@@ -347,8 +351,16 @@ ts_amnt_grade + geom_area(aes(fill=grade)) + xlab("대출일")
 
 <img src="fig/lendingclub-eda-loan-status-3.png" title="plot of chunk lendingclub-eda-loan-status" alt="plot of chunk lendingclub-eda-loan-status" style="display: block; margin: auto;" />
 
-
 #### 2.2. 지리정보 분석
+
+상대적으로 미국이 데이터 과학에 선진국이 된 이유는 여러가지가 있을 수 있지만, 
+인프라가 참 잘 갖춰져있다는 점이다. 우편번호 `zipcode` 팩키지가 있어 R에서 대한민국은 아니지만,
+미국에서는 편리하게 우편번호를 지리정보와 붙여 데이터를 분석하는데 장점을 갖고 있다.
+
+주별 대출금과 대출횟수를 정량화하는데 `state_choropleth` 함수를 사용해야 한다.
+지리정보가 잘 매칭이 되려면 `choroplethr` 팩키지에 `region` 즉, 주명칭을 일치시켜야 한다.
+이를 위해 2자리 주명칭 축약어를 `choroplethr` 팩키지에 `region`에 매칭하는데 있어,
+`state.regions` 데이터셋의 정보를 활용한다. 
 
 
 ~~~{.r}
@@ -399,6 +411,9 @@ state_choropleth(state_region_by_volume, title = "주별 대출건수")
 
 
 #### 2.3. 대출 목적과 단어 구름
+
+대출목적을 단어구름(Word Cloud)을 사용해서 시각화를 하는 것도 한 방법일 수 있다.
+이를 위해 `wordcloud` 팩키지를 불러오고, 대출목적을 텍스트로 갖춘 변수를 입력변수로 넣어 코퍼스 분석을 통해 `wordcloud` 함수에 넣어 시각화한다.
 
 
 ~~~{.r}
@@ -460,6 +475,9 @@ wordcloud(loan_descriptions.corpus,
 <img src="fig/lendingclub-purpose-wordcloud-2.png" title="plot of chunk lendingclub-purpose-wordcloud" alt="plot of chunk lendingclub-purpose-wordcloud" style="display: block; margin: auto;" />
 
 #### 2.4. 대출 등급과 이자율
+
+단변량 탐색적 데이터 분석이 어느 정도 마무리 되었다면, 이자율과 신용등급, 채무불이행과 이자율 등등 
+두변량 혹은 다변량 분석을 탐색적으로 진행하는 것도 준비한다.
 
 
 ~~~{.r}
