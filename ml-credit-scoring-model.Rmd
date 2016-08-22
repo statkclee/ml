@@ -1,7 +1,7 @@
 ---
 layout: page
 title: xwMOOC 기계학습
-subtitle: 신용평점모형 
+subtitle: 신용평점모형 - 로지스틱 회귀모형과 의사결정나무
 output:
   html_document: 
     keep_md: yes
@@ -16,14 +16,18 @@ source("tools/chunk-options.R")
 
 > ### 학습목표 {.getready}
 >
-> * 
+> * 신용평점모형을 위해 사용되는 로지스틱 회귀모형과 의사결정나무를 이해한다.
+> * 렌딩클럽 대출 데이터에 로지스틱 회귀모형을 적합시키고 계수 및 모형성능에 대해 살펴본다.
 
 
 ### 1. 로지스틱 회귀 [^lendingclub-nyc-data-science] [^lendingclub-yhat]
 
 [^lendingclub-nyc-data-science]: [LendingClub Loan Data Analysis and Visualization using Lending Club Data](http://blog.nycdatascience.com/r/p2p-loan-data-analysis-using-lending-club-data/)
-
 [^lendingclub-yhat]: [Machine Learning for Predicting Bad Loans](http://blog.yhat.com/posts/machine-learning-for-predicting-bad-loans.html)
+
+앞선 탐색적 데이터 분석과정과 피쳐 공학 등을 통해 모형적합을 시킬 준비는 사전에 맞춰졌다고 가정한다. 
+따라서, 종속변수 채무 불이행에 대한 정의가 완료되었고, 기계학습 모형론을 적합시킬 준비 즉, 훈련데이터와 테스트 데이터 구분도 마무리했다. 이제
+로지스틱 회귀분석을 실행하여 모형적합결과를 해석하는 과정을 거쳐본다.
 
 ``` {r lendingclub-logistic-basic, warning=FALSE, tidy=FALSE}
 
@@ -31,15 +35,10 @@ source("tools/chunk-options.R")
 ## 01. 렌딩클럽 데이터 가져오기
 ##=====================================================================
 
-library(readr)
-library(dplyr)
+suppressMessages(library(readr))
+suppressMessages(library(dplyr))
 setwd("D:/")
 loan.dat <- read_csv("lending-club-loan-data/loan.csv", col_names = TRUE)
-dim(loan.dat)
-names(loan.dat)
-
-glimpse(loan.dat)
-summary(loan.dat)
 
 ##=====================================================================
 ## 02. 렌딩클럽 데이터 변환
