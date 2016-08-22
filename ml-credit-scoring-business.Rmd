@@ -48,8 +48,8 @@ strategy_bank <- function(prob_of_def){
 ## 01. 렌딩클럽 데이터 가져오기
 ##=====================================================================
 # http://rstudio-pubs-static.s3.amazonaws.com/3588_81e2ebd4de1b41bc9ac2f29f5f7dab2e.html
-library(readr)
-library(dplyr)
+suppressMessages(library(readr))
+suppressMessages(library(dplyr))
 loan.dat <- read_fwf("data/lendingclub_loan_sample.txt", fwf_widths(c(6,11,10,6,15,11,4,8,8)), skip=1)
 names(loan.dat) <- c("seq","loan_status", "loan_amnt grade", "home_ownership", "annual_inc", "age", "emp_cat", "ir_cat")
 
@@ -65,25 +65,13 @@ test_set <- loan.dat[-train_index,]
 #---------------------------------------------------------------------
 # 02-1. 의사결정나무
 #---------------------------------------------------------------------
-library(rpart)
+suppressMessages(library(rpart))
 loan_loss_dt <- rpart(loan_status ~ ., method = "class", data =  train_set, 
                       control = rpart.control(cp = 0.001),
                       parms = list(loss = matrix(c(0, 10, 1, 0), ncol=2)))
 
-plot(loan_loss_dt, uniform = TRUE)
-text(loan_loss_dt)
-
-# 가지치기 사례
-plotcp(loan_loss_dt)
-printcp(loan_loss_dt)
 
 ptree_loss <- prune(loan_loss_dt, cp = 0.0020548)
-
-library(rattle)
-library(rpart.plot)
-library(RColorBrewer)
-
-fancyRpartPlot(ptree_loss)
 
 #---------------------------------------------------------------------
 # 02-2. 로지스틱 회귀분석
