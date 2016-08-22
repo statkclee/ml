@@ -1,7 +1,7 @@
 ---
 layout: page
 title: xwMOOC 기계학습
-subtitle: 기계학습 (고객용) 맛보기
+subtitle: 신용평점모형 개발
 output:
   html_document: 
     keep_md: yes
@@ -12,203 +12,519 @@ mainfont: NanumGothic
  
 
 
-> ### 신용카드 기계학습 목표 {.getready}
+> ### 신용평가모형 목표 {.getready}
 >
-> 은행입장에서 **수익을 극대화** 하고, **신용위험을 최소화** 한다.
+> * **수익을 극대화** 하고, **신용위험을 최소화** 하는 신용평점모형을 개발한다.
+> * 로지스틱 회귀모형과 의사결정나무 모형에 대해 살펴본다.
+> * 랜딩클럽 데이터를 분석하여 실제 데이터를 가지고 신용평점모형을 개발한다.
 
-### 1. 신용평가 모형 [^ml-credit-scoring-sharma]
+### 1. 신용평점모형 [^ml-credit-scoring-sharma]
 
 [^ml-credit-scoring-sharma]: [Guide to Credit Scoring in R](https://cran.r-project.org/doc/contrib/Sharma-CreditScoring.pdf)
 
-대한민국에서 이영애 누님께서 IMF를 극복하고 2000년대 초반에 신용카드로 행복한 삶을 사는 모습을 러닝머신을 타면서 보여주면서 신용카드의 전성기가 도래했지만, 소수의 사람을 빼고 신용카드가 결국 미래 소비를 현재로 앞당겨서 돈을 쓰는 것에 불과하다는 것은 그로부터 몇년 뒤에 명확해졌고, 이를 신용대란이라고 불렀다. 이후 기업금융과 마찬가지로 소매금융도 위험관리가 중요해졌으며, 소매금융에 있어 위험관리 기법으로 신용평점에 따라 엄격하게 관리하는 것이 필요해졌고, 이에 신용평가모형(Credit Scoring Model)과 더불어 이를 자동화한 금융시스템이 각광을 받기 시작했다. 
+대한민국에서 이영애 누님께서 IMF를 극복하고 2000년대 초반에 신용카드로 행복한 삶을 사는 모습을 러닝머신을 타면서 
+보여주면서 신용카드의 전성기가 도래했지만, 
+소수의 사람을 빼고 신용카드가 결국 미래 소비를 현재로 앞당겨서 돈을 쓰는 것에 불과하다는 것은 
+그로부터 몇년 뒤에 명확해졌고, 이를 신용대란이라고 불렀다. 
+이후 기업금융과 마찬가지로 소매금융도 위험관리가 중요해졌으며, 
+소매금융에 있어 위험관리 기법으로 신용평점에 따라 엄격하게 관리하는 것이 필요해졌고, 
+이에 [신용평점모형(Credit Scoring Model)](https://ko.wikipedia.org/wiki/신용_위험)과 더불어 이를 자동화한 금융시스템이 각광을 받기 시작했다. 
 
-파이썬은 과학컴퓨팅에 많은 경험과 라이브러리가 구축되어 있는 반면, R은 상대적으로 통계학기반이라 통계학이 많이 사용되는 금융위험관리 분야에 구축된 블로그, 논문, 기고문, 라이브러리가 많다. 현실과 밀접한 신용할당문제를 기계학습에서 대규모 적용할 경우 풀어가는 방식을 R로 살펴보고, 추후 파이썬으로 확장을 고려해 본다. [^credit-scoring-101] [^credit-scoring-woe] [^credit-scoring-binning]
+파이썬은 과학컴퓨팅에 많은 경험과 라이브러리가 구축되어 있는 반면, 
+R은 상대적으로 통계학기반이라 통계학이 많이 사용되는 금융위험관리 분야에 구축된 
+블로그, 논문, 기고문, 라이브러리가 많다. 
+현실과 밀접한 신용할당문제를 기계학습에서 대규모 적용할 경우 풀어가는 방식을 R로 살펴보고, 
+추후 파이썬으로 확장도 고려해 본다. [^credit-scoring-101] [^credit-scoring-woe] [^credit-scoring-binning]
 
 [^credit-scoring-101]: [Credit Scoring in R 101](http://www.r-bloggers.com/credit-scoring-in-r-101/)
 [^credit-scoring-woe]: [R Credit Scoring – WoE & Information Value in woe Package](http://www.r-bloggers.com/r-credit-scoring-woe-information-value-in-woe-package/)
 [^credit-scoring-binning]: [R Package 'smbinning': Optimal Binning for Scoring Modeling](http://www.r-bloggers.com/r-package-smbinning-optimal-binning-for-scoring-modeling/)
 
-#### 1.1. 신용평가 모형 전처리
+#### 1.1. 신용평점 개요
 
-범주형 데이터를 요인변수로 처리해야 하거나, 숫자형 `as.numeric` 혹은 `as.double`로 처리한다. 특히, 연속형 변수를 범주형으로 처리하면 성능향상이 된다는 연구결과도 있다.
+기본적으로 금융기관에서는 한국은행을 비롯한 다양한 곳에서 자금을 조달하여 이를 관리하고 있다가 자금을 필요로 하는 곳에 
+자금을 빌려주고 이에 상응하는 이자를 받아 수익을 얻는 것으로 볼 수 있다. 근본적으로 많은 금액을 빌려주고 
+이를 나누어서 자금을 사용한 곳에서 갚아 나가는 구조다.
+
+<img src="fig/ml-credit-biz.png" alt="금융 사업 개요" width="70%" />
+
+물론 다수의 고객에게 자금을 빌려주다보니 제때 돈을 갚지 못하거나, 불의의 사고, 실직 등 다양한 이유로 인해서 돈을 갖지 못하는 
+위험이 발생된다.
+이때 기대손실(Expected Loss)을 다음 구성요소를 가지고 정량화한다.
+
+* 채무 불이행 위험 : Probability of default
+* 채무 불이행 노출 : Exposure at default
+* 채무 불이행에 대한 손실 : Loss given default
+
+$\text{기대손실} = \text{채무 불이행 위험} \times \text{채무 불이행 노출} \times \text{채무 불이행에 대한 손실}$
+
+따라서 금융기관에서 자금을 빌려주기 전에 다양한 정보를 활용하여 채무 불이행 위험이 적은 고객을 선별하여 가능한 많은 
+금액을 빌려주어 매출과 수익을 극대화한다.
+
+* Application 정보: 나이, 결혼여부, 소득, 자가/전세 등
+* Behaviour 정보: 현재 은행잔고, 연체금액 등
+
+### 2. 랜딩클럽 데이터 [^kaggle-lendingclub]
+
+[^kaggle-lendingclub]: [Eryk Walczak, Initial loan book analysis](https://www.kaggle.com/erykwalczak/d/wendykan/lending-club-loan-data/initial-loan-book-analysis/)
+
+[LendingClub](https://www.lendingclub.com/info/download-data.action) 사이트에서 데이터를 다운로드해도 되고,
+[캐글 대출 데이터(Kaggle Loan Data)](https://www.kaggle.com/wendykan/lending-club-loan-data)를 통해서 데이터를 구해도 좋다.
+
+2007-2015까지 [LendingClub](https://www.lendingclub.com/) 대출자료가 파일에 담겨있다. 다운로드 받아 
+압축을 풀면, 다음 파일 세개가 담겨있다.
+
+* database.sqlite (134.64 MB) : sqlite 데이터베이스 파일 형식 대출 데이터 전체
+* LCDataDictionary.xlsx (20.5 KB) : 데이터 사전 (변수 설명)
+* loan.csv (105.01 MB) : csv 파일 형식 대출 데이터 전체
 
 
 ~~~{.r}
-# 변수 --> 요인(factor)
-data$property <-as.factor(data$ property)
-# 변수 --> 숫자
-data$age <-as.numeric(data$age)
-# 변수 --> 숫자(double)
-data$amount<-as.double(data$amount)
+##=====================================================================
+## 01. 렌딩클럽 데이터 가져오기
+##=====================================================================
 
-# 연속형 변수 --> 범주형 (구간 쪼갬)
-data$amount<-as.factor(ifelse(data$amount<=2500,'0-
-2500',ifelse(data$amount<=5000,'2600-5000','5000+')))
+suppressMessages(library(readr))
+suppressMessages(library(dplyr))
+setwd("~")
+loan.dat <- read_csv("lending-club-loan-data/loan.csv", col_names = TRUE)
 ~~~
 
-#### 1.2. 컷오프 결정
-
-컷오프 결정, 신용카드를 발급할 것인지 말것인지 결정하는데 산업계에서 KS(Kolmogorov-Smirnov) 통계량이 많이 사용되지만, Hand가 KS를 사용하는 것은 잘못되었다는 것을 보였고, 컷오프 결정에 유일한 통계량은 **신용카드 발급이 결정된 상태에서 조건부 부실율** 이 되어야 한다는 것을 보였다. [^hand-2005]
-
-[^hand-2005]: Hand, D. J. (2005). Good practice in retail credit score-card assessment. Journal of the Operational Research Society, 56, 1109–1117.
-
-#### 1.3 신용평점에 영향을 주는 변수 식별
-
-신용카드 발급이 되지 않는 경우 어떤 사유로 카드발급이 되지 않았는지 이유를 제시하여야 한다.
 
 
+~~~{.output}
+Parsed with column specification:
+cols(
+  .default = col_character(),
+  id = col_integer(),
+  member_id = col_integer(),
+  loan_amnt = col_double(),
+  funded_amnt = col_double(),
+  funded_amnt_inv = col_double(),
+  int_rate = col_double(),
+  installment = col_double(),
+  annual_inc = col_double(),
+  dti = col_double(),
+  delinq_2yrs = col_double(),
+  inq_last_6mths = col_double(),
+  mths_since_last_delinq = col_double(),
+  mths_since_last_record = col_double(),
+  open_acc = col_double(),
+  pub_rec = col_double(),
+  revol_bal = col_double(),
+  revol_util = col_double(),
+  total_acc = col_double(),
+  out_prncp = col_double(),
+  out_prncp_inv = col_double()
+  # ... with 11 more columns
+)
 
-~~~{.r}
-## 신용점수함수에 가장 영향을 주는 변수 3개 추출
-g <- predict(m, type='terms', test)
-
-ftopk<- function(x,top=3){
-  res <- names(x)[order(x, decreasing = TRUE)][1:top]
-  paste(res, collapse=";", sep="")
-}
-# 상위 변수 3개를 추출
-topk <- apply(g, 1, ftopk, top=3)
-# 테스트 테스트 데이터에 사유가 되는 변수를 부착
-test <- cbind(test, topk)
 ~~~
 
-### 2. 비용함수(행렬)/수익함수(행렬)
-
-저신용자에게 신용카드를 발급할 경우는 그 반대의 경우에 비해 5배 비용이 많이 소요된다. 이를 비용함수 혹은 비용행렬이라고 부른다.
-아래 **비용함수(Cost Function)** 를 마케팅 캠페인등에 사용하면 **수익함수(Profit Function)** 라고 부르기도 한다. 1종, 2종 오류를 범할 경우 수익/비용에서 차이가 나기 때문이다. 
-
-| | 1 | 2 |
-|----|-----|-----|
-| 1  |  0  |  1  |
-| 2  |  5  |  0  |
-
-기계학습을 활용한 은행이나 카드사는 수익성을 전제로하여 기계학습 알고리듬을 도입한다. 예를 들어, 
-향후 5년간 신용카드발급에서 이자수익이 40% 예상되고, 신용불량으로 인해 대손이 발생된다면 다음과 같이 수익행렬을 작성할 수 있다.
-
-|                 | 정상(예측) | 신용불량(예측) |
-|-----------------|:---------:|:---------:|
-| 정상(실제)         |   0.4     |     0     |
-| 신용불량(실제)      |    -1     |     0     |
-
-#### 2.1. 독일신용 데이터를 통한 사례분석 [^profit-analysis-sas]
-
-독일신용 데이터에는 1,000명의 고객이 있다. 700명이 정상이고, 300명이 신용불량자로 등록되어 있다. 이럴 경우 신용불량으로 인한 대손이 발생하지 않을 경우 35% 수익이 예상되고, 신용불량으로 확정될 경우 100% 손실이 불가피하다. 신용불량이 전혀 없다고 가정하고 대출을 진행할 경우 모의시험을 수행하면 다음과 같다.
-
-|                 | 정상(예측) | 신용불량(예측) |
-|-----------------|:---------:|:---------:|
-| 정상(실제)         |   0.35     |     0     |
-| 신용불량(실제)      |    -1     |     0     |
-
-1,000명에게 모두 1원씩 한단위 제공한다면, $\frac{700 \times 0.35 - 300 \times 1}{1000} = \frac{-55}{1000} = -0.055$ 만큼 손실이 불가피하다.
-
-좀더 현실적으로 고객당 천만원을 신용카드를 통해 대출을 준다면, $-0.055 \times 10,000,000 * 1000 = -5.5$ 억원 손실이 난다.
 
 
-#### 2.2. 신용평가 알고리듬을 구축한 경우
+~~~{.output}
+See spec(...) for full column specifications.
 
-
-|                 | 정상(예측) | 신용불량(예측) |
-|-----------------|:---------:|:---------:|
-| 정상(실제)      |   608     |    46     |
-| 신용불량(실제)  |    192    |    154    |
-
-
-신용평가 알고리듬을 개발하여 다음과 같이 구축했다고 가정하면, 다음과 같은 결과가 예상된다.
-신용불량이라고 예측한 경우 신용카드발급을 통한 대출을 주지 않아 정상적인 고객이 신용카드를 활용하지 못해 손실(+35% 이자수익)이 발생하고, 정상이라고 예측했지만, 신용카드를 발급해서 생기는 손실(-100%)도 있다. 하지만, 정상이라고 예측해서 정상으로 사용되는 경우 생기는 수익이 608명으로부터 나오고, 신용불량으로 예측해서 실제 신용불량을 맞춤으로써 생기는 이익도 함께 존재한다.
-
-이를 정리하여 합치게 되면 다음과 같은 수익이 예상된다.
-
-$$ 608 \times 10,000,000 \times 0.35 - 192 \times 10,000 = 2.08억$$
-
-신용평가 모형을 갖는 것과 갖지않는 전체적인 효과는 $2.08억 - (-5.5억) = 7.58억$ 으로 추산할 수 있다.
-
-[^profit-analysis-sas]: [Profit Analysis of the German Credit Data Using SAS® Enterprise MinerTM 5.3](http://www.sas.com/technologies/analytics/datamining/miner/trial/german-credit-data.pdf)
+~~~
 
 
 
 ~~~{.r}
-##================================================================
-## 04. 비용함수/행렬
-##================================================================
-matrix_dimensions <- list(c("good", "bad"), c("good", "bad"))
-names(matrix_dimensions) <- c("acutual", "predicted")
-
-error_cost <- matrix(c(0.35, -1, 0, 0), nrow = 2,
-                     dimnames = matrix_dimensions)
-#       predicted
-#acutual  good bad
-#   good  0.35   0
-#   bad  -1.00   0
-
-##================================================================
-## 05. 모형 개발
-##================================================================
-library(c50)
-c50.cost.m <- C5.0(train[,-1], train$Creditability, costs = error_cost)
-
-##================================================================
-## 05. 모형 성능평가
-##================================================================
-credit_cost_pred <- predict(c50.cost.m, test)
-CrossTable(test$Creditability, credit_cost_pred,
-             prop.chisq = FALSE, prop.c = FALSE, prop.r = FALSE,
-             dnn = c('actual default', 'predicted default'))
-~~~
-
-### 3. 신용평가 모형 배포 
-
-최적의 성능을 자랑하는 기계학습 신용평가 알고리듬 구축이 완료되었으면, 다음 단계로 실운영 시스템(production)으로 이관하는 것이다. 통상 규칙엔진(Rule Engine)을 사용하거나, SQL 문장으로 작성하여 실운영 시스템에 내장되어 활용된다. [^convert-tree-to-rules]
-학습된 나무모형을 SQL 혹은 규칙엔진으로 전환하면 다음과 같은 결과를 실운영 시스템에서 사용하게 된다.
-
-~~~ {.output}
-Rule number: 16 [yval=bad cover=220 N=121 Y=99 (37%) prob=0.04]
-     checking< 2.5
-     afford< 54
-     history< 3.5
-     coapp< 2.5
-
-Rule number: 34 [yval=bad cover=7 N=3 Y=4 (1%) prob=0.06]
-     checking< 2.5
-     afford< 54
-     history< 3.5
-     coapp>=2.5
-     age< 27
+dim(loan.dat)
 ~~~
 
 
-[^convert-tree-to-rules]: [DATA MINING Desktop Survival Guide by Graham Williams, Convert Tree to Rules](http://www.togaware.com/datamining/survivor/Convert_Tree.html)
+
+~~~{.output}
+[1] 887379     74
+
+~~~
 
 
 
 ~~~{.r}
-list.rules.rpart(rpart.fit)
-
-list.rules.rpart <- function(model)
-{
-  if (!inherits(model, "rpart")) stop("Not a legitimate rpart tree")
-  #
-  # Get some information.
-  #
-  frm     <- model$frame
-  names   <- row.names(frm)
-  ylevels <- attr(model, "ylevels")
-  ds.size <- model$frame[1,]$n
-  #
-  # Print each leaf node as a rule.
-  #
-  for (i in 1:nrow(frm))
-  {
-    if (frm[i,1] == "<leaf>")
-    {
-      # The following [,5] is hardwired - needs work!
-      cat("\n")
-      cat(sprintf(" Rule number: %s ", names[i]))
-      cat(sprintf("[yval=%s cover=%d (%.0f%%) prob=%0.2f]\n",
-                  ylevels[frm[i,]$yval], frm[i,]$n,
-                  round(100*frm[i,]$n/ds.size), frm[i,]$yval2[,5]))
-      pth <- path.rpart(model, nodes=as.numeric(names[i]), print.it=FALSE)
-      cat(sprintf("   %s\n", unlist(pth)[-1]), sep="")
-    }
-  }
-}
+names(loan.dat)
 ~~~
+
+
+
+~~~{.output}
+ [1] "id"                          "member_id"                  
+ [3] "loan_amnt"                   "funded_amnt"                
+ [5] "funded_amnt_inv"             "term"                       
+ [7] "int_rate"                    "installment"                
+ [9] "grade"                       "sub_grade"                  
+[11] "emp_title"                   "emp_length"                 
+[13] "home_ownership"              "annual_inc"                 
+[15] "verification_status"         "issue_d"                    
+[17] "loan_status"                 "pymnt_plan"                 
+[19] "url"                         "desc"                       
+[21] "purpose"                     "title"                      
+[23] "zip_code"                    "addr_state"                 
+[25] "dti"                         "delinq_2yrs"                
+[27] "earliest_cr_line"            "inq_last_6mths"             
+[29] "mths_since_last_delinq"      "mths_since_last_record"     
+[31] "open_acc"                    "pub_rec"                    
+[33] "revol_bal"                   "revol_util"                 
+[35] "total_acc"                   "initial_list_status"        
+[37] "out_prncp"                   "out_prncp_inv"              
+[39] "total_pymnt"                 "total_pymnt_inv"            
+[41] "total_rec_prncp"             "total_rec_int"              
+[43] "total_rec_late_fee"          "recoveries"                 
+[45] "collection_recovery_fee"     "last_pymnt_d"               
+[47] "last_pymnt_amnt"             "next_pymnt_d"               
+[49] "last_credit_pull_d"          "collections_12_mths_ex_med" 
+[51] "mths_since_last_major_derog" "policy_code"                
+[53] "application_type"            "annual_inc_joint"           
+[55] "dti_joint"                   "verification_status_joint"  
+[57] "acc_now_delinq"              "tot_coll_amt"               
+[59] "tot_cur_bal"                 "open_acc_6m"                
+[61] "open_il_6m"                  "open_il_12m"                
+[63] "open_il_24m"                 "mths_since_rcnt_il"         
+[65] "total_bal_il"                "il_util"                    
+[67] "open_rv_12m"                 "open_rv_24m"                
+[69] "max_bal_bc"                  "all_util"                   
+[71] "total_rev_hi_lim"            "inq_fi"                     
+[73] "total_cu_tl"                 "inq_last_12m"               
+
+~~~
+
+
+
+~~~{.r}
+#glimpse(loan.dat)
+#summary(loan.dat)
+~~~
+
+
+~~~{.r}
+##=====================================================================
+## 02. 렌딩클럽 데이터와 문서 대조작업
+##=====================================================================
+
+suppressMessages(library(readxl))
+setwd("~")
+dataDictionary <- read_excel("lending-club-loan-data/LCDataDictionary.xlsx")
+
+dd.names <- as.character(na.omit(dataDictionary$LoanStatNew))
+loandata.names <- names(loan.dat)
+
+setdiff(dd.names, loandata.names)
+~~~
+
+
+
+~~~{.output}
+[1] "fico_range_high"       "fico_range_low"        "is_inc_v"             
+[4] "last_fico_range_high"  "last_fico_range_low"   "verified_status_joint"
+[7] "total_rev_hi_lim  "   
+
+~~~
+
+렌딩클럽 데이터(csv 혹은 sqlite)와 데이터 사전에 문서화된 것 사이에 차이가 남을 알 수 있다.
+즉, "fico_range_high", "fico_range_low", "is_inc_v", "last_fico_range_high", "last_fico_range_low", "verified_status_joint", "total_rev_hi_lim"
+변수는 데이터 사전에 등재되어 있지만, 실제 렌딩클럽 데이터에는 없다.
+사실 이런 경우는 흔하게 발생되고 있는 문제로 나중에 심각한 문제가 될 수 있다. 즉, 이런 유산 비용이 쌓이게 되면
+정말 되돌이킬 수 없는 시스템이 되어 재앙이 될 수 있다. 
+   
+
+#### 2.1. 탐색적 데이터 분석
+
+
+~~~{.r}
+##=====================================================================
+## 03. 렌딩클럽 데이터 탐색적 데이터 분석
+##=====================================================================
+# 02.01. 대출금액 분포
+suppressMessages(library(DescTools))
+Desc(loan.dat$loan_amnt, main = "대출금액 분포", plotit = TRUE)
+~~~
+
+
+
+~~~{.output}
+------------------------------------------------------------------------- 
+대출금액 분포
+
+     length          n        NAs     unique         0s       mean     meanSE
+      9e+05      9e+05          0      1e+03          0   1.48e+04   8.95e+00
+
+        .05        .10        .25     median        .75        .90        .95
+   3.60e+03   5.00e+03   8.00e+03   1.30e+04   2.00e+04   2.80e+04   3.20e+04
+
+      range         sd      vcoef        mad        IQR       skew       kurt
+   3.45e+04   8.44e+03   5.72e-01   8.60e+03   1.20e+04   6.82e-01  -2.57e-01
+ 
+lowest : 5.00e+02 (1e+01), 5.50e+02, 6.00e+02 (6e+00), 7.00e+02 (3e+00), 7.25e+02
+highest: 3.49e+04 (1e+01), 3.49e+04 (9e+00), 3.50e+04 (2e+01), 3.50e+04 (3e+01), 3.50e+04 (4e+04)
+
+~~~
+
+
+
+~~~{.r}
+# 02.02. 대출금액 증가 현황
+suppressMessages(library(ggplot2))
+~~~
+
+<img src="fig/lendingclub-eda-continuous-1.png" title="plot of chunk lendingclub-eda-continuous" alt="plot of chunk lendingclub-eda-continuous" style="display: block; margin: auto;" />
+
+~~~{.r}
+suppressMessages(library(lubridate))
+
+loan.dat$issue_d <- parse_date_time(gsub("^", "01-", loan.dat$issue_d), orders = c("d-m-y", "d-B-Y", "m/d/y"))
+
+amnt_df <- loan.dat %>% 
+  select(issue_d, loan_amnt) %>% 
+  group_by(issue_d) %>% 
+  summarise(Amount = sum(loan_amnt))
+
+ts_amnt <- ggplot(amnt_df, aes(x = issue_d, y = Amount))
+ts_amnt + geom_line() + xlab("대출금 발생일") + ylab("대출금")
+~~~
+
+<img src="fig/lendingclub-eda-continuous-2.png" title="plot of chunk lendingclub-eda-continuous" alt="plot of chunk lendingclub-eda-continuous" style="display: block; margin: auto;" />
+
+
+~~~{.r}
+# 03.03. 대출 상태
+
+Desc(loan.dat$loan_status, plotit = T)
+~~~
+
+
+
+~~~{.output}
+------------------------------------------------------------------------- 
+loan.dat$loan_status (character)
+
+  length      n    NAs unique levels  dupes
+   9e+05  9e+05      0  1e+01  1e+01      y
+
+                                                  level   freq   perc  cumfreq  cumperc
+1                                               Current  6e+05  67.8%    6e+05    67.8%
+2                                            Fully Paid  2e+05  23.4%    8e+05    91.2%
+3                                           Charged Off  5e+04   5.1%    9e+05    96.3%
+4                                    Late (31-120 days)  1e+04   1.3%    9e+05    97.6%
+5                                                Issued  8e+03   1.0%    9e+05    98.6%
+6                                       In Grace Period  6e+03   0.7%    9e+05    99.3%
+7                                     Late (16-30 days)  2e+03   0.3%    9e+05    99.6%
+8    Does not meet the credit policy. Status:Fully Paid  2e+03   0.2%    9e+05    99.8%
+9                                               Default  1e+03   0.1%    9e+05    99.9%
+10  Does not meet the credit policy. Status:Charged Off  8e+02   0.1%    9e+05   100.0%
+
+~~~
+
+<img src="fig/lendingclub-eda-loan-status-1.png" title="plot of chunk lendingclub-eda-loan-status" alt="plot of chunk lendingclub-eda-loan-status" style="display: block; margin: auto;" />
+
+~~~{.r}
+# 03.04. 대출 상태별 대출금
+
+box_status <- ggplot(loan.dat, aes(loan_status, loan_amnt))
+box_status + geom_boxplot(aes(fill = loan_status)) +
+  theme(axis.text.x = element_blank()) +
+  labs(list(
+    title = "대출 상태별 대출금",
+    x = "대출상태",
+    y = "대출금"))  
+~~~
+
+<img src="fig/lendingclub-eda-loan-status-2.png" title="plot of chunk lendingclub-eda-loan-status" alt="plot of chunk lendingclub-eda-loan-status" style="display: block; margin: auto;" />
+
+~~~{.r}
+# 03.05. 대출 등급별 대출금 추이
+
+amnt_df_grade <- loan.dat %>% 
+  select(issue_d, loan_amnt, grade) %>% 
+  group_by(issue_d, grade) %>% 
+  summarise(Amount = sum(loan_amnt))
+
+ts_amnt_grade <- ggplot(amnt_df_grade, 
+                        aes(x = issue_d, y = Amount))
+ts_amnt_grade + geom_area(aes(fill=grade)) + xlab("대출일")  
+~~~
+
+<img src="fig/lendingclub-eda-loan-status-3.png" title="plot of chunk lendingclub-eda-loan-status" alt="plot of chunk lendingclub-eda-loan-status" style="display: block; margin: auto;" />
+
+
+#### 2.2. 지리정보 분석
+
+
+~~~{.r}
+# install.packages("RCurl")
+# install.packages("choroplethrMaps")
+# install.packages("choroplethr")
+# install.packages("acepack")
+# install.packages("latticeExtra")
+# install.packages("gridExtra")
+suppressMessages(library(choroplethr))
+suppressMessages(library(zipcode))
+data(zipcode.civicspace)
+zipcode.civicspace$zip_code <- substr(zipcode.civicspace$zip,1,3)
+zipcode.dic <- zipcode.civicspace  %>%  group_by(zip_code)  %>% 
+  dplyr::select(zip_code, region=state) %>% unique 
+
+loan.dat$zip_code <- substr(loan.dat$zip_code,1,3)
+loan.dat <- left_join(loan.dat, zipcode.dic, by="zip_code")
+
+# region 각주 명칭정보와 축약 두자리 정보 데이터 가져오기
+suppressMessages(library(choroplethrMaps))
+data(state.regions)
+
+## 주별 대출 금액
+state_by_value <- loan.dat %>% group_by(region) %>% 
+  dplyr::summarise(value = sum(loan_amnt, na.rm=TRUE)) %>% dplyr::select(abb=region, value) %>% ungroup
+
+state_region_by_value <- left_join(state.regions, state_by_value, by="abb") %>% 
+  dplyr::select(region, value)
+
+state_choropleth(state_region_by_value, title = "주별 대출금액")
+~~~
+
+<img src="fig/lendingclub-geo-1.png" title="plot of chunk lendingclub-geo" alt="plot of chunk lendingclub-geo" style="display: block; margin: auto;" />
+
+~~~{.r}
+## 주별 대출 횟수
+state_by_volume <-
+  loan.dat %>% group_by(region) %>% dplyr::summarise(value = n()) %>%  dplyr::select(abb=region, value) %>% ungroup
+
+state_region_by_volume <- left_join(state.regions, state_by_volume, by="abb") %>% 
+  dplyr::select(region, value)
+
+state_choropleth(state_region_by_volume, title = "주별 대출건수")
+~~~
+
+<img src="fig/lendingclub-geo-2.png" title="plot of chunk lendingclub-geo" alt="plot of chunk lendingclub-geo" style="display: block; margin: auto;" />
+
+
+#### 2.3. 대출 목적과 단어 구름
+
+
+~~~{.r}
+##=====================================================================
+## 05. 렌딩클럽 대출 목적와 단어구름
+##=====================================================================
+
+# 대출 목적
+Desc(loan.dat$purpose, main = "대출 목적", plotit = TRUE)
+~~~
+
+
+
+~~~{.output}
+------------------------------------------------------------------------- 
+대출 목적
+
+  length      n    NAs unique levels  dupes
+   9e+05  9e+05      0  1e+01  1e+01      y
+
+                 level   freq   perc  cumfreq  cumperc
+1   debt_consolidation  5e+05  59.1%    5e+05    59.1%
+2          credit_card  2e+05  23.2%    8e+05    82.3%
+3     home_improvement  5e+04   5.8%    8e+05    88.1%
+4                other  4e+04   4.8%    9e+05    93.0%
+5       major_purchase  2e+04   2.0%    9e+05    94.9%
+6       small_business  1e+04   1.2%    9e+05    96.1%
+7                  car  9e+03   1.0%    9e+05    97.1%
+8              medical  9e+03   1.0%    9e+05    98.0%
+9               moving  6e+03   0.6%    9e+05    98.7%
+10            vacation  5e+03   0.5%    9e+05    99.2%
+11               house  4e+03   0.4%    9e+05    99.6%
+12             wedding  2e+03   0.3%    9e+05    99.9%
+... etc.
+ [list output truncated]
+
+~~~
+
+<img src="fig/lendingclub-purpose-wordcloud-1.png" title="plot of chunk lendingclub-purpose-wordcloud" alt="plot of chunk lendingclub-purpose-wordcloud" style="display: block; margin: auto;" />
+
+~~~{.r}
+# 단어 구름
+suppressMessages(library(tm))
+suppressMessages(library(RColorBrewer))
+suppressMessages(library(wordcloud))
+
+loan_descriptions.corpus <- Corpus(DataframeSource(data.frame(head(loan.dat[,"title"], n=10000))))
+loan_descriptions.corpus <- tm_map(loan_descriptions.corpus, removePunctuation)
+loan_descriptions.corpus <- tm_map(loan_descriptions.corpus, content_transformer(tolower))
+
+wordcloud(loan_descriptions.corpus,
+          max.words = 100,
+          random.order=FALSE, 
+          rot.per=0.30, 
+          use.r.layout=FALSE, 
+          colors=brewer.pal(8, "Paired"))
+~~~
+
+<img src="fig/lendingclub-purpose-wordcloud-2.png" title="plot of chunk lendingclub-purpose-wordcloud" alt="plot of chunk lendingclub-purpose-wordcloud" style="display: block; margin: auto;" />
+
+#### 2.4. 대출 등급과 이자율
+
+
+~~~{.r}
+##=====================================================================
+## 06. 대출 등급과 이자율
+##=====================================================================
+
+Desc(loan.dat$grade, main = "대출 등급", plotit = TRUE)
+~~~
+
+
+
+~~~{.output}
+------------------------------------------------------------------------- 
+대출 등급
+
+  length      n    NAs unique levels  dupes
+   9e+05  9e+05      0  7e+00  7e+00      y
+
+   level   freq   perc  cumfreq  cumperc
+1      B  3e+05  28.7%    3e+05    28.7%
+2      C  3e+05  27.7%    5e+05    56.4%
+3      A  2e+05  16.7%    7e+05    73.1%
+4      D  1e+05  15.7%    8e+05    88.8%
+5      E  7e+04   8.0%    9e+05    96.8%
+6      F  2e+04   2.6%    9e+05    99.4%
+7      G  6e+03   0.6%    9e+05   100.0%
+
+~~~
+
+<img src="fig/unnamed-chunk-2-1.png" title="plot of chunk unnamed-chunk-2" alt="plot of chunk unnamed-chunk-2" style="display: block; margin: auto;" />
+
+~~~{.r}
+Desc(int_rate ~ grade, loan.dat, digits = 1, main = "Interest rate by grade", plotit = TRUE)
+~~~
+
+
+
+~~~{.output}
+------------------------------------------------------------------------- 
+Interest rate by grade
+
+Summary: 
+n pairs: 9e+05, valid: 9e+05 (100.0%), missings: 0 (0.0%), groups: 7
+
+                                                                     
+              A        B        C        D        E        F        G
+mean    7.2e+00  1.1e+01  1.4e+01  1.7e+01  2.0e+01  2.4e+01  2.6e+01
+median  7.3e+00  1.1e+01  1.4e+01  1.7e+01  2.0e+01  2.4e+01  2.6e+01
+sd      9.8e-01  1.4e+00  1.2e+00  1.2e+00  1.5e+00  1.5e+00  2.0e+00
+IQR     1.4e+00  2.1e+00  1.7e+00  1.6e+00  2.4e+00  1.5e+00  2.6e-01
+n         2e+05    3e+05    3e+05    1e+05    7e+04    2e+04    6e+03
+np        16.7%    28.7%    27.7%    15.7%     8.0%     2.6%     0.6%
+NAs           0        0        0        0        0        0        0
+0s            0        0        0        0        0        0        0
+
+Kruskal-Wallis rank sum test:
+  Kruskal-Wallis chi-squared = 839310, df = 6, p-value < 2.2e-16
+
+~~~
+
+<img src="fig/unnamed-chunk-2-2.png" title="plot of chunk unnamed-chunk-2" alt="plot of chunk unnamed-chunk-2" style="display: block; margin: auto;" />
+
+
+
+
+
+

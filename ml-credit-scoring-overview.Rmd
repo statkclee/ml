@@ -86,15 +86,15 @@ $\text{기대손실} = \text{채무 불이행 위험} \times \text{채무 불이
 ## 01. 렌딩클럽 데이터 가져오기
 ##=====================================================================
 
-library(readr)
-library(dplyr)
-setwd("D:/")
+suppressMessages(library(readr))
+suppressMessages(library(dplyr))
+setwd("~")
 loan.dat <- read_csv("lending-club-loan-data/loan.csv", col_names = TRUE)
 dim(loan.dat)
 names(loan.dat)
 
-glimpse(loan.dat)
-summary(loan.dat)
+#glimpse(loan.dat)
+#summary(loan.dat)
 ``` 
 
 ``` {r lendingclub-recon, tidy=FALSE, warning=FALSE}
@@ -103,7 +103,8 @@ summary(loan.dat)
 ## 02. 렌딩클럽 데이터와 문서 대조작업
 ##=====================================================================
 
-library(readxl)
+suppressMessages(library(readxl))
+setwd("~")
 dataDictionary <- read_excel("lending-club-loan-data/LCDataDictionary.xlsx")
 
 dd.names <- as.character(na.omit(dataDictionary$LoanStatNew))
@@ -126,13 +127,13 @@ setdiff(dd.names, loandata.names)
 ## 03. 렌딩클럽 데이터 탐색적 데이터 분석
 ##=====================================================================
 # 02.01. 대출금액 분포
-library(DescTools)
+suppressMessages(library(DescTools))
 Desc(loan.dat$loan_amnt, main = "대출금액 분포", plotit = TRUE)
 
 
 # 02.02. 대출금액 증가 현황
-library(ggplot2)
-library(lubridate)
+suppressMessages(library(ggplot2))
+suppressMessages(library(lubridate))
 
 loan.dat$issue_d <- parse_date_time(gsub("^", "01-", loan.dat$issue_d), orders = c("d-m-y", "d-B-Y", "m/d/y"))
 
@@ -182,8 +183,8 @@ ts_amnt_grade + geom_area(aes(fill=grade)) + xlab("대출일")
 # install.packages("acepack")
 # install.packages("latticeExtra")
 # install.packages("gridExtra")
-library(choroplethr)
-library(zipcode)
+suppressMessages(library(choroplethr))
+suppressMessages(library(zipcode))
 data(zipcode.civicspace)
 zipcode.civicspace$zip_code <- substr(zipcode.civicspace$zip,1,3)
 zipcode.dic <- zipcode.civicspace  %>%  group_by(zip_code)  %>% 
@@ -193,7 +194,7 @@ loan.dat$zip_code <- substr(loan.dat$zip_code,1,3)
 loan.dat <- left_join(loan.dat, zipcode.dic, by="zip_code")
 
 # region 각주 명칭정보와 축약 두자리 정보 데이터 가져오기
-library(choroplethrMaps)
+suppressMessages(library(choroplethrMaps))
 data(state.regions)
 
 ## 주별 대출 금액
@@ -219,7 +220,7 @@ state_choropleth(state_region_by_volume, title = "주별 대출건수")
 
 #### 2.3. 대출 목적과 단어 구름
 
-``` {r lendingclub-purpose-wordcloud, tidy=FALSE, warning=FALSE}}
+``` {r lendingclub-purpose-wordcloud, tidy=FALSE, warning=FALSE}
 
 ##=====================================================================
 ## 05. 렌딩클럽 대출 목적와 단어구름
@@ -229,9 +230,9 @@ state_choropleth(state_region_by_volume, title = "주별 대출건수")
 Desc(loan.dat$purpose, main = "대출 목적", plotit = TRUE)
 
 # 단어 구름
-library(tm)
-library(RColorBrewer)
-library(wordcloud)
+suppressMessages(library(tm))
+suppressMessages(library(RColorBrewer))
+suppressMessages(library(wordcloud))
 
 loan_descriptions.corpus <- Corpus(DataframeSource(data.frame(head(loan.dat[,"title"], n=10000))))
 loan_descriptions.corpus <- tm_map(loan_descriptions.corpus, removePunctuation)

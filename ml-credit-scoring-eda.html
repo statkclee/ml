@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">신용평점모형 탐색적 데이터 분석</h2>
+          <section class="getready panel panel-warning">
+<div class="panel-heading">
+<h3 id="학습목표"><span class="glyphicon glyphicon-check"></span>학습목표</h3>
+</div>
+<div class="panel-body">
+<ul>
+<li></li>
+</ul>
+</div>
+</section>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##=====================================================================
+## 07. 채무 불이행 예측
+##=====================================================================
+<span class="co"># 종속변수 탐색</span>
+bad_indicators &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Charged Off&quot;</span>,
+                    <span class="st">&quot;Default&quot;</span>,
+                    <span class="st">&quot;Does not meet the credit policy. Status:Charged Off&quot;</span>,
+                    <span class="st">&quot;In Grace Period&quot;</span>, 
+                    <span class="st">&quot;Default Receiver&quot;</span>, 
+                    <span class="st">&quot;Late (16-30 days)&quot;</span>,
+                    <span class="st">&quot;Late (31-120 days)&quot;</span>)
+
+loan.dat$loan_status_yn &lt;-<span class="st"> </span><span class="kw">ifelse</span>(loan.dat$loan_status %in%<span class="st"> </span>bad_indicators, <span class="dv">1</span>, <span class="dv">0</span>)</code></pre></div>
+<pre class="output"><code>Error in match(x, table, nomatch = 0L): 객체 &#39;loan.dat&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 1. 표를 통한 EDA 분석</span>
+## 단변량 표
+<span class="kw">CrossTable</span>(loan.dat$loan_status_yn)</code></pre></div>
+<pre class="output"><code>Error in eval(expr, envir, enclos): 함수 &quot;CrossTable&quot;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## 두변수 표
+<span class="kw">CrossTable</span>(loan.dat$grade, loan.dat$loan_status_yn, <span class="dt">prop.r =</span> <span class="ot">TRUE</span>, <span class="dt">prop.c=</span><span class="ot">FALSE</span>, <span class="dt">prop.t=</span><span class="ot">FALSE</span>, <span class="dt">prop.chisq=</span><span class="ot">FALSE</span>)</code></pre></div>
+<pre class="output"><code>Error in eval(expr, envir, enclos): 함수 &quot;CrossTable&quot;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 2. 그래프를 통한 EDA 분석</span>
+<span class="kw">library</span>(DescTools)</code></pre></div>
+<pre class="output"><code>Error in library(DescTools): there is no package called &#39;DescTools&#39;
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## 단변량: 히스토그램
+<span class="kw">Desc</span>(loan.dat$loan_amnt, <span class="dt">plotit=</span><span class="ot">TRUE</span>)</code></pre></div>
+<pre class="output"><code>Error in eval(expr, envir, enclos): 함수 &quot;Desc&quot;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">index_highincome &lt;-<span class="st"> </span><span class="kw">which</span>(loan.dat$annual_inc &gt;<span class="st"> </span><span class="fl">2e+06</span>)</code></pre></div>
+<pre class="output"><code>Error in which(loan.dat$annual_inc &gt; 2e+06): 객체 &#39;loan.dat&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">loan.dat2 &lt;-<span class="st"> </span>loan.dat[-index_highincome,]</code></pre></div>
+<pre class="output"><code>Error in eval(expr, envir, enclos): 객체 &#39;loan.dat&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Desc(loan.dat$annual_inc, plotit=TRUE)</span>
+<span class="kw">Desc</span>(loan.dat2$annual_inc, <span class="dt">plotit=</span><span class="ot">TRUE</span>)</code></pre></div>
+<pre class="output"><code>Error in eval(expr, envir, enclos): 함수 &quot;Desc&quot;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## 다변량: 산점도
+index_sample &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="dv">1</span>:<span class="kw">nrow</span>(loan.dat2), <span class="fl">0.1</span>*<span class="kw">nrow</span>(loan.dat2))</code></pre></div>
+<pre class="output"><code>Error in nrow(loan.dat2): 객체 &#39;loan.dat2&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">loan.plot.dat &lt;-<span class="st"> </span>loan.dat2[index_sample, ]</code></pre></div>
+<pre class="output"><code>Error in eval(expr, envir, enclos): 객체 &#39;loan.dat2&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Desc</span>(loan.plot.dat$loan_amnt ~<span class="st"> </span>loan.plot.dat$annual_inc, <span class="dt">plotit=</span><span class="ot">TRUE</span>)</code></pre></div>
+<pre class="output"><code>Error in eval(expr, envir, enclos): 함수 &quot;Desc&quot;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 3. 결측값 처리</span>
+<span class="co"># 결측값 생성하기</span>
+<span class="kw">summary</span>(loan.dat$int_rate)</code></pre></div>
+<pre class="output"><code>Error in summary(loan.dat$int_rate): 객체 &#39;loan.dat&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">na_index &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="dv">1</span>:<span class="kw">nrow</span>(loan.dat), <span class="fl">0.1</span>*<span class="kw">nrow</span>(loan.dat))</code></pre></div>
+<pre class="output"><code>Error in nrow(loan.dat): 객체 &#39;loan.dat&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">loan.dat[na_index, <span class="st">&quot;int_rate&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></code></pre></div>
+<pre class="output"><code>Error in loan.dat[na_index, &quot;int_rate&quot;] &lt;- NA: 객체 &#39;loan.dat&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(loan.dat$int_rate)</code></pre></div>
+<pre class="output"><code>Error in summary(loan.dat$int_rate): 객체 &#39;loan.dat&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 전략1: 결측값 제거</span>
+int_na_index &lt;-<span class="st"> </span><span class="kw">which</span>(<span class="kw">is.na</span>(loan.dat$int_rate))</code></pre></div>
+<pre class="output"><code>Error in which(is.na(loan.dat$int_rate)): 객체 &#39;loan.dat&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">loan.dat.delrow.na &lt;-<span class="st"> </span>loan.dat[-int_na_index, ]</code></pre></div>
+<pre class="output"><code>Error in eval(expr, envir, enclos): 객체 &#39;loan.dat&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dim</span>(loan.dat.delrow.na)</code></pre></div>
+<pre class="output"><code>Error in eval(expr, envir, enclos): 객체 &#39;loan.dat.delrow.na&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 전략2: 결측값 채워넣기</span>
+median_ir &lt;-<span class="st"> </span><span class="kw">median</span>(loan.dat$int_rate, <span class="dt">na.rm=</span><span class="ot">TRUE</span>)</code></pre></div>
+<pre class="output"><code>Error in median(loan.dat$int_rate, na.rm = TRUE): 객체 &#39;loan.dat&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mean_ir &lt;-<span class="st"> </span><span class="kw">mean</span>(loan.dat$int_rate, <span class="dt">na.rm=</span><span class="ot">TRUE</span>)</code></pre></div>
+<pre class="output"><code>Error in mean(loan.dat$int_rate, na.rm = TRUE): 객체 &#39;loan.dat&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">loan.dat$int_rate[int_na_index] &lt;-<span class="st"> </span>median_ir</code></pre></div>
+<pre class="output"><code>Error in eval(expr, envir, enclos): 객체 &#39;median_ir&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">loan.dat$int_rate[int_na_index] &lt;-<span class="st"> </span>mean_ir</code></pre></div>
+<pre class="output"><code>Error in eval(expr, envir, enclos): 객체 &#39;mean_ir&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 전략3: 결측값 보존 -- 중요한 정보를 갖음</span>
+
+loan.dat$ir_cat &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="ot">NA</span>, <span class="kw">length</span>(loan.dat$int_rate))</code></pre></div>
+<pre class="output"><code>Error in eval(expr, envir, enclos): 객체 &#39;loan.dat&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">loan.dat$ir_cat[<span class="kw">which</span>(loan.dat$int_rate &lt;=<span class="st"> </span><span class="dv">8</span>)] &lt;-<span class="st"> &quot;0-8&quot;</span></code></pre></div>
+<pre class="output"><code>Error in loan.dat$ir_cat[which(loan.dat$int_rate &lt;= 8)] &lt;- &quot;0-8&quot;: 객체 &#39;loan.dat&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">loan.dat$ir_cat[<span class="kw">which</span>(loan.dat$int_rate &gt;<span class="st"> </span><span class="dv">8</span> &amp;<span class="st"> </span>loan.dat$int_rate &lt;=<span class="st"> </span><span class="dv">11</span>)] &lt;-<span class="st"> &quot;8-11&quot;</span></code></pre></div>
+<pre class="output"><code>Error in loan.dat$ir_cat[which(loan.dat$int_rate &gt; 8 &amp; loan.dat$int_rate &lt;= : 객체 &#39;loan.dat&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">loan.dat$ir_cat[<span class="kw">which</span>(loan.dat$int_rate &gt;<span class="st"> </span><span class="dv">11</span> &amp;<span class="st"> </span>loan.dat$int_rate &lt;=<span class="st"> </span><span class="fl">13.5</span>)] &lt;-<span class="st"> &quot;11-13.5&quot;</span></code></pre></div>
+<pre class="output"><code>Error in loan.dat$ir_cat[which(loan.dat$int_rate &gt; 11 &amp; loan.dat$int_rate &lt;= : 객체 &#39;loan.dat&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">loan.dat$ir_cat[<span class="kw">which</span>(loan.dat$int_rate &gt;<span class="st"> </span><span class="fl">13.5</span>)] &lt;-<span class="st"> &quot;13.5+&quot;</span></code></pre></div>
+<pre class="output"><code>Error in loan.dat$ir_cat[which(loan.dat$int_rate &gt; 13.5)] &lt;- &quot;13.5+&quot;: 객체 &#39;loan.dat&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">loan.dat$ir_cat[<span class="kw">which</span>(<span class="kw">is.na</span>(loan.dat$int_rate))] &lt;-<span class="st"> &quot;Missing&quot;</span></code></pre></div>
+<pre class="output"><code>Error in loan.dat$ir_cat[which(is.na(loan.dat$int_rate))] &lt;- &quot;Missing&quot;: 객체 &#39;loan.dat&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">loan.dat$ir_cat &lt;-<span class="st"> </span><span class="kw">as.factor</span>(loan.dat$ir_cat)</code></pre></div>
+<pre class="output"><code>Error in is.factor(x): 객체 &#39;loan.dat&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Look at your new variable using plot()</span>
+<span class="kw">plot</span>(loan.dat$ir_cat)</code></pre></div>
+<pre class="output"><code>Error in plot(loan.dat$ir_cat): 객체 &#39;loan.dat&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 심화 탐색</span>
+
+numeric_cols &lt;-<span class="st"> </span><span class="kw">sapply</span>(loan.dat, is.numeric)</code></pre></div>
+<pre class="output"><code>Error in lapply(X = X, FUN = FUN, ...): 객체 &#39;loan.dat&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(reshape2)
+loanbook.lng &lt;-<span class="st"> </span><span class="kw">melt</span>(loan.dat[,numeric_cols], <span class="dt">id=</span><span class="st">&quot;is_bad&quot;</span>)</code></pre></div>
+<pre class="output"><code>Error in melt(loan.dat[, numeric_cols], id = &quot;is_bad&quot;): 객체 &#39;loan.dat&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(ggplot2)
+p &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> value, <span class="dt">group =</span> is_bad, <span class="dt">colour =</span> <span class="kw">factor</span>(is_bad)), 
+            <span class="dt">data =</span> loanbook.lng)</code></pre></div>
+<pre class="output"><code>Error in ggplot(aes(x = value, group = is_bad, colour = factor(is_bad)), : 객체 &#39;loanbook.lng&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">p +<span class="st"> </span><span class="kw">geom_density</span>() +<span class="st"> </span><span class="kw">facet_wrap</span>(~variable, <span class="dt">scales=</span><span class="st">&quot;free&quot;</span>)</code></pre></div>
+<pre class="output"><code>Error in eval(expr, envir, enclos): 객체 &#39;p&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">&quot;DT&quot;</span>)</code></pre></div>
+<pre class="output"><code>Error in contrib.url(repos, &quot;source&quot;): trying to use CRAN without setting a mirror
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(DT)</code></pre></div>
+<pre class="output"><code>Error in library(DT): there is no package called &#39;DT&#39;
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">loan.dat %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">filter</span>(loan_status_yn ==<span class="st"> &#39;1&#39;</span>) %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">select</span>(annual_inc, int_rate, loan_status) %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">datatable</span>(., <span class="dt">options =</span> <span class="kw">list</span>(<span class="dt">pageLength =</span> <span class="dv">10</span>))</code></pre></div>
+<pre class="output"><code>Error in eval(expr, envir, enclos): 함수 &quot;%&gt;%&quot;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##=====================================================================
+## 03. 렌딩클럽 데이터 기계학습
+##=====================================================================
+
+<span class="co"># 0. 훈련과 테스트 데이터셋 분리</span>
+index_train &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="dv">1</span>:<span class="kw">nrow</span>(loan.dat), <span class="dv">2</span>/<span class="dv">3</span>*<span class="kw">nrow</span>(loan.dat))</code></pre></div>
+<pre class="output"><code>Error in nrow(loan.dat): 객체 &#39;loan.dat&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">training_set &lt;-<span class="st"> </span>loan.dat[index_train, ]</code></pre></div>
+<pre class="output"><code>Error in eval(expr, envir, enclos): 객체 &#39;loan.dat&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">test_set &lt;-<span class="st"> </span>loan.dat[-index_train,]  </code></pre></div>
+<pre class="output"><code>Error in eval(expr, envir, enclos): 객체 &#39;loan.dat&#39;를 찾을 수 없습니다
+</code></pre>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>
