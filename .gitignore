@@ -9,3 +9,5 @@ CONDUCT.html
 _site
 .DS_Store
 .ipynb_*
+twitterOAuth.R
+.httr-oauth

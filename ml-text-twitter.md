@@ -16,9 +16,7 @@ mainfont: NanumGothic
 > * 트위터 서비스를 통해 텍스트 문자 데이터를 R로 불러온다. 
 
 
-``` {r, include=FALSE}
-source("tools/chunk-options.R")
-```
+
 
 ### 1. 트위터 서비스
 
@@ -71,7 +69,8 @@ source("tools/chunk-options.R")
 `head(hq_tweets_df$text)` 명령어를 통해 트위터를 잘 긁어왔는지 확인한다.
 
 
-``` {r ml-text-twitter-import, warning=FALSE}
+
+~~~{.r}
 ##======================================================================================================
 ## 01. 트위터 데이터 가져오기
 ##======================================================================================================
@@ -91,11 +90,34 @@ source("twitterOAuth.R")
 # access_secret   <- "..............."
 
 setup_twitter_oauth(consumer_key, consumer_secret, access_token, access_secret)
+~~~
 
+
+
+~~~{.output}
+[1] "Using direct authentication"
+
+~~~
+
+
+
+~~~{.r}
 hq_tweets <- searchTwitter("@HQ_sohn", lang='ko', n=100)
 hq_tweets_df <- twListToDF(hq_tweets)
 head(hq_tweets_df$text)
-```
+~~~
+
+
+
+~~~{.output}
+[1] "RT @justice7200: 손학규 @HQ_Sohn  고문님 역할 기대돼요. 정권교체 주역도, 킹메이커도 가능한 분. 다만 국민의 당은 잊으세요. https://t.co/ff8mXcopfg"                                                                                
+[2] "RT @justice7200: 손학규@HQ_Sohn 고문님. 정치활동 멋 있게 잘 하셔서 경선하여 승리하시면 정권교체도 가능합니다. 아름다운 경선이 조건. 보이콧 마시고 문재인 전 대표님과 손잡고 아름다운 경선하세요. 문대표님은 그럴맘이 준비된 분.…"
+[3] "RT @justice7200: 손학규@HQ_Sohn 고문님. 정치활동 멋 있게 잘 하셔서 경선하여 승리하시면 정권교체도 가능합니다. 아름다운 경선이 조건. 보이콧 마시고 문재인 전 대표님과 손잡고 아름다운 경선하세요. 문대표님은 그럴맘이 준비된 분.…"
+[4] "RT @justice7200: 손학규 @HQ_Sohn  고문님 역할 기대돼요. 정권교체 주역도, 킹메이커도 가능한 분. 다만 국민의 당은 잊으세요. https://t.co/ff8mXcopfg"                                                                                
+[5] "RT @justice7200: 손학규@HQ_Sohn 고문님. 정치활동 멋 있게 잘 하셔서 경선하여 승리하시면 정권교체도 가능합니다. 아름다운 경선이 조건. 보이콧 마시고 문재인 전 대표님과 손잡고 아름다운 경선하세요. 문대표님은 그럴맘이 준비된 분.…"
+[6] "안철수, 1박2일 호남행…박지원은 손학규와 회동&lt;=손학규(@HQ_Sohn)님,모바일 부정의혹으로 대선후보 앗아간 문재인에게 미련갖지 마시길,공정경선하고,여의치 않으면 길을 돌아 가는 것도 생각해 보셨으면^^ https://t.co/CuIJ0NDnDt"     
+
+~~~
 
 
 
