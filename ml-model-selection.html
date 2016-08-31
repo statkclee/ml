@@ -111,8 +111,8 @@ Resampling: Cross-Validated (10 fold, repeated 5 times)
 Summary of sample sizes: 450, 450, 450, 450, 450, 450, ... 
 Resampling results:
 
-  Accuracy  Kappa    
-  0.7164    0.2878014
+  Accuracy  Kappa   
+  0.7388    0.333501
 
  
 </code></pre>
@@ -144,21 +144,21 @@ Resampling: Cross-Validated (10 fold, repeated 5 times)
 Summary of sample sizes: 450, 450, 450, 450, 450, 450, ... 
 Resampling results across tuning parameters:
 
-  C       Accuracy  Kappa       
-    0.25  0.7000     0.000000000
-    0.50  0.6972     0.002831165
-    1.00  0.6948     0.018269946
-    2.00  0.6932     0.015318882
-    4.00  0.6904     0.010144067
-    8.00  0.6832    -0.002023502
-   16.00  0.6768    -0.011747123
-   32.00  0.6724    -0.011046653
-   64.00  0.6716    -0.002257799
-  128.00  0.6720     0.014887304
+  C       Accuracy  Kappa     
+    0.25  0.7000    0.00000000
+    0.50  0.6964    0.00350554
+    1.00  0.7000    0.04857991
+    2.00  0.6956    0.04221790
+    4.00  0.6940    0.04318553
+    8.00  0.6892    0.03335577
+   16.00  0.6848    0.02801668
+   32.00  0.6872    0.03936246
+   64.00  0.6856    0.04011345
+  128.00  0.6800    0.04093977
 
-Tuning parameter &#39;sigma&#39; was held constant at a value of 3.672182e-06
+Tuning parameter &#39;sigma&#39; was held constant at a value of 6.466226e-06
 Accuracy was used to select the optimal model using  the largest value.
-The final values used for the model were sigma = 3.672182e-06 and C = 0.25. 
+The final values used for the model were sigma = 6.466226e-06 and C = 0.25. 
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-------------------------------------------------------------------------------------------</span>
 <span class="co"># 3. randomForest</span>
@@ -193,12 +193,12 @@ Summary of sample sizes: 450, 450, 450, 450, 450, 450, ...
 Resampling results across tuning parameters:
 
   mtry  Accuracy  Kappa     
-   2    0.7040    0.02837416
-  31    0.7172    0.25420337
-  61    0.7176    0.27872671
+   2    0.7104    0.06060889
+  31    0.7428    0.32584075
+  61    0.7368    0.31365031
 
 Accuracy was used to select the optimal model using  the largest value.
-The final value used for the model was mtry = 61. 
+The final value used for the model was mtry = 31. 
 </code></pre>
 <h3 id="모형-평가-및-선정">2.4. 모형 평가 및 선정</h3>
 <p>SVM, 이항회귀모형, 확률숲(randomForest) 모형의 성능을 각각 비교하고, 쌍체 t-검증 (paired t-test)을 사용하여 모형간 유의성을 검증한다. 이항회귀모형과 확률숲 모형간에 유의미한 차이가 발견되지 않아 단순한 이항회귀모형을 선정한다.</p>
@@ -213,15 +213,15 @@ Number of resamples: 50
 
 Accuracy 
              Min. 1st Qu. Median   Mean 3rd Qu. Max. NA&#39;s
-SVM          0.70   0.700   0.70 0.7000   0.700 0.70    0
-Logistic     0.56   0.685   0.72 0.7164   0.760 0.84    0
-randomForest 0.56   0.700   0.72 0.7176   0.755 0.82    0
+SVM          0.70    0.70   0.70 0.7000    0.70 0.70    0
+Logistic     0.62    0.72   0.74 0.7388    0.78 0.84    0
+randomForest 0.60    0.72   0.74 0.7428    0.78 0.86    0
 
 Kappa 
-                 Min. 1st Qu. Median   Mean 3rd Qu.   Max. NA&#39;s
-SVM           0.00000  0.0000 0.0000 0.0000  0.0000 0.0000    0
-Logistic     -0.08911  0.1852 0.3069 0.2878  0.3866 0.6190    0
-randomForest  0.02299  0.1845 0.2857 0.2787  0.3689 0.5263    0
+                   Min. 1st Qu. Median   Mean 3rd Qu.   Max. NA&#39;s
+SVM           0.000e+00  0.0000 0.0000 0.0000  0.0000 0.0000    0
+Logistic      2.922e-16  0.2784 0.3246 0.3335  0.4348 0.5876    0
+randomForest -7.527e-02  0.2436 0.3296 0.3258  0.4173 0.6316    0
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model.diff &lt;-<span class="st"> </span><span class="kw">diff</span>(resample.res)
 <span class="kw">summary</span>(model.diff)</code></pre></div>
@@ -234,16 +234,16 @@ Upper diagonal: estimates of the difference
 Lower diagonal: p-value for H0: difference = 0
 
 Accuracy 
-             SVM     Logistic randomForest
-SVM                  -0.0164  -0.0176     
-Logistic     0.21447          -0.0012     
-randomForest 0.05959 1.00000              
+             SVM       Logistic randomForest
+SVM                    -0.0388  -0.0428     
+Logistic     4.361e-06          -0.0040     
+randomForest 1.734e-06 1                    
 
 Kappa 
-             SVM    Logistic  randomForest
-SVM                 -0.287801 -0.278727   
-Logistic     &lt;2e-16            0.009075   
-randomForest &lt;2e-16 1                     
+             SVM    Logistic randomForest
+SVM                 -0.33350 -0.32584    
+Logistic     &lt;2e-16           0.00766    
+randomForest &lt;2e-16 1                    
 </code></pre>
 <div class="footnotes">
 <hr />

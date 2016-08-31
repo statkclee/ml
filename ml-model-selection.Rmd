@@ -17,7 +17,7 @@ mainfont: NanumGothic
 
 ``` {r, include=FALSE}
 source("tools/chunk-options.R")
-options(warn=-1)
+options(warn=-1) 
 ```
 
 ## 1. 기계학습 모형 선택 [^applied-predictive-modeling]
