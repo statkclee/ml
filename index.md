@@ -42,7 +42,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
     1. [자주 사용되는 기계학습 알고리즘](ml-basic-dc.html)
     1. **네트워크 데이터**
         1. [R 팩키지 사회망 분석](ml-sna-r-ecosystem.html)        
-    1. **텍스트 데이터**
+    1. **[텍스트 데이터](ml-text.html)**
         1. [텍스트 데이터 수집 -- 트위터](ml-text-twitter.html)
         1. [문서 분류](12-classify-document.html)        
         1. [소설 텍스트 데이터 분석 기초](ml-text-basic.html)        

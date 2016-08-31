@@ -1,7 +1,7 @@
 ---
 layout: page
-title: xwMOOC 기계학습
-subtitle: 모형식별 및 선택
+title: xwMOOC 기계<ed>��<ec>��
+subtitle: 모형<ec>���<84> �<8f> <ec>��<ed>��
 output:
   html_document: 
     keep_md: yes
@@ -10,36 +10,36 @@ output:
 mainfont: NanumGothic
 ---
  
-> ## 학습목표 {.objectives}
+> ## <ed>��<ec>��목표 {.objectives}
 >
-> * 기계학습 모형식별하고 선택한다.
-> * 기계학습 모형식별의 중요한 결정사항에 대해 파악한다.
+> * 기계<ed>��<ec>�� 모형<ec>��별하�<a0> <ec>��<ed>��<ed>��<eb>��.
+> * 기계<ed>��<ec>�� 모형<ec>��별의 중요<ed>�� 결정<ec>��<ed>��<ec>�� <eb><8c>�<ed>�� <ed>��<ec>��<ed>��<eb>��.
 
 
 
-## 1. 기계학습 모형 선택 [^applied-predictive-modeling]
+## 1. 기계<ed>��<ec>�� 모형 <ec>��<ed>�� [^applied-predictive-modeling]
 
 [^applied-predictive-modeling]: [Kuhn, Max, and Kjell Johnson. Applied predictive modeling. New York: Springer, 2013.](http://link.springer.com/book/10.1007/978-1-4614-6849-3)
 
-기계학습 모형을 선정할 때, 인간이 사용하는 경우 **성능 상한(Performance Ceiling)** 을 가장 복잡한 모형으로 잡고, 컴퓨팅 복잡성, 예측 용이성, 해석 편이성을 고려하여 모형을 선정한다. 예를 들어, 비선형 지지도 벡터 머신(Nonlinear SVM) 혹은 확률숲(Random Forest)의 경우 데이터에 대한 접합은 좋지만, 실제 운영환경으로 배포하기가 그다지 좋지는 못하다.
+기계<ed>��<ec>�� 모형<ec>�� <ec>��<ec>��<ed>�� <eb>��, <ec>��간이 <ec>��<ec>��<ed>��<eb>�� 경우 **<ec>��<eb>�� <ec>��<ed>��(Performance Ceiling)** <ec>�� 가<ec>�� 복잡<ed>�� 모형<ec>���<9c> <ec>���<a0>, 컴퓨<ed>�� 복잡<ec>��, <ec>���<a1> <ec>��<ec>��<ec>��, <ed>��<ec>�� <ed>��<ec>��<ec>��<ec>�� 고려<ed>��<ec>�� 모형<ec>�� <ec>��<ec>��<ed>��<eb>��. <ec>���<bc> <eb>��<ec>��, 비선<ed>�� 지지<eb>�� 벡터 머신(Nonlinear SVM) <ed>��<ec><9d>� <ed>��률숲(Random Forest)<ec>�� 경우 <eb>��<ec>��<ed>��<ec>�� <eb><8c>�<ed>�� <ec>��<ed>��<ec><9d>� 좋�<a7>��<8c>, <ec>��<ec>�� <ec>��<ec>��<ed>��경으�<9c> 배포<ed>��기�<b0>� 그다지 좋�<a7>�<eb>�� 못하<eb>��.
 
-1. 기계학습 모형을 최종 모형으로 선정할 때 가장 해석이 되지 않지만 가장 유연한 모형으로 시작한다.
-예를 들어, 부스팅 나무모형(Boosting Tree Models), 지지도 벡터 머신(Support Vector Machine, SVM)으로 시작하는데 이유는 가장 정확한 최적의 결과를 제공하기 때문이다.
-1. 최적의 모형이 어떻게 보면 가장 좋은 성능의 상한을 제시하게 되고, 이를 기반으로 최적의 성능에 버금가는 해석이 용이한 모형을 탐색한다. 예를 들어, multivariate adaptive regression splines (MARS), partial least squares, generalized additive models, 나이브 베이즈 모형이 대표적이다.
-1. 성능은 복잡성이 높은 모형이 기준이 되고, 검토하는 모형은 가장 단순한 모형으로 선정한다.
+1. 기계<ed>��<ec>�� 모형<ec>�� 최종 모형<ec>���<9c> <ec>��<ec>��<ed>�� <eb>�� 가<ec>�� <ed>��<ec>��<ec>�� <eb>��지 <ec>��지�<8c> 가<ec>�� <ec>��<ec>��<ed>�� 모형<ec>���<9c> <ec>��<ec>��<ed>��<eb>��.
+<ec>���<bc> <eb>��<ec>��, 부<ec>��<ed>�� <eb>��무모<ed>��(Boosting Tree Models), 지지<eb>�� 벡터 머신(Support Vector Machine, SVM)<ec>���<9c> <ec>��<ec>��<ed>��<eb>��<eb>�� <ec>��<ec>��<eb>�� 가<ec>�� <ec>��<ed>��<ed>�� 최적<ec>�� 결과�<bc> <ec>��공하�<b0> <eb>��문이<eb>��.
+1. 최적<ec>�� 모형<ec>�� <ec>��<eb>���<8c> 보면 가<ec>�� 좋�<9d>� <ec>��<eb>��<ec>�� <ec>��<ed>��<ec>�� <ec>��<ec>��<ed>���<8c> <eb>���<a0>, <ec>���<bc> 기반<ec>���<9c> 최적<ec>�� <ec>��<eb>��<ec>�� 버금가<eb>�� <ed>��<ec>��<ec>�� <ec>��<ec>��<ed>�� 모형<ec>�� <ed>��<ec>��<ed>��<eb>��. <ec>���<bc> <eb>��<ec>��, multivariate adaptive regression splines (MARS), partial least squares, generalized additive models, <eb>��<ec>���<8c> 베이�<88> 모형<ec>�� <eb><8c>�<ed>��<ec>��<ec>��<eb>��.
+1. <ec>��<eb>��<ec><9d>� 복잡<ec>��<ec>�� <eb>��<ec><9d>� 모형<ec>�� 기�<a4>�<ec>�� <eb>���<a0>, 검<ed>��<ed>��<eb>�� 모형<ec><9d>� 가<ec>�� <eb>��<ec>��<ed>�� 모형<ec>���<9c> <ec>��<ec>��<ed>��<eb>��.
 
 
-## 2. 모형 선정 사례 -- 독일신용평가 데이터
+## 2. 모형 <ec>��<ec>�� <ec>��례 -- <eb>��<ec>��<ec>��<ec>��<ed>��가 <eb>��<ec>��<ed>��
 
-### 2.1. 데이터 가져오기
+### 2.1. <eb>��<ec>��<ed>�� 가<ec>��<ec>���<b0>
 
-독일신용평가 데이터를 `caret` 팩키지에 포함된 것을 사용한다. 훈련데이터와 검증데이터를 반반 나눈다.
-`createDataPartition` 함수를 사용해서 쉽게 사용한다. `sample` 함수를 사용해도 좋다.
+<eb>��<ec>��<ec>��<ec>��<ed>��가 <eb>��<ec>��<ed>���<bc> `caret` <ed>��<ed>��지<ec>�� <ed>��<ed>��<eb>�� 것을 <ec>��<ec>��<ed>��<eb>��. <ed>��<eb>��<eb>��<ec>��<ed>��<ec><99>� 검증데<ec>��<ed>���<bc> 반반 <eb>��<eb>��<eb>��.
+`createDataPartition` <ed>��<ec>���<bc> <ec>��<ec>��<ed>��<ec>�� <ec>���<8c> <ec>��<ec>��<ed>��<eb>��. `sample` <ed>��<ec>���<bc> <ec>��<ec>��<ed>��<eb>�� 좋다.
 
 
 ~~~{.r}
 ##==========================================================================================
-## 01. 데이터 가져오기
+## 01. <U+653C><U+3E62>��<U+653C><U+3E63>��<U+653C><U+3E64>�� 가<U+653C><U+3E63>��<U+653C><U+3E63>���<U+623C><U+3E30>
 ##==========================================================================================
 suppressMessages(library(caret))
 data(GermanCredit)
@@ -50,43 +50,43 @@ credit.train.df <- GermanCredit[in_train, ]
 credit.test.df <- GermanCredit[-in_train, ]
 ~~~
 
-### 2.2. 데이터 전처리
+### 2.2. <eb>��<ec>��<ed>�� <ec>��처리
 
-이미 데이터 전처리가 깔끔히 되어 있으니 생략한다. 필요하면 더 작업을 해도 좋다.
+<ec>���<b8> <eb>��<ec>��<ed>�� <ec>��처리가 깔끔<ed>�� <eb>��<ec>�� <ec>��<ec>��<eb>�� <ec>��<eb>��<ed>��<eb>��. <ed>��<ec>��<ed>���<b4> <eb>�� <ec>��<ec>��<ec>�� <ed>��<eb>�� 좋다.
 
 
 ~~~{.r}
 ##==========================================================================================
-## 02. 데이터 전처리
+## 02. <U+653C><U+3E62>��<U+653C><U+3E63>��<U+653C><U+3E64>�� <U+653C><U+3E63>��처리
 ##==========================================================================================
-# 생략... 이미 정제가 완료된 데이터
+# <ec>��<eb>��... <ec>���<b8> <ec>��<ec>��가 <ec>��료된 <eb>��<ec>��<ed>��
 ~~~
 
-### 2.3. 데이터에 모형을 적합
+### 2.3. <eb>��<ec>��<ed>��<ec>�� 모형<ec>�� <ec>��<ed>��
 
-R에 공식 비공식적으로 10,000개가 넘는 팩키지가 존재하고 각 팩키지마다 모형을 명세하는 방식이 다르다.
-크게 `~` 공식을 사용하는 방식과 데이터프레임 `=` 을 사용하는 방식이 있는데 팩키지마다 공식을 명세하는 방식을 준용하면 된다. 중요한 것은 `~`, `=` 좌측은 종속변수, 우측은 독립변수가 위치해 넣으면 된다.
+R<ec>�� 공식 비공<ec>��<ec>��<ec>���<9c> 10,000개�<b0>� <eb>��<eb>�� <ed>��<ed>��지가 존재<ed>���<a0> �<81> <ed>��<ed>��지마다 모형<ec>�� 명세<ed>��<eb>�� 방식<ec>�� <eb>��르다.
+<ed>���<8c> `~` 공식<ec>�� <ec>��<ec>��<ed>��<eb>�� 방식�<bc> <eb>��<ec>��<ed>��<ed>��<eb>��<ec>�� `=` <ec>�� <ec>��<ec>��<ed>��<eb>�� 방식<ec>�� <ec>��<eb>��<eb>�� <ed>��<ed>��지마다 공식<ec>�� 명세<ed>��<eb>�� 방식<ec>�� 준<ec>��<ed>���<b4> <eb>��<eb>��. 중요<ed>�� 것�<9d>� `~`, `=` 좌측<ec><9d>� 종속변<ec>��, <ec>��측�<9d>� <eb>��립�<b3>�<ec>��가 <ec>��치해 <eb>��<ec>���<b4> <eb>��<eb>��.
 
-이항회귀모형과 SVM, 확률숲(randomForest) 모형을 차례로 적합시켜 **성능**은 가장 뛰어나면서, 
+<ec>��<ed>��<ed>��귀모형�<bc> SVM, <ed>��률숲(randomForest) 모형<ec>�� 차�<a1>��<9c> <ec>��<ed>��<ec>���<9c> **<ec>��<eb>��**<ec><9d>� 가<ec>�� <eb>��<ec>��<eb>��면서, 
 
-1. 가장 단순한 모형
-1. 가장 이해하기 쉬운 모형
-1. 가장 실운영환경에 배포하기 좋은 모형
+1. 가<ec>�� <eb>��<ec>��<ed>�� 모형
+1. 가<ec>�� <ec>��<ed>��<ed>���<b0> <ec>��<ec>�� 모형
+1. 가<ec>�� <ec>��<ec>��<ec>��<ed>��경에 배포<ed>���<b0> 좋�<9d>� 모형
 
-이런 모형을 선정한다.
+<ec>��<eb>�� 모형<ec>�� <ec>��<ec>��<ed>��<eb>��.
 
 
 ~~~{.r}
 ##==========================================================================================
-## 03. 모형적합
+## 03. 모형<U+653C><U+3E63>��<U+653C><U+3E64>��
 ##==========================================================================================
-# 모형 공식 준비
+# 모형 공식 준�<U+383C><U+3E34>
 
 credit.var <- setdiff(colnames(credit.train.df),list('Class'))
 credit.formula <- as.formula(paste('Class', paste(credit.var,collapse=' + '), sep=' ~ '))
 
 #-------------------------------------------------------------------------------------------
-# 1. 이항회귀모형 적합
+# 1. <U+653C><U+3E63>��<U+653C><U+3E64>��<U+653C><U+3E64>��귀모형 <U+653C><U+3E63>��<U+653C><U+3E64>��
 
 credit.logit.m <- train(credit.formula, data = credit.train.df,
                        method = "glm", family=binomial(link='logit'),
@@ -109,7 +109,7 @@ Summary of sample sizes: 450, 450, 450, 450, 450, 450, ...
 Resampling results:
 
   Accuracy  Kappa    
-  0.7164    0.2878014
+  0.7176    0.2840902
 
  
 
@@ -173,19 +173,20 @@ Resampling results across tuning parameters:
 
   C       Accuracy  Kappa       
     0.25  0.7000     0.000000000
-    0.50  0.6972     0.002831165
-    1.00  0.6948     0.018269946
-    2.00  0.6932     0.015318882
-    4.00  0.6904     0.010144067
-    8.00  0.6832    -0.002023502
-   16.00  0.6768    -0.011747123
-   32.00  0.6724    -0.011046653
-   64.00  0.6716    -0.002257799
-  128.00  0.6720     0.014887304
+    0.50  0.6908    -0.017688275
+    1.00  0.6808    -0.025140288
+    2.00  0.6788    -0.010393560
+    4.00  0.6724    -0.023077922
+    8.00  0.6728    -0.020389752
+   16.00  0.6692    -0.017992864
+   32.00  0.6704    -0.007576385
+   64.00  0.6736     0.006599301
+  128.00  0.6756     0.018984482
 
-Tuning parameter 'sigma' was held constant at a value of 3.672182e-06
+Tuning parameter 'sigma' was held constant at a value of 0.000004359245
 Accuracy was used to select the optimal model using  the largest value.
-The final values used for the model were sigma = 3.672182e-06 and C = 0.25. 
+The final values used for the model were sigma = 0.000004359245 and C
+ = 0.25. 
 
 ~~~
 
@@ -259,22 +260,22 @@ Resampling: Cross-Validated (10 fold, repeated 5 times)
 Summary of sample sizes: 450, 450, 450, 450, 450, 450, ... 
 Resampling results across tuning parameters:
 
-  mtry  Accuracy  Kappa     
-   2    0.7040    0.02837416
-  31    0.7172    0.25420337
-  61    0.7176    0.27872671
+  mtry  Accuracy  Kappa    
+   2    0.7116    0.0590013
+  31    0.7332    0.3018851
+  61    0.7260    0.2940944
 
 Accuracy was used to select the optimal model using  the largest value.
-The final value used for the model was mtry = 61. 
+The final value used for the model was mtry = 31. 
 
 ~~~
 
 
-### 2.4. 모형 평가 및 선정
+### 2.4. 모형 <ed>��가 �<8f> <ec>��<ec>��
 
-SVM, 이항회귀모형, 확률숲(randomForest) 모형의 성능을 각각 비교하고,
-쌍체 t-검증 (paired t-test)을 사용하여 모형간 유의성을 검증한다.
-이항회귀모형과 확률숲 모형간에 유의미한 차이가 발견되지 않아 단순한 이항회귀모형을 선정한다.
+SVM, <ec>��<ed>��<ed>��귀모형, <ed>��률숲(randomForest) 모형<ec>�� <ec>��<eb>��<ec>�� 각각 비교<ed>���<a0>,
+<ec>���<b4> t-검�<9d> (paired t-test)<ec>�� <ec>��<ec>��<ed>��<ec>�� 모형�<84> <ec>��<ec>��<ec>��<ec>�� 검증한<eb>��.
+<ec>��<ed>��<ed>��귀모형�<bc> <ed>��률숲 모형간에 <ec>��<ec>��미한 차이가 발견<eb>��지 <ec>��<ec>�� <eb>��<ec>��<ed>�� <ec>��<ed>��<ed>��귀모형<ec>�� <ec>��<ec>��<ed>��<eb>��.
 
 
 ~~~{.r}
@@ -294,15 +295,15 @@ Number of resamples: 50
 
 Accuracy 
              Min. 1st Qu. Median   Mean 3rd Qu. Max. NA's
-SVM          0.70   0.700   0.70 0.7000   0.700 0.70    0
-Logistic     0.56   0.685   0.72 0.7164   0.760 0.84    0
-randomForest 0.56   0.700   0.72 0.7176   0.755 0.82    0
+SVM          0.70    0.70   0.70 0.7000   0.700 0.70    0
+Logistic     0.64    0.68   0.72 0.7176   0.740 0.82    0
+randomForest 0.62    0.70   0.74 0.7332   0.775 0.82    0
 
 Kappa 
-                 Min. 1st Qu. Median   Mean 3rd Qu.   Max. NA's
-SVM           0.00000  0.0000 0.0000 0.0000  0.0000 0.0000    0
-Logistic     -0.08911  0.1852 0.3069 0.2878  0.3866 0.6190    0
-randomForest  0.02299  0.1845 0.2857 0.2787  0.3689 0.5263    0
+                Min. 1st Qu. Median   Mean 3rd Qu.   Max. NA's
+SVM          0.00000  0.0000 0.0000 0.0000  0.0000 0.0000    0
+Logistic     0.02299  0.2196 0.2751 0.2841  0.3520 0.5455    0
+randomForest 0.03226  0.2113 0.3208 0.3019  0.4059 0.5055    0
 
 ~~~
 
@@ -325,15 +326,15 @@ Upper diagonal: estimates of the difference
 Lower diagonal: p-value for H0: difference = 0
 
 Accuracy 
-             SVM     Logistic randomForest
-SVM                  -0.0164  -0.0176     
-Logistic     0.21447          -0.0012     
-randomForest 0.05959 1.00000              
+             SVM      Logistic randomForest
+SVM                   -0.0176  -0.0332     
+Logistic     0.01439           -0.0156     
+randomForest 0.000029 0.36842              
 
 Kappa 
-             SVM    Logistic  randomForest
-SVM                 -0.287801 -0.278727   
-Logistic     <2e-16            0.009075   
-randomForest <2e-16 1                     
+             SVM    Logistic randomForest
+SVM                 -0.28409 -0.30189    
+Logistic     <2e-16          -0.01779    
+randomForest <2e-16 1                    
 
 ~~~
