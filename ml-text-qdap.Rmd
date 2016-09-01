@@ -1,0 +1,49 @@
+---
+layout: page
+title: xwMOOC 기계학습
+subtitle: 텍스트 데이터 전처리 -- `qdap`
+output:
+  html_document: 
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
+---
+ 
+> ## 학습목표 {.objectives}
+>
+> * 텍스트 데이터 전처리 과정에 대해 이해한다.
+> * `qdap` 팩키지를 통해 다양한 전처리 과정을 이해한다.
+
+
+``` {r, include=FALSE}
+source("tools/chunk-options.R")
+```
+
+### 1. `qdap`
+
+[텍스트 마이닝(Text Mining)](https://en.wikipedia.org/wiki/Text_mining)을 위한 R의 대표적인  팩키지가 `qdap` `tm` 이다.
+
+| 팩키지명 |       원 텍스트         |       단어 빈도수(word counts)                          |
+|----------|-------------------------|---------------------------------------------------------|
+| **qdap** | 데이터프레임(Dataframe) |   단어 빈도 행렬(Word Frequency Matrix)                 |
+| **tm**   | 말뭉치 (Corpus)         | 단어 문서행렬(Term Document Matrix)/문서 단어행렬(Document Term Matrix) |
+
+
+[qdap](https://cran.r-project.org/web/packages/qdap/)은 원 텍스트 데이터를 데이터프레임 형태로 저장하는 반면에,
+[tm](https://cran.r-project.org/web/packages/tm/) 팩키지는 `Corpus` 말뭉치 형태로 원 텍스트 데이터를 저장한다는 점에서 차이가 난다.
+
+두 팩키지 모두 공통으로 사용하는 단어/용어 빈도수에는 행렬(`matrix`)을 사용한다. 이를 그림을 표현하면 다음과 같다.
+
+<img src="fig/ml-text-qdap-tm-comp.png" alt="qdap, tm 비교" width="50%" />
+
+
+
+
+
+### 참고문헌
+
+* [Tyler W. Rinker, qdap-tm Package Compatibility](https://cran.r-project.org/web/packages/qdap/vignettes/tm_package_compatibility.pdf)
+* [Basic Text Mining in R](https://rstudio-pubs-static.s3.amazonaws.com/31867_8236987cf0a8444e962ccd2aec46d9c3.html)
+* [Hands-On Data Science with R Text Mining, Graham.Williams](http://onepager.togaware.com/TextMiningO.pdf)
+* [Natural Language Processing Tutorial](http://www.vikparuchuri.com/blog/natural-language-processing-tutorial/)

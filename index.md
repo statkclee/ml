@@ -13,15 +13,16 @@ subtitle: 데이터 과학자가 바라본 기계학습
 ## 학습 목차
 
 1. **환경설정**
-    1. [기계학습 (순수한) 맛보기](ml-taste-with-r.html): 전통적인 통계모형 개발과정 맛보기 
     1. [명령라인 데이터 분석 맛보기](00-toolchain-cmd.html)    
     1. [파이썬기반 기계학습 툴체인(toolchain)](00-toolchain.html): 파이썬 기계학습 생태계
+    1. [기계학습 (순수한) 맛보기](ml-taste-with-r.html): 전통적인 통계모형 개발과정 맛보기     
 1. **[기계학습 지도](ml-map.html)**
     1. [3가지 기계학습 원리](ml-three-principles.html)
         1. [(사업) 문제의 정의](01-problem.html)
         1. [데이터(Data)](02-data.html)
         1. [데이터를 통한 문제풀이 과정](03-process.html)
     1. [알고리즘](04-algorithm.html)
+    1. [활용도 높은 기계학습 알고리즘 -- 분류, 예측, 군집화](ml-basic-dc.html)    
 1. 기계학습 적용
     1. [테스트 주도 기계학습](31-ml-tdd.html)
     1. [알고리즘 성능평가](ml-assessment.html)
@@ -39,12 +40,11 @@ subtitle: 데이터 과학자가 바라본 기계학습
             1. [모형식별 및 선택](ml-model-selection.html)
         1. **기계 중심 기계학습**              
 1. **기계학습 적용 데이터**
-    1. [자주 사용되는 기계학습 알고리즘](ml-basic-dc.html)
     1. **네트워크 데이터**
         1. [R 팩키지 사회망 분석](ml-sna-r-ecosystem.html)        
     1. **[텍스트 데이터](ml-text.html)**
         1. [텍스트 데이터 수집 -- 트위터](ml-text-twitter.html)
-        1. [문서 분류](12-classify-document.html)        
+        1. [텍스트 데이터 전처리 -- qdap](ml-text-qdap.html)        
         1. [소설 텍스트 데이터 분석 기초](ml-text-basic.html)        
         1. [태그 혹은 단어 구름(tag or word cloud)](ml-text-worldcloud.html)        
 1. **기계학습 상용화**
