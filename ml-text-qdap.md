@@ -16,9 +16,7 @@ mainfont: NanumGothic
 > * `qdap` 팩키지를 통해 다양한 전처리 과정을 이해한다.
 
 
-``` {r, include=FALSE}
-source("tools/chunk-options.R")
-```
+
 
 ### 1. `qdap`
 

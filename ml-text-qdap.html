@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">텍스트 데이터 전처리 – <code>qdap</code></h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>텍스트 데이터 전처리 과정에 대해 이해한다.</li>
+<li><code>qdap</code> 팩키지를 통해 다양한 전처리 과정을 이해한다.</li>
+</ul>
+</div>
+</section>
+<h3 id="qdap">1. <code>qdap</code></h3>
+<p><a href="https://en.wikipedia.org/wiki/Text_mining">텍스트 마이닝(Text Mining)</a>을 위한 R의 대표적인 팩키지가 <code>qdap</code> <code>tm</code> 이다.</p>
+<table>
+<colgroup>
+<col width="11%" />
+<col width="27%" />
+<col width="61%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">팩키지명</th>
+<th align="left">원 텍스트</th>
+<th align="left">단어 빈도수(word counts)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><strong>qdap</strong></td>
+<td align="left">데이터프레임(Dataframe)</td>
+<td align="left">단어 빈도 행렬(Word Frequency Matrix)</td>
+</tr>
+<tr class="even">
+<td align="left"><strong>tm</strong></td>
+<td align="left">말뭉치 (Corpus)</td>
+<td align="left">단어 문서행렬(Term Document Matrix)/문서 단어행렬(Document Term Matrix)</td>
+</tr>
+</tbody>
+</table>
+<p><a href="https://cran.r-project.org/web/packages/qdap/">qdap</a>은 원 텍스트 데이터를 데이터프레임 형태로 저장하는 반면에, <a href="https://cran.r-project.org/web/packages/tm/">tm</a> 팩키지는 <code>Corpus</code> 말뭉치 형태로 원 텍스트 데이터를 저장한다는 점에서 차이가 난다.</p>
+<p>두 팩키지 모두 공통으로 사용하는 단어/용어 빈도수에는 행렬(<code>matrix</code>)을 사용한다. 이를 그림을 표현하면 다음과 같다.</p>
+<p><img src="fig/ml-text-qdap-tm-comp.png" alt="qdap, tm 비교" width="77%" /></p>
+<h3 id="참고문헌">참고문헌</h3>
+<ul>
+<li><a href="https://cran.r-project.org/web/packages/qdap/vignettes/tm_package_compatibility.pdf">Tyler W. Rinker, qdap-tm Package Compatibility</a></li>
+<li><a href="https://rstudio-pubs-static.s3.amazonaws.com/31867_8236987cf0a8444e962ccd2aec46d9c3.html">Basic Text Mining in R</a></li>
+<li><a href="http://onepager.togaware.com/TextMiningO.pdf">Hands-On Data Science with R Text Mining, Graham.Williams</a></li>
+<li><a href="http://www.vikparuchuri.com/blog/natural-language-processing-tutorial/">Natural Language Processing Tutorial</a></li>
+</ul>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>
