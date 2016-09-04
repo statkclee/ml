@@ -31,6 +31,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
     1. [데이터 적합 모형 개발](ml-modeling.html)
         1. **인간 중심 기계학습 모형**
             1. [통계적 모형개발 기초](ml-modeling-basic.html)    
+            1. [선형대수와 함께하는 회귀분석](ml-linear-algebra-reg.html)    
             1. [전통방식 모형개발 -타이타닉 생존데이터](ml-modeling-titanic.html)  
         1. **인간과 기계가 함께하는 기계학습 예측모형**  
             1. [예측모형 A-Z(연속형)](ml-pm-continuous.html)

@@ -1,0 +1,40 @@
+---
+layout: page
+title: xwMOOC 기계학습
+subtitle: 선형대수와 함께하는 회귀분석
+output:
+  html_document: 
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
+---
+ 
+> ## 학습목표 {.objectives}
+>
+> * 기초 선형대수를 통해 회귀분석을 이해한다.
+> * 선형대수 수학식을 R 언어로 구현한다.
+
+```{r, include=FALSE}
+source("tools/chunk-options.R")
+options(warn=-1)
+```
+
+### 1. 회귀분석 [^advanced-linear-model]
+
+
+$$f(\beta ) = ||y - \beta X ||^2 = (y - \beta X)^t (y - \beta X) = y^t y - 2 y^t X^t \beta + \beta^t X^t X \beta$$
+
+$$\nabla f(\beta ) = -2Xy + X^t X \beta$$
+
+$$\beta = (X^t X)^{-1} X^t y $$
+
+
+
+[^advanced-linear-model]: [Brian Caffo (2015), Advanced Linear Models for Data Science, Leanpub](https://leanpub.com/lm)
+
+
+### 데이터셋
+
+* [The R Datasets Package](http://stat.ethz.ch/R-manual/R-patched/library/datasets/html/00Index.html)
+* [HistData - Data Sets from the History of Statistics and Data Visualization](https://cran.r-project.org/web/packages/HistData/)
