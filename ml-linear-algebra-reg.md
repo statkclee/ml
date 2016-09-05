@@ -15,10 +15,7 @@ mainfont: NanumGothic
 > * 기초 선형대수를 통해 회귀분석을 이해한다.
 > * 선형대수 수학식을 R 언어로 구현한다.
 
-```{r, include=FALSE}
-source("tools/chunk-options.R")
-options(warn=-1)
-```
+
 
 ### 1. 회귀분석 [^advanced-linear-model] 
 
@@ -30,7 +27,8 @@ options(warn=-1)
 부모의 신장을 기초로 자녀의 신장을 예측하는 회귀식을 구하기 전에 산점도를 통해 관계를 살펴보면 다음과 같다. 
 성별에 대한 신장의 차이도 산점도를 통해 시각적으로 확인된다.
 
-``` {r r-galton-hegith-scatterplot, warning=FALSE}
+
+~~~{.r}
 library(HistData)
 data(GaltonFamilies)
 
@@ -44,7 +42,11 @@ ggplot(GaltonFamilies) +
   stat_smooth(method="lm") +
   xlab("Average Height of the Parents (in inches)") +
   ylab("Height of the Child (in inches)")
+~~~
 
+<img src="fig/r-galton-hegith-scatterplot-1.png" title="plot of chunk r-galton-hegith-scatterplot" alt="plot of chunk r-galton-hegith-scatterplot" style="display: block; margin: auto;" />
+
+~~~{.r}
 # 다른 산점도로 성별 구분
 ggplot(GaltonFamilies) +
   aes(midparentHeight, childHeight, colours=gender) +
@@ -53,7 +55,11 @@ ggplot(GaltonFamilies) +
   xlab("Average Height of the Parents (in inches)") +
   ylab("Height of the Child (in inches)") +
   facet_wrap(~gender)
+~~~
 
+<img src="fig/r-galton-hegith-scatterplot-2.png" title="plot of chunk r-galton-hegith-scatterplot" alt="plot of chunk r-galton-hegith-scatterplot" style="display: block; margin: auto;" />
+
+~~~{.r}
 # 성별 상관없는 회귀직선
 ggplot(GaltonFamilies) +
   aes(midparentHeight, childHeight) +
@@ -61,7 +67,9 @@ ggplot(GaltonFamilies) +
   stat_smooth(method="lm") +
   xlab("Average Height of the Parents (in inches)") +
   ylab("Height of the Child (in inches)")
-```
+~~~
+
+<img src="fig/r-galton-hegith-scatterplot-3.png" title="plot of chunk r-galton-hegith-scatterplot" alt="plot of chunk r-galton-hegith-scatterplot" style="display: block; margin: auto;" />
 
 선형대수로 회귀계수를 추정하는 문제를 풀면 다음과 같이 정의된다.
 한번 미분해서 $\nabla f(\beta ) = -2Xy + X^t X \beta =0$ 
@@ -75,7 +83,8 @@ $$\beta = (X^t X)^{-1} X^t y $$
 
 위에서 정의된 방식으로 수식을 정의하고 이를 R로 코딩하면 회귀계수를 다음과 같이 구할 수 있다.
 
-``` {r r-galton-hegith-linear-algebra, warning=FALSE}
+
+~~~{.r}
 ## 2. 회귀분석
 # 선형대수 수식으로 계산
 
@@ -85,15 +94,33 @@ y <- GaltonFamilies$childHeight
 x <- cbind(1, x)
 
 solve(t(x) %*% x) %*% t(x) %*% y
-```
+~~~
+
+
+
+~~~{.output}
+        [,1]
+  22.6362405
+x  0.6373609
+
+~~~
 
 이를 `lm` 함수를 사용해서 다시 풀면 위에서 선형대수 수식으로 계산한 것과 동일함을 확인하게 된다.
 
-``` {r r-galton-hegith-lm, warning=FALSE}
+
+~~~{.r}
 # lm 함수를 통해 계
 suppressMessages(library(dplyr))
 lm(childHeight ~ midparentHeight, data=GaltonFamilies) %>% coef()
-```
+~~~
+
+
+
+~~~{.output}
+    (Intercept) midparentHeight 
+     22.6362405       0.6373609 
+
+~~~
 
 
 ### 데이터셋

@@ -1,14 +1,4 @@
----
-layout: page
-title: xwMOOC 기계학습
-subtitle: 텍스트 데이터 전처리 -- `qdap`
-output:
-  html_document: 
-    keep_md: yes
-  pdf_document:
-    latex_engine: xelatex
-mainfont: NanumGothic
----
+# xwMOOC 기계학습
  
 > ## 학습목표 {.objectives}
 >
@@ -18,7 +8,7 @@ mainfont: NanumGothic
 
 
 
-### 1. `qdap`
+### 1. `qdap` 
 
 [텍스트 마이닝(Text Mining)](https://en.wikipedia.org/wiki/Text_mining)을 위한 R의 대표적인  팩키지가 `qdap` `tm` 이다.
 

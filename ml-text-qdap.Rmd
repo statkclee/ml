@@ -20,7 +20,7 @@ mainfont: NanumGothic
 source("tools/chunk-options.R")
 ```
 
-### 1. `qdap`
+### 1. `qdap` 
 
 [텍스트 마이닝(Text Mining)](https://en.wikipedia.org/wiki/Text_mining)을 위한 R의 대표적인  팩키지가 `qdap` `tm` 이다.
 
