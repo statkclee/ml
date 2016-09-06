@@ -1,0 +1,80 @@
+---
+layout: page
+title: xwMOOC 기계학습
+subtitle: 단어문서행렬 -- 단어 빈도
+output:
+  html_document: 
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
+---
+ 
+``` {r, include=FALSE}
+source("tools/chunk-options.R")
+```
+
+> ### 텍스트 데이터 분석 목표 {.getready}
+>
+> * 단어 빈도수를 분석한다.
+
+
+```{r ml-text-sonagi-wordcloud, tidy=FALSE}
+##======================================================================================================
+## 01. 트위터 인증
+##======================================================================================================
+rm(list=ls())
+
+source("02. code/text_processing_fun.R")
+# twitter_auth(): 트위터 계정 인증
+# twitter_clean_text(): 트위터 텍스트 전처리 
+# twitter_word_cloud(): 단어구름 시각
+
+twitter_auth()
+
+##======================================================================================================
+## 02. 트위터 데이터 가져오기
+##======================================================================================================
+
+tw <- searchTwitter('#rstats', n = 100, lang="en", since = '2016-04-01')
+tw_rd_df <- twListToDF(tw)
+
+##======================================================================================================
+## 03. 트위터 데이터 전처리
+##======================================================================================================
+
+tw_df <- twitter_clean_text(tw_rd_df$text)
+
+##======================================================================================================
+## 04. TDM, DTM
+##======================================================================================================
+
+#tw_corpus <- VCorpus(DataframeSource(tw_rd_df[,1:2]))
+tw_corpus <- Corpus(VectorSource(tw_df))
+
+# tdm
+tw_tdm <- TermDocumentMatrix(tw_corpus)
+
+# dtm
+tw_dtm <- DocumentTermMatrix(tw_corpus)
+
+# wfm
+library(qdap)
+library(dplyr)
+tw_wfm <- data.frame(wfm(tw_df))
+tw_wfm$term <- rownames(tw_wfm)
+tw_wfm %>% arrange(desc(all)) %>% head(10)
+
+
+# 단어주머니 빈도 분석
+tw_tdm_m <- as.matrix(tw_tdm)
+term_freq <- rowSums(tw_tdm_m)
+term_freq <- sort(term_freq, decreasing = TRUE)
+
+barplot(term_freq[1:10], col = "tan", las=2)
+```          
+
+
+
+
+

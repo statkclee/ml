@@ -46,8 +46,8 @@ subtitle: 데이터 과학자가 바라본 기계학습
     1. **[텍스트 데이터](ml-text.html)**
         1. [텍스트 데이터 수집 -- 트위터](ml-text-twitter.html)
         1. [텍스트 데이터 전처리 -- qdap](ml-text-qdap.html)        
-        1. [소설 텍스트 데이터 분석 기초](ml-text-basic.html)        
-        1. [태그 혹은 단어 구름(tag or word cloud)](ml-text-worldcloud.html)        
+        1. [단어문서행렬 -- 단어 빈도](ml-text-tdm.html)
+        1. [소설 텍스트 데이터 분석 -- 소나기](ml-text-basic.html)
 1. **기계학습 상용화**
     1. [신용평점모형 개발](ml-credit-scoring-overview.html)
         1. [신용평점모형 탐색적 데이터 분석, 전처리](ml-credit-scoring-eda.html)
