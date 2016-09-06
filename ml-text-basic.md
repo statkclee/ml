@@ -1,4 +1,14 @@
-# xwMOOC 기계학습
+---
+layout: page
+title: xwMOOC 기계학습
+subtitle: 소설 텍스트 데이터 분석
+output:
+  html_document: 
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
+---
  
 
 
@@ -7,6 +17,7 @@
 > * 한국 소설 텍스트 데이터를 처리한다.
 > * 텍스트 데이터 기본적인 전처리 방법을 숙지한다.
 > * 텍스트 데이터 기초 통계 방법 및 한계를 확인한다.
+> * 한글 소설을 단어 구름을 활용하여 요약한다.
 
 ## 1. 텍스트 데이터 [^ml-text-analysis-book]
 
@@ -50,8 +61,7 @@ head(sonagi.word.v)
 
 
 ~~~{.output}
-[1] "소"         "나"         "기"         "황순원"     "소년은"    
-[6] "개울가에서"
+[1] "5"
 
 ~~~
 
@@ -76,7 +86,7 @@ sonagi.hits.v/total.words.v
 
 
 ~~~{.output}
-[1] 0.01439206
+[1] 0
 
 ~~~
 
@@ -92,9 +102,8 @@ head(sorted.sonagi.freqs.t, 10)
 
 
 ~~~{.output}
-sonagi.word.v
-소녀가 소년은 있었다     한 소녀의     그 소녀는 소년이   있는 그러나 
-    29     29     24     21     14     13     12     12     11     10 
+5 
+1 
 
 ~~~
 
@@ -109,7 +118,7 @@ plot(sorted.sonagi.rel.freqs.t[1:10], type="b",
 axis(1,1:10, labels=names(sorted.sonagi.rel.freqs.t [1:10]))
 ~~~
 
-<img src="fig/ml-text-sonagi-freq-plot-1.png" title="" alt="" style="display: block; margin: auto;" />
+<img src="fig/ml-text-sonagi-freq-plot-1.png" title="plot of chunk ml-text-sonagi-freq-plot" alt="plot of chunk ml-text-sonagi-freq-plot" style="display: block; margin: auto;" />
 
 ### 1.4. 등장인물 순서 분석
 
@@ -141,9 +150,75 @@ plot(b.count.v, main="소나기 소설 속 소년은 단어 퍼짐 그래프",
      xlab="소나기 소설 진행시간", ylab="소년은", type="h", ylim=c(0,1), yaxt='n')
 ~~~
 
-<img src="fig/ml-text-sonagi-dispersion-1.png" title="" alt="" style="display: block; margin: auto;" />
+<img src="fig/ml-text-sonagi-dispersion-1.png" title="plot of chunk ml-text-sonagi-dispersion" alt="plot of chunk ml-text-sonagi-dispersion" style="display: block; margin: auto;" />
 
 
+### 2. [태그 또는 단어 구름](https://ko.wikipedia.org/wiki/태그_구름)
+
+
+#### 2.1. 한글 소설 데이터 불러오기
+
+황순원 소나기 소설 텍스트 파일을 불러온다.
+
+
+~~~{.r}
+sonagi.text.v <- scan("data/sonagi.txt", what="character", sep="\n", encoding = "UTF-8")
+~~~
+
+#### 2.2. 한글 소설 텍스트 데이터 전처리
+
+불러온 한글소설 소나기 텍스트 벡터를 공백과 구두점으로 쪼개고, 빈 공백을 솎아 낸다.
+
+
+~~~{.r}
+sonagi.words.l <- strsplit(sonagi.text.v, "\\W")
+sonagi.word.v <- unlist(sonagi.words.l)
+sonagi.word.v <- sonagi.word.v[which(sonagi.word.v != "")]
+~~~
+
+#### 2.3. 명사 추출
+
+`KoNLP` 팩키지, 세종사전을 사용해서 명사를 추출해 내고, 이를 `table` 함수로 
+빈도를 계산해서 단어 구름에 넣을 사전준비를 한다.
+
+
+
+~~~{.r}
+suppressMessages(library(KoNLP))
+suppressMessages(library(RColorBrewer))
+
+useSejongDic()
+~~~
+
+
+
+~~~{.output}
+Backup was just finished!
+87007 words were added to dic_user.txt.
+
+~~~
+
+
+
+~~~{.r}
+sonagi.nouns.l <- sapply(sonagi.word.v, extractNoun, USE.NAMES=F)
+
+sonagi.wc.t <- table(unlist(sonagi.nouns.l))
+~~~
+
+#### 2.4. 단어구름 시각화
+
+`brewer.pal.info`에서 최대 가능 색상과 범주 및 색맹지원여부를 확인하고,
+색맹과 가장 많은 색상을 지원하는 팔레트를 선정하고 `wordcloud`에 넣어 시각화한다.
+
+
+~~~{.r}
+suppressMessages(library(wordcloud))
+wordcloud(names(sonagi.wc.t), freq=sonagi.wc.t, scale=c(6, 0.3), min.freq=10,
+          random.order=T, rot.per=.1, colors=brewer.pal(12,"Paired"))
+~~~
+
+<img src="fig/ml-text-sonagi-wordcloud-1.png" title="plot of chunk ml-text-sonagi-wordcloud" alt="plot of chunk ml-text-sonagi-wordcloud" style="display: block; margin: auto;" />
 
 
 

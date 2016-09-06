@@ -127,7 +127,7 @@ plot(b.count.v, main="소나기 소설 속 소년은 단어 퍼짐 그래프",
 
 황순원 소나기 소설 텍스트 파일을 불러온다.
 
-```{r ml-text-sonagi-import, tidy=FALSE}
+```{r ml-text-sonagi-import2, tidy=FALSE}
 sonagi.text.v <- scan("data/sonagi.txt", what="character", sep="\n", encoding = "UTF-8")
 
 ```
@@ -136,7 +136,7 @@ sonagi.text.v <- scan("data/sonagi.txt", what="character", sep="\n", encoding = 
 
 불러온 한글소설 소나기 텍스트 벡터를 공백과 구두점으로 쪼개고, 빈 공백을 솎아 낸다.
 
-```{r ml-text-sonagi-clean, tidy=FALSE}
+```{r ml-text-sonagi-clean2, tidy=FALSE}
 sonagi.words.l <- strsplit(sonagi.text.v, "\\W")
 sonagi.word.v <- unlist(sonagi.words.l)
 sonagi.word.v <- sonagi.word.v[which(sonagi.word.v != "")]
