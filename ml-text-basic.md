@@ -1,14 +1,4 @@
----
-layout: page
-title: xwMOOC 기계학습
-subtitle: 소설 텍스트 데이터 분석
-output:
-  html_document: 
-    keep_md: yes
-  pdf_document:
-    latex_engine: xelatex
-mainfont: NanumGothic
----
+# xwMOOC 기계학습
  
 
 
@@ -61,7 +51,8 @@ head(sonagi.word.v)
 
 
 ~~~{.output}
-[1] "5"
+[1] "소"         "나"         "기"         "황순원"     "소년은"    
+[6] "개울가에서"
 
 ~~~
 
@@ -86,7 +77,7 @@ sonagi.hits.v/total.words.v
 
 
 ~~~{.output}
-[1] 0
+[1] 0.01439206
 
 ~~~
 
@@ -102,8 +93,9 @@ head(sorted.sonagi.freqs.t, 10)
 
 
 ~~~{.output}
-5 
-1 
+sonagi.word.v
+소녀가 소년은 있었다     한 소녀의     그 소녀는 소년이   있는 그러나 
+    29     29     24     21     14     13     12     12     11     10 
 
 ~~~
 
@@ -118,7 +110,7 @@ plot(sorted.sonagi.rel.freqs.t[1:10], type="b",
 axis(1,1:10, labels=names(sorted.sonagi.rel.freqs.t [1:10]))
 ~~~
 
-<img src="fig/ml-text-sonagi-freq-plot-1.png" title="plot of chunk ml-text-sonagi-freq-plot" alt="plot of chunk ml-text-sonagi-freq-plot" style="display: block; margin: auto;" />
+<img src="fig/ml-text-sonagi-freq-plot-1.png" style="display: block; margin: auto;" />
 
 ### 1.4. 등장인물 순서 분석
 
@@ -150,7 +142,7 @@ plot(b.count.v, main="소나기 소설 속 소년은 단어 퍼짐 그래프",
      xlab="소나기 소설 진행시간", ylab="소년은", type="h", ylim=c(0,1), yaxt='n')
 ~~~
 
-<img src="fig/ml-text-sonagi-dispersion-1.png" title="plot of chunk ml-text-sonagi-dispersion" alt="plot of chunk ml-text-sonagi-dispersion" style="display: block; margin: auto;" />
+<img src="fig/ml-text-sonagi-dispersion-1.png" style="display: block; margin: auto;" />
 
 
 ### 2. [태그 또는 단어 구름](https://ko.wikipedia.org/wiki/태그_구름)
@@ -185,6 +177,25 @@ sonagi.word.v <- sonagi.word.v[which(sonagi.word.v != "")]
 
 ~~~{.r}
 suppressMessages(library(KoNLP))
+~~~
+
+
+
+~~~{.output}
+Warning: package 'KoNLP' was built under R version 3.2.5
+
+~~~
+
+
+
+~~~{.output}
+Warning: package 'hash' was built under R version 3.2.5
+
+~~~
+
+
+
+~~~{.r}
 suppressMessages(library(RColorBrewer))
 
 useSejongDic()
@@ -218,7 +229,7 @@ wordcloud(names(sonagi.wc.t), freq=sonagi.wc.t, scale=c(6, 0.3), min.freq=10,
           random.order=T, rot.per=.1, colors=brewer.pal(12,"Paired"))
 ~~~
 
-<img src="fig/ml-text-sonagi-wordcloud-1.png" title="plot of chunk ml-text-sonagi-wordcloud" alt="plot of chunk ml-text-sonagi-wordcloud" style="display: block; margin: auto;" />
+<img src="fig/ml-text-sonagi-wordcloud-1.png" style="display: block; margin: auto;" />
 
 
 
