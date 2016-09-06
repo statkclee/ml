@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">단어문서행렬 – 단어 빈도</h2>
+          <section class="getready panel panel-warning">
+<div class="panel-heading">
+<h3 id="텍스트-데이터-분석-목표"><span class="glyphicon glyphicon-check"></span>텍스트 데이터 분석 목표</h3>
+</div>
+<div class="panel-body">
+<ul>
+<li>단어 빈도수를 분석한다.</li>
+</ul>
+</div>
+</section>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##======================================================================================================
+## 01. 트위터 인증
+##======================================================================================================
+<span class="kw">rm</span>(<span class="dt">list=</span><span class="kw">ls</span>())
+
+<span class="kw">source</span>(<span class="st">&quot;02. code/text_processing_fun.R&quot;</span>)</code></pre></div>
+<pre class="output"><code>Warning in file(filename, &quot;r&quot;, encoding = encoding): 파일 &#39;02. code/
+text_processing_fun.R&#39;를 여는데 실패했습니다: No such file or directory
+</code></pre>
+<pre class="output"><code>Error in file(filename, &quot;r&quot;, encoding = encoding): 커넥션을 열 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># twitter_auth(): 트위터 계정 인증</span>
+<span class="co"># twitter_clean_text(): 트위터 텍스트 전처리 </span>
+<span class="co"># twitter_word_cloud(): 단어구름 시각</span>
+
+<span class="kw">twitter_auth</span>()</code></pre></div>
+<pre class="output"><code>Error in eval(expr, envir, enclos): 함수 &quot;twitter_auth&quot;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##======================================================================================================
+## 02. 트위터 데이터 가져오기
+##======================================================================================================
+
+tw &lt;-<span class="st"> </span><span class="kw">searchTwitter</span>(<span class="st">&#39;#rstats&#39;</span>, <span class="dt">n =</span> <span class="dv">100</span>, <span class="dt">lang=</span><span class="st">&quot;en&quot;</span>, <span class="dt">since =</span> <span class="st">&#39;2016-04-01&#39;</span>)</code></pre></div>
+<pre class="output"><code>Error in eval(expr, envir, enclos): 함수 &quot;searchTwitter&quot;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tw_rd_df &lt;-<span class="st"> </span><span class="kw">twListToDF</span>(tw)</code></pre></div>
+<pre class="output"><code>Error in eval(expr, envir, enclos): 함수 &quot;twListToDF&quot;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##======================================================================================================
+## 03. 트위터 데이터 전처리
+##======================================================================================================
+
+tw_df &lt;-<span class="st"> </span><span class="kw">twitter_clean_text</span>(tw_rd_df$text)</code></pre></div>
+<pre class="output"><code>Error in eval(expr, envir, enclos): 함수 &quot;twitter_clean_text&quot;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##======================================================================================================
+## 04. TDM, DTM
+##======================================================================================================
+
+<span class="co">#tw_corpus &lt;- VCorpus(DataframeSource(tw_rd_df[,1:2]))</span>
+tw_corpus &lt;-<span class="st"> </span><span class="kw">Corpus</span>(<span class="kw">VectorSource</span>(tw_df))</code></pre></div>
+<pre class="output"><code>Error in eval(expr, envir, enclos): 함수 &quot;Corpus&quot;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># tdm</span>
+tw_tdm &lt;-<span class="st"> </span><span class="kw">TermDocumentMatrix</span>(tw_corpus)</code></pre></div>
+<pre class="output"><code>Error in eval(expr, envir, enclos): 함수 &quot;TermDocumentMatrix&quot;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># dtm</span>
+tw_dtm &lt;-<span class="st"> </span><span class="kw">DocumentTermMatrix</span>(tw_corpus)</code></pre></div>
+<pre class="output"><code>Error in eval(expr, envir, enclos): 함수 &quot;DocumentTermMatrix&quot;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># wfm</span>
+<span class="kw">library</span>(qdap)</code></pre></div>
+<pre class="output"><code>Error in library(qdap): there is no package called &#39;qdap&#39;
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dplyr)</code></pre></div>
+<pre class="output"><code>Warning: package &#39;dplyr&#39; was built under R version 3.2.5
+</code></pre>
+<pre class="output"><code>
+Attaching package: &#39;dplyr&#39;
+</code></pre>
+<pre class="output"><code>The following objects are masked from &#39;package:stats&#39;:
+
+    filter, lag
+</code></pre>
+<pre class="output"><code>The following objects are masked from &#39;package:base&#39;:
+
+    intersect, setdiff, setequal, union
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tw_wfm &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">wfm</span>(tw_df))</code></pre></div>
+<pre class="output"><code>Error in data.frame(wfm(tw_df)): 함수 &quot;wfm&quot;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tw_wfm$term &lt;-<span class="st"> </span><span class="kw">rownames</span>(tw_wfm)</code></pre></div>
+<pre class="output"><code>Error in rownames(tw_wfm): 객체 &#39;tw_wfm&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tw_wfm %&gt;%<span class="st"> </span><span class="kw">arrange</span>(<span class="kw">desc</span>(all)) %&gt;%<span class="st"> </span><span class="kw">head</span>(<span class="dv">10</span>)</code></pre></div>
+<pre class="output"><code>Error in eval(expr, envir, enclos): 객체 &#39;tw_wfm&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 단어주머니 빈도 분석</span>
+tw_tdm_m &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(tw_tdm)</code></pre></div>
+<pre class="output"><code>Error in as.matrix(tw_tdm): 객체 &#39;tw_tdm&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">term_freq &lt;-<span class="st"> </span><span class="kw">rowSums</span>(tw_tdm_m)</code></pre></div>
+<pre class="output"><code>Error in is.data.frame(x): 객체 &#39;tw_tdm_m&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">term_freq &lt;-<span class="st"> </span><span class="kw">sort</span>(term_freq, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<pre class="output"><code>Error in sort(term_freq, decreasing = TRUE): 객체 &#39;term_freq&#39;를 찾을 수 없습니다
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">barplot</span>(term_freq[<span class="dv">1</span>:<span class="dv">10</span>], <span class="dt">col =</span> <span class="st">&quot;tan&quot;</span>, <span class="dt">las=</span><span class="dv">2</span>)</code></pre></div>
+<pre class="output"><code>Error in barplot(term_freq[1:10], col = &quot;tan&quot;, las = 2): 객체 &#39;term_freq&#39;를 찾을 수 없습니다
+</code></pre>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>
