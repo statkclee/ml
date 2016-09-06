@@ -35,7 +35,7 @@ source("tools/chunk-options.R")
 
 두 팩키지 모두 공통으로 사용하는 단어/용어 빈도수에는 행렬(`matrix`)을 사용한다. 이를 그림을 표현하면 다음과 같다.
 
-<img src="fig/ml-text-qdap-tm-comp.png" alt="qdap, tm 비교" width="50%" />
+<img src="fig/ml-text-qdap-tm-comp.png" alt="qdap, tm 비교" width="77%" />
 
 * `qdap` 텍스트 원문 `qdap_dat` &rarr; `qview(qdap_dat)`
 * `tm` 텍스트 원문 `tm_dat` &rarr; inspect(tm_dat)
