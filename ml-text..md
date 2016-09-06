@@ -9,7 +9,31 @@ subtitle: 텍스트 데이터
 > * 텍스트 데이터 분석에 대해 이해한다.
 > * 전통적인 텍스트 분석방법에 대응되는 단어 주머니(bag of words)에 대해 살펴본다.
 
-### 1. 텍스트 문자 데이터 분석 작업 흐름
+### 1. 언어기술 로드맵
+
+스탠포드 [Dan Jurfsky](http://web.stanford.edu/~jurafsky/) 교수가 정의한 언어기술(Language Technology)에 
+따라 거의 해결된 기술과 상당한 진전을 이루는 기술, 그리고 여전히 어려운 문제로 구분했다.
+
+* **상당부분 해결 문제**
+    * Spam Detection
+    * Part-of-speech (POS) tagging
+    * Named entity recognition (NER)
+* **성과를 내고 있는 문제**
+    * Sentiment analysis
+    * Coreference resolution
+    * Word sense disambiguation (WSD)
+    * Parsing
+    * Machine translation (MT)
+    * Information extraction (IE)
+* **여전히 어려운 문제**    
+    * Question answering (QA)
+    * Paraphrase
+    * Summarization
+    * Dialog
+
+<img src="fig/ml-text-technology-roadmap.png" alt="언어기술 " width="70%" />
+
+### 2. 텍스트 문자 데이터 분석 작업 흐름
 
 텍스트 문자 데이터 분석 작업 흐름도 일반적인 데이터 분석 과정과 크게 차이가 나지는 않는다.
 
@@ -23,7 +47,7 @@ subtitle: 텍스트 데이터
 
 <img src="fig/ml-text-workflow.png" alt="텍스트 데이터 분석 작업흐름" width="70%" />
 
-### 2. 단어주머니 접근법
+### 3. 단어주머니 접근법
 
 [**단어 주머니(bag of words)**](https://en.wikipedia.org/wiki/Bag-of-words_model) 모형은 전통적인 자연어 처리(Natural Language Processing) 혹은 
 정보 검색(Information Retrieval)에서 사용되는 간략화한 표현으로 볼 수 있다. 문법 무시, 어순 무시 등 전통적인 텍스트 분석에 사용되는 것과 
