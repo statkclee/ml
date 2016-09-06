@@ -84,6 +84,7 @@ removeWords(text, stop_words_lst)
 `stopwords("english")` 영어불용어 사전에 "rstudio", "statistics" 단어를 더해서 불용어 사전을 완성하고 나서 
 removeWords() 함수로 새로 갱신된 사전에 맞춰 불용어를 정리한다.
 
+
 ### 참고문헌
 
 * [Tyler W. Rinker, qdap-tm Package Compatibility](https://cran.r-project.org/web/packages/qdap/vignettes/tm_package_compatibility.pdf)
