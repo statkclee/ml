@@ -24,13 +24,13 @@ source("tools/chunk-options.R")
 
 `text_processing_fun.R` 함수내에 `twitter_auth()` 인증함수로 저장하여 인증과정을 캡슐화하여 숨겨놓는다.
 
-```{r twitter-auth, tidy=FALSE}
+``` {r twitter-auth, tidy=FALSE}
 ##======================================================================================================
 ## 01. 트위터 인증
 ##======================================================================================================
 rm(list=ls())
 
-source("02. code/text_processing_fun.R")
+source("text_processing_fun.R")
 # twitter_auth(): 트위터 계정 인증
 # twitter_clean_text(): 트위터 텍스트 전처리 
 # twitter_word_cloud(): 단어구름 시각
@@ -76,7 +76,8 @@ tw_df <- twitter_clean_text(tw_rd_df$text)
 ##======================================================================================================
 ## 04. TDM, DTM
 ##======================================================================================================
-
+suppressMessages(library(tm))
+suppressMessages(library(qdap))
 #tw_corpus <- VCorpus(DataframeSource(tw_rd_df[,1:2]))
 tw_corpus <- Corpus(VectorSource(tw_df))
 
@@ -88,7 +89,7 @@ tw_dtm <- DocumentTermMatrix(tw_corpus)
 
 # wfm
 library(qdap)
-library(dplyr)
+suppressMessages(library(dplyr))
 tw_wfm <- data.frame(wfm(tw_df))
 tw_wfm$term <- rownames(tw_wfm)
 tw_wfm %>% arrange(desc(all)) %>% head(10)
