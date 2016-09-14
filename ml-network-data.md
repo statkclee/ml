@@ -10,9 +10,7 @@ output:
 mainfont: NanumGothic
 ---
  
-``` {r, include=FALSE}
-source("tools/chunk-options.R")
-```
+
 
 ### 1. 네트워크 시각화 [^Katherine-Ognyanova]
 
@@ -67,11 +65,14 @@ Base R에 포함된 시각화를 할 경우 시각화 요소를 제어하는데 
 * `cex` : 점 크기
 * `col` : 점 색상
 
-``` {r network-viz-basic, warning=FALSE}
+
+~~~{.r}
 plot(x=1:10, y=rep(5,10), pch=19, cex=3, col="dark red")
 points(x=1:10, y=rep(6, 10), pch=19, cex=3, col="557799")
 points(x=1:10, y=rep(4, 10), pch=19, cex=3, col=rgb(.25, .5, .3))
-```
+~~~
+
+<img src="fig/network-viz-basic-1.png" title="plot of chunk network-viz-basic" alt="plot of chunk network-viz-basic" style="display: block; margin: auto;" />
 
 Base R에 포함된 그래프 기능에는 RGB 값이 0 -- 1 사이 값을 갖게 된다. 만약 0 -- 255
 값으로 변환하고자 할 경우 `rgb(10, 100, 100, maxColorValue=255)` 처럼 `maxColorValue=255`로 
@@ -79,50 +80,70 @@ Base R에 포함된 그래프 기능에는 RGB 값이 0 -- 1 사이 값을 갖�
 
 0 -- 1 범위를 갖는 `alpha` 값을 조정하여 불투명도/투명도를 제어한다.
 
-``` {r network-viz-alpha, warning=FALSE}
+
+~~~{.r}
 plot(x=1:5, y=rep(5,5), pch=19, cex=12, col=rgb(.25, .5, .3, alpha=.5), xlim=c(0,6))
-```
+~~~
+
+<img src="fig/network-viz-alpha-1.png" title="plot of chunk network-viz-alpha" alt="plot of chunk network-viz-alpha" style="display: block; margin: auto;" />
 
 [http://www.color-hex.com/](http://www.color-hex.com/) 웹사이트에서 16진수
 색상체계를 사용해서도 R에서 색상을 표현할 수 있다. 앞에서 투명도 알파값을 사용하고,
 `grDevices` 팩키지에 포함된 `adjustcolor` 함수도 사용한다.
 
 
-``` {r network-viz-hex, warning=FALSE}
+
+~~~{.r}
 par(bg="gray40")
 col.tr <- grDevices::adjustcolor("#e14150", alpha=0.7)
 plot(x=1:5, y=rep(5,5), pch=19, cex=12, col=col.tr, xlim=c(0,6))
-```
+~~~
+
+<img src="fig/network-viz-hex-1.png" title="plot of chunk network-viz-hex" alt="plot of chunk network-viz-hex" style="display: block; margin: auto;" />
 
 `rainbow()`, `heat.colors()`, `terrain.colors()`, `topo.colors()`, 
 `cm.colors()` 팔레트가 `grDevices` 팩키지에 포함되어 있다.
 예를 들어, `heat.colors(5, alpha=1)` 명령어는 heat 팔레트에서 불투명한 색상 5개를
 갖는 팔레트를 생성한다는 의미가 된다.
 
-``` {r network-viz-palette, warning=FALSE}
+
+~~~{.r}
 # heat 팔레트에서 불투명한 색상 5개 생성
 pal1 <- heat.colors(5, alpha=1)
 plot(x=1:10, y=1:10, pch=19, cex=5, col=pal1)
+~~~
+
+<img src="fig/network-viz-palette-1.png" title="plot of chunk network-viz-palette" alt="plot of chunk network-viz-palette" style="display: block; margin: auto;" />
+
+~~~{.r}
 # 무지개 팔레트에서 투명한 색상 7개 생성
 pal2 <- rainbow(7, alpha=.5)
 plot(x=1:10, y=1:10, pch=19, cex=5, col=pal2)
-```
+~~~
+
+<img src="fig/network-viz-palette-2.png" title="plot of chunk network-viz-palette" alt="plot of chunk network-viz-palette" style="display: block; margin: auto;" />
 
 `colorRampPalette`를 통해 계조도(Gradient) 색상을 설정하는 것도 가능하다.
 즉, 회색에서 어두운 붉은색으로 계조를 두어 색상을 점차적으로 변화해 나가는
 팔레트를 통해 색상을 만들어낸다.
 
-``` {r network-viz-gradient, warning=FALSE}
+
+~~~{.r}
 # 계조도(gradient) 적용
 palf <- colorRampPalette(c("gray80", "dark red"))
 plot(x=10:1, y=1:10, pch=19, cex=5, col=palf(10))
-```
+~~~
 
-``` {r network-viz-gradient-alpha, warning=FALSE}
+<img src="fig/network-viz-gradient-1.png" title="plot of chunk network-viz-gradient" alt="plot of chunk network-viz-gradient" style="display: block; margin: auto;" />
+
+
+~~~{.r}
 # 투명도를 가미한 계조도 적용
 palf <- colorRampPalette(c(rgb(1,1,1, .2),rgb(.8,0,0, .7)), alpha=TRUE)
 plot(x=10:1, y=1:10, pch=19, cex=5, col=palf(10))
-```
+~~~
+
+<img src="fig/network-viz-gradient-alpha-1.png" title="plot of chunk network-viz-gradient-alpha" alt="plot of chunk network-viz-gradient-alpha" style="display: block; margin: auto;" />
 
 #### 2.1. `RColorBrewer` 팔레트
 
@@ -130,23 +151,49 @@ plot(x=10:1, y=1:10, pch=19, cex=5, col=palf(10))
 내장된 R 색상 팔레트는 다소 제한된 감이 없지 않다. 다행스럽게도 
 `RColorBrewer` 팔레트를 사용하는 것이 가능하다.
 
-``` {r network-viz-rColorBrewer, warning=FALSE}
+
+~~~{.r}
 library(RColorBrewer)
 display.brewer.all()
+~~~
+
+<img src="fig/network-viz-rColorBrewer-1.png" title="plot of chunk network-viz-rColorBrewer" alt="plot of chunk network-viz-rColorBrewer" style="display: block; margin: auto;" />
+
+~~~{.r}
 display.brewer.pal(8, "Set3")
+~~~
+
+<img src="fig/network-viz-rColorBrewer-2.png" title="plot of chunk network-viz-rColorBrewer" alt="plot of chunk network-viz-rColorBrewer" style="display: block; margin: auto;" />
+
+~~~{.r}
 display.brewer.pal(8, "Spectral")
+~~~
+
+<img src="fig/network-viz-rColorBrewer-3.png" title="plot of chunk network-viz-rColorBrewer" alt="plot of chunk network-viz-rColorBrewer" style="display: block; margin: auto;" />
+
+~~~{.r}
 display.brewer.pal(8, "Blues")
-```
+~~~
+
+<img src="fig/network-viz-rColorBrewer-4.png" title="plot of chunk network-viz-rColorBrewer" alt="plot of chunk network-viz-rColorBrewer" style="display: block; margin: auto;" />
 
 `brewer.pal` 색상 팔레트를 활용하여 시각화가 가능하다.
 
 `rev()` 함수를 조합해서 역순으로도 가능하다.
 
-``` {r network-viz-rColorBrewer-ex, warning=FALSE}
+
+~~~{.r}
 pal_set3 <- brewer.pal(10, "Set3")
 plot(x=10:1, y=10:1, pch=19, cex=6, col=pal_set3)
+~~~
+
+<img src="fig/network-viz-rColorBrewer-ex-1.png" title="plot of chunk network-viz-rColorBrewer-ex" alt="plot of chunk network-viz-rColorBrewer-ex" style="display: block; margin: auto;" />
+
+~~~{.r}
 plot(x=10:1, y=10:1, pch=19, cex=6, col=rev(pal_set3))
-```
+~~~
+
+<img src="fig/network-viz-rColorBrewer-ex-2.png" title="plot of chunk network-viz-rColorBrewer-ex" alt="plot of chunk network-viz-rColorBrewer-ex" style="display: block; margin: auto;" />
 
 ### 3. 글꼴 폰트  [^pdf-hangul] [^pdf-hangul-freesearch]
 
@@ -155,31 +202,144 @@ R에서 다양한 폰트를 사용하려면 사전 정지작업이 필요하다.
 특히, 윈도우 사용자가 많은 한국에서 다소 번거로운 과정이 필요한데, 맥이나 리눅스
 사용자는 이를 건너 뛰어도 된다.
 
-``` {r network-viz-font, warning=FALSE}
+
+~~~{.r}
 library(extrafont)
+~~~
+
+
+
+~~~{.output}
+Registering fonts with R
+
+~~~
+
+
+
+~~~{.r}
 # 시간이 많이 소요
 # font_import()
 # 가져온 글꼴 폰트 확인
-# fonts()
-grep("Nanum", fonts(), value=T)
-# windowsFonts(NanumGothicCoding=windowsFont("NanumGothicCoding"))
-# windowsFonts(NanumPenScript=windowsFont("`Nanum Pen Script`"))
-# windowsFonts(NanumBrushScript=windowsFont("`Nanum Brush Script`"))
-# windowsFonts(NanumMyeongjo=windowsFont("NanumMyeongjo"))
+fonts()
+~~~
 
+
+
+~~~{.output}
+ [1] ".Keyboard"                  "Andale Mono"               
+ [3] "Apple Braille"              "AppleMyungjo"              
+ [5] "Arial Black"                "Arial"                     
+ [7] "Arial Narrow"               "Arial Rounded MT Bold"     
+ [9] "Arial Unicode MS"           "Bodoni Ornaments"          
+[11] "Bodoni 72 Smallcaps"        ""                          
+[13] "Brush Script MT"            "Comic Sans MS"             
+[15] "Courier New"                "DIN Alternate"             
+[17] "DIN Condensed"              "Georgia"                   
+[19] "Impact"                     "Khmer Sangam MN"           
+[21] "Lao Sangam MN"              "Luminari"                  
+[23] "Microsoft Sans Serif"       "NanumGothic_Coding"        
+[25] "Source Code Pro Black"      "Source Code Pro"           
+[27] "Source Code Pro ExtraLight" "Source Code Pro Light"     
+[29] "Source Code Pro Medium"     "Source Code Pro Semibold"  
+[31] "Tahoma"                     "Times New Roman"           
+[33] "Trattatello"                "Trebuchet MS"              
+[35] "Verdana"                    "Webdings"                  
+[37] "Wingdings"                  "Wingdings 2"               
+[39] "Wingdings 3"               
+
+~~~
+
+
+
+~~~{.r}
+grep("Nanum", fonts(), value=T)
+~~~
+
+
+
+~~~{.output}
+[1] "NanumGothic_Coding"
+
+~~~
+
+
+
+~~~{.r}
+windowsFonts(NanumGothicCoding=windowsFont("NanumGothicCoding"))
+~~~
+
+
+
+~~~{.output}
+Error in eval(expr, envir, enclos): 함수 "windowsFonts"를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+windowsFonts(NanumPenScript=windowsFont("`Nanum Pen Script`"))
+~~~
+
+
+
+~~~{.output}
+Error in eval(expr, envir, enclos): 함수 "windowsFonts"를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+windowsFonts(NanumBrushScript=windowsFont("`Nanum Brush Script`"))
+~~~
+
+
+
+~~~{.output}
+Error in eval(expr, envir, enclos): 함수 "windowsFonts"를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+windowsFonts(NanumMyeongjo=windowsFont("NanumMyeongjo"))
+~~~
+
+
+
+~~~{.output}
+Error in eval(expr, envir, enclos): 함수 "windowsFonts"를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 # PDF 플롯을 찍을 경우 device="pdf" 를 사용
-# loadfonts(device = "win")
-```
+loadfonts(device = "win")
+~~~
+
+
+
+~~~{.output}
+Error in loadfonts(device = "win"): 함수 "windowsFonts"를 찾을 수 없습니다
+
+~~~
 
 원하는 글꼴 폰트를 활용하여 시각화한다.
 
-``` {r network-viz-font-hangul, warning=FALSE}
+
+~~~{.r}
 #--------------------------------------------------------------------------------
 # 한글 그래프
 plot(x=10:1, y=10:1, pch=19, cex=3,
      main="한글 그래프: 글꼴 폰트", col="orange",
      family="MGungHeulim" )
-```
+~~~
+
+<img src="fig/network-viz-font-hangul-1.png" title="plot of chunk network-viz-font-hangul" alt="plot of chunk network-viz-font-hangul" style="display: block; margin: auto;" />
 
 pdf 파일에 글꼴폰트를 내장하는 과정은 다음과 같다.
 먼저, [Ghostscript, GhostPCL, GhostXPS and MuPDF Downloads](http://ghostscript.com/download/)
@@ -187,7 +347,8 @@ pdf 파일에 글꼴폰트를 내장하는 과정은 다음과 같다.
 
 R에서 고스트스크립트 존재를 인식하도록 환경을 설정한다.
 
-``` {r network-viz-font-pdf, warning=FALSE}
+
+~~~{.r}
 # 고스트스크립트를 R에 연결하는 환경설정
 Sys.setenv(R_GSCMD = "C:/Program Files/gs/gs9.19/bin/gswin64c.exe")
 
@@ -196,8 +357,28 @@ cairo_pdf("NanumMyeongjo.pdf", family = "NanumMyeongjo", width = 10, height = 5,
 
 plot(x=10:1, y=10:1, pch=19, cex=3, main="한글 그래프 - 나눔 고딕 글꼴", col="orange")
 dev.off()
+~~~
+
+
+
+~~~{.output}
+quartz_off_screen 
+                2 
+
+~~~
+
+
+
+~~~{.r}
 embed_fonts("NanumMyeongjo.pdf", outfile="NanumMyeongjo_embed.pdf")
-```
+~~~
+
+
+
+~~~{.output}
+Error in embedFonts(file = file, format = format, outfile = outfile, options = paste(paste("-I", : GhostScript was not found
+
+~~~
 
 
 [^pdf-hangul]: [R PDF생성 시 한글폰트 깨짐 문제](http://using.tistory.com/66)
@@ -205,30 +386,6 @@ embed_fonts("NanumMyeongjo.pdf", outfile="NanumMyeongjo_embed.pdf")
 
 
 ### 4. 네트워크 데이터 구조
-
-
-``` {r network-data-import, warning=FALSE}
-#-----------------------------------------------------------------------
-# edgelist
-
-nodes <- read_csv("https://raw.githubusercontent.com/kateto/R-Network-Visualization-Workshop/master/Data/Dataset1-Media-Example-NODES.csv", col_names = TRUE)
-links <- read_csv("https://raw.githubusercontent.com/kateto/R-Network-Visualization-Workshop/master/Data/Dataset1-Media-Example-EDGES.csv", col_names = TRUE)
-
-#-----------------------------------------------------------------------
-# 데이터 살펴보기
-#-----------------------------------------------------------------------
-
-head(nodes)
-head(links)
-nrow(nodes); length(unique(nodes$id))
-nrow(links); nrow(unique(links[,c("from", "to")]))
-
-# 데이터 중복 처리 : 총합
-links <- links %>% group_by(from, to, type) %>%  
-                   summarise(weight = sum(weight)) %>% 
-                   arrange(from, to)
-```
-
 
 네트워크 데이터는 **노드(Node)** 와 **엣지(Edge)** 로 구성된다. 
 노드 데이터는 네트워크 노드에 대한 상세 정보가 담겨있다.
@@ -238,18 +395,58 @@ links <- links %>% group_by(from, to, type) %>%
 
 `head(nodes)` 명령어를 통해서 살펴보면 `head(nodes2)`와 별다른 차이가 없다.
 
-``` {r network-data-str-node, warning=FALSE}
+
+~~~{.r}
 head(nodes)
+~~~
+
+
+
+~~~{.output}
+Error in head(nodes): 객체 'nodes'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 head(nodes2)
-```
+~~~
+
+
+
+~~~{.output}
+Error in head(nodes2): 객체 'nodes2'를 찾을 수 없습니다
+
+~~~
 
 반면에 엣지 정보, 링크 정보는 하나는 `from`, `to` 형식으로, 다른 하나는 
 행렬로 표현된다는 점에서 차이가 있다.
 
-``` {r network-data-str-edge, warning=FALSE}
+
+~~~{.r}
 head(links)
+~~~
+
+
+
+~~~{.output}
+Error in head(links): 객체 'links'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 head(links2)
-```
+~~~
+
+
+
+~~~{.output}
+Error in head(links2): 객체 'links2'를 찾을 수 없습니다
+
+~~~
 
 *igraph* 팩키지로 데이터를 시각화를 해본다. 가장 먼저
 노드와 엣지 데이터프레임을 [igraph](http://igraph.org/) 네트워크 객체로 변환해야 된다.
@@ -263,12 +460,69 @@ igraph 네트워크 객체로 변환하는데 사용된다.
 * **vertices** : 노드 id 로 첫번째 칼럼이 정의되고, 노드를 표현하는 다른 정보가 순차적으로 
 나머지 칼럼에 담기게 된다.
 
-``` {r network-convert-data, warning=FALSE}
-library(igraph)
 
+~~~{.r}
+library(igraph)
+~~~
+
+
+
+~~~{.output}
+Loading required package: methods
+
+~~~
+
+
+
+~~~{.output}
+
+Attaching package: 'igraph'
+
+~~~
+
+
+
+~~~{.output}
+The following objects are masked from 'package:stats':
+
+    decompose, spectrum
+
+~~~
+
+
+
+~~~{.output}
+The following object is masked from 'package:base':
+
+    union
+
+~~~
+
+
+
+~~~{.r}
 net <- graph.data.frame(links, nodes, directed=T)
+~~~
+
+
+
+~~~{.output}
+Error in as.data.frame(d): 객체 'links'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 net
-```
+~~~
+
+
+
+~~~{.output}
+Error in eval(expr, envir, enclos): 객체 'net'를 찾을 수 없습니다
+
+~~~
 
 * `IGRAPH DNW- 17 49 -- ` : 
     * D 혹은 U : 방향성 있는 그래프 혹은 방향성 없는 그래프를 기술
@@ -286,40 +540,160 @@ net
 `V()` 함수를 통해 네트워크 객체에 포함된 노드 정보를 추출한다.
 직접 행렬 원소를 뽑아내는 것도 가능하다.
 
-``` {r network-data-query, warning=FALSE}
+
+~~~{.r}
 #------------------------------------------------------------------------
 # 네트워크 객체 조회
 
 E(net)       # "net" 객체 엣지정보 조회 
-V(net)       # "net" 객체 노드정보 조회
-E(net)$type  # 엣지 속성 "type"
-V(net)$media # 노드 속성 "media"
+~~~
 
+
+
+~~~{.output}
+Error in match(x, table, nomatch = 0L): 객체 'net'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+V(net)       # "net" 객체 노드정보 조회
+~~~
+
+
+
+~~~{.output}
+Error in match(x, table, nomatch = 0L): 객체 'net'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+E(net)$type  # 엣지 속성 "type"
+~~~
+
+
+
+~~~{.output}
+Error in match(x, table, nomatch = 0L): 객체 'net'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+V(net)$media # 노드 속성 "media"
+~~~
+
+
+
+~~~{.output}
+Error in match(x, table, nomatch = 0L): 객체 'net'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 # 직접 네트워크 행렬을 조작
 net[1,]
+~~~
+
+
+
+~~~{.output}
+Error in eval(expr, envir, enclos): 객체 'net'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 net[5,7]
-```
+~~~
+
+
+
+~~~{.output}
+Error in eval(expr, envir, enclos): 객체 'net'를 찾을 수 없습니다
+
+~~~
 
 ### 5. 네트워크 데이터 시각화
 
 `plot(net)` 명령어를 통해 시각화를 할 경우, 중복되는 엣지도 많고 해서 간략화할 필요가 있다.
 이때 사용되는 명령어가 `simplify()` 함수다.
 
-``` {r network-viz-simplify, warning=FALSE}
+
+~~~{.r}
 # plot(net)
 net <- simplify(net, remove.multiple = FALSE, remove.loops = TRUE) 
+~~~
+
+
+
+~~~{.output}
+Error in match(x, table, nomatch = 0L): 객체 'net'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 # net <- simplify(net, edge.attr.comb=list(Weight="sum","ignore"))
 plot(net, edge.arrow.size=.01,vertex.label=NA)
-```
+~~~
+
+
+
+~~~{.output}
+Error in plot(net, edge.arrow.size = 0.01, vertex.label = NA): 객체 'net'를 찾을 수 없습니다
+
+~~~
 
 `dev.off()`로 장치를 초기화하고, `vertex.label.family` 인자를 통해 글꼴도 설정한다.
 
-``` {r network-viz-simplify-plots, warning=FALSE}
+
+~~~{.r}
 dev.off()
+~~~
+
+
+
+~~~{.output}
+null device 
+          1 
+
+~~~
+
+
+
+~~~{.r}
 par(mfrow=c(1,2))
 plot(net, edge.arrow.size=.01,vertex.label=NA)
+~~~
+
+
+
+~~~{.output}
+Error in plot(net, edge.arrow.size = 0.01, vertex.label = NA): 객체 'net'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 plot(net, edge.arrow.size=.01, vertex.label.family="NanumMyeongjo")
-```
+~~~
+
+
+
+~~~{.output}
+Error in plot(net, edge.arrow.size = 0.01, vertex.label.family = "NanumMyeongjo"): 객체 'net'를 찾을 수 없습니다
+
+~~~
 
 #### 5.1. `igraph` 주요 설정 매개변수
 
@@ -367,59 +741,198 @@ plot(net, edge.arrow.size=.01, vertex.label.family="NanumMyeongjo")
 
 `edge.arrow.size=.4` 엣지 화살표 크기를 .4로 설정하고, 엣지에 곡선을 .3으로 반영한다.
 
-``` {r network-node-edge-param-type1-ex01, warning=FALSE}
+
+~~~{.r}
 plot(net, edge.arrow.size=.4, edge.curved=.3)
-```
+~~~
+
+
+
+~~~{.output}
+Error in plot(net, edge.arrow.size = 0.4, edge.curved = 0.3): 객체 'net'를 찾을 수 없습니다
+
+~~~
 
 엣지 색상은 오렌지색상으로, 노드는 회색으로, 노드 외곽 색상은 흰색으로 설정한다.
 노드 라벨을 `V(net)$media` 변수를 사용하고 노드 라벨 색상은 검정색으로 설정한다.
 
-``` {r network-node-edge-param-type1-ex02, warning=FALSE}
+
+~~~{.r}
 plot(net, edge.arrow.size=.2, edge.color="orange",
      vertex.color="dark gray", vertex.frame.color="#ffffff",
      vertex.label=V(net)$media, vertex.label.color="black") 
-```
+~~~
+
+
+
+~~~{.output}
+Error in plot(net, edge.arrow.size = 0.2, edge.color = "orange", vertex.color = "dark gray", : 객체 'net'를 찾을 수 없습니다
+
+~~~
 
 두번째 방식은 igraph 객체에 속성으로 추가하는 것이다.
 예를 들어, 미디어 유형에 따라 네트워크 노드에 색상을 추가하고, 
 연결 중앙성(Degree Centrality, 링크가 많으면 더 큰 노드)에 따라 크기를 조정한다.
 가중치(weight)에 따라 엣지 선폭도 설정한다.
 
-``` {r network-node-edge-param-type2, warning=FALSE}
+
+~~~{.r}
 #------------------------------------------------------------------------
 # 03.02. 첫번째 방식: igraph 객체에 속성으로 적용
 
 # 미디어 유형에 따른 색상 생성:
 colrs <- c("gray50", "tomato", "gold")
 V(net)$color <- colrs[V(net)$media.type]
+~~~
 
+
+
+~~~{.output}
+Error in match(x, table, nomatch = 0L): 객체 'net'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 # 노드 연결 중앙성에 따른 노드 크기 설정:
 deg <- igraph::degree(net, V(net), mode="all")
-V(net)$size <- deg*3
+~~~
 
+
+
+~~~{.output}
+Error in match(x, table, nomatch = 0L): 객체 'net'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+V(net)$size <- deg*3
+~~~
+
+
+
+~~~{.output}
+Error in eval(expr, envir, enclos): 객체 'deg'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 # audience size 값을 사용해서 노드 크기 설정:
 V(net)$size <- V(net)$audience.size*0.6
+~~~
 
+
+
+~~~{.output}
+Error in match(x, table, nomatch = 0L): 객체 'net'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 # 노드 ID로 현재 라벨이 설정되어 있는데, 라벨이 표시되지 않도록 설정:
 V(net)$label <- NA
+~~~
 
+
+
+~~~{.output}
+Error in V(net)$label <- NA: 객체 'net'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 # 엣지 선폭을 가중치(weight)에 따라 설정:
 E(net)$width <- E(net)$weight/2
+~~~
 
+
+
+~~~{.output}
+Error in match(x, table, nomatch = 0L): 객체 'net'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 # 화살표 크기와 엣지 색상을 변경:
 E(net)$arrow.size <- .2
-E(net)$edge.color <- "gray80"
-E(net)$width <- 1+E(net)$weight/12
+~~~
 
+
+
+~~~{.output}
+Error in E(net)$arrow.size <- 0.2: 객체 'net'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+E(net)$edge.color <- "gray80"
+~~~
+
+
+
+~~~{.output}
+Error in E(net)$edge.color <- "gray80": 객체 'net'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+E(net)$width <- 1+E(net)$weight/12
+~~~
+
+
+
+~~~{.output}
+Error in match(x, table, nomatch = 0L): 객체 'net'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 plot(net) 
+~~~
+
+
+
+~~~{.output}
+Error in plot(net): 객체 'net'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 colrs <- c("gray50", "tomato", "gold")
 legend(x=-1.5, y=-1.1, c("Newspaper","Television", "Online News"), pch=21,
        col="#777777", pt.bg=colrs, pt.cex=2, cex=.8, bty="n", ncol=1)
-```
+~~~
+
+
+
+~~~{.output}
+Error in strwidth(legend, units = "user", cex = cex, font = text.font): plot.new has not been called yet
+
+~~~
 
 노드 라벨을 적용하는 것이 의미론적인 면에서 더 의미가 있을 수 있다.
 
-``` {r network-node-edge-param-label, warning=FALSE}
+
+~~~{.r}
 #------------------------------------------------------------------------
 # 03.03. 노드 라벨를 활용한 네트워크 시각화
 
@@ -427,17 +940,55 @@ par(mfrow=c(1,1))
 plot(net, vertex.shape="none", vertex.label=V(net)$media, 
      vertex.label.font=2, vertex.label.color="gray40", edge.arrow.size=.1,
      vertex.label.cex=.7, edge.color="gray85", edge.width	= 1+E(net)$weight/12)
-```
+~~~
+
+
+
+~~~{.output}
+Error in plot(net, vertex.shape = "none", vertex.label = V(net)$media, : 객체 'net'를 찾을 수 없습니다
+
+~~~
 
 엣지 색상을 노드와 맞춰 시각화를 함으로써 노드와 엣지를 함께 이해하는 것도 가능하다.
 
-``` {r network-node-edge-param-color, warning=FALSE}
+
+~~~{.r}
 #------------------------------------------------------------------------
 # 03.04. 엣지를 노드에 맞춰 색상을 맞춤
 
 edge.start <- ends(net, es=E(net), names=F)[,1] # get the "from" node
-edge.col <- V(net)$color[edge.start]
+~~~
 
+
+
+~~~{.output}
+Error in match(x, table, nomatch = 0L): 객체 'net'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+edge.col <- V(net)$color[edge.start]
+~~~
+
+
+
+~~~{.output}
+Error in match(x, table, nomatch = 0L): 객체 'net'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 plot(net, edge.color=edge.col, edge.curved=.1)
-```
+~~~
+
+
+
+~~~{.output}
+Error in plot(net, edge.color = edge.col, edge.curved = 0.1): 객체 'net'를 찾을 수 없습니다
+
+~~~
 
