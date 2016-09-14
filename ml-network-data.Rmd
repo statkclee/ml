@@ -160,15 +160,15 @@ library(extrafont)
 # 시간이 많이 소요
 # font_import()
 # 가져온 글꼴 폰트 확인
-fonts()
+# fonts()
 grep("Nanum", fonts(), value=T)
-windowsFonts(NanumGothicCoding=windowsFont("NanumGothicCoding"))
-windowsFonts(NanumPenScript=windowsFont("`Nanum Pen Script`"))
-windowsFonts(NanumBrushScript=windowsFont("`Nanum Brush Script`"))
-windowsFonts(NanumMyeongjo=windowsFont("NanumMyeongjo"))
+# windowsFonts(NanumGothicCoding=windowsFont("NanumGothicCoding"))
+# windowsFonts(NanumPenScript=windowsFont("`Nanum Pen Script`"))
+# windowsFonts(NanumBrushScript=windowsFont("`Nanum Brush Script`"))
+# windowsFonts(NanumMyeongjo=windowsFont("NanumMyeongjo"))
 
 # PDF 플롯을 찍을 경우 device="pdf" 를 사용
-loadfonts(device = "win")
+# loadfonts(device = "win")
 ```
 
 원하는 글꼴 폰트를 활용하여 시각화한다.
@@ -205,6 +205,30 @@ embed_fonts("NanumMyeongjo.pdf", outfile="NanumMyeongjo_embed.pdf")
 
 
 ### 4. 네트워크 데이터 구조
+
+
+``` {r network-data-import, warning=FALSE}
+#-----------------------------------------------------------------------
+# edgelist
+
+nodes <- read_csv("https://raw.githubusercontent.com/kateto/R-Network-Visualization-Workshop/master/Data/Dataset1-Media-Example-NODES.csv", col_names = TRUE)
+links <- read_csv("https://raw.githubusercontent.com/kateto/R-Network-Visualization-Workshop/master/Data/Dataset1-Media-Example-EDGES.csv", col_names = TRUE)
+
+#-----------------------------------------------------------------------
+# 데이터 살펴보기
+#-----------------------------------------------------------------------
+
+head(nodes)
+head(links)
+nrow(nodes); length(unique(nodes$id))
+nrow(links); nrow(unique(links[,c("from", "to")]))
+
+# 데이터 중복 처리 : 총합
+links <- links %>% group_by(from, to, type) %>%  
+                   summarise(weight = sum(weight)) %>% 
+                   arrange(from, to)
+```
+
 
 네트워크 데이터는 **노드(Node)** 와 **엣지(Edge)** 로 구성된다. 
 노드 데이터는 네트워크 노드에 대한 상세 정보가 담겨있다.
