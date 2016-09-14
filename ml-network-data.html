@@ -139,47 +139,17 @@ palf &lt;-<span class="st"> </span><span class="kw">colorRampPalette</span>(<spa
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 시간이 많이 소요</span>
 <span class="co"># font_import()</span>
 <span class="co"># 가져온 글꼴 폰트 확인</span>
-<span class="kw">fonts</span>()</code></pre></div>
-<pre class="output"><code> [1] &quot;.Keyboard&quot;                  &quot;Andale Mono&quot;               
- [3] &quot;Apple Braille&quot;              &quot;AppleMyungjo&quot;              
- [5] &quot;Arial Black&quot;                &quot;Arial&quot;                     
- [7] &quot;Arial Narrow&quot;               &quot;Arial Rounded MT Bold&quot;     
- [9] &quot;Arial Unicode MS&quot;           &quot;Bodoni Ornaments&quot;          
-[11] &quot;Bodoni 72 Smallcaps&quot;        &quot;&quot;                          
-[13] &quot;Brush Script MT&quot;            &quot;Comic Sans MS&quot;             
-[15] &quot;Courier New&quot;                &quot;DIN Alternate&quot;             
-[17] &quot;DIN Condensed&quot;              &quot;Georgia&quot;                   
-[19] &quot;Impact&quot;                     &quot;Khmer Sangam MN&quot;           
-[21] &quot;Lao Sangam MN&quot;              &quot;Luminari&quot;                  
-[23] &quot;Microsoft Sans Serif&quot;       &quot;NanumGothic_Coding&quot;        
-[25] &quot;Source Code Pro Black&quot;      &quot;Source Code Pro&quot;           
-[27] &quot;Source Code Pro ExtraLight&quot; &quot;Source Code Pro Light&quot;     
-[29] &quot;Source Code Pro Medium&quot;     &quot;Source Code Pro Semibold&quot;  
-[31] &quot;Tahoma&quot;                     &quot;Times New Roman&quot;           
-[33] &quot;Trattatello&quot;                &quot;Trebuchet MS&quot;              
-[35] &quot;Verdana&quot;                    &quot;Webdings&quot;                  
-[37] &quot;Wingdings&quot;                  &quot;Wingdings 2&quot;               
-[39] &quot;Wingdings 3&quot;               
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">grep</span>(<span class="st">&quot;Nanum&quot;</span>, <span class="kw">fonts</span>(), <span class="dt">value=</span>T)</code></pre></div>
+<span class="co"># fonts()</span>
+<span class="kw">grep</span>(<span class="st">&quot;Nanum&quot;</span>, <span class="kw">fonts</span>(), <span class="dt">value=</span>T)</code></pre></div>
 <pre class="output"><code>[1] &quot;NanumGothic_Coding&quot;
 </code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">windowsFonts</span>(<span class="dt">NanumGothicCoding=</span><span class="kw">windowsFont</span>(<span class="st">&quot;NanumGothicCoding&quot;</span>))</code></pre></div>
-<pre class="output"><code>Error in eval(expr, envir, enclos): 함수 &quot;windowsFonts&quot;를 찾을 수 없습니다
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">windowsFonts</span>(<span class="dt">NanumPenScript=</span><span class="kw">windowsFont</span>(<span class="st">&quot;`Nanum Pen Script`&quot;</span>))</code></pre></div>
-<pre class="output"><code>Error in eval(expr, envir, enclos): 함수 &quot;windowsFonts&quot;를 찾을 수 없습니다
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">windowsFonts</span>(<span class="dt">NanumBrushScript=</span><span class="kw">windowsFont</span>(<span class="st">&quot;`Nanum Brush Script`&quot;</span>))</code></pre></div>
-<pre class="output"><code>Error in eval(expr, envir, enclos): 함수 &quot;windowsFonts&quot;를 찾을 수 없습니다
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">windowsFonts</span>(<span class="dt">NanumMyeongjo=</span><span class="kw">windowsFont</span>(<span class="st">&quot;NanumMyeongjo&quot;</span>))</code></pre></div>
-<pre class="output"><code>Error in eval(expr, envir, enclos): 함수 &quot;windowsFonts&quot;를 찾을 수 없습니다
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># PDF 플롯을 찍을 경우 device=&quot;pdf&quot; 를 사용</span>
-<span class="kw">loadfonts</span>(<span class="dt">device =</span> <span class="st">&quot;win&quot;</span>)</code></pre></div>
-<pre class="output"><code>Error in loadfonts(device = &quot;win&quot;): 함수 &quot;windowsFonts&quot;를 찾을 수 없습니다
-</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># windowsFonts(NanumGothicCoding=windowsFont(&quot;NanumGothicCoding&quot;))</span>
+<span class="co"># windowsFonts(NanumPenScript=windowsFont(&quot;`Nanum Pen Script`&quot;))</span>
+<span class="co"># windowsFonts(NanumBrushScript=windowsFont(&quot;`Nanum Brush Script`&quot;))</span>
+<span class="co"># windowsFonts(NanumMyeongjo=windowsFont(&quot;NanumMyeongjo&quot;))</span>
+
+<span class="co"># PDF 플롯을 찍을 경우 device=&quot;pdf&quot; 를 사용</span>
+<span class="co"># loadfonts(device = &quot;win&quot;)</span></code></pre></div>
 <p>원하는 글꼴 폰트를 활용하여 시각화한다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#--------------------------------------------------------------------------------</span>
 <span class="co"># 한글 그래프</span>
@@ -204,17 +174,99 @@ palf &lt;-<span class="st"> </span><span class="kw">colorRampPalette</span>(<spa
 <pre class="output"><code>Error in embedFonts(file = file, format = format, outfile = outfile, options = paste(paste(&quot;-I&quot;, : GhostScript was not found
 </code></pre>
 <h3 id="네트워크-데이터-구조">4. 네트워크 데이터 구조</h3>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">suppressMessages</span>(<span class="kw">library</span>(readr))
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(dplyr))
+<span class="co">#-----------------------------------------------------------------------</span>
+<span class="co"># edgelist</span>
+
+nodes &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/kateto/R-Network-Visualization-Workshop/master/Data/Dataset1-Media-Example-NODES.csv&quot;</span>, <span class="dt">col_names =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<pre class="output"><code>Parsed with column specification:
+cols(
+  id = col_character(),
+  media = col_character(),
+  media.type = col_integer(),
+  type.label = col_character(),
+  audience.size = col_integer()
+)
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">links &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/kateto/R-Network-Visualization-Workshop/master/Data/Dataset1-Media-Example-EDGES.csv&quot;</span>, <span class="dt">col_names =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<pre class="output"><code>Parsed with column specification:
+cols(
+  from = col_character(),
+  to = col_character(),
+  weight = col_integer(),
+  type = col_character()
+)
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-----------------------------------------------------------------------</span>
+<span class="co"># 데이터 살펴보기</span>
+<span class="co">#-----------------------------------------------------------------------</span>
+
+<span class="kw">head</span>(nodes)</code></pre></div>
+<pre class="output"><code># A tibble: 6 x 5
+     id               media media.type type.label audience.size
+  &lt;chr&gt;               &lt;chr&gt;      &lt;int&gt;      &lt;chr&gt;         &lt;int&gt;
+1   s01            NY Times          1  Newspaper            20
+2   s02     Washington Post          1  Newspaper            25
+3   s03 Wall Street Journal          1  Newspaper            30
+4   s04           USA Today          1  Newspaper            32
+5   s05            LA Times          1  Newspaper            20
+6   s06       New York Post          1  Newspaper            50
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(links)</code></pre></div>
+<pre class="output"><code># A tibble: 6 x 4
+   from    to weight      type
+  &lt;chr&gt; &lt;chr&gt;  &lt;int&gt;     &lt;chr&gt;
+1   s01   s02     10 hyperlink
+2   s01   s02     12 hyperlink
+3   s01   s03     22 hyperlink
+4   s01   s04     21 hyperlink
+5   s04   s11     22   mention
+6   s05   s15     21   mention
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nrow</span>(nodes); <span class="kw">length</span>(<span class="kw">unique</span>(nodes$id))</code></pre></div>
+<pre class="output"><code>[1] 17
+</code></pre>
+<pre class="output"><code>[1] 17
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nrow</span>(links); <span class="kw">nrow</span>(<span class="kw">unique</span>(links[,<span class="kw">c</span>(<span class="st">&quot;from&quot;</span>, <span class="st">&quot;to&quot;</span>)]))</code></pre></div>
+<pre class="output"><code>[1] 52
+</code></pre>
+<pre class="output"><code>[1] 49
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 데이터 중복 처리 : 총합</span>
+links &lt;-<span class="st"> </span>links %&gt;%<span class="st"> </span><span class="kw">group_by</span>(from, to, type) %&gt;%<span class="st">  </span>
+<span class="st">                   </span><span class="kw">summarise</span>(<span class="dt">weight =</span> <span class="kw">sum</span>(weight)) %&gt;%<span class="st"> </span>
+<span class="st">                   </span><span class="kw">arrange</span>(from, to)</code></pre></div>
 <p>네트워크 데이터는 <strong>노드(Node)</strong> 와 <strong>엣지(Edge)</strong> 로 구성된다. 노드 데이터는 네트워크 노드에 대한 상세 정보가 담겨있다. 반면에 엣지 정보는 연결된 링크 정보를 담고 있는데 <code>from</code>, <code>to</code> 형식으로 데이터를 담을 수도 있고, 노드간의 관계를 관계 없음은 <code>0</code>, 관계 있음은 <code>1</code>로 표현한다.</p>
 <p><code>head(nodes)</code> 명령어를 통해서 살펴보면 <code>head(nodes2)</code>와 별다른 차이가 없다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(nodes)</code></pre></div>
-<pre class="output"><code>Error in head(nodes): 객체 &#39;nodes&#39;를 찾을 수 없습니다
+<pre class="output"><code># A tibble: 6 x 5
+     id               media media.type type.label audience.size
+  &lt;chr&gt;               &lt;chr&gt;      &lt;int&gt;      &lt;chr&gt;         &lt;int&gt;
+1   s01            NY Times          1  Newspaper            20
+2   s02     Washington Post          1  Newspaper            25
+3   s03 Wall Street Journal          1  Newspaper            30
+4   s04           USA Today          1  Newspaper            32
+5   s05            LA Times          1  Newspaper            20
+6   s06       New York Post          1  Newspaper            50
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(nodes2)</code></pre></div>
 <pre class="output"><code>Error in head(nodes2): 객체 &#39;nodes2&#39;를 찾을 수 없습니다
 </code></pre>
 <p>반면에 엣지 정보, 링크 정보는 하나는 <code>from</code>, <code>to</code> 형식으로, 다른 하나는 행렬로 표현된다는 점에서 차이가 있다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(links)</code></pre></div>
-<pre class="output"><code>Error in head(links): 객체 &#39;links&#39;를 찾을 수 없습니다
+<pre class="output"><code>Source: local data frame [6 x 4]
+Groups: from, to [6]
+
+   from    to      type weight
+  &lt;chr&gt; &lt;chr&gt;     &lt;chr&gt;  &lt;int&gt;
+1   s01   s02 hyperlink     22
+2   s01   s03 hyperlink     22
+3   s01   s04 hyperlink     21
+4   s01   s15   mention     20
+5   s02   s01 hyperlink     23
+6   s02   s03 hyperlink     21
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(links2)</code></pre></div>
 <pre class="output"><code>Error in head(links2): 객체 &#39;links2&#39;를 찾을 수 없습니다
@@ -231,6 +283,10 @@ palf &lt;-<span class="st"> </span><span class="kw">colorRampPalette</span>(<spa
 <pre class="output"><code>
 Attaching package: &#39;igraph&#39;
 </code></pre>
+<pre class="output"><code>The following objects are masked from &#39;package:dplyr&#39;:
+
+    %&gt;%, as_data_frame, groups, union
+</code></pre>
 <pre class="output"><code>The following objects are masked from &#39;package:stats&#39;:
 
     decompose, spectrum
@@ -239,11 +295,19 @@ Attaching package: &#39;igraph&#39;
 
     union
 </code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">net &lt;-<span class="st"> </span><span class="kw">graph.data.frame</span>(links, nodes, <span class="dt">directed=</span>T)</code></pre></div>
-<pre class="output"><code>Error in as.data.frame(d): 객체 &#39;links&#39;를 찾을 수 없습니다
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">net</code></pre></div>
-<pre class="output"><code>Error in eval(expr, envir, enclos): 객체 &#39;net&#39;를 찾을 수 없습니다
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">net &lt;-<span class="st"> </span><span class="kw">graph.data.frame</span>(links, nodes, <span class="dt">directed=</span>T)
+net</code></pre></div>
+<pre class="output"><code>IGRAPH DNW- 17 49 -- 
++ attr: name (v/c), media (v/c), media.type (v/n), type.label
+| (v/c), audience.size (v/n), type (e/c), weight (e/n)
++ edges (vertex names):
+ [1] s01-&gt;s02 s01-&gt;s03 s01-&gt;s04 s01-&gt;s15 s02-&gt;s01 s02-&gt;s03 s02-&gt;s09
+ [8] s02-&gt;s10 s03-&gt;s01 s03-&gt;s04 s03-&gt;s05 s03-&gt;s08 s03-&gt;s10 s03-&gt;s11
+[15] s03-&gt;s12 s04-&gt;s03 s04-&gt;s06 s04-&gt;s11 s04-&gt;s12 s04-&gt;s17 s05-&gt;s01
+[22] s05-&gt;s02 s05-&gt;s09 s05-&gt;s15 s06-&gt;s06 s06-&gt;s16 s06-&gt;s17 s07-&gt;s03
+[29] s07-&gt;s08 s07-&gt;s10 s07-&gt;s14 s08-&gt;s03 s08-&gt;s07 s08-&gt;s09 s09-&gt;s10
+[36] s10-&gt;s03 s12-&gt;s06 s12-&gt;s13 s12-&gt;s14 s13-&gt;s12 s13-&gt;s17 s14-&gt;s11
+[43] s14-&gt;s13 s15-&gt;s01 s15-&gt;s04 s15-&gt;s06 s16-&gt;s06 s16-&gt;s17 s17-&gt;s04
 </code></pre>
 <ul>
 <li><code>IGRAPH DNW- 17 49 --</code> :
@@ -267,46 +331,62 @@ Attaching package: &#39;igraph&#39;
 <span class="co"># 네트워크 객체 조회</span>
 
 <span class="kw">E</span>(net)       <span class="co"># &quot;net&quot; 객체 엣지정보 조회 </span></code></pre></div>
-<pre class="output"><code>Error in match(x, table, nomatch = 0L): 객체 &#39;net&#39;를 찾을 수 없습니다
+<pre class="output"><code>+ 49/49 edges (vertex names):
+ [1] s01-&gt;s02 s01-&gt;s03 s01-&gt;s04 s01-&gt;s15 s02-&gt;s01 s02-&gt;s03 s02-&gt;s09
+ [8] s02-&gt;s10 s03-&gt;s01 s03-&gt;s04 s03-&gt;s05 s03-&gt;s08 s03-&gt;s10 s03-&gt;s11
+[15] s03-&gt;s12 s04-&gt;s03 s04-&gt;s06 s04-&gt;s11 s04-&gt;s12 s04-&gt;s17 s05-&gt;s01
+[22] s05-&gt;s02 s05-&gt;s09 s05-&gt;s15 s06-&gt;s06 s06-&gt;s16 s06-&gt;s17 s07-&gt;s03
+[29] s07-&gt;s08 s07-&gt;s10 s07-&gt;s14 s08-&gt;s03 s08-&gt;s07 s08-&gt;s09 s09-&gt;s10
+[36] s10-&gt;s03 s12-&gt;s06 s12-&gt;s13 s12-&gt;s14 s13-&gt;s12 s13-&gt;s17 s14-&gt;s11
+[43] s14-&gt;s13 s15-&gt;s01 s15-&gt;s04 s15-&gt;s06 s16-&gt;s06 s16-&gt;s17 s17-&gt;s04
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">V</span>(net)       <span class="co"># &quot;net&quot; 객체 노드정보 조회</span></code></pre></div>
-<pre class="output"><code>Error in match(x, table, nomatch = 0L): 객체 &#39;net&#39;를 찾을 수 없습니다
+<pre class="output"><code>+ 17/17 vertices, named:
+ [1] s01 s02 s03 s04 s05 s06 s07 s08 s09 s10 s11 s12 s13 s14 s15 s16 s17
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">E</span>(net)$type  <span class="co"># 엣지 속성 &quot;type&quot;</span></code></pre></div>
-<pre class="output"><code>Error in match(x, table, nomatch = 0L): 객체 &#39;net&#39;를 찾을 수 없습니다
+<pre class="output"><code> [1] &quot;hyperlink&quot; &quot;hyperlink&quot; &quot;hyperlink&quot; &quot;mention&quot;   &quot;hyperlink&quot;
+ [6] &quot;hyperlink&quot; &quot;hyperlink&quot; &quot;hyperlink&quot; &quot;hyperlink&quot; &quot;hyperlink&quot;
+[11] &quot;hyperlink&quot; &quot;hyperlink&quot; &quot;mention&quot;   &quot;hyperlink&quot; &quot;hyperlink&quot;
+[16] &quot;hyperlink&quot; &quot;mention&quot;   &quot;mention&quot;   &quot;hyperlink&quot; &quot;mention&quot;  
+[21] &quot;mention&quot;   &quot;hyperlink&quot; &quot;hyperlink&quot; &quot;mention&quot;   &quot;hyperlink&quot;
+[26] &quot;hyperlink&quot; &quot;mention&quot;   &quot;mention&quot;   &quot;mention&quot;   &quot;hyperlink&quot;
+[31] &quot;mention&quot;   &quot;hyperlink&quot; &quot;mention&quot;   &quot;mention&quot;   &quot;mention&quot;  
+[36] &quot;hyperlink&quot; &quot;mention&quot;   &quot;hyperlink&quot; &quot;mention&quot;   &quot;hyperlink&quot;
+[41] &quot;mention&quot;   &quot;mention&quot;   &quot;mention&quot;   &quot;hyperlink&quot; &quot;hyperlink&quot;
+[46] &quot;hyperlink&quot; &quot;hyperlink&quot; &quot;mention&quot;   &quot;hyperlink&quot;
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">V</span>(net)$media <span class="co"># 노드 속성 &quot;media&quot;</span></code></pre></div>
-<pre class="output"><code>Error in match(x, table, nomatch = 0L): 객체 &#39;net&#39;를 찾을 수 없습니다
+<pre class="output"><code> [1] &quot;NY Times&quot;            &quot;Washington Post&quot;     &quot;Wall Street Journal&quot;
+ [4] &quot;USA Today&quot;           &quot;LA Times&quot;            &quot;New York Post&quot;      
+ [7] &quot;CNN&quot;                 &quot;MSNBC&quot;               &quot;FOX News&quot;           
+[10] &quot;ABC&quot;                 &quot;BBC&quot;                 &quot;Yahoo News&quot;         
+[13] &quot;Google News&quot;         &quot;Reuters.com&quot;         &quot;NYTimes.com&quot;        
+[16] &quot;WashingtonPost.com&quot;  &quot;AOL.com&quot;            
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 직접 네트워크 행렬을 조작</span>
 net[<span class="dv">1</span>,]</code></pre></div>
-<pre class="output"><code>Error in eval(expr, envir, enclos): 객체 &#39;net&#39;를 찾을 수 없습니다
+<pre class="output"><code>s01 s02 s03 s04 s05 s06 s07 s08 s09 s10 s11 s12 s13 s14 s15 s16 s17 
+  0  22  22  21   0   0   0   0   0   0   0   0   0   0  20   0   0 
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">net[<span class="dv">5</span>,<span class="dv">7</span>]</code></pre></div>
-<pre class="output"><code>Error in eval(expr, envir, enclos): 객체 &#39;net&#39;를 찾을 수 없습니다
+<pre class="output"><code>[1] 0
 </code></pre>
 <h3 id="네트워크-데이터-시각화">5. 네트워크 데이터 시각화</h3>
 <p><code>plot(net)</code> 명령어를 통해 시각화를 할 경우, 중복되는 엣지도 많고 해서 간략화할 필요가 있다. 이때 사용되는 명령어가 <code>simplify()</code> 함수다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># plot(net)</span>
-net &lt;-<span class="st"> </span><span class="kw">simplify</span>(net, <span class="dt">remove.multiple =</span> <span class="ot">FALSE</span>, <span class="dt">remove.loops =</span> <span class="ot">TRUE</span>) </code></pre></div>
-<pre class="output"><code>Error in match(x, table, nomatch = 0L): 객체 &#39;net&#39;를 찾을 수 없습니다
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># net &lt;- simplify(net, edge.attr.comb=list(Weight=&quot;sum&quot;,&quot;ignore&quot;))</span>
+net &lt;-<span class="st"> </span><span class="kw">simplify</span>(net, <span class="dt">remove.multiple =</span> <span class="ot">FALSE</span>, <span class="dt">remove.loops =</span> <span class="ot">TRUE</span>) 
+<span class="co"># net &lt;- simplify(net, edge.attr.comb=list(Weight=&quot;sum&quot;,&quot;ignore&quot;))</span>
 <span class="kw">plot</span>(net, <span class="dt">edge.arrow.size=</span>.<span class="dv">01</span>,<span class="dt">vertex.label=</span><span class="ot">NA</span>)</code></pre></div>
-<pre class="output"><code>Error in plot(net, edge.arrow.size = 0.01, vertex.label = NA): 객체 &#39;net&#39;를 찾을 수 없습니다
-</code></pre>
+<p><img src="fig/network-viz-simplify-1.png" title="plot of chunk network-viz-simplify" alt="plot of chunk network-viz-simplify" style="display: block; margin: auto;" /></p>
 <p><code>dev.off()</code>로 장치를 초기화하고, <code>vertex.label.family</code> 인자를 통해 글꼴도 설정한다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dev.off</span>()</code></pre></div>
 <pre class="output"><code>null device 
           1 
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))
-<span class="kw">plot</span>(net, <span class="dt">edge.arrow.size=</span>.<span class="dv">01</span>,<span class="dt">vertex.label=</span><span class="ot">NA</span>)</code></pre></div>
-<pre class="output"><code>Error in plot(net, edge.arrow.size = 0.01, vertex.label = NA): 객체 &#39;net&#39;를 찾을 수 없습니다
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(net, <span class="dt">edge.arrow.size=</span>.<span class="dv">01</span>, <span class="dt">vertex.label.family=</span><span class="st">&quot;NanumMyeongjo&quot;</span>)</code></pre></div>
-<pre class="output"><code>Error in plot(net, edge.arrow.size = 0.01, vertex.label.family = &quot;NanumMyeongjo&quot;): 객체 &#39;net&#39;를 찾을 수 없습니다
-</code></pre>
+<span class="kw">plot</span>(net, <span class="dt">edge.arrow.size=</span>.<span class="dv">01</span>,<span class="dt">vertex.label=</span><span class="ot">NA</span>)
+<span class="kw">plot</span>(net, <span class="dt">edge.arrow.size=</span>.<span class="dv">01</span>, <span class="dt">vertex.label.family=</span><span class="st">&quot;NanumMyeongjo&quot;</span>)</code></pre></div>
 <h4 id="igraph-주요-설정-매개변수">5.1. <code>igraph</code> 주요 설정 매개변수</h4>
 <table>
 <colgroup>
@@ -454,60 +534,43 @@ net &lt;-<span class="st"> </span><span class="kw">simplify</span>(net, <span cl
 <p>노드와 엣지를 네트워크 시각화에 매개변수를 통해 반영하는 방식은 두가지가 있다. 먼저 <code>plot()</code> 함수에 노드와 엣지 매개변수를 적어 넣는다.</p>
 <p><code>edge.arrow.size=.4</code> 엣지 화살표 크기를 .4로 설정하고, 엣지에 곡선을 .3으로 반영한다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(net, <span class="dt">edge.arrow.size=</span>.<span class="dv">4</span>, <span class="dt">edge.curved=</span>.<span class="dv">3</span>)</code></pre></div>
-<pre class="output"><code>Error in plot(net, edge.arrow.size = 0.4, edge.curved = 0.3): 객체 &#39;net&#39;를 찾을 수 없습니다
-</code></pre>
+<p><img src="fig/network-node-edge-param-type1-ex01-1.png" title="plot of chunk network-node-edge-param-type1-ex01" alt="plot of chunk network-node-edge-param-type1-ex01" style="display: block; margin: auto;" /></p>
 <p>엣지 색상은 오렌지색상으로, 노드는 회색으로, 노드 외곽 색상은 흰색으로 설정한다. 노드 라벨을 <code>V(net)$media</code> 변수를 사용하고 노드 라벨 색상은 검정색으로 설정한다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(net, <span class="dt">edge.arrow.size=</span>.<span class="dv">2</span>, <span class="dt">edge.color=</span><span class="st">&quot;orange&quot;</span>,
      <span class="dt">vertex.color=</span><span class="st">&quot;dark gray&quot;</span>, <span class="dt">vertex.frame.color=</span><span class="st">&quot;#ffffff&quot;</span>,
      <span class="dt">vertex.label=</span><span class="kw">V</span>(net)$media, <span class="dt">vertex.label.color=</span><span class="st">&quot;black&quot;</span>) </code></pre></div>
-<pre class="output"><code>Error in plot(net, edge.arrow.size = 0.2, edge.color = &quot;orange&quot;, vertex.color = &quot;dark gray&quot;, : 객체 &#39;net&#39;를 찾을 수 없습니다
-</code></pre>
+<p><img src="fig/network-node-edge-param-type1-ex02-1.png" title="plot of chunk network-node-edge-param-type1-ex02" alt="plot of chunk network-node-edge-param-type1-ex02" style="display: block; margin: auto;" /></p>
 <p>두번째 방식은 igraph 객체에 속성으로 추가하는 것이다. 예를 들어, 미디어 유형에 따라 네트워크 노드에 색상을 추가하고, 연결 중앙성(Degree Centrality, 링크가 많으면 더 큰 노드)에 따라 크기를 조정한다. 가중치(weight)에 따라 엣지 선폭도 설정한다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#------------------------------------------------------------------------</span>
 <span class="co"># 03.02. 첫번째 방식: igraph 객체에 속성으로 적용</span>
 
 <span class="co"># 미디어 유형에 따른 색상 생성:</span>
 colrs &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;gray50&quot;</span>, <span class="st">&quot;tomato&quot;</span>, <span class="st">&quot;gold&quot;</span>)
-<span class="kw">V</span>(net)$color &lt;-<span class="st"> </span>colrs[<span class="kw">V</span>(net)$media.type]</code></pre></div>
-<pre class="output"><code>Error in match(x, table, nomatch = 0L): 객체 &#39;net&#39;를 찾을 수 없습니다
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 노드 연결 중앙성에 따른 노드 크기 설정:</span>
-deg &lt;-<span class="st"> </span>igraph::<span class="kw">degree</span>(net, <span class="kw">V</span>(net), <span class="dt">mode=</span><span class="st">&quot;all&quot;</span>)</code></pre></div>
-<pre class="output"><code>Error in match(x, table, nomatch = 0L): 객체 &#39;net&#39;를 찾을 수 없습니다
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">V</span>(net)$size &lt;-<span class="st"> </span>deg*<span class="dv">3</span></code></pre></div>
-<pre class="output"><code>Error in eval(expr, envir, enclos): 객체 &#39;deg&#39;를 찾을 수 없습니다
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># audience size 값을 사용해서 노드 크기 설정:</span>
-<span class="kw">V</span>(net)$size &lt;-<span class="st"> </span><span class="kw">V</span>(net)$audience.size*<span class="fl">0.6</span></code></pre></div>
-<pre class="output"><code>Error in match(x, table, nomatch = 0L): 객체 &#39;net&#39;를 찾을 수 없습니다
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 노드 ID로 현재 라벨이 설정되어 있는데, 라벨이 표시되지 않도록 설정:</span>
-<span class="kw">V</span>(net)$label &lt;-<span class="st"> </span><span class="ot">NA</span></code></pre></div>
-<pre class="output"><code>Error in V(net)$label &lt;- NA: 객체 &#39;net&#39;를 찾을 수 없습니다
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 엣지 선폭을 가중치(weight)에 따라 설정:</span>
-<span class="kw">E</span>(net)$width &lt;-<span class="st"> </span><span class="kw">E</span>(net)$weight/<span class="dv">2</span></code></pre></div>
-<pre class="output"><code>Error in match(x, table, nomatch = 0L): 객체 &#39;net&#39;를 찾을 수 없습니다
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 화살표 크기와 엣지 색상을 변경:</span>
-<span class="kw">E</span>(net)$arrow.size &lt;-<span class="st"> </span>.<span class="dv">2</span></code></pre></div>
-<pre class="output"><code>Error in E(net)$arrow.size &lt;- 0.2: 객체 &#39;net&#39;를 찾을 수 없습니다
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">E</span>(net)$edge.color &lt;-<span class="st"> &quot;gray80&quot;</span></code></pre></div>
-<pre class="output"><code>Error in E(net)$edge.color &lt;- &quot;gray80&quot;: 객체 &#39;net&#39;를 찾을 수 없습니다
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">E</span>(net)$width &lt;-<span class="st"> </span><span class="dv">1</span>+<span class="kw">E</span>(net)$weight/<span class="dv">12</span></code></pre></div>
-<pre class="output"><code>Error in match(x, table, nomatch = 0L): 객체 &#39;net&#39;를 찾을 수 없습니다
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(net) </code></pre></div>
-<pre class="output"><code>Error in plot(net): 객체 &#39;net&#39;를 찾을 수 없습니다
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">colrs &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;gray50&quot;</span>, <span class="st">&quot;tomato&quot;</span>, <span class="st">&quot;gold&quot;</span>)
+<span class="kw">V</span>(net)$color &lt;-<span class="st"> </span>colrs[<span class="kw">V</span>(net)$media.type]
+
+<span class="co"># 노드 연결 중앙성에 따른 노드 크기 설정:</span>
+deg &lt;-<span class="st"> </span>igraph::<span class="kw">degree</span>(net, <span class="kw">V</span>(net), <span class="dt">mode=</span><span class="st">&quot;all&quot;</span>)
+<span class="kw">V</span>(net)$size &lt;-<span class="st"> </span>deg*<span class="dv">3</span>
+
+<span class="co"># audience size 값을 사용해서 노드 크기 설정:</span>
+<span class="kw">V</span>(net)$size &lt;-<span class="st"> </span><span class="kw">V</span>(net)$audience.size*<span class="fl">0.6</span>
+
+<span class="co"># 노드 ID로 현재 라벨이 설정되어 있는데, 라벨이 표시되지 않도록 설정:</span>
+<span class="kw">V</span>(net)$label &lt;-<span class="st"> </span><span class="ot">NA</span>
+
+<span class="co"># 엣지 선폭을 가중치(weight)에 따라 설정:</span>
+<span class="kw">E</span>(net)$width &lt;-<span class="st"> </span><span class="kw">E</span>(net)$weight/<span class="dv">2</span>
+
+<span class="co"># 화살표 크기와 엣지 색상을 변경:</span>
+<span class="kw">E</span>(net)$arrow.size &lt;-<span class="st"> </span>.<span class="dv">2</span>
+<span class="kw">E</span>(net)$edge.color &lt;-<span class="st"> &quot;gray80&quot;</span>
+<span class="kw">E</span>(net)$width &lt;-<span class="st"> </span><span class="dv">1</span>+<span class="kw">E</span>(net)$weight/<span class="dv">12</span>
+
+<span class="kw">plot</span>(net) 
+colrs &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;gray50&quot;</span>, <span class="st">&quot;tomato&quot;</span>, <span class="st">&quot;gold&quot;</span>)
 <span class="kw">legend</span>(<span class="dt">x=</span>-<span class="fl">1.5</span>, <span class="dt">y=</span>-<span class="fl">1.1</span>, <span class="kw">c</span>(<span class="st">&quot;Newspaper&quot;</span>,<span class="st">&quot;Television&quot;</span>, <span class="st">&quot;Online News&quot;</span>), <span class="dt">pch=</span><span class="dv">21</span>,
        <span class="dt">col=</span><span class="st">&quot;#777777&quot;</span>, <span class="dt">pt.bg=</span>colrs, <span class="dt">pt.cex=</span><span class="dv">2</span>, <span class="dt">cex=</span>.<span class="dv">8</span>, <span class="dt">bty=</span><span class="st">&quot;n&quot;</span>, <span class="dt">ncol=</span><span class="dv">1</span>)</code></pre></div>
-<pre class="output"><code>Error in strwidth(legend, units = &quot;user&quot;, cex = cex, font = text.font): plot.new has not been called yet
-</code></pre>
+<p><img src="fig/network-node-edge-param-type2-1.png" title="plot of chunk network-node-edge-param-type2" alt="plot of chunk network-node-edge-param-type2" style="display: block; margin: auto;" /></p>
 <p>노드 라벨을 적용하는 것이 의미론적인 면에서 더 의미가 있을 수 있다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#------------------------------------------------------------------------</span>
 <span class="co"># 03.03. 노드 라벨를 활용한 네트워크 시각화</span>
@@ -516,21 +579,16 @@ deg &lt;-<span class="st"> </span>igraph::<span class="kw">degree</span>(net, <s
 <span class="kw">plot</span>(net, <span class="dt">vertex.shape=</span><span class="st">&quot;none&quot;</span>, <span class="dt">vertex.label=</span><span class="kw">V</span>(net)$media, 
      <span class="dt">vertex.label.font=</span><span class="dv">2</span>, <span class="dt">vertex.label.color=</span><span class="st">&quot;gray40&quot;</span>, <span class="dt">edge.arrow.size=</span>.<span class="dv">1</span>,
      <span class="dt">vertex.label.cex=</span>.<span class="dv">7</span>, <span class="dt">edge.color=</span><span class="st">&quot;gray85&quot;</span>, <span class="dt">edge.width   =</span> <span class="dv">1</span>+<span class="kw">E</span>(net)$weight/<span class="dv">12</span>)</code></pre></div>
-<pre class="output"><code>Error in plot(net, vertex.shape = &quot;none&quot;, vertex.label = V(net)$media, : 객체 &#39;net&#39;를 찾을 수 없습니다
-</code></pre>
+<p><img src="fig/network-node-edge-param-label-1.png" title="plot of chunk network-node-edge-param-label" alt="plot of chunk network-node-edge-param-label" style="display: block; margin: auto;" /></p>
 <p>엣지 색상을 노드와 맞춰 시각화를 함으로써 노드와 엣지를 함께 이해하는 것도 가능하다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#------------------------------------------------------------------------</span>
 <span class="co"># 03.04. 엣지를 노드에 맞춰 색상을 맞춤</span>
 
-edge.start &lt;-<span class="st"> </span><span class="kw">ends</span>(net, <span class="dt">es=</span><span class="kw">E</span>(net), <span class="dt">names=</span>F)[,<span class="dv">1</span>] <span class="co"># get the &quot;from&quot; node</span></code></pre></div>
-<pre class="output"><code>Error in match(x, table, nomatch = 0L): 객체 &#39;net&#39;를 찾을 수 없습니다
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">edge.col &lt;-<span class="st"> </span><span class="kw">V</span>(net)$color[edge.start]</code></pre></div>
-<pre class="output"><code>Error in match(x, table, nomatch = 0L): 객체 &#39;net&#39;를 찾을 수 없습니다
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(net, <span class="dt">edge.color=</span>edge.col, <span class="dt">edge.curved=</span>.<span class="dv">1</span>)</code></pre></div>
-<pre class="output"><code>Error in plot(net, edge.color = edge.col, edge.curved = 0.1): 객체 &#39;net&#39;를 찾을 수 없습니다
-</code></pre>
+edge.start &lt;-<span class="st"> </span><span class="kw">ends</span>(net, <span class="dt">es=</span><span class="kw">E</span>(net), <span class="dt">names=</span>F)[,<span class="dv">1</span>] <span class="co"># get the &quot;from&quot; node</span>
+edge.col &lt;-<span class="st"> </span><span class="kw">V</span>(net)$color[edge.start]
+
+<span class="kw">plot</span>(net, <span class="dt">edge.color=</span>edge.col, <span class="dt">edge.curved=</span>.<span class="dv">1</span>)</code></pre></div>
+<p><img src="fig/network-node-edge-param-color-1.png" title="plot of chunk network-node-edge-param-color" alt="plot of chunk network-node-edge-param-color" style="display: block; margin: auto;" /></p>
 <div class="footnotes">
 <hr />
 <ol>

@@ -208,6 +208,8 @@ embed_fonts("NanumMyeongjo.pdf", outfile="NanumMyeongjo_embed.pdf")
 
 
 ``` {r network-data-import, warning=FALSE}
+suppressMessages(library(readr))
+suppressMessages(library(dplyr))
 #-----------------------------------------------------------------------
 # edgelist
 

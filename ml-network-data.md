@@ -220,38 +220,7 @@ Registering fonts with R
 # 시간이 많이 소요
 # font_import()
 # 가져온 글꼴 폰트 확인
-fonts()
-~~~
-
-
-
-~~~{.output}
- [1] ".Keyboard"                  "Andale Mono"               
- [3] "Apple Braille"              "AppleMyungjo"              
- [5] "Arial Black"                "Arial"                     
- [7] "Arial Narrow"               "Arial Rounded MT Bold"     
- [9] "Arial Unicode MS"           "Bodoni Ornaments"          
-[11] "Bodoni 72 Smallcaps"        ""                          
-[13] "Brush Script MT"            "Comic Sans MS"             
-[15] "Courier New"                "DIN Alternate"             
-[17] "DIN Condensed"              "Georgia"                   
-[19] "Impact"                     "Khmer Sangam MN"           
-[21] "Lao Sangam MN"              "Luminari"                  
-[23] "Microsoft Sans Serif"       "NanumGothic_Coding"        
-[25] "Source Code Pro Black"      "Source Code Pro"           
-[27] "Source Code Pro ExtraLight" "Source Code Pro Light"     
-[29] "Source Code Pro Medium"     "Source Code Pro Semibold"  
-[31] "Tahoma"                     "Times New Roman"           
-[33] "Trattatello"                "Trebuchet MS"              
-[35] "Verdana"                    "Webdings"                  
-[37] "Wingdings"                  "Wingdings 2"               
-[39] "Wingdings 3"               
-
-~~~
-
-
-
-~~~{.r}
+# fonts()
 grep("Nanum", fonts(), value=T)
 ~~~
 
@@ -265,67 +234,13 @@ grep("Nanum", fonts(), value=T)
 
 
 ~~~{.r}
-windowsFonts(NanumGothicCoding=windowsFont("NanumGothicCoding"))
-~~~
+# windowsFonts(NanumGothicCoding=windowsFont("NanumGothicCoding"))
+# windowsFonts(NanumPenScript=windowsFont("`Nanum Pen Script`"))
+# windowsFonts(NanumBrushScript=windowsFont("`Nanum Brush Script`"))
+# windowsFonts(NanumMyeongjo=windowsFont("NanumMyeongjo"))
 
-
-
-~~~{.output}
-Error in eval(expr, envir, enclos): 함수 "windowsFonts"를 찾을 수 없습니다
-
-~~~
-
-
-
-~~~{.r}
-windowsFonts(NanumPenScript=windowsFont("`Nanum Pen Script`"))
-~~~
-
-
-
-~~~{.output}
-Error in eval(expr, envir, enclos): 함수 "windowsFonts"를 찾을 수 없습니다
-
-~~~
-
-
-
-~~~{.r}
-windowsFonts(NanumBrushScript=windowsFont("`Nanum Brush Script`"))
-~~~
-
-
-
-~~~{.output}
-Error in eval(expr, envir, enclos): 함수 "windowsFonts"를 찾을 수 없습니다
-
-~~~
-
-
-
-~~~{.r}
-windowsFonts(NanumMyeongjo=windowsFont("NanumMyeongjo"))
-~~~
-
-
-
-~~~{.output}
-Error in eval(expr, envir, enclos): 함수 "windowsFonts"를 찾을 수 없습니다
-
-~~~
-
-
-
-~~~{.r}
 # PDF 플롯을 찍을 경우 device="pdf" 를 사용
-loadfonts(device = "win")
-~~~
-
-
-
-~~~{.output}
-Error in loadfonts(device = "win"): 함수 "windowsFonts"를 찾을 수 없습니다
-
+# loadfonts(device = "win")
 ~~~
 
 원하는 글꼴 폰트를 활용하여 시각화한다.
@@ -387,6 +302,146 @@ Error in embedFonts(file = file, format = format, outfile = outfile, options = p
 
 ### 4. 네트워크 데이터 구조
 
+
+
+~~~{.r}
+suppressMessages(library(readr))
+suppressMessages(library(dplyr))
+#-----------------------------------------------------------------------
+# edgelist
+
+nodes <- read_csv("https://raw.githubusercontent.com/kateto/R-Network-Visualization-Workshop/master/Data/Dataset1-Media-Example-NODES.csv", col_names = TRUE)
+~~~
+
+
+
+~~~{.output}
+Parsed with column specification:
+cols(
+  id = col_character(),
+  media = col_character(),
+  media.type = col_integer(),
+  type.label = col_character(),
+  audience.size = col_integer()
+)
+
+~~~
+
+
+
+~~~{.r}
+links <- read_csv("https://raw.githubusercontent.com/kateto/R-Network-Visualization-Workshop/master/Data/Dataset1-Media-Example-EDGES.csv", col_names = TRUE)
+~~~
+
+
+
+~~~{.output}
+Parsed with column specification:
+cols(
+  from = col_character(),
+  to = col_character(),
+  weight = col_integer(),
+  type = col_character()
+)
+
+~~~
+
+
+
+~~~{.r}
+#-----------------------------------------------------------------------
+# 데이터 살펴보기
+#-----------------------------------------------------------------------
+
+head(nodes)
+~~~
+
+
+
+~~~{.output}
+# A tibble: 6 x 5
+     id               media media.type type.label audience.size
+  <chr>               <chr>      <int>      <chr>         <int>
+1   s01            NY Times          1  Newspaper            20
+2   s02     Washington Post          1  Newspaper            25
+3   s03 Wall Street Journal          1  Newspaper            30
+4   s04           USA Today          1  Newspaper            32
+5   s05            LA Times          1  Newspaper            20
+6   s06       New York Post          1  Newspaper            50
+
+~~~
+
+
+
+~~~{.r}
+head(links)
+~~~
+
+
+
+~~~{.output}
+# A tibble: 6 x 4
+   from    to weight      type
+  <chr> <chr>  <int>     <chr>
+1   s01   s02     10 hyperlink
+2   s01   s02     12 hyperlink
+3   s01   s03     22 hyperlink
+4   s01   s04     21 hyperlink
+5   s04   s11     22   mention
+6   s05   s15     21   mention
+
+~~~
+
+
+
+~~~{.r}
+nrow(nodes); length(unique(nodes$id))
+~~~
+
+
+
+~~~{.output}
+[1] 17
+
+~~~
+
+
+
+~~~{.output}
+[1] 17
+
+~~~
+
+
+
+~~~{.r}
+nrow(links); nrow(unique(links[,c("from", "to")]))
+~~~
+
+
+
+~~~{.output}
+[1] 52
+
+~~~
+
+
+
+~~~{.output}
+[1] 49
+
+~~~
+
+
+
+~~~{.r}
+# 데이터 중복 처리 : 총합
+links <- links %>% group_by(from, to, type) %>%  
+                   summarise(weight = sum(weight)) %>% 
+                   arrange(from, to)
+~~~
+
+
 네트워크 데이터는 **노드(Node)** 와 **엣지(Edge)** 로 구성된다. 
 노드 데이터는 네트워크 노드에 대한 상세 정보가 담겨있다.
 반면에 엣지 정보는 연결된 링크 정보를 담고 있는데 `from`, `to` 형식으로
@@ -403,7 +458,15 @@ head(nodes)
 
 
 ~~~{.output}
-Error in head(nodes): 객체 'nodes'를 찾을 수 없습니다
+# A tibble: 6 x 5
+     id               media media.type type.label audience.size
+  <chr>               <chr>      <int>      <chr>         <int>
+1   s01            NY Times          1  Newspaper            20
+2   s02     Washington Post          1  Newspaper            25
+3   s03 Wall Street Journal          1  Newspaper            30
+4   s04           USA Today          1  Newspaper            32
+5   s05            LA Times          1  Newspaper            20
+6   s06       New York Post          1  Newspaper            50
 
 ~~~
 
@@ -431,7 +494,17 @@ head(links)
 
 
 ~~~{.output}
-Error in head(links): 객체 'links'를 찾을 수 없습니다
+Source: local data frame [6 x 4]
+Groups: from, to [6]
+
+   from    to      type weight
+  <chr> <chr>     <chr>  <int>
+1   s01   s02 hyperlink     22
+2   s01   s03 hyperlink     22
+3   s01   s04 hyperlink     21
+4   s01   s15   mention     20
+5   s02   s01 hyperlink     23
+6   s02   s03 hyperlink     21
 
 ~~~
 
@@ -483,6 +556,15 @@ Attaching package: 'igraph'
 
 
 ~~~{.output}
+The following objects are masked from 'package:dplyr':
+
+    %>%, as_data_frame, groups, union
+
+~~~
+
+
+
+~~~{.output}
 The following objects are masked from 'package:stats':
 
     decompose, spectrum
@@ -502,25 +584,23 @@ The following object is masked from 'package:base':
 
 ~~~{.r}
 net <- graph.data.frame(links, nodes, directed=T)
-~~~
-
-
-
-~~~{.output}
-Error in as.data.frame(d): 객체 'links'를 찾을 수 없습니다
-
-~~~
-
-
-
-~~~{.r}
 net
 ~~~
 
 
 
 ~~~{.output}
-Error in eval(expr, envir, enclos): 객체 'net'를 찾을 수 없습니다
+IGRAPH DNW- 17 49 -- 
++ attr: name (v/c), media (v/c), media.type (v/n), type.label
+| (v/c), audience.size (v/n), type (e/c), weight (e/n)
++ edges (vertex names):
+ [1] s01->s02 s01->s03 s01->s04 s01->s15 s02->s01 s02->s03 s02->s09
+ [8] s02->s10 s03->s01 s03->s04 s03->s05 s03->s08 s03->s10 s03->s11
+[15] s03->s12 s04->s03 s04->s06 s04->s11 s04->s12 s04->s17 s05->s01
+[22] s05->s02 s05->s09 s05->s15 s06->s06 s06->s16 s06->s17 s07->s03
+[29] s07->s08 s07->s10 s07->s14 s08->s03 s08->s07 s08->s09 s09->s10
+[36] s10->s03 s12->s06 s12->s13 s12->s14 s13->s12 s13->s17 s14->s11
+[43] s14->s13 s15->s01 s15->s04 s15->s06 s16->s06 s16->s17 s17->s04
 
 ~~~
 
@@ -551,7 +631,14 @@ E(net)       # "net" 객체 엣지정보 조회
 
 
 ~~~{.output}
-Error in match(x, table, nomatch = 0L): 객체 'net'를 찾을 수 없습니다
++ 49/49 edges (vertex names):
+ [1] s01->s02 s01->s03 s01->s04 s01->s15 s02->s01 s02->s03 s02->s09
+ [8] s02->s10 s03->s01 s03->s04 s03->s05 s03->s08 s03->s10 s03->s11
+[15] s03->s12 s04->s03 s04->s06 s04->s11 s04->s12 s04->s17 s05->s01
+[22] s05->s02 s05->s09 s05->s15 s06->s06 s06->s16 s06->s17 s07->s03
+[29] s07->s08 s07->s10 s07->s14 s08->s03 s08->s07 s08->s09 s09->s10
+[36] s10->s03 s12->s06 s12->s13 s12->s14 s13->s12 s13->s17 s14->s11
+[43] s14->s13 s15->s01 s15->s04 s15->s06 s16->s06 s16->s17 s17->s04
 
 ~~~
 
@@ -564,7 +651,8 @@ V(net)       # "net" 객체 노드정보 조회
 
 
 ~~~{.output}
-Error in match(x, table, nomatch = 0L): 객체 'net'를 찾을 수 없습니다
++ 17/17 vertices, named:
+ [1] s01 s02 s03 s04 s05 s06 s07 s08 s09 s10 s11 s12 s13 s14 s15 s16 s17
 
 ~~~
 
@@ -577,7 +665,16 @@ E(net)$type  # 엣지 속성 "type"
 
 
 ~~~{.output}
-Error in match(x, table, nomatch = 0L): 객체 'net'를 찾을 수 없습니다
+ [1] "hyperlink" "hyperlink" "hyperlink" "mention"   "hyperlink"
+ [6] "hyperlink" "hyperlink" "hyperlink" "hyperlink" "hyperlink"
+[11] "hyperlink" "hyperlink" "mention"   "hyperlink" "hyperlink"
+[16] "hyperlink" "mention"   "mention"   "hyperlink" "mention"  
+[21] "mention"   "hyperlink" "hyperlink" "mention"   "hyperlink"
+[26] "hyperlink" "mention"   "mention"   "mention"   "hyperlink"
+[31] "mention"   "hyperlink" "mention"   "mention"   "mention"  
+[36] "hyperlink" "mention"   "hyperlink" "mention"   "hyperlink"
+[41] "mention"   "mention"   "mention"   "hyperlink" "hyperlink"
+[46] "hyperlink" "hyperlink" "mention"   "hyperlink"
 
 ~~~
 
@@ -590,7 +687,12 @@ V(net)$media # 노드 속성 "media"
 
 
 ~~~{.output}
-Error in match(x, table, nomatch = 0L): 객체 'net'를 찾을 수 없습니다
+ [1] "NY Times"            "Washington Post"     "Wall Street Journal"
+ [4] "USA Today"           "LA Times"            "New York Post"      
+ [7] "CNN"                 "MSNBC"               "FOX News"           
+[10] "ABC"                 "BBC"                 "Yahoo News"         
+[13] "Google News"         "Reuters.com"         "NYTimes.com"        
+[16] "WashingtonPost.com"  "AOL.com"            
 
 ~~~
 
@@ -604,7 +706,8 @@ net[1,]
 
 
 ~~~{.output}
-Error in eval(expr, envir, enclos): 객체 'net'를 찾을 수 없습니다
+s01 s02 s03 s04 s05 s06 s07 s08 s09 s10 s11 s12 s13 s14 s15 s16 s17 
+  0  22  22  21   0   0   0   0   0   0   0   0   0   0  20   0   0 
 
 ~~~
 
@@ -617,7 +720,7 @@ net[5,7]
 
 
 ~~~{.output}
-Error in eval(expr, envir, enclos): 객체 'net'를 찾을 수 없습니다
+[1] 0
 
 ~~~
 
@@ -630,28 +733,11 @@ Error in eval(expr, envir, enclos): 객체 'net'를 찾을 수 없습니다
 ~~~{.r}
 # plot(net)
 net <- simplify(net, remove.multiple = FALSE, remove.loops = TRUE) 
-~~~
-
-
-
-~~~{.output}
-Error in match(x, table, nomatch = 0L): 객체 'net'를 찾을 수 없습니다
-
-~~~
-
-
-
-~~~{.r}
 # net <- simplify(net, edge.attr.comb=list(Weight="sum","ignore"))
 plot(net, edge.arrow.size=.01,vertex.label=NA)
 ~~~
 
-
-
-~~~{.output}
-Error in plot(net, edge.arrow.size = 0.01, vertex.label = NA): 객체 'net'를 찾을 수 없습니다
-
-~~~
+<img src="fig/network-viz-simplify-1.png" title="plot of chunk network-viz-simplify" alt="plot of chunk network-viz-simplify" style="display: block; margin: auto;" />
 
 `dev.off()`로 장치를 초기화하고, `vertex.label.family` 인자를 통해 글꼴도 설정한다.
 
@@ -673,26 +759,7 @@ null device
 ~~~{.r}
 par(mfrow=c(1,2))
 plot(net, edge.arrow.size=.01,vertex.label=NA)
-~~~
-
-
-
-~~~{.output}
-Error in plot(net, edge.arrow.size = 0.01, vertex.label = NA): 객체 'net'를 찾을 수 없습니다
-
-~~~
-
-
-
-~~~{.r}
 plot(net, edge.arrow.size=.01, vertex.label.family="NanumMyeongjo")
-~~~
-
-
-
-~~~{.output}
-Error in plot(net, edge.arrow.size = 0.01, vertex.label.family = "NanumMyeongjo"): 객체 'net'를 찾을 수 없습니다
-
 ~~~
 
 #### 5.1. `igraph` 주요 설정 매개변수
@@ -746,12 +813,7 @@ Error in plot(net, edge.arrow.size = 0.01, vertex.label.family = "NanumMyeongjo"
 plot(net, edge.arrow.size=.4, edge.curved=.3)
 ~~~
 
-
-
-~~~{.output}
-Error in plot(net, edge.arrow.size = 0.4, edge.curved = 0.3): 객체 'net'를 찾을 수 없습니다
-
-~~~
+<img src="fig/network-node-edge-param-type1-ex01-1.png" title="plot of chunk network-node-edge-param-type1-ex01" alt="plot of chunk network-node-edge-param-type1-ex01" style="display: block; margin: auto;" />
 
 엣지 색상은 오렌지색상으로, 노드는 회색으로, 노드 외곽 색상은 흰색으로 설정한다.
 노드 라벨을 `V(net)$media` 변수를 사용하고 노드 라벨 색상은 검정색으로 설정한다.
@@ -763,12 +825,7 @@ plot(net, edge.arrow.size=.2, edge.color="orange",
      vertex.label=V(net)$media, vertex.label.color="black") 
 ~~~
 
-
-
-~~~{.output}
-Error in plot(net, edge.arrow.size = 0.2, edge.color = "orange", vertex.color = "dark gray", : 객체 'net'를 찾을 수 없습니다
-
-~~~
+<img src="fig/network-node-edge-param-type1-ex02-1.png" title="plot of chunk network-node-edge-param-type1-ex02" alt="plot of chunk network-node-edge-param-type1-ex02" style="display: block; margin: auto;" />
 
 두번째 방식은 igraph 객체에 속성으로 추가하는 것이다.
 예를 들어, 미디어 유형에 따라 네트워크 노드에 색상을 추가하고, 
@@ -783,151 +840,32 @@ Error in plot(net, edge.arrow.size = 0.2, edge.color = "orange", vertex.color = 
 # 미디어 유형에 따른 색상 생성:
 colrs <- c("gray50", "tomato", "gold")
 V(net)$color <- colrs[V(net)$media.type]
-~~~
 
-
-
-~~~{.output}
-Error in match(x, table, nomatch = 0L): 객체 'net'를 찾을 수 없습니다
-
-~~~
-
-
-
-~~~{.r}
 # 노드 연결 중앙성에 따른 노드 크기 설정:
 deg <- igraph::degree(net, V(net), mode="all")
-~~~
-
-
-
-~~~{.output}
-Error in match(x, table, nomatch = 0L): 객체 'net'를 찾을 수 없습니다
-
-~~~
-
-
-
-~~~{.r}
 V(net)$size <- deg*3
-~~~
 
-
-
-~~~{.output}
-Error in eval(expr, envir, enclos): 객체 'deg'를 찾을 수 없습니다
-
-~~~
-
-
-
-~~~{.r}
 # audience size 값을 사용해서 노드 크기 설정:
 V(net)$size <- V(net)$audience.size*0.6
-~~~
 
-
-
-~~~{.output}
-Error in match(x, table, nomatch = 0L): 객체 'net'를 찾을 수 없습니다
-
-~~~
-
-
-
-~~~{.r}
 # 노드 ID로 현재 라벨이 설정되어 있는데, 라벨이 표시되지 않도록 설정:
 V(net)$label <- NA
-~~~
 
-
-
-~~~{.output}
-Error in V(net)$label <- NA: 객체 'net'를 찾을 수 없습니다
-
-~~~
-
-
-
-~~~{.r}
 # 엣지 선폭을 가중치(weight)에 따라 설정:
 E(net)$width <- E(net)$weight/2
-~~~
 
-
-
-~~~{.output}
-Error in match(x, table, nomatch = 0L): 객체 'net'를 찾을 수 없습니다
-
-~~~
-
-
-
-~~~{.r}
 # 화살표 크기와 엣지 색상을 변경:
 E(net)$arrow.size <- .2
-~~~
-
-
-
-~~~{.output}
-Error in E(net)$arrow.size <- 0.2: 객체 'net'를 찾을 수 없습니다
-
-~~~
-
-
-
-~~~{.r}
 E(net)$edge.color <- "gray80"
-~~~
-
-
-
-~~~{.output}
-Error in E(net)$edge.color <- "gray80": 객체 'net'를 찾을 수 없습니다
-
-~~~
-
-
-
-~~~{.r}
 E(net)$width <- 1+E(net)$weight/12
-~~~
 
-
-
-~~~{.output}
-Error in match(x, table, nomatch = 0L): 객체 'net'를 찾을 수 없습니다
-
-~~~
-
-
-
-~~~{.r}
 plot(net) 
-~~~
-
-
-
-~~~{.output}
-Error in plot(net): 객체 'net'를 찾을 수 없습니다
-
-~~~
-
-
-
-~~~{.r}
 colrs <- c("gray50", "tomato", "gold")
 legend(x=-1.5, y=-1.1, c("Newspaper","Television", "Online News"), pch=21,
        col="#777777", pt.bg=colrs, pt.cex=2, cex=.8, bty="n", ncol=1)
 ~~~
 
-
-
-~~~{.output}
-Error in strwidth(legend, units = "user", cex = cex, font = text.font): plot.new has not been called yet
-
-~~~
+<img src="fig/network-node-edge-param-type2-1.png" title="plot of chunk network-node-edge-param-type2" alt="plot of chunk network-node-edge-param-type2" style="display: block; margin: auto;" />
 
 노드 라벨을 적용하는 것이 의미론적인 면에서 더 의미가 있을 수 있다.
 
@@ -942,12 +880,7 @@ plot(net, vertex.shape="none", vertex.label=V(net)$media,
      vertex.label.cex=.7, edge.color="gray85", edge.width	= 1+E(net)$weight/12)
 ~~~
 
-
-
-~~~{.output}
-Error in plot(net, vertex.shape = "none", vertex.label = V(net)$media, : 객체 'net'를 찾을 수 없습니다
-
-~~~
+<img src="fig/network-node-edge-param-label-1.png" title="plot of chunk network-node-edge-param-label" alt="plot of chunk network-node-edge-param-label" style="display: block; margin: auto;" />
 
 엣지 색상을 노드와 맞춰 시각화를 함으로써 노드와 엣지를 함께 이해하는 것도 가능하다.
 
@@ -957,38 +890,10 @@ Error in plot(net, vertex.shape = "none", vertex.label = V(net)$media, : 객체 
 # 03.04. 엣지를 노드에 맞춰 색상을 맞춤
 
 edge.start <- ends(net, es=E(net), names=F)[,1] # get the "from" node
-~~~
-
-
-
-~~~{.output}
-Error in match(x, table, nomatch = 0L): 객체 'net'를 찾을 수 없습니다
-
-~~~
-
-
-
-~~~{.r}
 edge.col <- V(net)$color[edge.start]
-~~~
 
-
-
-~~~{.output}
-Error in match(x, table, nomatch = 0L): 객체 'net'를 찾을 수 없습니다
-
-~~~
-
-
-
-~~~{.r}
 plot(net, edge.color=edge.col, edge.curved=.1)
 ~~~
 
-
-
-~~~{.output}
-Error in plot(net, edge.color = edge.col, edge.curved = 0.1): 객체 'net'를 찾을 수 없습니다
-
-~~~
+<img src="fig/network-node-edge-param-color-1.png" title="plot of chunk network-node-edge-param-color" alt="plot of chunk network-node-edge-param-color" style="display: block; margin: auto;" />
 
