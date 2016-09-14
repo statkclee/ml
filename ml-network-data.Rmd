@@ -1,0 +1,59 @@
+---
+layout: page
+title: xwMOOC 기계학습
+subtitle: 네트워크 데이터
+output:
+  html_document: 
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
+---
+ 
+``` {r, include=FALSE}
+source("tools/chunk-options.R")
+```
+
+### 1. 네트워크 시각화 [^Katherine-Ognyanova]
+
+네트워크 시각화는 다양한 목표를 갖고 있다.
+
+* 주요 행위자를 식별하고 관계를 찾아냄
+* 구조적 특성(Structural Properties)
+* 관계 강도(Relationship Strength)
+* 커뮤니티 식별
+* 지도로 역할하는 네트워크
+* 확산 패턴(Diffusion Patterns)
+
+<img src="fig/network-viz-types.png" alt="네트워크 시각화 유형" width="70%" />
+
+네트워크 시각화 목표를 구현한 일부 사례가 다음에 나타나 있다. 목표를 구현하는데 있어
+결과를 제어하는데 사용되는 핵심 요소에는 다음이 포함된다.
+
+* 색상
+* 위치
+* 크기
+* 형태
+
+색상, 위치, 크기, 형태 외에도 화살표를 통해 방향을 나타내고 라벨을 달아 표식을 한다.
+
+<img src="fig/network-viz-control.png" alt="네트워크 시각화 제어" width="70%" />
+
+최근에 개발된 그래프 배치는 속도와 심미적인 면을 고려하여 최적화 된다. 
+특히, 겹치는 것과 엣지 교차(Edge Crossing)을 최소화하고 그래프에 전반에
+엣지 길이가 비슷하도록 조정한다.
+
+<img src="fig/network-viz-aesthetics.png" alt="심미적인 면을 고려한 네트워크 배치" width="70%" />
+
+
+> #### 네트워크 시각화 핵심 팩키지 {.callout}
+>
+> * [igraph - The network analysis package](http://igraph.org/)
+> * [sna - Tools for Social Network Analysis](https://cran.r-project.org/web/packages/sna/)
+> * [network - Classes for Relational Data](https://cran.r-project.org/web/packages/network/)
+> * [ndtv - Network Dynamic Temporal Visualizations](https://cran.r-project.org/web/packages/ndtv/)
+
+
+
+[^Katherine-Ognyanova]: [Katherine Ognyanova, Network Analysis and Visualization with R and igraph, Sunbelt 2016 Workshop, Newport Beach, CA
+](http://kateto.net/networks-r-igraph) 
