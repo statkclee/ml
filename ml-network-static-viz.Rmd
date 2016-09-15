@@ -1,7 +1,7 @@
 ---
 layout: page
 title: xwMOOC 기계학습
-subtitle: 네트워크 데이터
+subtitle: 정적 네트워크 데이터 시각화
 output:
   html_document: 
     keep_md: yes
@@ -14,116 +14,8 @@ mainfont: NanumGothic
 source("tools/chunk-options.R")
 ```
 
-### 1. 네트워크 데이터 구조
 
-네트워크 데이터는 **노드(Node)** 와 **엣지(Edge)** 로 구성된다. 
-노드 데이터는 네트워크 노드에 대한 상세 정보가 담겨있다.
-반면에 엣지 정보는 연결된 링크 정보를 담고 있는데 `from`, `to` 형식으로
-데이터를 담을 수도 있고, 노드간의 관계를 관계 없음은 `0`, 관계 있음은 `1`로
-표현한다.
-
-첫번째 네트워크 데이터 형식 표현을 **Edgelist** 라고 하고, 두번째 
-데이터 표현방법을 **행렬(Matrix)** 이라고 부른다.
-
-두가지 형태를 갖는 데이터를 불러 읽어오자.
-
-
-``` {r network-data-import, warning=FALSE}
-suppressMessages(library(readr))
-suppressMessages(library(dplyr))
-#-----------------------------------------------------------------------
-# edgelist
-
-nodes <- read_csv("https://raw.githubusercontent.com/kateto/R-Network-Visualization-Workshop/master/Data/Dataset1-Media-Example-NODES.csv", col_names = TRUE)
-links <- read_csv("https://raw.githubusercontent.com/kateto/R-Network-Visualization-Workshop/master/Data/Dataset1-Media-Example-EDGES.csv", col_names = TRUE)
-
-#-----------------------------------------------------------------------
-# 행렬
-
-nodes2 <- read_csv("https://raw.githubusercontent.com/kateto/R-Network-Visualization-Workshop/master/Data/Dataset2-Media-User-Example-NODES.csv", col_names = TRUE)
-links2 <- read_csv("https://raw.githubusercontent.com/kateto/R-Network-Visualization-Workshop/master/Data/Dataset2-Media-User-Example-EDGES.csv", col_names = TRUE)
-
-#-----------------------------------------------------------------------
-# 데이터 살펴보기
-#-----------------------------------------------------------------------
-
-head(nodes)
-head(links)
-nrow(nodes); length(unique(nodes$id))
-nrow(links); nrow(unique(links[,c("from", "to")]))
-
-# 데이터 중복 처리 : 총합
-links <- links %>% group_by(from, to, type) %>%  
-                   summarise(weight = sum(weight)) %>% 
-                   arrange(from, to)
-```
-
-
-`head(nodes)` 명령어를 통해서 살펴보면 `head(nodes2)`와 별다른 차이가 없다.
-
-``` {r network-data-str-node, warning=FALSE}
-head(nodes)
-head(nodes2)
-```
-
-반면에 엣지 정보, 링크 정보는 하나는 `from`, `to` 형식으로, 다른 하나는 
-행렬로 표현된다는 점에서 차이가 있다.
-
-``` {r network-data-str-edge, warning=FALSE}
-head(links)
-head(links2)
-```
-
-*igraph* 팩키지로 데이터를 시각화를 해본다. 가장 먼저
-노드와 엣지 데이터프레임을 [igraph](http://igraph.org/) 네트워크 객체로 변환해야 된다.
-`graph.data.frame` 함수가 노드와 엣지 데이터프레임 자료형을 
-igraph 네트워크 객체로 변환하는데 사용된다.
-
-`graph.data.frame` 함수에 인자를 두개 넣는다. 
-
-* **d** : 네트워크 엣지(링크)를 넣어 넘긴다. `from`, `to` 형식으로 칼럼 두개가 먼저 정의되고,
-`weight`, `type`, `label` 등 엣지를 표현하는 다른 정보가 나머지 칼럼에 담기게 된다.
-* **vertices** : 노드 id 로 첫번째 칼럼이 정의되고, 노드를 표현하는 다른 정보가 순차적으로 
-나머지 칼럼에 담기게 된다.
-
-``` {r network-convert-data, warning=FALSE}
-library(igraph)
-
-net <- graph.data.frame(links, nodes, directed=T)
-net
-```
-
-* `IGRAPH DNW- 17 49 -- ` : 
-    * D 혹은 U : 방향성 있는 그래프 혹은 방향성 없는 그래프를 기술
-    * N : 노드가 `name` 속성을 갖는 것을 기술
-    * W : 가중값이 있는 그래프로 엣지에 `weight` 속성이 있음을 기술
-    * B : 이분(Bipartite, two-mode) 그래프로 노두가 `type` 속성이 있음을 기술
-    * 17 49 : 노드가 17, 엣지가 49 개가 그래프에 존재함을 기술
-* `attr: name (v/c), media (v/c), media.type (v/n), type.label (v/c), audience.size (v/n), type (e/c), weight (e/n)` : 
-    * (g/c) : graph-level character attribute
-    * (v/c) : vertex-level character attribute
-    * (e/n) : edge-level numeric attribute
-    * (e/c) : edge-level character attribute
-
-`E()` 함수를 통해 네트워크 객체에 포함된 엣지 정보를 추출한다.
-`V()` 함수를 통해 네트워크 객체에 포함된 노드 정보를 추출한다.
-직접 행렬 원소를 뽑아내는 것도 가능하다.
-
-``` {r network-data-query, warning=FALSE}
-#------------------------------------------------------------------------
-# 네트워크 객체 조회
-
-E(net)       # "net" 객체 엣지정보 조회 
-V(net)       # "net" 객체 노드정보 조회
-E(net)$type  # 엣지 속성 "type"
-V(net)$media # 노드 속성 "media"
-
-# 직접 네트워크 행렬을 조작
-net[1,]
-net[5,7]
-```
-
-### 2. 네트워크 데이터 시각화
+### 1. 네트워크 데이터 시각화
 
 `plot(net)` 명령어를 통해 시각화를 할 경우, 중복되는 엣지도 많고 해서 간략화할 필요가 있다.
 이때 사용되는 명령어가 `simplify()` 함수다.
@@ -144,7 +36,7 @@ plot(net, edge.arrow.size=.01,vertex.label=NA)
 plot(net, edge.arrow.size=.01, vertex.label.family="NanumMyeongjo")
 ```
 
-#### 2.1. `igraph` 주요 설정 매개변수
+#### 1.1. `igraph` 주요 설정 매개변수
 
 | 노드(Node)            |   노드 매개변수 설명                                                |
 |-----------------------|---------------------------------------------------------------------|
@@ -183,7 +75,7 @@ plot(net, edge.arrow.size=.01, vertex.label.family="NanumMyeongjo")
 | sub	 	   |  If set, adds a subtitle to the plot   |
 
 
-#### 2.2. 노드와 엣지에 매개변수 반영 
+#### 1.2. 노드와 엣지에 매개변수 반영 
 
 노드와 엣지를 네트워크 시각화에 매개변수를 통해 반영하는 방식은 두가지가 있다.
 먼저 `plot()` 함수에 노드와 엣지 매개변수를 적어 넣는다.
@@ -264,7 +156,7 @@ edge.col <- V(net)$color[edge.start]
 plot(net, edge.color=edge.col, edge.curved=.1)
 ```
 
-### 3. 네트워크 배치(Layout)
+### 2. 네트워크 배치(Layout)
 
 네트워크 배치(Layout)는 네트워크 노드에 대한 좌표를 반환하는 단순히 알고리즘이라고 볼 수 있다.
 
@@ -325,7 +217,7 @@ l <- layout.sphere(net.bg)
 plot(net.bg, layout=l)
 ```
 
-#### 3.1. 네트워크 배치 알고리즘
+#### 2.1. 네트워크 배치 알고리즘
 
 심미적으로 보기 좋은 네트워크 그래프를 얻기 위해 많은 알고리즘이 제안되었고,
 Fruchterman-Reingold 알고리즘을 비롯한 다양한 알고리즘이 존재한다.
@@ -424,7 +316,7 @@ for(layout in layouts) {
   plot(net, edge.arrow.mode=0, layout=l, main=layout) }
 ```
 
-### 4. 네트워크 하이라이트(Highlight)
+### 3. 네트워크 하이라이트(Highlight)
 
 네트워크 배치 및 매개변수를 변경하여 다양하게 네트워크 시각화가 가능하지만, 
 다소 부족한 점이 있다. 노드 유형과 크기를 식별할 수 있지만,
@@ -457,7 +349,7 @@ l <- layout.fruchterman.reingold(net.sp, repulserad=vcount(net)^2.1)
 plot(net.sp, layout=l) 
 ```
 
-#### 4.2. 엣지 제거 또다른 방법 
+#### 3.1. 엣지 제거 또다른 방법 
 
 엣지를 제거하는 다른 방법으로 하이퍼링크(hyperlink) 네트워크와 
 언급(mention) 네트워크를 별도로 설정하여 이를 네트워크 배치 알고리즘에 넣어
@@ -491,7 +383,7 @@ colrs <- adjustcolor( c("gray50", "tomato", "gold", "yellowgreen"), alpha=.6)
 plot(net, vertex.color=colrs[V(net)$community])
 ```
 
-#### 4.3. 특정 노드 혹은 엣지 하이라이트 강조
+#### 3.2. 특정 노드 혹은 엣지 하이라이트 강조
 
 `shortest.paths` 함수는 해당 네트워크 노드 간에 최단경로 행렬정보를 처리하여 반환한다.
 예를 들어, NYT와 다른 언론기관간에 거리를 시각화보자.
