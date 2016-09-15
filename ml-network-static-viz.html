@@ -38,249 +38,8 @@
       <div class="row">
         <div class="col-md-10 col-md-offset-1">
                     <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
-          <h2 class="subtitle">네트워크 데이터</h2>
-          <h3 id="네트워크-데이터-구조">1. 네트워크 데이터 구조</h3>
-<p>네트워크 데이터는 <strong>노드(Node)</strong> 와 <strong>엣지(Edge)</strong> 로 구성된다. 노드 데이터는 네트워크 노드에 대한 상세 정보가 담겨있다. 반면에 엣지 정보는 연결된 링크 정보를 담고 있는데 <code>from</code>, <code>to</code> 형식으로 데이터를 담을 수도 있고, 노드간의 관계를 관계 없음은 <code>0</code>, 관계 있음은 <code>1</code>로 표현한다.</p>
-<p>첫번째 네트워크 데이터 형식 표현을 <strong>Edgelist</strong> 라고 하고, 두번째 데이터 표현방법을 <strong>행렬(Matrix)</strong> 이라고 부른다.</p>
-<p>두가지 형태를 갖는 데이터를 불러 읽어오자.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">suppressMessages</span>(<span class="kw">library</span>(readr))
-<span class="kw">suppressMessages</span>(<span class="kw">library</span>(dplyr))
-<span class="co">#-----------------------------------------------------------------------</span>
-<span class="co"># edgelist</span>
-
-nodes &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/kateto/R-Network-Visualization-Workshop/master/Data/Dataset1-Media-Example-NODES.csv&quot;</span>, <span class="dt">col_names =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<pre class="output"><code>Parsed with column specification:
-cols(
-  id = col_character(),
-  media = col_character(),
-  media.type = col_integer(),
-  type.label = col_character(),
-  audience.size = col_integer()
-)
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">links &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/kateto/R-Network-Visualization-Workshop/master/Data/Dataset1-Media-Example-EDGES.csv&quot;</span>, <span class="dt">col_names =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<pre class="output"><code>Parsed with column specification:
-cols(
-  from = col_character(),
-  to = col_character(),
-  weight = col_integer(),
-  type = col_character()
-)
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-----------------------------------------------------------------------</span>
-<span class="co"># 행렬</span>
-
-nodes2 &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/kateto/R-Network-Visualization-Workshop/master/Data/Dataset2-Media-User-Example-NODES.csv&quot;</span>, <span class="dt">col_names =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<pre class="output"><code>Parsed with column specification:
-cols(
-  id = col_character(),
-  media = col_character(),
-  media.type = col_integer(),
-  media.name = col_character(),
-  audience.size = col_integer()
-)
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">links2 &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/kateto/R-Network-Visualization-Workshop/master/Data/Dataset2-Media-User-Example-EDGES.csv&quot;</span>, <span class="dt">col_names =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<pre class="output"><code>Parsed with column specification:
-cols(
-  .default = col_integer(),
-  X1 = col_character()
-)
-</code></pre>
-<pre class="output"><code>See spec(...) for full column specifications.
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-----------------------------------------------------------------------</span>
-<span class="co"># 데이터 살펴보기</span>
-<span class="co">#-----------------------------------------------------------------------</span>
-
-<span class="kw">head</span>(nodes)</code></pre></div>
-<pre class="output"><code># A tibble: 6 x 5
-     id               media media.type type.label audience.size
-  &lt;chr&gt;               &lt;chr&gt;      &lt;int&gt;      &lt;chr&gt;         &lt;int&gt;
-1   s01            NY Times          1  Newspaper            20
-2   s02     Washington Post          1  Newspaper            25
-3   s03 Wall Street Journal          1  Newspaper            30
-4   s04           USA Today          1  Newspaper            32
-5   s05            LA Times          1  Newspaper            20
-6   s06       New York Post          1  Newspaper            50
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(links)</code></pre></div>
-<pre class="output"><code># A tibble: 6 x 4
-   from    to weight      type
-  &lt;chr&gt; &lt;chr&gt;  &lt;int&gt;     &lt;chr&gt;
-1   s01   s02     10 hyperlink
-2   s01   s02     12 hyperlink
-3   s01   s03     22 hyperlink
-4   s01   s04     21 hyperlink
-5   s04   s11     22   mention
-6   s05   s15     21   mention
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nrow</span>(nodes); <span class="kw">length</span>(<span class="kw">unique</span>(nodes$id))</code></pre></div>
-<pre class="output"><code>[1] 17
-</code></pre>
-<pre class="output"><code>[1] 17
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nrow</span>(links); <span class="kw">nrow</span>(<span class="kw">unique</span>(links[,<span class="kw">c</span>(<span class="st">&quot;from&quot;</span>, <span class="st">&quot;to&quot;</span>)]))</code></pre></div>
-<pre class="output"><code>[1] 52
-</code></pre>
-<pre class="output"><code>[1] 49
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 데이터 중복 처리 : 총합</span>
-links &lt;-<span class="st"> </span>links %&gt;%<span class="st"> </span><span class="kw">group_by</span>(from, to, type) %&gt;%<span class="st">  </span>
-<span class="st">                   </span><span class="kw">summarise</span>(<span class="dt">weight =</span> <span class="kw">sum</span>(weight)) %&gt;%<span class="st"> </span>
-<span class="st">                   </span><span class="kw">arrange</span>(from, to)</code></pre></div>
-<p><code>head(nodes)</code> 명령어를 통해서 살펴보면 <code>head(nodes2)</code>와 별다른 차이가 없다.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(nodes)</code></pre></div>
-<pre class="output"><code># A tibble: 6 x 5
-     id               media media.type type.label audience.size
-  &lt;chr&gt;               &lt;chr&gt;      &lt;int&gt;      &lt;chr&gt;         &lt;int&gt;
-1   s01            NY Times          1  Newspaper            20
-2   s02     Washington Post          1  Newspaper            25
-3   s03 Wall Street Journal          1  Newspaper            30
-4   s04           USA Today          1  Newspaper            32
-5   s05            LA Times          1  Newspaper            20
-6   s06       New York Post          1  Newspaper            50
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(nodes2)</code></pre></div>
-<pre class="output"><code># A tibble: 6 x 5
-     id   media media.type media.name audience.size
-  &lt;chr&gt;   &lt;chr&gt;      &lt;int&gt;      &lt;chr&gt;         &lt;int&gt;
-1   s01     NYT          1  Newspaper            20
-2   s02    WaPo          1  Newspaper            25
-3   s03     WSJ          1  Newspaper            30
-4   s04    USAT          1  Newspaper            32
-5   s05 LATimes          1  Newspaper            20
-6   s06     CNN          2         TV            56
-</code></pre>
-<p>반면에 엣지 정보, 링크 정보는 하나는 <code>from</code>, <code>to</code> 형식으로, 다른 하나는 행렬로 표현된다는 점에서 차이가 있다.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(links)</code></pre></div>
-<pre class="output"><code>Source: local data frame [6 x 4]
-Groups: from, to [6]
-
-   from    to      type weight
-  &lt;chr&gt; &lt;chr&gt;     &lt;chr&gt;  &lt;int&gt;
-1   s01   s02 hyperlink     22
-2   s01   s03 hyperlink     22
-3   s01   s04 hyperlink     21
-4   s01   s15   mention     20
-5   s02   s01 hyperlink     23
-6   s02   s03 hyperlink     21
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(links2)</code></pre></div>
-<pre class="output"><code># A tibble: 6 x 21
-     X1   U01   U02   U03   U04   U05   U06   U07   U08   U09   U10   U11
-  &lt;chr&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;
-1   s01     1     1     1     0     0     0     0     0     0     0     0
-2   s02     0     0     0     1     1     0     0     0     0     0     0
-3   s03     0     0     0     0     0     1     1     1     1     0     0
-4   s04     0     0     0     0     0     0     0     0     1     1     1
-5   s05     0     0     0     0     0     0     0     0     0     0     1
-6   s06     0     0     0     0     0     0     0     0     0     0     0
-# ... with 9 more variables: U12 &lt;int&gt;, U13 &lt;int&gt;, U14 &lt;int&gt;, U15 &lt;int&gt;,
-#   U16 &lt;int&gt;, U17 &lt;int&gt;, U18 &lt;int&gt;, U19 &lt;int&gt;, U20 &lt;int&gt;
-</code></pre>
-<p><em>igraph</em> 팩키지로 데이터를 시각화를 해본다. 가장 먼저 노드와 엣지 데이터프레임을 <a href="http://igraph.org/">igraph</a> 네트워크 객체로 변환해야 된다. <code>graph.data.frame</code> 함수가 노드와 엣지 데이터프레임 자료형을 igraph 네트워크 객체로 변환하는데 사용된다.</p>
-<p><code>graph.data.frame</code> 함수에 인자를 두개 넣는다.</p>
-<ul>
-<li><strong>d</strong> : 네트워크 엣지(링크)를 넣어 넘긴다. <code>from</code>, <code>to</code> 형식으로 칼럼 두개가 먼저 정의되고, <code>weight</code>, <code>type</code>, <code>label</code> 등 엣지를 표현하는 다른 정보가 나머지 칼럼에 담기게 된다.</li>
-<li><strong>vertices</strong> : 노드 id 로 첫번째 칼럼이 정의되고, 노드를 표현하는 다른 정보가 순차적으로 나머지 칼럼에 담기게 된다.</li>
-</ul>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(igraph)</code></pre></div>
-<pre class="output"><code>Loading required package: methods
-</code></pre>
-<pre class="output"><code>
-Attaching package: &#39;igraph&#39;
-</code></pre>
-<pre class="output"><code>The following objects are masked from &#39;package:dplyr&#39;:
-
-    %&gt;%, as_data_frame, groups, union
-</code></pre>
-<pre class="output"><code>The following objects are masked from &#39;package:stats&#39;:
-
-    decompose, spectrum
-</code></pre>
-<pre class="output"><code>The following object is masked from &#39;package:base&#39;:
-
-    union
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">net &lt;-<span class="st"> </span><span class="kw">graph.data.frame</span>(links, nodes, <span class="dt">directed=</span>T)
-net</code></pre></div>
-<pre class="output"><code>IGRAPH DNW- 17 49 -- 
-+ attr: name (v/c), media (v/c), media.type (v/n), type.label
-| (v/c), audience.size (v/n), type (e/c), weight (e/n)
-+ edges (vertex names):
- [1] s01-&gt;s02 s01-&gt;s03 s01-&gt;s04 s01-&gt;s15 s02-&gt;s01 s02-&gt;s03 s02-&gt;s09
- [8] s02-&gt;s10 s03-&gt;s01 s03-&gt;s04 s03-&gt;s05 s03-&gt;s08 s03-&gt;s10 s03-&gt;s11
-[15] s03-&gt;s12 s04-&gt;s03 s04-&gt;s06 s04-&gt;s11 s04-&gt;s12 s04-&gt;s17 s05-&gt;s01
-[22] s05-&gt;s02 s05-&gt;s09 s05-&gt;s15 s06-&gt;s06 s06-&gt;s16 s06-&gt;s17 s07-&gt;s03
-[29] s07-&gt;s08 s07-&gt;s10 s07-&gt;s14 s08-&gt;s03 s08-&gt;s07 s08-&gt;s09 s09-&gt;s10
-[36] s10-&gt;s03 s12-&gt;s06 s12-&gt;s13 s12-&gt;s14 s13-&gt;s12 s13-&gt;s17 s14-&gt;s11
-[43] s14-&gt;s13 s15-&gt;s01 s15-&gt;s04 s15-&gt;s06 s16-&gt;s06 s16-&gt;s17 s17-&gt;s04
-</code></pre>
-<ul>
-<li><code>IGRAPH DNW- 17 49 --</code> :
-<ul>
-<li>D 혹은 U : 방향성 있는 그래프 혹은 방향성 없는 그래프를 기술</li>
-<li>N : 노드가 <code>name</code> 속성을 갖는 것을 기술</li>
-<li>W : 가중값이 있는 그래프로 엣지에 <code>weight</code> 속성이 있음을 기술</li>
-<li>B : 이분(Bipartite, two-mode) 그래프로 노두가 <code>type</code> 속성이 있음을 기술</li>
-<li>17 49 : 노드가 17, 엣지가 49 개가 그래프에 존재함을 기술</li>
-</ul></li>
-<li><code>attr: name (v/c), media (v/c), media.type (v/n), type.label (v/c), audience.size (v/n), type (e/c), weight (e/n)</code> :
-<ul>
-<li>(g/c) : graph-level character attribute</li>
-<li>(v/c) : vertex-level character attribute</li>
-<li>(e/n) : edge-level numeric attribute</li>
-<li>(e/c) : edge-level character attribute</li>
-</ul></li>
-</ul>
-<p><code>E()</code> 함수를 통해 네트워크 객체에 포함된 엣지 정보를 추출한다. <code>V()</code> 함수를 통해 네트워크 객체에 포함된 노드 정보를 추출한다. 직접 행렬 원소를 뽑아내는 것도 가능하다.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#------------------------------------------------------------------------</span>
-<span class="co"># 네트워크 객체 조회</span>
-
-<span class="kw">E</span>(net)       <span class="co"># &quot;net&quot; 객체 엣지정보 조회 </span></code></pre></div>
-<pre class="output"><code>+ 49/49 edges (vertex names):
- [1] s01-&gt;s02 s01-&gt;s03 s01-&gt;s04 s01-&gt;s15 s02-&gt;s01 s02-&gt;s03 s02-&gt;s09
- [8] s02-&gt;s10 s03-&gt;s01 s03-&gt;s04 s03-&gt;s05 s03-&gt;s08 s03-&gt;s10 s03-&gt;s11
-[15] s03-&gt;s12 s04-&gt;s03 s04-&gt;s06 s04-&gt;s11 s04-&gt;s12 s04-&gt;s17 s05-&gt;s01
-[22] s05-&gt;s02 s05-&gt;s09 s05-&gt;s15 s06-&gt;s06 s06-&gt;s16 s06-&gt;s17 s07-&gt;s03
-[29] s07-&gt;s08 s07-&gt;s10 s07-&gt;s14 s08-&gt;s03 s08-&gt;s07 s08-&gt;s09 s09-&gt;s10
-[36] s10-&gt;s03 s12-&gt;s06 s12-&gt;s13 s12-&gt;s14 s13-&gt;s12 s13-&gt;s17 s14-&gt;s11
-[43] s14-&gt;s13 s15-&gt;s01 s15-&gt;s04 s15-&gt;s06 s16-&gt;s06 s16-&gt;s17 s17-&gt;s04
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">V</span>(net)       <span class="co"># &quot;net&quot; 객체 노드정보 조회</span></code></pre></div>
-<pre class="output"><code>+ 17/17 vertices, named:
- [1] s01 s02 s03 s04 s05 s06 s07 s08 s09 s10 s11 s12 s13 s14 s15 s16 s17
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">E</span>(net)$type  <span class="co"># 엣지 속성 &quot;type&quot;</span></code></pre></div>
-<pre class="output"><code> [1] &quot;hyperlink&quot; &quot;hyperlink&quot; &quot;hyperlink&quot; &quot;mention&quot;   &quot;hyperlink&quot;
- [6] &quot;hyperlink&quot; &quot;hyperlink&quot; &quot;hyperlink&quot; &quot;hyperlink&quot; &quot;hyperlink&quot;
-[11] &quot;hyperlink&quot; &quot;hyperlink&quot; &quot;mention&quot;   &quot;hyperlink&quot; &quot;hyperlink&quot;
-[16] &quot;hyperlink&quot; &quot;mention&quot;   &quot;mention&quot;   &quot;hyperlink&quot; &quot;mention&quot;  
-[21] &quot;mention&quot;   &quot;hyperlink&quot; &quot;hyperlink&quot; &quot;mention&quot;   &quot;hyperlink&quot;
-[26] &quot;hyperlink&quot; &quot;mention&quot;   &quot;mention&quot;   &quot;mention&quot;   &quot;hyperlink&quot;
-[31] &quot;mention&quot;   &quot;hyperlink&quot; &quot;mention&quot;   &quot;mention&quot;   &quot;mention&quot;  
-[36] &quot;hyperlink&quot; &quot;mention&quot;   &quot;hyperlink&quot; &quot;mention&quot;   &quot;hyperlink&quot;
-[41] &quot;mention&quot;   &quot;mention&quot;   &quot;mention&quot;   &quot;hyperlink&quot; &quot;hyperlink&quot;
-[46] &quot;hyperlink&quot; &quot;hyperlink&quot; &quot;mention&quot;   &quot;hyperlink&quot;
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">V</span>(net)$media <span class="co"># 노드 속성 &quot;media&quot;</span></code></pre></div>
-<pre class="output"><code> [1] &quot;NY Times&quot;            &quot;Washington Post&quot;     &quot;Wall Street Journal&quot;
- [4] &quot;USA Today&quot;           &quot;LA Times&quot;            &quot;New York Post&quot;      
- [7] &quot;CNN&quot;                 &quot;MSNBC&quot;               &quot;FOX News&quot;           
-[10] &quot;ABC&quot;                 &quot;BBC&quot;                 &quot;Yahoo News&quot;         
-[13] &quot;Google News&quot;         &quot;Reuters.com&quot;         &quot;NYTimes.com&quot;        
-[16] &quot;WashingtonPost.com&quot;  &quot;AOL.com&quot;            
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 직접 네트워크 행렬을 조작</span>
-net[<span class="dv">1</span>,]</code></pre></div>
-<pre class="output"><code>s01 s02 s03 s04 s05 s06 s07 s08 s09 s10 s11 s12 s13 s14 s15 s16 s17 
-  0  22  22  21   0   0   0   0   0   0   0   0   0   0  20   0   0 
-</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">net[<span class="dv">5</span>,<span class="dv">7</span>]</code></pre></div>
-<pre class="output"><code>[1] 0
-</code></pre>
-<h3 id="네트워크-데이터-시각화">2. 네트워크 데이터 시각화</h3>
+          <h2 class="subtitle">정적 네트워크 데이터 시각화</h2>
+          <h3 id="네트워크-데이터-시각화">1. 네트워크 데이터 시각화</h3>
 <p><code>plot(net)</code> 명령어를 통해 시각화를 할 경우, 중복되는 엣지도 많고 해서 간략화할 필요가 있다. 이때 사용되는 명령어가 <code>simplify()</code> 함수다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># plot(net)</span>
 net &lt;-<span class="st"> </span><span class="kw">simplify</span>(net, <span class="dt">remove.multiple =</span> <span class="ot">FALSE</span>, <span class="dt">remove.loops =</span> <span class="ot">TRUE</span>) 
@@ -295,7 +54,7 @@ net &lt;-<span class="st"> </span><span class="kw">simplify</span>(net, <span cl
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))
 <span class="kw">plot</span>(net, <span class="dt">edge.arrow.size=</span>.<span class="dv">01</span>,<span class="dt">vertex.label=</span><span class="ot">NA</span>)
 <span class="kw">plot</span>(net, <span class="dt">edge.arrow.size=</span>.<span class="dv">01</span>, <span class="dt">vertex.label.family=</span><span class="st">&quot;NanumMyeongjo&quot;</span>)</code></pre></div>
-<h4 id="igraph-주요-설정-매개변수">2.1. <code>igraph</code> 주요 설정 매개변수</h4>
+<h4 id="igraph-주요-설정-매개변수">1.1. <code>igraph</code> 주요 설정 매개변수</h4>
 <table>
 <colgroup>
 <col width="25%" />
@@ -438,7 +197,7 @@ net &lt;-<span class="st"> </span><span class="kw">simplify</span>(net, <span cl
 </tr>
 </tbody>
 </table>
-<h4 id="노드와-엣지에-매개변수-반영">2.2. 노드와 엣지에 매개변수 반영</h4>
+<h4 id="노드와-엣지에-매개변수-반영">1.2. 노드와 엣지에 매개변수 반영</h4>
 <p>노드와 엣지를 네트워크 시각화에 매개변수를 통해 반영하는 방식은 두가지가 있다. 먼저 <code>plot()</code> 함수에 노드와 엣지 매개변수를 적어 넣는다.</p>
 <p><code>edge.arrow.size=.4</code> 엣지 화살표 크기를 .4로 설정하고, 엣지에 곡선을 .3으로 반영한다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(net, <span class="dt">edge.arrow.size=</span>.<span class="dv">4</span>, <span class="dt">edge.curved=</span>.<span class="dv">3</span>)</code></pre></div>
@@ -497,7 +256,7 @@ edge.col &lt;-<span class="st"> </span><span class="kw">V</span>(net)$color[edge
 
 <span class="kw">plot</span>(net, <span class="dt">edge.color=</span>edge.col, <span class="dt">edge.curved=</span>.<span class="dv">1</span>)</code></pre></div>
 <p><img src="fig/network-node-edge-param-color-1.png" title="plot of chunk network-node-edge-param-color" alt="plot of chunk network-node-edge-param-color" style="display: block; margin: auto;" /></p>
-<h3 id="네트워크-배치layout">3. 네트워크 배치(Layout)</h3>
+<h3 id="네트워크-배치layout">2. 네트워크 배치(Layout)</h3>
 <p>네트워크 배치(Layout)는 네트워크 노드에 대한 좌표를 반환하는 단순히 알고리즘이라고 볼 수 있다.</p>
 <p><code>barabasi.game</code> 함수를 사용해서 80개 노드를 갖는 그래프를 통해 네트워크 배치에 대한 탐색을 시작해 본다. 선호적 연결원리(Preferential attachment)를 따라 노드 하나에서 시작해서 체계적으로 증가시켜 나간다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##=======================================================================
@@ -549,7 +308,7 @@ l &lt;-<span class="st"> </span><span class="kw">layout.circle</span>(net.bg)
 l &lt;-<span class="st"> </span><span class="kw">layout.sphere</span>(net.bg)
 <span class="kw">plot</span>(net.bg, <span class="dt">layout=</span>l)</code></pre></div>
 <p><img src="fig/network-layout-setting-5.png" title="plot of chunk network-layout-setting" alt="plot of chunk network-layout-setting" style="display: block; margin: auto;" /></p>
-<h4 id="네트워크-배치-알고리즘">3.1. 네트워크 배치 알고리즘</h4>
+<h4 id="네트워크-배치-알고리즘">2.1. 네트워크 배치 알고리즘</h4>
 <p>심미적으로 보기 좋은 네트워크 그래프를 얻기 위해 많은 알고리즘이 제안되었고, Fruchterman-Reingold 알고리즘을 비롯한 다양한 알고리즘이 존재한다. 물리학에서 가져온 스프링, 힘 등의 개념을 노드와 엣지에 적용하여 컴퓨터의 도움을 얻어 데이터가 크지 않은 경우 빠른 시간내에 시각화가 가능하다.</p>
 <aside class="callout panel panel-info">
 <div class="panel-heading">
@@ -648,7 +407,7 @@ for(layout in layouts) {
 <pre class="output"><code>[1] &quot;layout.svd&quot;
 </code></pre>
 <p><img src="fig/network-layout-algorithms-1.png" title="plot of chunk network-layout-algorithms" alt="plot of chunk network-layout-algorithms" style="display: block; margin: auto;" /></p>
-<h3 id="네트워크-하이라이트highlight">4. 네트워크 하이라이트(Highlight)</h3>
+<h3 id="네트워크-하이라이트highlight">3. 네트워크 하이라이트(Highlight)</h3>
 <p>네트워크 배치 및 매개변수를 변경하여 다양하게 네트워크 시각화가 가능하지만, 다소 부족한 점이 있다. 노드 유형과 크기를 식별할 수 있지만, 엣지 링크가 조밀해서 전체적인 구조를 파악하기에 부족한 점이 있다.</p>
 <p>이에 대한 해법은 가장 중요한 연결만 묶고 나머지는 제거해서, 네트워크를 성기게 만들면 구조를 보는 것이 더 낫게 된다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(net)</code></pre></div>
@@ -672,7 +431,7 @@ net.sp &lt;-<span class="st"> </span>igraph::<span class="kw">delete.edges</span
 l &lt;-<span class="st"> </span><span class="kw">layout.fruchterman.reingold</span>(net.sp, <span class="dt">repulserad=</span><span class="kw">vcount</span>(net)^<span class="fl">2.1</span>)
 <span class="kw">plot</span>(net.sp, <span class="dt">layout=</span>l) </code></pre></div>
 <p><img src="fig/network-remove-edge-2.png" title="plot of chunk network-remove-edge" alt="plot of chunk network-remove-edge" style="display: block; margin: auto;" /></p>
-<h4 id="엣지-제거-또다른-방법">4.2. 엣지 제거 또다른 방법</h4>
+<h4 id="엣지-제거-또다른-방법">3.1. 엣지 제거 또다른 방법</h4>
 <p>엣지를 제거하는 다른 방법으로 하이퍼링크(hyperlink) 네트워크와 언급(mention) 네트워크를 별도로 설정하여 이를 네트워크 배치 알고리즘에 넣어 시각화를 하는 것도 가능한 방법이다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#------------------------------------------------------------------------</span>
 <span class="co"># 02. 원배치 : 하이퍼링크, 언급</span>
@@ -700,7 +459,7 @@ l &lt;-<span class="st"> </span><span class="kw">layout.fruchterman.reingold</sp
 colrs &lt;-<span class="st"> </span><span class="kw">adjustcolor</span>( <span class="kw">c</span>(<span class="st">&quot;gray50&quot;</span>, <span class="st">&quot;tomato&quot;</span>, <span class="st">&quot;gold&quot;</span>, <span class="st">&quot;yellowgreen&quot;</span>), <span class="dt">alpha=</span>.<span class="dv">6</span>)
 <span class="kw">plot</span>(net, <span class="dt">vertex.color=</span>colrs[<span class="kw">V</span>(net)$community])</code></pre></div>
 <p><img src="fig/network-remove-edge-method-4.png" title="plot of chunk network-remove-edge-method" alt="plot of chunk network-remove-edge-method" style="display: block; margin: auto;" /></p>
-<h4 id="특정-노드-혹은-엣지-하이라이트-강조">4.3. 특정 노드 혹은 엣지 하이라이트 강조</h4>
+<h4 id="특정-노드-혹은-엣지-하이라이트-강조">3.2. 특정 노드 혹은 엣지 하이라이트 강조</h4>
 <p><code>shortest.paths</code> 함수는 해당 네트워크 노드 간에 최단경로 행렬정보를 처리하여 반환한다. 예를 들어, NYT와 다른 언론기관간에 거리를 시각화보자.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#------------------------------------------------------------------------</span>
 <span class="co"># 01. 최단거리</span>

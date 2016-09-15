@@ -39,143 +39,231 @@
         <div class="col-md-10 col-md-offset-1">
                     <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
           <h2 class="subtitle">네트워크 데이터</h2>
-          <h3 id="네트워크-시각화-katherine-ognyanova">1. 네트워크 시각화 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h3>
-<p>네트워크 시각화는 다양한 목표를 갖고 있다.</p>
-<ul>
-<li>주요 행위자를 식별하고 관계를 찾아냄</li>
-<li>구조적 특성(Structural Properties)</li>
-<li>관계 강도(Relationship Strength)</li>
-<li>커뮤니티 식별</li>
-<li>지도로 역할하는 네트워크</li>
-<li>확산 패턴(Diffusion Patterns)</li>
-</ul>
-<p><img src="fig/network-viz-types.png" alt="네트워크 시각화 유형" width="70%" /></p>
-<p>네트워크 시각화 목표를 구현한 일부 사례가 다음에 나타나 있다. 목표를 구현하는데 있어 결과를 제어하는데 사용되는 핵심 요소에는 다음이 포함된다.</p>
-<ul>
-<li>색상</li>
-<li>위치</li>
-<li>크기</li>
-<li>형태</li>
-</ul>
-<p>색상, 위치, 크기, 형태 외에도 화살표를 통해 방향을 나타내고 라벨을 달아 표식을 한다.</p>
-<p><img src="fig/network-viz-control.png" alt="네트워크 시각화 제어" width="70%" /></p>
-<p>최근에 개발된 그래프 배치는 속도와 심미적인 면을 고려하여 최적화 된다. 특히, 겹치는 것과 엣지 교차(Edge Crossing)을 최소화하고 그래프에 전반에 엣지 길이가 비슷하도록 조정한다.</p>
-<p><img src="fig/network-viz-aesthetics.png" alt="심미적인 면을 고려한 네트워크 배치" width="70%" /></p>
-<aside class="callout panel panel-info">
-<div class="panel-heading">
-<h4 id="네트워크-시각화-핵심-팩키지"><span class="glyphicon glyphicon-pushpin"></span>네트워크 시각화 핵심 팩키지</h4>
-</div>
-<div class="panel-body">
-<ul>
-<li><a href="http://igraph.org/">igraph - The network analysis package</a></li>
-<li><a href="https://cran.r-project.org/web/packages/sna/">sna - Tools for Social Network Analysis</a></li>
-<li><a href="https://cran.r-project.org/web/packages/network/">network - Classes for Relational Data</a></li>
-<li><a href="https://cran.r-project.org/web/packages/ndtv/">ndtv - Network Dynamic Temporal Visualizations</a></li>
-</ul>
-</div>
-</aside>
-<h3 id="기본-색상">2. 기본 색상</h3>
-<p>Base R에 포함된 시각화를 할 경우 시각화 요소를 제어하는데 사용되는 기본요소는 다음과 같다. 자세한 사항은 <code>? par</code> 도움말을 참조한다.</p>
-<ul>
-<li><code>x</code>, <code>y</code> : 점 좌표</li>
-<li><code>pch</code> : 점 기호모양</li>
-<li><code>cex</code> : 점 크기</li>
-<li><code>col</code> : 점 색상</li>
-</ul>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="dt">x=</span><span class="dv">1</span>:<span class="dv">10</span>, <span class="dt">y=</span><span class="kw">rep</span>(<span class="dv">5</span>,<span class="dv">10</span>), <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">3</span>, <span class="dt">col=</span><span class="st">&quot;dark red&quot;</span>)
-<span class="kw">points</span>(<span class="dt">x=</span><span class="dv">1</span>:<span class="dv">10</span>, <span class="dt">y=</span><span class="kw">rep</span>(<span class="dv">6</span>, <span class="dv">10</span>), <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">3</span>, <span class="dt">col=</span><span class="st">&quot;557799&quot;</span>)
-<span class="kw">points</span>(<span class="dt">x=</span><span class="dv">1</span>:<span class="dv">10</span>, <span class="dt">y=</span><span class="kw">rep</span>(<span class="dv">4</span>, <span class="dv">10</span>), <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">3</span>, <span class="dt">col=</span><span class="kw">rgb</span>(.<span class="dv">25</span>, .<span class="dv">5</span>, .<span class="dv">3</span>))</code></pre></div>
-<p><img src="fig/network-viz-basic-1.png" title="plot of chunk network-viz-basic" alt="plot of chunk network-viz-basic" style="display: block; margin: auto;" /></p>
-<p>Base R에 포함된 그래프 기능에는 RGB 값이 0 – 1 사이 값을 갖게 된다. 만약 0 – 255 값으로 변환하고자 할 경우 <code>rgb(10, 100, 100, maxColorValue=255)</code> 처럼 <code>maxColorValue=255</code>로 설정한다.</p>
-<p>0 – 1 범위를 갖는 <code>alpha</code> 값을 조정하여 불투명도/투명도를 제어한다.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="dt">x=</span><span class="dv">1</span>:<span class="dv">5</span>, <span class="dt">y=</span><span class="kw">rep</span>(<span class="dv">5</span>,<span class="dv">5</span>), <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">12</span>, <span class="dt">col=</span><span class="kw">rgb</span>(.<span class="dv">25</span>, .<span class="dv">5</span>, .<span class="dv">3</span>, <span class="dt">alpha=</span>.<span class="dv">5</span>), <span class="dt">xlim=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">6</span>))</code></pre></div>
-<p><img src="fig/network-viz-alpha-1.png" title="plot of chunk network-viz-alpha" alt="plot of chunk network-viz-alpha" style="display: block; margin: auto;" /></p>
-<p><a href="http://www.color-hex.com/" class="uri">http://www.color-hex.com/</a> 웹사이트에서 16진수 색상체계를 사용해서도 R에서 색상을 표현할 수 있다. 앞에서 투명도 알파값을 사용하고, <code>grDevices</code> 팩키지에 포함된 <code>adjustcolor</code> 함수도 사용한다.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">par</span>(<span class="dt">bg=</span><span class="st">&quot;gray40&quot;</span>)
-col.tr &lt;-<span class="st"> </span>grDevices::<span class="kw">adjustcolor</span>(<span class="st">&quot;#e14150&quot;</span>, <span class="dt">alpha=</span><span class="fl">0.7</span>)
-<span class="kw">plot</span>(<span class="dt">x=</span><span class="dv">1</span>:<span class="dv">5</span>, <span class="dt">y=</span><span class="kw">rep</span>(<span class="dv">5</span>,<span class="dv">5</span>), <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">12</span>, <span class="dt">col=</span>col.tr, <span class="dt">xlim=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">6</span>))</code></pre></div>
-<p><img src="fig/network-viz-hex-1.png" title="plot of chunk network-viz-hex" alt="plot of chunk network-viz-hex" style="display: block; margin: auto;" /></p>
-<p><code>rainbow()</code>, <code>heat.colors()</code>, <code>terrain.colors()</code>, <code>topo.colors()</code>, <code>cm.colors()</code> 팔레트가 <code>grDevices</code> 팩키지에 포함되어 있다. 예를 들어, <code>heat.colors(5, alpha=1)</code> 명령어는 heat 팔레트에서 불투명한 색상 5개를 갖는 팔레트를 생성한다는 의미가 된다.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># heat 팔레트에서 불투명한 색상 5개 생성</span>
-pal1 &lt;-<span class="st"> </span><span class="kw">heat.colors</span>(<span class="dv">5</span>, <span class="dt">alpha=</span><span class="dv">1</span>)
-<span class="kw">plot</span>(<span class="dt">x=</span><span class="dv">1</span>:<span class="dv">10</span>, <span class="dt">y=</span><span class="dv">1</span>:<span class="dv">10</span>, <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">5</span>, <span class="dt">col=</span>pal1)</code></pre></div>
-<p><img src="fig/network-viz-palette-1.png" title="plot of chunk network-viz-palette" alt="plot of chunk network-viz-palette" style="display: block; margin: auto;" /></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 무지개 팔레트에서 투명한 색상 7개 생성</span>
-pal2 &lt;-<span class="st"> </span><span class="kw">rainbow</span>(<span class="dv">7</span>, <span class="dt">alpha=</span>.<span class="dv">5</span>)
-<span class="kw">plot</span>(<span class="dt">x=</span><span class="dv">1</span>:<span class="dv">10</span>, <span class="dt">y=</span><span class="dv">1</span>:<span class="dv">10</span>, <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">5</span>, <span class="dt">col=</span>pal2)</code></pre></div>
-<p><img src="fig/network-viz-palette-2.png" title="plot of chunk network-viz-palette" alt="plot of chunk network-viz-palette" style="display: block; margin: auto;" /></p>
-<p><code>colorRampPalette</code>를 통해 계조도(Gradient) 색상을 설정하는 것도 가능하다. 즉, 회색에서 어두운 붉은색으로 계조를 두어 색상을 점차적으로 변화해 나가는 팔레트를 통해 색상을 만들어낸다.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 계조도(gradient) 적용</span>
-palf &lt;-<span class="st"> </span><span class="kw">colorRampPalette</span>(<span class="kw">c</span>(<span class="st">&quot;gray80&quot;</span>, <span class="st">&quot;dark red&quot;</span>))
-<span class="kw">plot</span>(<span class="dt">x=</span><span class="dv">10</span>:<span class="dv">1</span>, <span class="dt">y=</span><span class="dv">1</span>:<span class="dv">10</span>, <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">5</span>, <span class="dt">col=</span><span class="kw">palf</span>(<span class="dv">10</span>))</code></pre></div>
-<p><img src="fig/network-viz-gradient-1.png" title="plot of chunk network-viz-gradient" alt="plot of chunk network-viz-gradient" style="display: block; margin: auto;" /></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 투명도를 가미한 계조도 적용</span>
-palf &lt;-<span class="st"> </span><span class="kw">colorRampPalette</span>(<span class="kw">c</span>(<span class="kw">rgb</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>, .<span class="dv">2</span>),<span class="kw">rgb</span>(.<span class="dv">8</span>,<span class="dv">0</span>,<span class="dv">0</span>, .<span class="dv">7</span>)), <span class="dt">alpha=</span><span class="ot">TRUE</span>)
-<span class="kw">plot</span>(<span class="dt">x=</span><span class="dv">10</span>:<span class="dv">1</span>, <span class="dt">y=</span><span class="dv">1</span>:<span class="dv">10</span>, <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">5</span>, <span class="dt">col=</span><span class="kw">palf</span>(<span class="dv">10</span>))</code></pre></div>
-<p><img src="fig/network-viz-gradient-alpha-1.png" title="plot of chunk network-viz-gradient-alpha" alt="plot of chunk network-viz-gradient-alpha" style="display: block; margin: auto;" /></p>
-<h4 id="rcolorbrewer-팔레트">2.1. <code>RColorBrewer</code> 팔레트</h4>
-<p>적절한 색상 조합을 비전문가가 찾아내는 것은 쉬운 일이 아니다. 내장된 R 색상 팔레트는 다소 제한된 감이 없지 않다. 다행스럽게도 <code>RColorBrewer</code> 팔레트를 사용하는 것이 가능하다.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(RColorBrewer)
-<span class="kw">display.brewer.all</span>()</code></pre></div>
-<p><img src="fig/network-viz-rColorBrewer-1.png" title="plot of chunk network-viz-rColorBrewer" alt="plot of chunk network-viz-rColorBrewer" style="display: block; margin: auto;" /></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">display.brewer.pal</span>(<span class="dv">8</span>, <span class="st">&quot;Set3&quot;</span>)</code></pre></div>
-<p><img src="fig/network-viz-rColorBrewer-2.png" title="plot of chunk network-viz-rColorBrewer" alt="plot of chunk network-viz-rColorBrewer" style="display: block; margin: auto;" /></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">display.brewer.pal</span>(<span class="dv">8</span>, <span class="st">&quot;Spectral&quot;</span>)</code></pre></div>
-<p><img src="fig/network-viz-rColorBrewer-3.png" title="plot of chunk network-viz-rColorBrewer" alt="plot of chunk network-viz-rColorBrewer" style="display: block; margin: auto;" /></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">display.brewer.pal</span>(<span class="dv">8</span>, <span class="st">&quot;Blues&quot;</span>)</code></pre></div>
-<p><img src="fig/network-viz-rColorBrewer-4.png" title="plot of chunk network-viz-rColorBrewer" alt="plot of chunk network-viz-rColorBrewer" style="display: block; margin: auto;" /></p>
-<p><code>brewer.pal</code> 색상 팔레트를 활용하여 시각화가 가능하다.</p>
-<p><code>rev()</code> 함수를 조합해서 역순으로도 가능하다.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pal_set3 &lt;-<span class="st"> </span><span class="kw">brewer.pal</span>(<span class="dv">10</span>, <span class="st">&quot;Set3&quot;</span>)
-<span class="kw">plot</span>(<span class="dt">x=</span><span class="dv">10</span>:<span class="dv">1</span>, <span class="dt">y=</span><span class="dv">10</span>:<span class="dv">1</span>, <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">6</span>, <span class="dt">col=</span>pal_set3)</code></pre></div>
-<p><img src="fig/network-viz-rColorBrewer-ex-1.png" title="plot of chunk network-viz-rColorBrewer-ex" alt="plot of chunk network-viz-rColorBrewer-ex" style="display: block; margin: auto;" /></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="dt">x=</span><span class="dv">10</span>:<span class="dv">1</span>, <span class="dt">y=</span><span class="dv">10</span>:<span class="dv">1</span>, <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">6</span>, <span class="dt">col=</span><span class="kw">rev</span>(pal_set3))</code></pre></div>
-<p><img src="fig/network-viz-rColorBrewer-ex-2.png" title="plot of chunk network-viz-rColorBrewer-ex" alt="plot of chunk network-viz-rColorBrewer-ex" style="display: block; margin: auto;" /></p>
-<h3 id="글꼴-폰트-pdf-hangul-pdf-hangul-freesearch">3. 글꼴 폰트 <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> <a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a></h3>
-<p>R에서 다양한 폰트를 사용하려면 사전 정지작업이 필요하다. <code>extrafont</code> 팩키지가 다양한 폰트를 사용하는데 도움이 된다. 특히, 윈도우 사용자가 많은 한국에서 다소 번거로운 과정이 필요한데, 맥이나 리눅스 사용자는 이를 건너 뛰어도 된다.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(extrafont)</code></pre></div>
-<pre class="output"><code>Registering fonts with R
+          <h3 id="네트워크-데이터-구조">1. 네트워크 데이터 구조</h3>
+<p>네트워크 데이터는 <strong>노드(Node)</strong> 와 <strong>엣지(Edge)</strong> 로 구성된다. 노드 데이터는 네트워크 노드에 대한 상세 정보가 담겨있다. 반면에 엣지 정보는 연결된 링크 정보를 담고 있는데 <code>from</code>, <code>to</code> 형식으로 데이터를 담을 수도 있고, 노드간의 관계를 관계 없음은 <code>0</code>, 관계 있음은 <code>1</code>로 표현한다.</p>
+<p>첫번째 네트워크 데이터 형식 표현을 <strong>Edgelist</strong> 라고 하고, 두번째 데이터 표현방법을 <strong>행렬(Matrix)</strong> 이라고 부른다.</p>
+<p>두가지 형태를 갖는 데이터를 불러 읽어오자.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">suppressMessages</span>(<span class="kw">library</span>(readr))
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(dplyr))
+<span class="co">#-----------------------------------------------------------------------</span>
+<span class="co"># edgelist</span>
+
+nodes &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/kateto/R-Network-Visualization-Workshop/master/Data/Dataset1-Media-Example-NODES.csv&quot;</span>, <span class="dt">col_names =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<pre class="output"><code>Parsed with column specification:
+cols(
+  id = col_character(),
+  media = col_character(),
+  media.type = col_integer(),
+  type.label = col_character(),
+  audience.size = col_integer()
+)
 </code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 시간이 많이 소요</span>
-<span class="co"># font_import()</span>
-<span class="co"># 가져온 글꼴 폰트 확인</span>
-<span class="co"># fonts()</span>
-<span class="kw">grep</span>(<span class="st">&quot;Nanum&quot;</span>, <span class="kw">fonts</span>(), <span class="dt">value=</span>T)</code></pre></div>
-<pre class="output"><code>[1] &quot;NanumGothic_Coding&quot;
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">links &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/kateto/R-Network-Visualization-Workshop/master/Data/Dataset1-Media-Example-EDGES.csv&quot;</span>, <span class="dt">col_names =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<pre class="output"><code>Parsed with column specification:
+cols(
+  from = col_character(),
+  to = col_character(),
+  weight = col_integer(),
+  type = col_character()
+)
 </code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># windowsFonts(NanumGothicCoding=windowsFont(&quot;NanumGothicCoding&quot;))</span>
-<span class="co"># windowsFonts(NanumPenScript=windowsFont(&quot;`Nanum Pen Script`&quot;))</span>
-<span class="co"># windowsFonts(NanumBrushScript=windowsFont(&quot;`Nanum Brush Script`&quot;))</span>
-<span class="co"># windowsFonts(NanumMyeongjo=windowsFont(&quot;NanumMyeongjo&quot;))</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-----------------------------------------------------------------------</span>
+<span class="co"># 행렬</span>
 
-<span class="co"># PDF 플롯을 찍을 경우 device=&quot;pdf&quot; 를 사용</span>
-<span class="co"># loadfonts(device = &quot;win&quot;)</span></code></pre></div>
-<p>원하는 글꼴 폰트를 활용하여 시각화한다.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#--------------------------------------------------------------------------------</span>
-<span class="co"># 한글 그래프</span>
-<span class="kw">plot</span>(<span class="dt">x=</span><span class="dv">10</span>:<span class="dv">1</span>, <span class="dt">y=</span><span class="dv">10</span>:<span class="dv">1</span>, <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">3</span>,
-     <span class="dt">main=</span><span class="st">&quot;한글 그래프: 글꼴 폰트&quot;</span>, <span class="dt">col=</span><span class="st">&quot;orange&quot;</span>,
-     <span class="dt">family=</span><span class="st">&quot;MGungHeulim&quot;</span> )</code></pre></div>
-<p><img src="fig/network-viz-font-hangul-1.png" title="plot of chunk network-viz-font-hangul" alt="plot of chunk network-viz-font-hangul" style="display: block; margin: auto;" /></p>
-<p>pdf 파일에 글꼴폰트를 내장하는 과정은 다음과 같다. 먼저, <a href="http://ghostscript.com/download/">Ghostscript, GhostPCL, GhostXPS and MuPDF Downloads</a> 다운로드 사이트에서 고스트스크립트를 다운로드하여 설치한다.</p>
-<p>R에서 고스트스크립트 존재를 인식하도록 환경을 설정한다.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 고스트스크립트를 R에 연결하는 환경설정</span>
-<span class="kw">Sys.setenv</span>(<span class="dt">R_GSCMD =</span> <span class="st">&quot;C:/Program Files/gs/gs9.19/bin/gswin64c.exe&quot;</span>)
+nodes2 &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/kateto/R-Network-Visualization-Workshop/master/Data/Dataset2-Media-User-Example-NODES.csv&quot;</span>, <span class="dt">col_names =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<pre class="output"><code>Parsed with column specification:
+cols(
+  id = col_character(),
+  media = col_character(),
+  media.type = col_integer(),
+  media.name = col_character(),
+  audience.size = col_integer()
+)
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">links2 &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/kateto/R-Network-Visualization-Workshop/master/Data/Dataset2-Media-User-Example-EDGES.csv&quot;</span>, <span class="dt">col_names =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<pre class="output"><code>Parsed with column specification:
+cols(
+  .default = col_integer(),
+  X1 = col_character()
+)
+</code></pre>
+<pre class="output"><code>See spec(...) for full column specifications.
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-----------------------------------------------------------------------</span>
+<span class="co"># 데이터 살펴보기</span>
+<span class="co">#-----------------------------------------------------------------------</span>
 
-<span class="co"># cairo_pdf()함수는 dev.off()가 발생되기 전까지 모든 출력결과를 pdf 파일로 전송</span>
-<span class="kw">cairo_pdf</span>(<span class="st">&quot;NanumMyeongjo.pdf&quot;</span>, <span class="dt">family =</span> <span class="st">&quot;NanumMyeongjo&quot;</span>, <span class="dt">width =</span> <span class="dv">10</span>, <span class="dt">height =</span> <span class="dv">5</span>, <span class="dt">antialias =</span> <span class="st">&quot;subpixel&quot;</span>)
+<span class="kw">head</span>(nodes)</code></pre></div>
+<pre class="output"><code># A tibble: 6 x 5
+     id               media media.type type.label audience.size
+  &lt;chr&gt;               &lt;chr&gt;      &lt;int&gt;      &lt;chr&gt;         &lt;int&gt;
+1   s01            NY Times          1  Newspaper            20
+2   s02     Washington Post          1  Newspaper            25
+3   s03 Wall Street Journal          1  Newspaper            30
+4   s04           USA Today          1  Newspaper            32
+5   s05            LA Times          1  Newspaper            20
+6   s06       New York Post          1  Newspaper            50
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(links)</code></pre></div>
+<pre class="output"><code># A tibble: 6 x 4
+   from    to weight      type
+  &lt;chr&gt; &lt;chr&gt;  &lt;int&gt;     &lt;chr&gt;
+1   s01   s02     10 hyperlink
+2   s01   s02     12 hyperlink
+3   s01   s03     22 hyperlink
+4   s01   s04     21 hyperlink
+5   s04   s11     22   mention
+6   s05   s15     21   mention
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nrow</span>(nodes); <span class="kw">length</span>(<span class="kw">unique</span>(nodes$id))</code></pre></div>
+<pre class="output"><code>[1] 17
+</code></pre>
+<pre class="output"><code>[1] 17
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nrow</span>(links); <span class="kw">nrow</span>(<span class="kw">unique</span>(links[,<span class="kw">c</span>(<span class="st">&quot;from&quot;</span>, <span class="st">&quot;to&quot;</span>)]))</code></pre></div>
+<pre class="output"><code>[1] 52
+</code></pre>
+<pre class="output"><code>[1] 49
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 데이터 중복 처리 : 총합</span>
+links &lt;-<span class="st"> </span>links %&gt;%<span class="st"> </span><span class="kw">group_by</span>(from, to, type) %&gt;%<span class="st">  </span>
+<span class="st">                   </span><span class="kw">summarise</span>(<span class="dt">weight =</span> <span class="kw">sum</span>(weight)) %&gt;%<span class="st"> </span>
+<span class="st">                   </span><span class="kw">arrange</span>(from, to)</code></pre></div>
+<p><code>head(nodes)</code> 명령어를 통해서 살펴보면 <code>head(nodes2)</code>와 별다른 차이가 없다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(nodes)</code></pre></div>
+<pre class="output"><code># A tibble: 6 x 5
+     id               media media.type type.label audience.size
+  &lt;chr&gt;               &lt;chr&gt;      &lt;int&gt;      &lt;chr&gt;         &lt;int&gt;
+1   s01            NY Times          1  Newspaper            20
+2   s02     Washington Post          1  Newspaper            25
+3   s03 Wall Street Journal          1  Newspaper            30
+4   s04           USA Today          1  Newspaper            32
+5   s05            LA Times          1  Newspaper            20
+6   s06       New York Post          1  Newspaper            50
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(nodes2)</code></pre></div>
+<pre class="output"><code># A tibble: 6 x 5
+     id   media media.type media.name audience.size
+  &lt;chr&gt;   &lt;chr&gt;      &lt;int&gt;      &lt;chr&gt;         &lt;int&gt;
+1   s01     NYT          1  Newspaper            20
+2   s02    WaPo          1  Newspaper            25
+3   s03     WSJ          1  Newspaper            30
+4   s04    USAT          1  Newspaper            32
+5   s05 LATimes          1  Newspaper            20
+6   s06     CNN          2         TV            56
+</code></pre>
+<p>반면에 엣지 정보, 링크 정보는 하나는 <code>from</code>, <code>to</code> 형식으로, 다른 하나는 행렬로 표현된다는 점에서 차이가 있다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(links)</code></pre></div>
+<pre class="output"><code>Source: local data frame [6 x 4]
+Groups: from, to [6]
 
-<span class="kw">plot</span>(<span class="dt">x=</span><span class="dv">10</span>:<span class="dv">1</span>, <span class="dt">y=</span><span class="dv">10</span>:<span class="dv">1</span>, <span class="dt">pch=</span><span class="dv">19</span>, <span class="dt">cex=</span><span class="dv">3</span>, <span class="dt">main=</span><span class="st">&quot;한글 그래프 - 나눔 고딕 글꼴&quot;</span>, <span class="dt">col=</span><span class="st">&quot;orange&quot;</span>)
-<span class="kw">dev.off</span>()
-<span class="kw">embed_fonts</span>(<span class="st">&quot;NanumMyeongjo.pdf&quot;</span>, <span class="dt">outfile=</span><span class="st">&quot;NanumMyeongjo_embed.pdf&quot;</span>)</code></pre></div>
-<div class="footnotes">
-<hr />
-<ol>
-<li id="fn1"><p><a href="http://kateto.net/networks-r-igraph">Katherine Ognyanova, Network Analysis and Visualization with R and igraph, Sunbelt 2016 Workshop, Newport Beach, CA</a><a href="#fnref1">↩</a></p></li>
-<li id="fn2"><p><a href="http://using.tistory.com/66">R PDF생성 시 한글폰트 깨짐 문제</a><a href="#fnref2">↩</a></p></li>
-<li id="fn3"><p><a href="http://freesearch.pe.kr/archives/3275">R로 그래프 플로팅을 하기 위한 몇 가지 팁</a><a href="#fnref3">↩</a></p></li>
-</ol>
-</div>
+   from    to      type weight
+  &lt;chr&gt; &lt;chr&gt;     &lt;chr&gt;  &lt;int&gt;
+1   s01   s02 hyperlink     22
+2   s01   s03 hyperlink     22
+3   s01   s04 hyperlink     21
+4   s01   s15   mention     20
+5   s02   s01 hyperlink     23
+6   s02   s03 hyperlink     21
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">head</span>(links2)</code></pre></div>
+<pre class="output"><code># A tibble: 6 x 21
+     X1   U01   U02   U03   U04   U05   U06   U07   U08   U09   U10   U11
+  &lt;chr&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;
+1   s01     1     1     1     0     0     0     0     0     0     0     0
+2   s02     0     0     0     1     1     0     0     0     0     0     0
+3   s03     0     0     0     0     0     1     1     1     1     0     0
+4   s04     0     0     0     0     0     0     0     0     1     1     1
+5   s05     0     0     0     0     0     0     0     0     0     0     1
+6   s06     0     0     0     0     0     0     0     0     0     0     0
+# ... with 9 more variables: U12 &lt;int&gt;, U13 &lt;int&gt;, U14 &lt;int&gt;, U15 &lt;int&gt;,
+#   U16 &lt;int&gt;, U17 &lt;int&gt;, U18 &lt;int&gt;, U19 &lt;int&gt;, U20 &lt;int&gt;
+</code></pre>
+<p><em>igraph</em> 팩키지로 데이터를 시각화를 해본다. 가장 먼저 노드와 엣지 데이터프레임을 <a href="http://igraph.org/">igraph</a> 네트워크 객체로 변환해야 된다. <code>graph.data.frame</code> 함수가 노드와 엣지 데이터프레임 자료형을 igraph 네트워크 객체로 변환하는데 사용된다.</p>
+<p><code>graph.data.frame</code> 함수에 인자를 두개 넣는다.</p>
+<ul>
+<li><strong>d</strong> : 네트워크 엣지(링크)를 넣어 넘긴다. <code>from</code>, <code>to</code> 형식으로 칼럼 두개가 먼저 정의되고, <code>weight</code>, <code>type</code>, <code>label</code> 등 엣지를 표현하는 다른 정보가 나머지 칼럼에 담기게 된다.</li>
+<li><strong>vertices</strong> : 노드 id 로 첫번째 칼럼이 정의되고, 노드를 표현하는 다른 정보가 순차적으로 나머지 칼럼에 담기게 된다.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">suppressMessages</span>(<span class="kw">library</span>(igraph))
+
+net &lt;-<span class="st"> </span><span class="kw">graph.data.frame</span>(links, nodes, <span class="dt">directed=</span>T)
+net</code></pre></div>
+<pre class="output"><code>IGRAPH DNW- 17 49 -- 
++ attr: name (v/c), media (v/c), media.type (v/n), type.label
+| (v/c), audience.size (v/n), type (e/c), weight (e/n)
++ edges (vertex names):
+ [1] s01-&gt;s02 s01-&gt;s03 s01-&gt;s04 s01-&gt;s15 s02-&gt;s01 s02-&gt;s03 s02-&gt;s09
+ [8] s02-&gt;s10 s03-&gt;s01 s03-&gt;s04 s03-&gt;s05 s03-&gt;s08 s03-&gt;s10 s03-&gt;s11
+[15] s03-&gt;s12 s04-&gt;s03 s04-&gt;s06 s04-&gt;s11 s04-&gt;s12 s04-&gt;s17 s05-&gt;s01
+[22] s05-&gt;s02 s05-&gt;s09 s05-&gt;s15 s06-&gt;s06 s06-&gt;s16 s06-&gt;s17 s07-&gt;s03
+[29] s07-&gt;s08 s07-&gt;s10 s07-&gt;s14 s08-&gt;s03 s08-&gt;s07 s08-&gt;s09 s09-&gt;s10
+[36] s10-&gt;s03 s12-&gt;s06 s12-&gt;s13 s12-&gt;s14 s13-&gt;s12 s13-&gt;s17 s14-&gt;s11
+[43] s14-&gt;s13 s15-&gt;s01 s15-&gt;s04 s15-&gt;s06 s16-&gt;s06 s16-&gt;s17 s17-&gt;s04
+</code></pre>
+<ul>
+<li><code>IGRAPH DNW- 17 49 --</code> :
+<ul>
+<li>D 혹은 U : 방향성 있는 그래프 혹은 방향성 없는 그래프를 기술</li>
+<li>N : 노드가 <code>name</code> 속성을 갖는 것을 기술</li>
+<li>W : 가중값이 있는 그래프로 엣지에 <code>weight</code> 속성이 있음을 기술</li>
+<li>B : 이분(Bipartite, two-mode) 그래프로 노두가 <code>type</code> 속성이 있음을 기술</li>
+<li>17 49 : 노드가 17, 엣지가 49 개가 그래프에 존재함을 기술</li>
+</ul></li>
+<li><code>attr: name (v/c), media (v/c), media.type (v/n), type.label (v/c), audience.size (v/n), type (e/c), weight (e/n)</code> :
+<ul>
+<li>(g/c) : graph-level character attribute</li>
+<li>(v/c) : vertex-level character attribute</li>
+<li>(e/n) : edge-level numeric attribute</li>
+<li>(e/c) : edge-level character attribute</li>
+</ul></li>
+</ul>
+<p><code>E()</code> 함수를 통해 네트워크 객체에 포함된 엣지 정보를 추출한다. <code>V()</code> 함수를 통해 네트워크 객체에 포함된 노드 정보를 추출한다. 직접 행렬 원소를 뽑아내는 것도 가능하다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#------------------------------------------------------------------------</span>
+<span class="co"># 네트워크 객체 조회</span>
+
+<span class="kw">E</span>(net)       <span class="co"># &quot;net&quot; 객체 엣지정보 조회 </span></code></pre></div>
+<pre class="output"><code>+ 49/49 edges (vertex names):
+ [1] s01-&gt;s02 s01-&gt;s03 s01-&gt;s04 s01-&gt;s15 s02-&gt;s01 s02-&gt;s03 s02-&gt;s09
+ [8] s02-&gt;s10 s03-&gt;s01 s03-&gt;s04 s03-&gt;s05 s03-&gt;s08 s03-&gt;s10 s03-&gt;s11
+[15] s03-&gt;s12 s04-&gt;s03 s04-&gt;s06 s04-&gt;s11 s04-&gt;s12 s04-&gt;s17 s05-&gt;s01
+[22] s05-&gt;s02 s05-&gt;s09 s05-&gt;s15 s06-&gt;s06 s06-&gt;s16 s06-&gt;s17 s07-&gt;s03
+[29] s07-&gt;s08 s07-&gt;s10 s07-&gt;s14 s08-&gt;s03 s08-&gt;s07 s08-&gt;s09 s09-&gt;s10
+[36] s10-&gt;s03 s12-&gt;s06 s12-&gt;s13 s12-&gt;s14 s13-&gt;s12 s13-&gt;s17 s14-&gt;s11
+[43] s14-&gt;s13 s15-&gt;s01 s15-&gt;s04 s15-&gt;s06 s16-&gt;s06 s16-&gt;s17 s17-&gt;s04
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">V</span>(net)       <span class="co"># &quot;net&quot; 객체 노드정보 조회</span></code></pre></div>
+<pre class="output"><code>+ 17/17 vertices, named:
+ [1] s01 s02 s03 s04 s05 s06 s07 s08 s09 s10 s11 s12 s13 s14 s15 s16 s17
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">E</span>(net)$type  <span class="co"># 엣지 속성 &quot;type&quot;</span></code></pre></div>
+<pre class="output"><code> [1] &quot;hyperlink&quot; &quot;hyperlink&quot; &quot;hyperlink&quot; &quot;mention&quot;   &quot;hyperlink&quot;
+ [6] &quot;hyperlink&quot; &quot;hyperlink&quot; &quot;hyperlink&quot; &quot;hyperlink&quot; &quot;hyperlink&quot;
+[11] &quot;hyperlink&quot; &quot;hyperlink&quot; &quot;mention&quot;   &quot;hyperlink&quot; &quot;hyperlink&quot;
+[16] &quot;hyperlink&quot; &quot;mention&quot;   &quot;mention&quot;   &quot;hyperlink&quot; &quot;mention&quot;  
+[21] &quot;mention&quot;   &quot;hyperlink&quot; &quot;hyperlink&quot; &quot;mention&quot;   &quot;hyperlink&quot;
+[26] &quot;hyperlink&quot; &quot;mention&quot;   &quot;mention&quot;   &quot;mention&quot;   &quot;hyperlink&quot;
+[31] &quot;mention&quot;   &quot;hyperlink&quot; &quot;mention&quot;   &quot;mention&quot;   &quot;mention&quot;  
+[36] &quot;hyperlink&quot; &quot;mention&quot;   &quot;hyperlink&quot; &quot;mention&quot;   &quot;hyperlink&quot;
+[41] &quot;mention&quot;   &quot;mention&quot;   &quot;mention&quot;   &quot;hyperlink&quot; &quot;hyperlink&quot;
+[46] &quot;hyperlink&quot; &quot;hyperlink&quot; &quot;mention&quot;   &quot;hyperlink&quot;
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">V</span>(net)$media <span class="co"># 노드 속성 &quot;media&quot;</span></code></pre></div>
+<pre class="output"><code> [1] &quot;NY Times&quot;            &quot;Washington Post&quot;     &quot;Wall Street Journal&quot;
+ [4] &quot;USA Today&quot;           &quot;LA Times&quot;            &quot;New York Post&quot;      
+ [7] &quot;CNN&quot;                 &quot;MSNBC&quot;               &quot;FOX News&quot;           
+[10] &quot;ABC&quot;                 &quot;BBC&quot;                 &quot;Yahoo News&quot;         
+[13] &quot;Google News&quot;         &quot;Reuters.com&quot;         &quot;NYTimes.com&quot;        
+[16] &quot;WashingtonPost.com&quot;  &quot;AOL.com&quot;            
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 직접 네트워크 행렬을 조작</span>
+net[<span class="dv">1</span>,]</code></pre></div>
+<pre class="output"><code>s01 s02 s03 s04 s05 s06 s07 s08 s09 s10 s11 s12 s13 s14 s15 s16 s17 
+  0  22  22  21   0   0   0   0   0   0   0   0   0   0  20   0   0 
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">net[<span class="dv">5</span>,<span class="dv">7</span>]</code></pre></div>
+<pre class="output"><code>[1] 0
+</code></pre>
         </div>
       </div>
       </article>

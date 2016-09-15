@@ -87,7 +87,7 @@ igraph 네트워크 객체로 변환하는데 사용된다.
 나머지 칼럼에 담기게 된다.
 
 ``` {r network-convert-data, warning=FALSE}
-library(igraph)
+suppressMessages(library(igraph))
 
 net <- graph.data.frame(links, nodes, directed=T)
 net

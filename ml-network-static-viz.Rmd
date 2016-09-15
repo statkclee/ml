@@ -12,6 +12,7 @@ mainfont: NanumGothic
  
 ``` {r, include=FALSE}
 source("tools/chunk-options.R")
+source("~/Dropbox/network/network/02.code/static-rmarkdown-code.R")
 ```
 
 
