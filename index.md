@@ -42,6 +42,8 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. **기계 중심 기계학습**              
 1. **기계학습 적용 데이터**
     1. **[네트워크 데이터](ml-network-data.html)**
+        1. [정적 네트워크 시각화](ml-network-static-viz.html)
+        1. [동적 네트워크 시각화](ml-network-dynamic-viz.html)
         1. [R 팩키지 사회망 분석](ml-sna-r-ecosystem.html)        
     1. **[텍스트 데이터](ml-text.html)**
         1. [텍스트 데이터 수집 -- 트위터](ml-text-twitter.html)
