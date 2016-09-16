@@ -1,19 +1,6 @@
----
-layout: page
-title: xwMOOC 기계학습
-subtitle: 동적 네트워크 데이터 시각화
-output:
-  html_document: 
-    keep_md: yes
-  pdf_document:
-    latex_engine: xelatex
-mainfont: NanumGothic
----
+# xwMOOC 기계학습
  
-``` {r, include=FALSE}
-source("tools/chunk-options.R")
-source("~/Dropbox/network/network/02.code/static-rmarkdown-code.R")
-```
+
 
 ### 1. 동적 네트워크 데이터 시각화
 
@@ -32,14 +19,15 @@ D3 자바스크립트 라이브러리를 사용한다.
 `install.packages("networkD3")` 명령어로 이름에서 나타나지만 자바스크립트 D3 라이브러리를
 R과 연결시킨 팩키지를 설치한다.
 
-``` {r network-networkd3-pkg, warning=FALSE}
+
+~~~{.r}
 ##============================================================================================
 ## 1. 환경 설정
 ##============================================================================================
 # install.packages("networkD3")
 
 library(networkD3)
-```
+~~~
 
 networkD3 팩키지로 시각화 산출물을 생성시키는데 기존 `from`, `to` 형식 edgelist 자료구조에 
 일부 작업이 필요하다. 노드 ID는 숫자형이 되어야 하고 R이 1에서 시작하지만,
@@ -49,7 +37,8 @@ networkD3 팩키지로 시각화 산출물을 생성시키는데 기존 `from`, 
 
 노드는 링크에 있는 "source" 칼럼과 동일한 순서를 맞춰준다. 
 
-``` {r network-networkd3-data-structure, warning=FALSE}
+
+~~~{.r}
 ##============================================================================================
 ## 2. 네트워크 데이터 준비
 ##============================================================================================
@@ -58,14 +47,15 @@ networkD3 팩키지로 시각화 산출물을 생성시키는데 기존 `from`, 
 el <- data.frame(from=as.numeric(factor(links$from))-1, 
                  to=as.numeric(factor(links$to))-1 )
 nl <- cbind(idn=factor(nodes$media, levels=nodes$media), nodes) 
-```
+~~~
 
 이제 모든 준비가 마무리되었다. `Group` 인자를 통해 노드 색상을 맞춰준다.
 `Nodesize` 인자는 노드 크기가 아니라는 것을 주의한다. 크기로 사용될 노드데이터의 
 칼럼 숫자를 나타낸다. `charge` 인자는 노드를 잡아당길지 노드를 밀어낼지 제어한다.
 만약 음수면 밀어내고, 양수면 잡아당긴다.
 
-``` {r network-networkd3-viz, warning=FALSE}
+
+~~~{.r}
 ##============================================================================================
 ## 3. 네트워크 시각화
 ##============================================================================================
@@ -75,7 +65,10 @@ forceNetwork(Links = el, Nodes = nl, Source="from", Target="to",
              linkColour = "#afafaf", fontSize=12, zoom=T, legend=T,
              Nodesize=6, opacity = 0.8, charge=-300, 
              width = 600, height = 400)
-```
+~~~
+
+<!--html_preserve--><div id="htmlwidget-2390" style="width:600px;height:400px;" class="forceNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-2390">{"x":{"links":{"source":[0,0,0,0,1,1,1,1,2,2,2,2,2,2,2,3,3,3,3,3,4,4,4,4,5,5,5,6,6,6,6,7,7,7,8,9,10,10,10,11,11,12,12,13,13,13,14,14,15],"target":[1,2,3,14,0,2,8,9,0,3,4,7,9,10,11,2,5,10,11,16,0,1,8,14,5,15,16,2,7,9,13,2,6,8,9,2,5,12,13,11,16,10,12,0,3,5,5,16,3],"colour":["#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf","#afafaf"]},"nodes":{"name":["NY Times","Washington Post","Wall Street Journal","USA Today","LA Times","New York Post","CNN","MSNBC","FOX News","ABC","BBC","Yahoo News","Google News","Reuters.com","NYTimes.com","WashingtonPost.com","AOL.com"],"group":["Newspaper","Newspaper","Newspaper","Newspaper","Newspaper","Newspaper","TV","TV","TV","TV","TV","Online","Online","Online","Online","Online","Online"],"nodesize":[20,25,30,32,20,50,56,34,60,23,34,33,23,12,24,28,33]},"options":{"NodeID":"idn","Group":"type.label","colourScale":"d3.scale.category20()","fontSize":12,"fontFamily":"serif","clickTextSize":30,"linkDistance":50,"linkWidth":"1","charge":-300,"opacity":0.8,"zoom":true,"legend":true,"nodesize":true,"radiusCalculation":" Math.sqrt(d.nodesize)+6","bounded":false,"opacityNoHover":0,"clickAction":null}},"evals":[],"jsHooks":[]}</script><!--/html_preserve-->
 
 
 
@@ -92,7 +85,8 @@ forceNetwork(Links = el, Nodes = nl, Source="from", Target="to",
 `ani.options` ImageMagick 변환(convert) 선택옵션을 설정하고, 그래프를 4개 차례로 생성시키고,
 `saveGIF` 함수로 이를 묶어 `network_animation.gif` 파일로 저장시킨다.
 
-``` {r network-animation-gif, warning=FALSE}
+
+~~~{.r}
 library(animation) 
 library(igraph)
 
@@ -119,7 +113,30 @@ saveGIF( {  col <- rep("grey40", vcount(net))
             plot(net, vertex.color=col, layout=l)  
         },
             interval = .8, movie.name="network_animation.gif" )
-```
+~~~
+
+
+
+~~~{.output}
+Executing: 
+convert -loop 0 -delay 80 Rplot1.png Rplot2.png Rplot3.png
+    Rplot4.png 'network_animation.gif'
+
+~~~
+
+
+
+~~~{.output}
+Output at: /Users/statkclee/swc/ml/network_animation.gif
+
+~~~
+
+
+
+~~~{.output}
+NULL
+
+~~~
 
 MAC OSX 에서 작업을 할 경우 `$ brew install ghostscript imagemagick` **brew** 명령어로 설치하는 것이 좋다.
 그리고, 윈도우에서 작업을 할 경우 여러가지 사항을 맞춰주어야 하고, 특히 `animation` 팩키지 자체에 일부
