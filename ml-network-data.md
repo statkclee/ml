@@ -14,6 +14,497 @@ mainfont: NanumGothic
 
 ### 1. 네트워크 데이터 구조
 
+기본적인 네트워크 데이터 표현 형식은 다음과 같은 **사회행렬(SocioMatrix)** 자료구조를 갖는다.
+
+|  | A | B | C | D | E |
+|--|---|---|---|---|---|
+|A | 0 | 1 | 1 | 0 | 0 |
+|B | 0 | 0 | 1 | 1 | 0 |
+|C | 0 | 1 | 0 | 0 | 0 |
+|D | 0 | 0 | 0 | 0 | 0 |
+|E | 0 | 0 | 1 | 0 | 0 |
+
+즉 각 노드간에 관계가 있냐 없냐를 없으면 `0`, 연결관계가 있다면 `1`로 표현한다.
+하지만, 이와 같이 표현을 하게 되면 네트워크가 큰 경우 거의 대부분의 관계가 `0`으로 
+없음에도 불구하고 이를 사회행렬로 표현하게 되어, 저장공간 낭비가 엄청 심하게 된다.
+
+노드가 10, 100, 1000 이며, 평균 연결수가 3 인 경우 1000개 노드를 갖는 네트워크를
+사회행렬로 표현할 경우 997,000 개의 빈셀을 갖게 된다. 이런 이유로 **엣지리스트(Edgelist)** 로
+네트워크를 데이터로 표현할 경우 동일한 네트워크를 효과적으로 표현할 수 있다.
+
+
+| 노드   | 평균 연결수 | 엣지  | 밀도 | 빈셀    |
+|--------|-------------|-------|------|---------|
+| 10     | 3           | 15    | 0.33 | 70      |
+| 100    | 3           | 150   | 0.03 | 9,700   |
+| 1,000  | 3           | 1,500 | 0.00 | 997,000 |
+
+
+상기 사회행렬을 엣지리스트로 표현하면 다음과 같다. 소규모 네트워크에서는 데이터에 큰 차이가 없지만,
+중소규모, 대규모로 네트워크 규모가 커지면 네트워크 표현에 대한 효과를 체험하게 된다.
+
+| From | To |
+|------|----|
+| A    | B  |
+| A    | C  |
+| B    | C  |
+| B    | D  |
+| C    | B  |
+| E    | C  |
+
+
+#### 1.1. 네트워크 객체에 저장되는 정보
+
+노드와 엣지는 네트워크 자료형으로 꼭 필요하지만, 추가적인 정보를 더 담을 수 있고, 담아야 한다.
+노드와 엣지 외에도 노드 속성, 엣지 속성, 네트워크 메타데이터가 네트워크 자료형을 구성하고 있다.
+
+| 구성요소 |           설명             | 필수여부 |
+|----------|----------------------------|----------|
+|  노드    | 노드 혹은 `Vertex`라고 불리며 네트워크 노드를 구성    | 필수 |
+|  엣지    | 엣지 혹은 링크, `Tie`라고 불리며 네트워크 연결을 담당 | 필수 |
+| 노드 속성 | 노드 속성을 표현, 노드가 사람인 경우 성별 등         | 선택옵션 |
+| 엣지 속성 | 엣지 속성을 표현, 엣지가 금융거래의 경우 거래금액 등 | 선택옵션 |
+| 메타데이터| 전체 네트워크에 대한 정보를 포함                     | 네트워크에 따라 다름 |
+
+#### 1.2. `statnet` 네트워크 객체 생성 -- 사회행렬
+
+`statnet` 팩키지에서 네트워크 노드는 Vertex라고 부른다. `network` 함수를 사용해서 네트워크
+객체를 생성하게 된다. `matrix.type="adjacency"`으로 설정하여 사회행렬 자료 구조를 
+R 네트워크 자료구조로 변환시킨다.
+
+
+~~~{.r}
+suppressWarnings(suppressMessages(library(network)))
+# 1. 사회행렬(Sociomatrix)
+netmat1 <- rbind(c(0,1,1,0,0),
+                 c(0,0,1,1,0),
+                 c(0,1,0,0,0),
+                 c(0,0,0,0,0),
+                 c(0,0,1,0,0))
+rownames(netmat1) <- c("A","B","C","D","E")
+colnames(netmat1) <- c("A","B","C","D","E")
+net1 <- network(netmat1, matrix.type="adjacency")
+class(net1)
+~~~
+
+
+
+~~~{.output}
+[1] "network"
+
+~~~
+
+
+
+~~~{.r}
+summary(net1)
+~~~
+
+
+
+~~~{.output}
+Network attributes:
+  vertices = 5
+  directed = TRUE
+  hyper = FALSE
+  loops = FALSE
+  multiple = FALSE
+  bipartite = FALSE
+ total edges = 6 
+   missing edges = 0 
+   non-missing edges = 6 
+ density = 0.3 
+
+Vertex attributes:
+  vertex.names:
+   character valued attribute
+   5 valid vertex names
+
+No edge attributes
+
+Network adjacency matrix:
+  A B C D E
+A 0 1 1 0 0
+B 0 0 1 1 0
+C 0 1 0 0 0
+D 0 0 0 0 0
+E 0 0 1 0 0
+
+~~~
+
+`class()`, `summary()` 함수를 통해 자료형과 더불어 전반적인 사항에 대한 확인이 가능하다.
+
+#### 1.3. `statnet` 네트워크 객체 생성 -- 엣지리스트
+
+동일한 네트워크를 엣지리스트로 표현이 가능하다.
+`matrix.type="edgelist"`으로 설정하여 엣지리스트 자료 구조를 
+R 네트워크 자료구조로 변환시킨다. 특히, `network.vertex.names()` 함수를 통해 
+엣지리스트 자료형의 경우 라벨을 붙인다.
+
+
+
+~~~{.r}
+suppressWarnings(suppressMessages(library(sna)))
+# 2. 엣지리스트(Edgelist)
+
+netmat2 <- rbind(c(1,2),
+                 c(1,3),
+                 c(2,3),
+                 c(2,4),
+                 c(3,2),
+                 c(5,3))
+net2 <- network(netmat2,matrix.type="edgelist")
+network.vertex.names(net2) <- c("A","B","C","D","E")
+class(net2)
+~~~
+
+
+
+~~~{.output}
+[1] "network"
+
+~~~
+
+
+
+~~~{.r}
+summary(net2)
+~~~
+
+
+
+~~~{.output}
+Network attributes:
+  vertices = 5
+  directed = TRUE
+  hyper = FALSE
+  loops = FALSE
+  multiple = FALSE
+  bipartite = FALSE
+ total edges = 6 
+   missing edges = 0 
+   non-missing edges = 6 
+ density = 0.3 
+
+Vertex attributes:
+  vertex.names:
+   character valued attribute
+   5 valid vertex names
+
+No edge attributes
+
+Network adjacency matrix:
+  A B C D E
+A 0 1 1 0 0
+B 0 0 1 1 0
+C 0 1 0 0 0
+D 0 0 0 0 0
+E 0 0 1 0 0
+
+~~~
+
+
+
+~~~{.r}
+# 시각화
+par(mfrow=c(1,2))
+gplot(net1, vertex.col = 2, displaylabels = TRUE, main="사회행렬(SocioMatrix)")
+gplot(net2, vertex.col = 2, displaylabels = TRUE, main="엣지리스트(Edgelist)")
+~~~
+
+<img src="fig/network-data-structure-edgelist-1.png" title="plot of chunk network-data-structure-edgelist" alt="plot of chunk network-data-structure-edgelist" style="display: block; margin: auto;" />
+
+#### 1.4. 네트워크 조작
+
+노드에 속성을 내외부에서 추가하고 이를 조회하는 것도 가능하다.
+
+`set.vertex.attribute()` 함수를 통해 외부에서 노드에 대한 속성(`gender`)을 추가하고,
+내부에서도 `degree()` 속성(`alldeg`) 추가도 가능하다. 네트워크 노드에 대한 속성은 
+`list.vertex.attributes()` 함수로 확인이 가능하다.
+
+
+
+~~~{.r}
+# 1. 노드 속성
+set.vertex.attribute(net1, "gender", c("F", "F", "M", "F", "M"))
+net1 %v% "alldeg" <- degree(net1)
+list.vertex.attributes(net1)
+~~~
+
+
+
+~~~{.output}
+[1] "alldeg"       "gender"       "na"           "vertex.names"
+
+~~~
+
+
+
+~~~{.r}
+get.vertex.attribute(net1, "gender")
+~~~
+
+
+
+~~~{.output}
+[1] "F" "F" "M" "F" "M"
+
+~~~
+
+`set.edge.attribute()` 함수를 통해 엣지에 속성(`rndval`) 추가가 가능하다.
+나머지 `list.edge.attributes()` 함수를 통해 엣지에 추가된 속성 확인을 한다.
+
+
+~~~{.r}
+# 2. 엣지 속성
+list.edge.attributes(net1)
+~~~
+
+
+
+~~~{.output}
+[1] "na"
+
+~~~
+
+
+
+~~~{.r}
+set.edge.attribute(net1,"rndval", runif(network.size(net1),0,1))
+list.edge.attributes(net1)
+~~~
+
+
+
+~~~{.output}
+[1] "na"     "rndval"
+
+~~~
+
+
+
+~~~{.r}
+summary(net1 %e% "rndval")
+~~~
+
+
+
+~~~{.output}
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.1978  0.7111  0.7197  0.6884  0.7842  0.9794 
+
+~~~
+
+
+
+~~~{.r}
+summary(get.edge.attribute(net1,"rndval"))
+~~~
+
+
+
+~~~{.output}
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.1978  0.7111  0.7197  0.6884  0.7842  0.9794 
+
+~~~
+
+엣지속성은 SNS같은 네트워크를 표현할 때 자주 등장한다. 
+다음과 같은 SNS에서 `좋아요(like)`를 표현할 때 요긴한데, 
+ignore.eval=FALSE, names.eval="like" 인자로 표현하게 되면 네트워크 엣지에 0, 1 대신
+실제 값(좋아요 갯수) 사용이 가능하다.
+
+
+~~~{.r}
+netval1 <- rbind(c(0,2,3,0,0),
+c(0,0,3,1,0),
+c(0,1,0,0,0),
+c(0,0,0,0,0),
+c(0,0,2,0,0))
+netval1 <- network(netval1,matrix.type="adjacency", ignore.eval=FALSE,names.eval="like")
+network.vertex.names(netval1) <- c("A","B","C","D","E")
+list.edge.attributes(netval1)
+~~~
+
+
+
+~~~{.output}
+[1] "like" "na"  
+
+~~~
+
+
+
+~~~{.r}
+get.edge.attribute(netval1, "like")
+~~~
+
+
+
+~~~{.output}
+[1] 2 1 3 3 2 1
+
+~~~
+
+`as.sociomatrix(netval1)`, `as.sociomatrix(netval1,"like")` 를 통해 사회행렬에 표현되는 방식을 달리할 수 있다.
+
+#### 1.5. `igraph` 네트워크 객체
+
+네트워크 객체를 R에서 표현하는 또다른 방법이 `igraph`를 활용하는 것이다.
+igraph 네트워크 객체로 표현하면 노드속성과 엣지속성을 표현하는데 편리한 장점이 있다.
+
+사회행렬을 igraph 네트워크 객체로 가져오는데 `graph.adjacency()` 함수를 사용한다.
+엣지리스트는 `graph.edgelist()` 함수를 사용한다.
+
+특히, `V()`, `E()` 함수를 사용해서 노드와 엣지의 속성을 쉽게 부여한다.
+
+
+~~~{.r}
+detach(package:statnet)
+~~~
+
+
+
+~~~{.output}
+Error in detach(package:statnet): invalid 'name' argument
+
+~~~
+
+
+
+~~~{.r}
+suppressWarnings(suppressMessages(library(igraph)))
+
+# 사회행렬 igraph 전환
+inet1 <- graph.adjacency(netmat1)
+class(inet1)
+~~~
+
+
+
+~~~{.output}
+[1] "igraph"
+
+~~~
+
+
+
+~~~{.r}
+#summary(inet1)
+#str(inet1)
+
+# 엣지리스트 igraph 전환
+inet2 <- graph.edgelist(netmat2)
+summary(inet2)
+~~~
+
+
+
+~~~{.output}
+IGRAPH D--- 5 6 -- 
+
+~~~
+
+
+
+~~~{.r}
+str(inet2)
+~~~
+
+
+
+~~~{.output}
+IGRAPH D--- 5 6 -- 
++ edges:
+[1] 1->2 1->3 2->3 2->4 3->2 5->3
+
+~~~
+
+
+
+~~~{.r}
+# 노드와 엣지 속성 부여
+V(inet2)$name <- c("A","B","C","D","E")
+E(inet2)$val <- c(1:6)
+summary(inet2)
+~~~
+
+
+
+~~~{.output}
+IGRAPH DN-- 5 6 -- 
++ attr: name (v/c), val (e/n)
+
+~~~
+
+
+
+~~~{.r}
+str(inet2)
+~~~
+
+
+
+~~~{.output}
+IGRAPH DN-- 5 6 -- 
++ attr: name (v/c), val (e/n)
++ edges (vertex names):
+[1] A->B A->C B->C B->D C->B E->C
+
+~~~
+
+
+#### 1.6. `network`, `igraph` 네트워크 객체 전환
+
+`network`와 `igraph` 네트워크 객체를 전환하는데 `intergraph` 팩키지를 사용한다.
+
+
+~~~{.r}
+suppressWarnings(suppressMessages(library(intergraph)))
+class(net1)
+~~~
+
+
+
+~~~{.output}
+[1] "network"
+
+~~~
+
+
+
+~~~{.r}
+net1igraph <- asIgraph(net1)
+class(net1igraph)
+~~~
+
+
+
+~~~{.output}
+[1] "igraph"
+
+~~~
+
+
+
+~~~{.r}
+str(net1igraph)
+~~~
+
+
+
+~~~{.output}
+IGRAPH D--- 5 6 -- 
++ attr: alldeg (v/n), gender (v/c), na (v/l), vertex.names (v/c),
+| na (e/l), rndval (e/n)
++ edges:
+[1] 1->2 3->2 1->3 2->3 5->3 2->4
+
+~~~
+
+
+### 2. 네트워크 데이터 실무 사용례
+
 네트워크 데이터는 **노드(Node)** 와 **엣지(Edge)** 로 구성된다. 
 노드 데이터는 네트워크 노드에 대한 상세 정보가 담겨있다.
 반면에 엣지 정보는 연결된 링크 정보를 담고 있는데 `from`, `to` 형식으로
@@ -21,7 +512,7 @@ mainfont: NanumGothic
 표현한다.
 
 첫번째 네트워크 데이터 형식 표현을 **Edgelist** 라고 하고, 두번째 
-데이터 표현방법을 **행렬(Matrix)** 이라고 부른다.
+데이터 표현방법을 **사회행렬(SocioMatrix)** 이라고 부른다.
 
 두가지 형태를 갖는 데이터를 불러 읽어오자.
 
@@ -459,8 +950,6 @@ net[5,7]
 [1] 0
 
 ~~~
-
-
 
 
 

@@ -40,8 +40,367 @@
                     <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
           <h2 class="subtitle">네트워크 데이터</h2>
           <h3 id="네트워크-데이터-구조">1. 네트워크 데이터 구조</h3>
+<p>기본적인 네트워크 데이터 표현 형식은 다음과 같은 <strong>사회행렬(SocioMatrix)</strong> 자료구조를 갖는다.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left">A</th>
+<th align="left">B</th>
+<th align="left">C</th>
+<th align="left">D</th>
+<th align="left">E</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">A</td>
+<td align="left">0</td>
+<td align="left">1</td>
+<td align="left">1</td>
+<td align="left">0</td>
+<td align="left">0</td>
+</tr>
+<tr class="even">
+<td align="left">B</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">1</td>
+<td align="left">1</td>
+<td align="left">0</td>
+</tr>
+<tr class="odd">
+<td align="left">C</td>
+<td align="left">0</td>
+<td align="left">1</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">0</td>
+</tr>
+<tr class="even">
+<td align="left">D</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">0</td>
+</tr>
+<tr class="odd">
+<td align="left">E</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">1</td>
+<td align="left">0</td>
+<td align="left">0</td>
+</tr>
+</tbody>
+</table>
+<p>즉 각 노드간에 관계가 있냐 없냐를 없으면 <code>0</code>, 연결관계가 있다면 <code>1</code>로 표현한다. 하지만, 이와 같이 표현을 하게 되면 네트워크가 큰 경우 거의 대부분의 관계가 <code>0</code>으로 없음에도 불구하고 이를 사회행렬로 표현하게 되어, 저장공간 낭비가 엄청 심하게 된다.</p>
+<p>노드가 10, 100, 1000 이며, 평균 연결수가 3 인 경우 1000개 노드를 갖는 네트워크를 사회행렬로 표현할 경우 997,000 개의 빈셀을 갖게 된다. 이런 이유로 <strong>엣지리스트(Edgelist)</strong> 로 네트워크를 데이터로 표현할 경우 동일한 네트워크를 효과적으로 표현할 수 있다.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">노드</th>
+<th align="left">평균 연결수</th>
+<th align="left">엣지</th>
+<th align="left">밀도</th>
+<th align="left">빈셀</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">10</td>
+<td align="left">3</td>
+<td align="left">15</td>
+<td align="left">0.33</td>
+<td align="left">70</td>
+</tr>
+<tr class="even">
+<td align="left">100</td>
+<td align="left">3</td>
+<td align="left">150</td>
+<td align="left">0.03</td>
+<td align="left">9,700</td>
+</tr>
+<tr class="odd">
+<td align="left">1,000</td>
+<td align="left">3</td>
+<td align="left">1,500</td>
+<td align="left">0.00</td>
+<td align="left">997,000</td>
+</tr>
+</tbody>
+</table>
+<p>상기 사회행렬을 엣지리스트로 표현하면 다음과 같다. 소규모 네트워크에서는 데이터에 큰 차이가 없지만, 중소규모, 대규모로 네트워크 규모가 커지면 네트워크 표현에 대한 효과를 체험하게 된다.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">From</th>
+<th align="left">To</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">A</td>
+<td align="left">B</td>
+</tr>
+<tr class="even">
+<td align="left">A</td>
+<td align="left">C</td>
+</tr>
+<tr class="odd">
+<td align="left">B</td>
+<td align="left">C</td>
+</tr>
+<tr class="even">
+<td align="left">B</td>
+<td align="left">D</td>
+</tr>
+<tr class="odd">
+<td align="left">C</td>
+<td align="left">B</td>
+</tr>
+<tr class="even">
+<td align="left">E</td>
+<td align="left">C</td>
+</tr>
+</tbody>
+</table>
+<h4 id="네트워크-객체에-저장되는-정보">1.1. 네트워크 객체에 저장되는 정보</h4>
+<p>노드와 엣지는 네트워크 자료형으로 꼭 필요하지만, 추가적인 정보를 더 담을 수 있고, 담아야 한다. 노드와 엣지 외에도 노드 속성, 엣지 속성, 네트워크 메타데이터가 네트워크 자료형을 구성하고 있다.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">구성요소</th>
+<th align="left">설명</th>
+<th align="left">필수여부</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">노드</td>
+<td align="left">노드 혹은 <code>Vertex</code>라고 불리며 네트워크 노드를 구성</td>
+<td align="left">필수</td>
+</tr>
+<tr class="even">
+<td align="left">엣지</td>
+<td align="left">엣지 혹은 링크, <code>Tie</code>라고 불리며 네트워크 연결을 담당</td>
+<td align="left">필수</td>
+</tr>
+<tr class="odd">
+<td align="left">노드 속성</td>
+<td align="left">노드 속성을 표현, 노드가 사람인 경우 성별 등</td>
+<td align="left">선택옵션</td>
+</tr>
+<tr class="even">
+<td align="left">엣지 속성</td>
+<td align="left">엣지 속성을 표현, 엣지가 금융거래의 경우 거래금액 등</td>
+<td align="left">선택옵션</td>
+</tr>
+<tr class="odd">
+<td align="left">메타데이터</td>
+<td align="left">전체 네트워크에 대한 정보를 포함</td>
+<td align="left">네트워크에 따라 다름</td>
+</tr>
+</tbody>
+</table>
+<h4 id="statnet-네트워크-객체-생성-사회행렬">1.2. <code>statnet</code> 네트워크 객체 생성 – 사회행렬</h4>
+<p><code>statnet</code> 팩키지에서 네트워크 노드는 Vertex라고 부른다. <code>network</code> 함수를 사용해서 네트워크 객체를 생성하게 된다. <code>matrix.type=&quot;adjacency&quot;</code>으로 설정하여 사회행렬 자료 구조를 R 네트워크 자료구조로 변환시킨다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">suppressWarnings</span>(<span class="kw">suppressMessages</span>(<span class="kw">library</span>(network)))
+<span class="co"># 1. 사회행렬(Sociomatrix)</span>
+netmat1 &lt;-<span class="st"> </span><span class="kw">rbind</span>(<span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>),
+                 <span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>),
+                 <span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>),
+                 <span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>),
+                 <span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>))
+<span class="kw">rownames</span>(netmat1) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;A&quot;</span>,<span class="st">&quot;B&quot;</span>,<span class="st">&quot;C&quot;</span>,<span class="st">&quot;D&quot;</span>,<span class="st">&quot;E&quot;</span>)
+<span class="kw">colnames</span>(netmat1) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;A&quot;</span>,<span class="st">&quot;B&quot;</span>,<span class="st">&quot;C&quot;</span>,<span class="st">&quot;D&quot;</span>,<span class="st">&quot;E&quot;</span>)
+net1 &lt;-<span class="st"> </span><span class="kw">network</span>(netmat1, <span class="dt">matrix.type=</span><span class="st">&quot;adjacency&quot;</span>)
+<span class="kw">class</span>(net1)</code></pre></div>
+<pre class="output"><code>[1] &quot;network&quot;
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(net1)</code></pre></div>
+<pre class="output"><code>Network attributes:
+  vertices = 5
+  directed = TRUE
+  hyper = FALSE
+  loops = FALSE
+  multiple = FALSE
+  bipartite = FALSE
+ total edges = 6 
+   missing edges = 0 
+   non-missing edges = 6 
+ density = 0.3 
+
+Vertex attributes:
+  vertex.names:
+   character valued attribute
+   5 valid vertex names
+
+No edge attributes
+
+Network adjacency matrix:
+  A B C D E
+A 0 1 1 0 0
+B 0 0 1 1 0
+C 0 1 0 0 0
+D 0 0 0 0 0
+E 0 0 1 0 0
+</code></pre>
+<p><code>class()</code>, <code>summary()</code> 함수를 통해 자료형과 더불어 전반적인 사항에 대한 확인이 가능하다.</p>
+<h4 id="statnet-네트워크-객체-생성-엣지리스트">1.3. <code>statnet</code> 네트워크 객체 생성 – 엣지리스트</h4>
+<p>동일한 네트워크를 엣지리스트로 표현이 가능하다. <code>matrix.type=&quot;edgelist&quot;</code>으로 설정하여 엣지리스트 자료 구조를 R 네트워크 자료구조로 변환시킨다. 특히, <code>network.vertex.names()</code> 함수를 통해 엣지리스트 자료형의 경우 라벨을 붙인다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">suppressWarnings</span>(<span class="kw">suppressMessages</span>(<span class="kw">library</span>(sna)))
+<span class="co"># 2. 엣지리스트(Edgelist)</span>
+
+netmat2 &lt;-<span class="st"> </span><span class="kw">rbind</span>(<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),
+                 <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">3</span>),
+                 <span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">3</span>),
+                 <span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">4</span>),
+                 <span class="kw">c</span>(<span class="dv">3</span>,<span class="dv">2</span>),
+                 <span class="kw">c</span>(<span class="dv">5</span>,<span class="dv">3</span>))
+net2 &lt;-<span class="st"> </span><span class="kw">network</span>(netmat2,<span class="dt">matrix.type=</span><span class="st">&quot;edgelist&quot;</span>)
+<span class="kw">network.vertex.names</span>(net2) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;A&quot;</span>,<span class="st">&quot;B&quot;</span>,<span class="st">&quot;C&quot;</span>,<span class="st">&quot;D&quot;</span>,<span class="st">&quot;E&quot;</span>)
+<span class="kw">class</span>(net2)</code></pre></div>
+<pre class="output"><code>[1] &quot;network&quot;
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(net2)</code></pre></div>
+<pre class="output"><code>Network attributes:
+  vertices = 5
+  directed = TRUE
+  hyper = FALSE
+  loops = FALSE
+  multiple = FALSE
+  bipartite = FALSE
+ total edges = 6 
+   missing edges = 0 
+   non-missing edges = 6 
+ density = 0.3 
+
+Vertex attributes:
+  vertex.names:
+   character valued attribute
+   5 valid vertex names
+
+No edge attributes
+
+Network adjacency matrix:
+  A B C D E
+A 0 1 1 0 0
+B 0 0 1 1 0
+C 0 1 0 0 0
+D 0 0 0 0 0
+E 0 0 1 0 0
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 시각화</span>
+<span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))
+<span class="kw">gplot</span>(net1, <span class="dt">vertex.col =</span> <span class="dv">2</span>, <span class="dt">displaylabels =</span> <span class="ot">TRUE</span>, <span class="dt">main=</span><span class="st">&quot;사회행렬(SocioMatrix)&quot;</span>)
+<span class="kw">gplot</span>(net2, <span class="dt">vertex.col =</span> <span class="dv">2</span>, <span class="dt">displaylabels =</span> <span class="ot">TRUE</span>, <span class="dt">main=</span><span class="st">&quot;엣지리스트(Edgelist)&quot;</span>)</code></pre></div>
+<p><img src="fig/network-data-structure-edgelist-1.png" title="plot of chunk network-data-structure-edgelist" alt="plot of chunk network-data-structure-edgelist" style="display: block; margin: auto;" /></p>
+<h4 id="네트워크-조작">1.4. 네트워크 조작</h4>
+<p>노드에 속성을 내외부에서 추가하고 이를 조회하는 것도 가능하다.</p>
+<p><code>set.vertex.attribute()</code> 함수를 통해 외부에서 노드에 대한 속성(<code>gender</code>)을 추가하고, 내부에서도 <code>degree()</code> 속성(<code>alldeg</code>) 추가도 가능하다. 네트워크 노드에 대한 속성은 <code>list.vertex.attributes()</code> 함수로 확인이 가능하다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 1. 노드 속성</span>
+<span class="kw">set.vertex.attribute</span>(net1, <span class="st">&quot;gender&quot;</span>, <span class="kw">c</span>(<span class="st">&quot;F&quot;</span>, <span class="st">&quot;F&quot;</span>, <span class="st">&quot;M&quot;</span>, <span class="st">&quot;F&quot;</span>, <span class="st">&quot;M&quot;</span>))
+net1 %v%<span class="st"> &quot;alldeg&quot;</span> &lt;-<span class="st"> </span><span class="kw">degree</span>(net1)
+<span class="kw">list.vertex.attributes</span>(net1)</code></pre></div>
+<pre class="output"><code>[1] &quot;alldeg&quot;       &quot;gender&quot;       &quot;na&quot;           &quot;vertex.names&quot;
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get.vertex.attribute</span>(net1, <span class="st">&quot;gender&quot;</span>)</code></pre></div>
+<pre class="output"><code>[1] &quot;F&quot; &quot;F&quot; &quot;M&quot; &quot;F&quot; &quot;M&quot;
+</code></pre>
+<p><code>set.edge.attribute()</code> 함수를 통해 엣지에 속성(<code>rndval</code>) 추가가 가능하다. 나머지 <code>list.edge.attributes()</code> 함수를 통해 엣지에 추가된 속성 확인을 한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 2. 엣지 속성</span>
+<span class="kw">list.edge.attributes</span>(net1)</code></pre></div>
+<pre class="output"><code>[1] &quot;na&quot;
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.edge.attribute</span>(net1,<span class="st">&quot;rndval&quot;</span>, <span class="kw">runif</span>(<span class="kw">network.size</span>(net1),<span class="dv">0</span>,<span class="dv">1</span>))
+<span class="kw">list.edge.attributes</span>(net1)</code></pre></div>
+<pre class="output"><code>[1] &quot;na&quot;     &quot;rndval&quot;
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(net1 %e%<span class="st"> &quot;rndval&quot;</span>)</code></pre></div>
+<pre class="output"><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.1978  0.7111  0.7197  0.6884  0.7842  0.9794 
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(<span class="kw">get.edge.attribute</span>(net1,<span class="st">&quot;rndval&quot;</span>))</code></pre></div>
+<pre class="output"><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.1978  0.7111  0.7197  0.6884  0.7842  0.9794 
+</code></pre>
+<p>엣지속성은 SNS같은 네트워크를 표현할 때 자주 등장한다. 다음과 같은 SNS에서 <code>좋아요(like)</code>를 표현할 때 요긴한데, ignore.eval=FALSE, names.eval=“like” 인자로 표현하게 되면 네트워크 엣지에 0, 1 대신 실제 값(좋아요 갯수) 사용이 가능하다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">netval1 &lt;-<span class="st"> </span><span class="kw">rbind</span>(<span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">0</span>,<span class="dv">0</span>),
+<span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">3</span>,<span class="dv">1</span>,<span class="dv">0</span>),
+<span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>),
+<span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>),
+<span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">2</span>,<span class="dv">0</span>,<span class="dv">0</span>))
+netval1 &lt;-<span class="st"> </span><span class="kw">network</span>(netval1,<span class="dt">matrix.type=</span><span class="st">&quot;adjacency&quot;</span>, <span class="dt">ignore.eval=</span><span class="ot">FALSE</span>,<span class="dt">names.eval=</span><span class="st">&quot;like&quot;</span>)
+<span class="kw">network.vertex.names</span>(netval1) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;A&quot;</span>,<span class="st">&quot;B&quot;</span>,<span class="st">&quot;C&quot;</span>,<span class="st">&quot;D&quot;</span>,<span class="st">&quot;E&quot;</span>)
+<span class="kw">list.edge.attributes</span>(netval1)</code></pre></div>
+<pre class="output"><code>[1] &quot;like&quot; &quot;na&quot;  
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get.edge.attribute</span>(netval1, <span class="st">&quot;like&quot;</span>)</code></pre></div>
+<pre class="output"><code>[1] 2 1 3 3 2 1
+</code></pre>
+<p><code>as.sociomatrix(netval1)</code>, <code>as.sociomatrix(netval1,&quot;like&quot;)</code> 를 통해 사회행렬에 표현되는 방식을 달리할 수 있다.</p>
+<h4 id="igraph-네트워크-객체">1.5. <code>igraph</code> 네트워크 객체</h4>
+<p>네트워크 객체를 R에서 표현하는 또다른 방법이 <code>igraph</code>를 활용하는 것이다. igraph 네트워크 객체로 표현하면 노드속성과 엣지속성을 표현하는데 편리한 장점이 있다.</p>
+<p>사회행렬을 igraph 네트워크 객체로 가져오는데 <code>graph.adjacency()</code> 함수를 사용한다. 엣지리스트는 <code>graph.edgelist()</code> 함수를 사용한다.</p>
+<p>특히, <code>V()</code>, <code>E()</code> 함수를 사용해서 노드와 엣지의 속성을 쉽게 부여한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">detach</span>(package:statnet)</code></pre></div>
+<pre class="output"><code>Error in detach(package:statnet): invalid &#39;name&#39; argument
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">suppressWarnings</span>(<span class="kw">suppressMessages</span>(<span class="kw">library</span>(igraph)))
+
+<span class="co"># 사회행렬 igraph 전환</span>
+inet1 &lt;-<span class="st"> </span><span class="kw">graph.adjacency</span>(netmat1)
+<span class="kw">class</span>(inet1)</code></pre></div>
+<pre class="output"><code>[1] &quot;igraph&quot;
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#summary(inet1)</span>
+<span class="co">#str(inet1)</span>
+
+<span class="co"># 엣지리스트 igraph 전환</span>
+inet2 &lt;-<span class="st"> </span><span class="kw">graph.edgelist</span>(netmat2)
+<span class="kw">summary</span>(inet2)</code></pre></div>
+<pre class="output"><code>IGRAPH D--- 5 6 -- 
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(inet2)</code></pre></div>
+<pre class="output"><code>IGRAPH D--- 5 6 -- 
++ edges:
+[1] 1-&gt;2 1-&gt;3 2-&gt;3 2-&gt;4 3-&gt;2 5-&gt;3
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 노드와 엣지 속성 부여</span>
+<span class="kw">V</span>(inet2)$name &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;A&quot;</span>,<span class="st">&quot;B&quot;</span>,<span class="st">&quot;C&quot;</span>,<span class="st">&quot;D&quot;</span>,<span class="st">&quot;E&quot;</span>)
+<span class="kw">E</span>(inet2)$val &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>:<span class="dv">6</span>)
+<span class="kw">summary</span>(inet2)</code></pre></div>
+<pre class="output"><code>IGRAPH DN-- 5 6 -- 
++ attr: name (v/c), val (e/n)
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(inet2)</code></pre></div>
+<pre class="output"><code>IGRAPH DN-- 5 6 -- 
++ attr: name (v/c), val (e/n)
++ edges (vertex names):
+[1] A-&gt;B A-&gt;C B-&gt;C B-&gt;D C-&gt;B E-&gt;C
+</code></pre>
+<h4 id="network-igraph-네트워크-객체-전환">1.6. <code>network</code>, <code>igraph</code> 네트워크 객체 전환</h4>
+<p><code>network</code>와 <code>igraph</code> 네트워크 객체를 전환하는데 <code>intergraph</code> 팩키지를 사용한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">suppressWarnings</span>(<span class="kw">suppressMessages</span>(<span class="kw">library</span>(intergraph)))
+<span class="kw">class</span>(net1)</code></pre></div>
+<pre class="output"><code>[1] &quot;network&quot;
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">net1igraph &lt;-<span class="st"> </span><span class="kw">asIgraph</span>(net1)
+<span class="kw">class</span>(net1igraph)</code></pre></div>
+<pre class="output"><code>[1] &quot;igraph&quot;
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(net1igraph)</code></pre></div>
+<pre class="output"><code>IGRAPH D--- 5 6 -- 
++ attr: alldeg (v/n), gender (v/c), na (v/l), vertex.names (v/c),
+| na (e/l), rndval (e/n)
++ edges:
+[1] 1-&gt;2 3-&gt;2 1-&gt;3 2-&gt;3 5-&gt;3 2-&gt;4
+</code></pre>
+<h3 id="네트워크-데이터-실무-사용례">2. 네트워크 데이터 실무 사용례</h3>
 <p>네트워크 데이터는 <strong>노드(Node)</strong> 와 <strong>엣지(Edge)</strong> 로 구성된다. 노드 데이터는 네트워크 노드에 대한 상세 정보가 담겨있다. 반면에 엣지 정보는 연결된 링크 정보를 담고 있는데 <code>from</code>, <code>to</code> 형식으로 데이터를 담을 수도 있고, 노드간의 관계를 관계 없음은 <code>0</code>, 관계 있음은 <code>1</code>로 표현한다.</p>
-<p>첫번째 네트워크 데이터 형식 표현을 <strong>Edgelist</strong> 라고 하고, 두번째 데이터 표현방법을 <strong>행렬(Matrix)</strong> 이라고 부른다.</p>
+<p>첫번째 네트워크 데이터 형식 표현을 <strong>Edgelist</strong> 라고 하고, 두번째 데이터 표현방법을 <strong>사회행렬(SocioMatrix)</strong> 이라고 부른다.</p>
 <p>두가지 형태를 갖는 데이터를 불러 읽어오자.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">suppressMessages</span>(<span class="kw">library</span>(readr))
 <span class="kw">suppressMessages</span>(<span class="kw">library</span>(dplyr))

@@ -75,6 +75,7 @@ source("tools/chunk-options.R")
 R 네트워크 자료구조로 변환시킨다.
 
 ``` {r network-data-structure-sociomatrix, warning=FALSE}
+suppressWarnings(suppressMessages(library(network)))
 # 1. 사회행렬(Sociomatrix)
 netmat1 <- rbind(c(0,1,1,0,0),
                  c(0,0,1,1,0),
@@ -100,6 +101,7 @@ R 네트워크 자료구조로 변환시킨다. 특히, `network.vertex.names()`
 
 
 ``` {r network-data-structure-edgelist, warning=FALSE}
+suppressWarnings(suppressMessages(library(sna)))
 # 2. 엣지리스트(Edgelist)
 
 netmat2 <- rbind(c(1,2),
@@ -115,8 +117,8 @@ summary(net2)
 
 # 시각화
 par(mfrow=c(1,2))
-gplot(net1, vertex.col = 2, displaylabels = TRUE, main="사회행렬")
-gplot(net2, vertex.col = 2, displaylabels = TRUE, main="엣지리스트")
+gplot(net1, vertex.col = 2, displaylabels = TRUE, main="사회행렬(SocioMatrix)")
+gplot(net2, vertex.col = 2, displaylabels = TRUE, main="엣지리스트(Edgelist)")
 ```
 
 #### 1.4. 네트워크 조작
@@ -179,7 +181,7 @@ igraph 네트워크 객체로 표현하면 노드속성과 엣지속성을 표�
 
 ``` {r network-data-structure-igraph, warning=FALSE}
 detach(package:statnet)
-library(igraph)
+suppressWarnings(suppressMessages(library(igraph)))
 
 # 사회행렬 igraph 전환
 inet1 <- graph.adjacency(netmat1)
@@ -205,7 +207,7 @@ str(inet2)
 `network`와 `igraph` 네트워크 객체를 전환하는데 `intergraph` 팩키지를 사용한다.
 
 ``` {r network-data-structure-convert, warning=FALSE}
-library(intergraph)
+suppressWarnings(suppressMessages(library(intergraph)))
 class(net1)
 net1igraph <- asIgraph(net1)
 class(net1igraph)
