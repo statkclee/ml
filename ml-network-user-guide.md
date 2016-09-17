@@ -10,9 +10,7 @@ output:
 mainfont: NanumGothic
 ---
  
-``` {r, include=FALSE}
-source("tools/chunk-options.R")
-```
+
  
 ### 1. 네트워크 과학 [^network-user-guide]
 
@@ -77,7 +75,8 @@ source("tools/chunk-options.R")
 
 이를 네트워크 시각화를 통해 확인하면 다음과 같다.
 
-``` {r network-user-guide-viz, warning=FALSE}
+
+~~~{.r}
 # devtools::install_github("DougLuke/UserNetR")
 suppressWarnings(suppressMessages(library(statnet)))
 suppressWarnings(suppressMessages(library(UserNetR)))
@@ -86,30 +85,202 @@ data(Moreno)
 
 gender <- Moreno %v% "gender"
 plot(Moreno, vertex.col = gender + 2, vertex.cex = 1.2)
-```
+~~~
+
+<img src="fig/network-user-guide-viz-1.png" title="plot of chunk network-user-guide-viz" alt="plot of chunk network-user-guide-viz" style="display: block; margin: auto;" />
 
 네트워크 기술통계량에는 네크워크 크기, 전체 네트워크 요약, 네트워크 밀도, 
 네트워크 구성요소 및 반경, 네트워크 군집 계수등이 포함된다.
 
-``` {r network-user-guide-desc, warning=FALSE}
+
+~~~{.r}
 # 네트워크 크기 및 요약
 network.size(Moreno)
-summary(Moreno, print.adj = FALSE)
+~~~
 
+
+
+~~~{.output}
+[1] 33
+
+~~~
+
+
+
+~~~{.r}
+summary(Moreno, print.adj = FALSE)
+~~~
+
+
+
+~~~{.output}
+Network attributes:
+  vertices = 33
+  directed = FALSE
+  hyper = FALSE
+  loops = FALSE
+  multiple = FALSE
+  bipartite = FALSE
+ total edges = 46 
+   missing edges = 0 
+   non-missing edges = 46 
+ density = 0.08712121 
+
+Vertex attributes:
+
+ gender:
+   numeric valued attribute
+   attribute summary:
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  1.000   1.000   2.000   1.515   2.000   2.000 
+  vertex.names:
+   character valued attribute
+   33 valid vertex names
+
+No edge attributes
+
+~~~
+
+
+
+~~~{.r}
 # 네트워크 밀도
 gden(Moreno)
+~~~
 
+
+
+~~~{.output}
+[1] 0.08712121
+
+~~~
+
+
+
+~~~{.r}
 # 네트워크 구성요소(Component)
 components(Moreno)
+~~~
 
+
+
+~~~{.output}
+Node 1, Reach 31, Total 31
+Node 2, Reach 31, Total 62
+Node 3, Reach 31, Total 93
+Node 4, Reach 31, Total 124
+Node 5, Reach 31, Total 155
+Node 6, Reach 31, Total 186
+Node 7, Reach 31, Total 217
+Node 8, Reach 31, Total 248
+Node 9, Reach 31, Total 279
+Node 10, Reach 31, Total 310
+Node 11, Reach 31, Total 341
+Node 12, Reach 31, Total 372
+Node 13, Reach 31, Total 403
+Node 14, Reach 31, Total 434
+Node 15, Reach 31, Total 465
+Node 16, Reach 31, Total 496
+Node 17, Reach 31, Total 527
+Node 18, Reach 31, Total 558
+Node 19, Reach 31, Total 589
+Node 20, Reach 31, Total 620
+Node 21, Reach 31, Total 651
+Node 22, Reach 31, Total 682
+Node 23, Reach 31, Total 713
+Node 24, Reach 31, Total 744
+Node 25, Reach 31, Total 775
+Node 26, Reach 31, Total 806
+Node 27, Reach 31, Total 837
+Node 28, Reach 31, Total 868
+Node 29, Reach 31, Total 899
+Node 30, Reach 31, Total 930
+Node 31, Reach 31, Total 961
+Node 32, Reach 2, Total 963
+Node 33, Reach 2, Total 965
+
+~~~
+
+
+
+~~~{.output}
+[1] 2
+
+~~~
+
+
+
+~~~{.r}
 # 네트워크 반경(Diameter)
 lgc <- component.largest(Moreno, result="graph")
+~~~
+
+
+
+~~~{.output}
+Node 1, Reach 31, Total 31
+Node 2, Reach 31, Total 62
+Node 3, Reach 31, Total 93
+Node 4, Reach 31, Total 124
+Node 5, Reach 31, Total 155
+Node 6, Reach 31, Total 186
+Node 7, Reach 31, Total 217
+Node 8, Reach 31, Total 248
+Node 9, Reach 31, Total 279
+Node 10, Reach 31, Total 310
+Node 11, Reach 31, Total 341
+Node 12, Reach 31, Total 372
+Node 13, Reach 31, Total 403
+Node 14, Reach 31, Total 434
+Node 15, Reach 31, Total 465
+Node 16, Reach 31, Total 496
+Node 17, Reach 31, Total 527
+Node 18, Reach 31, Total 558
+Node 19, Reach 31, Total 589
+Node 20, Reach 31, Total 620
+Node 21, Reach 31, Total 651
+Node 22, Reach 31, Total 682
+Node 23, Reach 31, Total 713
+Node 24, Reach 31, Total 744
+Node 25, Reach 31, Total 775
+Node 26, Reach 31, Total 806
+Node 27, Reach 31, Total 837
+Node 28, Reach 31, Total 868
+Node 29, Reach 31, Total 899
+Node 30, Reach 31, Total 930
+Node 31, Reach 31, Total 961
+Node 32, Reach 2, Total 963
+Node 33, Reach 2, Total 965
+
+~~~
+
+
+
+~~~{.r}
 gd <- geodist(lgc)
 max(gd$gdist)
+~~~
 
+
+
+~~~{.output}
+[1] 11
+
+~~~
+
+
+
+~~~{.r}
 # 군집 계수(Clustering Coefficient)
 gtrans(Moreno,mode="graph")
-```
+~~~
+
+
+
+~~~{.output}
+[1] 0.2857143
+
+~~~
 
 
 
