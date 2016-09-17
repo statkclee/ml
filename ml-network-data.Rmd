@@ -369,6 +369,7 @@ gplot(n2,displaylabels=TRUE, main="Subnetwork")
 네트워크에서 제거한다.
 
 ``` {r network-data-manipulation-filter-isolation, warning=FALSE}
+library(UserNetR)
 data(ICTS_G10)
 
 gden(ICTS_G10)
@@ -397,8 +398,9 @@ gplot(n3, displaylabels=FALSE, main="Network w/o isolated n/w")
 
 ``` {r network-data-manipulation-filter-desc, warning=FALSE}
 # DHHS 네트워크 객체 기술통계분석
-library(igraph)
-library(intergraph)
+suppressWarnings(suppressMessages(library(igraph)))
+suppressWarnings(suppressMessages(library(intergraph)))
+data(DHHS)
 class(DHHS)
 DHHS_igraph <- intergraph::asIgraph(DHHS)
 table(V(DHHS_igraph)$agency)

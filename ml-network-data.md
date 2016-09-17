@@ -291,7 +291,7 @@ summary(net1 %e% "rndval")
 
 ~~~{.output}
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
- 0.1978  0.7111  0.7197  0.6884  0.7842  0.9794 
+ 0.1985  0.3288  0.4326  0.4372  0.5842  0.6302 
 
 ~~~
 
@@ -305,7 +305,7 @@ summary(get.edge.attribute(net1,"rndval"))
 
 ~~~{.output}
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
- 0.1978  0.7111  0.7197  0.6884  0.7842  0.9794 
+ 0.1985  0.3288  0.4326  0.4372  0.5842  0.6302 
 
 ~~~
 
@@ -951,6 +951,319 @@ net[5,7]
 
 ~~~
 
+### 3. 네트워크 객체 조작
+
+네트워크 객체를 생성하고 나면, 데이터프레임 조작하듯이 다양한 작업을 네트워크 자료형에도 
+수행해야 한다. 가장 많이 사용하는 것 중 하나가 전체 네트워크에서 관심있는 
+네트워크만 추출하는 것이다. 또다른 많이 사용되는 네트워크 조작 사용례는 방향성을 갖는 
+네트워크를 방향성 없는 네트워크로 변환시키는 것이다.
+
+#### 3.1. 노드 속성에 따른 네트워크 추출
+
+`get.inducedSubgraph()` 함수를 사용해서 노드가 여성인 것만 뽑아낼 수 있다.
+`%v%` 연산자로 노드 속성 `gender`가 여성(`F`)만 추출해서 네트워크를 구성한다.
+
+
+~~~{.r}
+detach("package:igraph", unload=TRUE)
+# 노드 속성에 따른 네트워크 추출
+n1F <- get.inducedSubgraph(net1,
+                           which(net1 %v% "gender" == "F"))
+n1F[,]
+~~~
 
 
 
+~~~{.output}
+  A B D
+A 0 1 0
+B 0 0 1
+D 0 0 0
+
+~~~
+
+
+
+~~~{.r}
+par(mfrow=c(1,2))
+gplot(net1, vertex.col = 2, displaylabels = TRUE, main="Sociomatrix")
+gplot(n1F, displaylabels=TRUE, main="Subnetwork")
+~~~
+
+<img src="fig/network-data-manipulation-filter-categorical-1.png" title="plot of chunk network-data-manipulation-filter-categorical" alt="plot of chunk network-data-manipulation-filter-categorical" style="display: block; margin: auto;" />
+
+동일한 방식으로 네트워크 노드 속성 값에 따라 네트워크를 추출하는 것도 가능하다.
+
+
+~~~{.r}
+# 노드 속성에 따른 네트워크 추출: 연결수(연속형)
+deg <- net1 %v% "alldeg"
+n2 <- net1 %s% which(deg > 1)
+
+par(mfrow=c(1,2))
+gplot(net1, vertex.col = 2, displaylabels = TRUE, main="Sociomatrix")
+gplot(n2,displaylabels=TRUE, main="Subnetwork")
+~~~
+
+<img src="fig/network-data-manipulation-filter-continuous-1.png" title="plot of chunk network-data-manipulation-filter-continuous" alt="plot of chunk network-data-manipulation-filter-continuous" style="display: block; margin: auto;" />
+
+#### 3.2. 고립된 노드 삭제
+
+고립된 노드를 자동으로 삭제하는 것도 좀더 심도깊은 네트워크 분석을 위해서 필요하다.
+
+`isolate` 함수를 통해 고립노드(연구원)을 식별해낸다. `delete.vertices()` 함수로 고립된 노드를 
+네트워크에서 제거한다.
+
+
+~~~{.r}
+library(UserNetR)
+data(ICTS_G10)
+
+gden(ICTS_G10)
+~~~
+
+
+
+~~~{.output}
+[1] 0.01120566
+
+~~~
+
+
+
+~~~{.r}
+length(isolates(ICTS_G10))
+~~~
+
+
+
+~~~{.output}
+[1] 96
+
+~~~
+
+
+
+~~~{.r}
+n3 <- ICTS_G10
+delete.vertices(n3,isolates(n3))
+gden(n3)
+~~~
+
+
+
+~~~{.output}
+[1] 0.01728876
+
+~~~
+
+
+
+~~~{.r}
+length(isolates(n3))
+~~~
+
+
+
+~~~{.output}
+[1] 0
+
+~~~
+
+
+
+~~~{.r}
+par(mfrow=c(1,2))
+gplot(ICTS_G10, vertex.col = 2, displaylabels = FALSE, main="Entire Network")
+gplot(n3, displaylabels=FALSE, main="Network w/o isolated n/w")
+~~~
+
+<img src="fig/network-data-manipulation-filter-isolation-1.png" title="plot of chunk network-data-manipulation-filter-isolation" alt="plot of chunk network-data-manipulation-filter-isolation" style="display: block; margin: auto;" />
+
+#### 3.3. 엣지 속성활용 네트워크 추출/단순화
+
+엣지속성을 활용하여 네트워크 추출/단순화할 수 있다. 먼저 
+`network` 객체를 `igraph` 객체로 변환하여 기술통계를 살펴본다.
+`DHHS` 데이터셋은 11개 연구기관의 54명 전문가의 공동연구현황에 대한 네트워크 데이터다.
+`collab` 변수에는 4가지 연구 유형이 나와 있는데, 3,4번 즉 공동 프로젝트와 심도 깊은 다수 공동
+프로젝트를 추진한 네트워크만 추출해서 살펴본다. 이유는 1,2,3,4번 협업 유형을 모두 시각화할 경우 
+너무 네트워크가 복잡해지기 때문이다. 이를 위해서 `igraph`가 전반적인 기술통계분석에 용이하다.
+각자 편한 방법을 내재화하는 것도 좋을 듯 하다.
+
+
+~~~{.r}
+# DHHS 네트워크 객체 기술통계분석
+suppressWarnings(suppressMessages(library(igraph)))
+suppressWarnings(suppressMessages(library(intergraph)))
+data(DHHS)
+class(DHHS)
+~~~
+
+
+
+~~~{.output}
+[1] "network"
+
+~~~
+
+
+
+~~~{.r}
+DHHS_igraph <- intergraph::asIgraph(DHHS)
+table(V(DHHS_igraph)$agency)
+~~~
+
+
+
+~~~{.output}
+
+ 0  1  2  3  4  5  6  7  8  9 10 
+ 2  4 12  2  2  3  2 16  3  5  3 
+
+~~~
+
+
+
+~~~{.r}
+table(E(DHHS_igraph)$collab)
+~~~
+
+
+
+~~~{.output}
+
+  1   2   3   4 
+163 111  94  79 
+
+~~~
+
+엣지 속성을 활용한 대략적인 하위 네트워크 추출 로직은 다음과 같다.
+
+1. `as.sociomatrix` 함수로 `collab` 속성을 갖는 행렬을 추출한다.
+1. 행렬 값이 1,2가 나온 것은 `0`으로 모두 채워넣는다.
+1. `as.network` 함수로 필터된, 즉 3,4 번 연구유형만으로 네트워크를 새로 구성한다.
+
+
+~~~{.r}
+# 3,4 번 유형만 추출
+d <- DHHS
+gden(d)
+~~~
+
+
+
+~~~{.output}
+[1] 0.312369
+
+~~~
+
+
+
+~~~{.r}
+d.val <- as.sociomatrix(d, attrname="collab")
+d.val[d.val < 3] <- 0
+d.filt <- as.network(d.val, directed=FALSE,
+                     matrix.type="a",ignore.eval=FALSE,
+                     names.eval="collab")
+
+gden(d.filt)
+~~~
+
+
+
+~~~{.output}
+[1] 0.1208945
+
+~~~
+
+
+
+~~~{.r}
+# 시각화
+par(mfrow=c(1,3))
+gplot(DHHS,gmode="graph",edge.lwd=DHHS %e% 'collab',
+      edge.col="grey50",vertex.col="lightblue",
+      vertex.cex=1.0,vertex.sides=20)
+
+gplot(d.filt,gmode="graph",displaylabels=TRUE,
+      vertex.col="lightblue",vertex.cex=1.3,
+      label.cex=0.4,label.pos=5,
+      displayisolates=FALSE)
+
+gplot(d.val,gmode="graph",thresh=2,displaylabels=TRUE,
+      vertex.col="lightblue",vertex.cex=1.3,
+      label.cex=0.4,label.pos=5,
+      displayisolates=FALSE)
+~~~
+
+<img src="fig/network-data-manipulation-filter-edge-1.png" title="plot of chunk network-data-manipulation-filter-edge" alt="plot of chunk network-data-manipulation-filter-edge" style="display: block; margin: auto;" />
+
+#### 3.4. 방향성 있는 엣지를 방향성 없는 엣지로 변환
+
+방향성 있는 엣지를 방향성 없는 엣지로 변환할 때는 `symmetrize`를 사용한다.
+행렬 대각선을 따라 좌우 대칭이면 방향성 없는 엣지를 갖는 것으로 판단할 수 있다.
+`symmetrize` 함수를 실행하면 사회행렬이 반환되기 때문에 네트워크 자료형으로 변환작업이 
+추후 필요하다.
+
+
+~~~{.r}
+#------------------------------------------------------------------------------
+# 03. 방향성 없는 엣지를 방향성 있는 엣지로 변환
+#------------------------------------------------------------------------------
+# 방향성 없는 엣지로 변환
+net1mat <- symmetrize(net1,rule="weak")
+net1mat
+~~~
+
+
+
+~~~{.output}
+     [,1] [,2] [,3] [,4] [,5]
+[1,]    0    1    1    0    0
+[2,]    1    0    1    1    0
+[3,]    1    1    0    0    1
+[4,]    0    1    0    0    0
+[5,]    0    0    1    0    0
+
+~~~
+
+
+
+~~~{.r}
+# 네트워크 데이터 변환
+net1symm <- network(net1mat,matrix.type="adjacency")
+network.vertex.names(net1symm) <- c("A","B","C","D","E")
+summary(net1symm)
+~~~
+
+
+
+~~~{.output}
+Network attributes:
+  vertices = 5
+  directed = TRUE
+  hyper = FALSE
+  loops = FALSE
+  multiple = FALSE
+  bipartite = FALSE
+ total edges = 10 
+   missing edges = 0 
+   non-missing edges = 10 
+ density = 0.5 
+
+Vertex attributes:
+  vertex.names:
+   character valued attribute
+   5 valid vertex names
+
+No edge attributes
+
+Network adjacency matrix:
+  A B C D E
+A 0 1 1 0 0
+B 1 0 1 1 0
+C 1 1 0 0 1
+D 0 1 0 0 0
+E 0 0 1 0 0
+
+~~~
