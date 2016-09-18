@@ -66,7 +66,9 @@ mainfont: NanumGothic
 | 엣지 속성 | 엣지 속성을 표현, 엣지가 금융거래의 경우 거래금액 등 | 선택옵션 |
 | 메타데이터| 전체 네트워크에 대한 정보를 포함                     | 네트워크에 따라 다름 |
 
-#### 1.2. `statnet` 네트워크 객체 생성 -- 사회행렬
+#### 1.2. `statnet` 네트워크 자료형
+
+##### 1.2.1. `statnet` 네트워크 객체 생성 -- 사회행렬
 
 `statnet` 팩키지에서 네트워크 노드는 Vertex라고 부른다. `network` 함수를 사용해서 네트워크
 객체를 생성하게 된다. `matrix.type="adjacency"`으로 설정하여 사회행렬 자료 구조를 
@@ -134,7 +136,7 @@ E 0 0 1 0 0
 
 `class()`, `summary()` 함수를 통해 자료형과 더불어 전반적인 사항에 대한 확인이 가능하다.
 
-#### 1.3. `statnet` 네트워크 객체 생성 -- 엣지리스트
+##### 1.2.2. `statnet` 네트워크 객체 생성 -- 엣지리스트
 
 동일한 네트워크를 엣지리스트로 표현이 가능하다.
 `matrix.type="edgelist"`으로 설정하여 엣지리스트 자료 구조를 
@@ -214,7 +216,7 @@ gplot(net2, vertex.col = 2, displaylabels = TRUE, main="엣지리스트(Edgelist
 
 <img src="fig/network-data-structure-edgelist-1.png" title="plot of chunk network-data-structure-edgelist" alt="plot of chunk network-data-structure-edgelist" style="display: block; margin: auto;" />
 
-#### 1.4. 네트워크 조작
+##### 1.2.3. `statnet` 네트워크 조작
 
 노드에 속성을 내외부에서 추가하고 이를 조회하는 것도 가능하다.
 
@@ -291,7 +293,7 @@ summary(net1 %e% "rndval")
 
 ~~~{.output}
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
- 0.1985  0.3288  0.4326  0.4372  0.5842  0.6302 
+ 0.1309  0.1531  0.2204  0.4082  0.6519  0.9513 
 
 ~~~
 
@@ -305,7 +307,7 @@ summary(get.edge.attribute(net1,"rndval"))
 
 ~~~{.output}
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
- 0.1985  0.3288  0.4326  0.4372  0.5842  0.6302 
+ 0.1309  0.1531  0.2204  0.4082  0.6519  0.9513 
 
 ~~~
 
@@ -348,10 +350,168 @@ get.edge.attribute(netval1, "like")
 
 `as.sociomatrix(netval1)`, `as.sociomatrix(netval1,"like")` 를 통해 사회행렬에 표현되는 방식을 달리할 수 있다.
 
-#### 1.5. `igraph` 네트워크 객체
+#### 1.3. `igraph` 네트워크 자료형 [^igraph-network-data-structure]
+
+[^igraph-network-data-structure]: [Network Analysis and Visualization with R and igraph](http://kateto.net/networks-r-igraph)
 
 네트워크 객체를 R에서 표현하는 또다른 방법이 `igraph`를 활용하는 것이다.
 igraph 네트워크 객체로 표현하면 노드속성과 엣지속성을 표현하는데 편리한 장점이 있다.
+
+`igraph` 팩키지에 내장된 `graph()` 함수에 `edges=`, `n=` 인자를 넣어
+네트워크 자료형을 생성한다. 인자명에 나타나듯이 `edges=`는 엣지를, `n=`는 노드를 표현한다.
+
+
+
+~~~{.r}
+suppressWarnings(suppressMessages(library(igraph)))
+#---------------------------------------------------------------------------------
+# 01. 네트워크 생성 기초
+#---------------------------------------------------------------------------------
+# 그래프1
+g1 <- graph( edges=c(1,2, 2,3, 3,1), n=3, directed=FALSE)
+plot(g1)
+~~~
+
+<img src="fig/network-data-structure-igraph-01-1.png" title="plot of chunk network-data-structure-igraph-01" alt="plot of chunk network-data-structure-igraph-01" style="display: block; margin: auto;" />
+
+~~~{.r}
+class(g1)
+~~~
+
+
+
+~~~{.output}
+[1] "igraph"
+
+~~~
+
+
+
+~~~{.r}
+g1
+~~~
+
+
+
+~~~{.output}
+IGRAPH U--- 3 3 -- 
++ edges:
+[1] 1--2 2--3 1--3
+
+~~~
+
+
+
+~~~{.r}
+# 그래프2
+g2 <- graph( edges=c(1,2, 2,3, 3,1), n=10, directed=FALSE)
+plot(g2)
+~~~
+
+<img src="fig/network-data-structure-igraph-01-2.png" title="plot of chunk network-data-structure-igraph-01" alt="plot of chunk network-data-structure-igraph-01" style="display: block; margin: auto;" />
+
+~~~{.r}
+g2
+~~~
+
+
+
+~~~{.output}
+IGRAPH U--- 10 3 -- 
++ edges:
+[1] 1--2 2--3 1--3
+
+~~~
+
+노드간 번호를 연결하는 대신에 노드명칭으로 노드를 연결하는 것도 가능하다.
+
+
+~~~{.r}
+# 그래프3
+g3 <- graph( edges=c("John","Jim", "Jim","Jill", "Jill", "John"))
+plot(g3)
+~~~
+
+<img src="fig/network-data-structure-igraph-02-1.png" title="plot of chunk network-data-structure-igraph-02" alt="plot of chunk network-data-structure-igraph-02" style="display: block; margin: auto;" />
+
+~~~{.r}
+g3
+~~~
+
+
+
+~~~{.output}
+IGRAPH DN-- 3 3 -- 
++ attr: name (v/c)
++ edges (vertex names):
+[1] John->Jim  Jim ->Jill Jill->John
+
+~~~
+
+
+
+~~~{.r}
+# 그래프4
+g4 <- graph( c("John", "Jim", "Jim", "Jack", "Jim", "Jack", "John", "John"), 
+             isolates=c("Jesse", "Janis", "Jennifer", "Justin") )  
+
+plot(g4, edge.arrow.size=.5, vertex.color="gold", vertex.size=15, 
+     vertex.frame.color="gray", vertex.label.color="black", 
+     vertex.label.cex=0.8, vertex.label.dist=2, edge.curved=0.2)
+~~~
+
+<img src="fig/network-data-structure-igraph-02-2.png" title="plot of chunk network-data-structure-igraph-02" alt="plot of chunk network-data-structure-igraph-02" style="display: block; margin: auto;" />
+
+`+`, `-`, `:` 기호를 활용하여 네트워크를 생성하는 것도 가능하다.
+
+* - : 방향성 없음
+* +-, -+ : 왼쪽, 오른쪽 방향 화살표 
+* ++ : 대칭 연결
+* : 노드 집합(Sets of Vertices)
+
+
+~~~{.r}
+#---------------------------------------------------------------------------------
+# 02. 단순기호 활용 그래프 생성
+#---------------------------------------------------------------------------------
+
+# - 사례
+plot(graph_from_literal(a---b, b---c))
+~~~
+
+<img src="fig/network-data-structure-igraph-03-1.png" title="plot of chunk network-data-structure-igraph-03" alt="plot of chunk network-data-structure-igraph-03" style="display: block; margin: auto;" />
+
+~~~{.r}
+# +-, -+ 사례
+plot(graph_from_literal(a--+b, b+--c))
+~~~
+
+<img src="fig/network-data-structure-igraph-03-2.png" title="plot of chunk network-data-structure-igraph-03" alt="plot of chunk network-data-structure-igraph-03" style="display: block; margin: auto;" />
+
+~~~{.r}
+# +-+ 대칭 사례
+plot(graph_from_literal(a+-+b, b+-+c)) 
+~~~
+
+<img src="fig/network-data-structure-igraph-03-3.png" title="plot of chunk network-data-structure-igraph-03" alt="plot of chunk network-data-structure-igraph-03" style="display: block; margin: auto;" />
+
+~~~{.r}
+# : 노드 집합(Sets of Vertices)
+plot(graph_from_literal(a:b:c---c:d:e))
+~~~
+
+<img src="fig/network-data-structure-igraph-03-4.png" title="plot of chunk network-data-structure-igraph-03" alt="plot of chunk network-data-structure-igraph-03" style="display: block; margin: auto;" />
+
+~~~{.r}
+# 종합 사례
+gl <- graph_from_literal(a-b-c-d-e-f, a-g-h-b, h-e:f:i, j)
+plot(gl)
+~~~
+
+<img src="fig/network-data-structure-igraph-03-5.png" title="plot of chunk network-data-structure-igraph-03" alt="plot of chunk network-data-structure-igraph-03" style="display: block; margin: auto;" />
+
+
+##### 1.3.1 `igraph` 네트워크 엣지, 노드 속성 조작
 
 사회행렬을 igraph 네트워크 객체로 가져오는데 `graph.adjacency()` 함수를 사용한다.
 엣지리스트는 `graph.edgelist()` 함수를 사용한다.
@@ -395,66 +555,235 @@ class(inet1)
 
 # 엣지리스트 igraph 전환
 inet2 <- graph.edgelist(netmat2)
-summary(inet2)
-~~~
+#summary(inet2)
+#str(inet2)
 
-
-
-~~~{.output}
-IGRAPH D--- 5 6 -- 
-
-~~~
-
-
-
-~~~{.r}
-str(inet2)
-~~~
-
-
-
-~~~{.output}
-IGRAPH D--- 5 6 -- 
-+ edges:
-[1] 1->2 1->3 2->3 2->4 3->2 5->3
-
-~~~
-
-
-
-~~~{.r}
 # 노드와 엣지 속성 부여
 V(inet2)$name <- c("A","B","C","D","E")
 E(inet2)$val <- c(1:6)
-summary(inet2)
+#summary(inet2)
+#str(inet2)
+~~~
+
+`g4[]` 명령어를 통해 전체 사회행렬을 확인한다.
+`V(g4)$gender`, `E(g4)$type` 명령어를 통해 노드와 엣지에 속성을 부여한다.
+`set_graph_attr()` 함수로 동일한 작업이 가능하다. 물론, 
+`delete_graph_attr()` 함수로 속성을 제거하는 것도 가능하다.
+
+`simplify()` 함수를 통해 루프 및 중복 제거 등 네트워크를 필요시 간략화한다.
+
+
+~~~{.r}
+E(g4)
 ~~~
 
 
 
 ~~~{.output}
-IGRAPH DN-- 5 6 -- 
-+ attr: name (v/c), val (e/n)
++ 4/4 edges (vertex names):
+[1] John->Jim  Jim ->Jack Jim ->Jack John->John
 
 ~~~
 
 
 
 ~~~{.r}
-str(inet2)
+V(g4)
 ~~~
 
 
 
 ~~~{.output}
-IGRAPH DN-- 5 6 -- 
-+ attr: name (v/c), val (e/n)
-+ edges (vertex names):
-[1] A->B A->C B->C B->D C->B E->C
++ 7/7 vertices, named:
+[1] John     Jim      Jack     Jesse    Janis    Jennifer Justin  
 
 ~~~
 
 
-#### 1.6. `network`, `igraph` 네트워크 객체 전환
+
+~~~{.r}
+g4[]
+~~~
+
+
+
+~~~{.output}
+7 x 7 sparse Matrix of class "dgCMatrix"
+         John Jim Jack Jesse Janis Jennifer Justin
+John        1   1    .     .     .        .      .
+Jim         .   .    2     .     .        .      .
+Jack        .   .    .     .     .        .      .
+Jesse       .   .    .     .     .        .      .
+Janis       .   .    .     .     .        .      .
+Jennifer    .   .    .     .     .        .      .
+Justin      .   .    .     .     .        .      .
+
+~~~
+
+
+
+~~~{.r}
+g4[1,]
+~~~
+
+
+
+~~~{.output}
+    John      Jim     Jack    Jesse    Janis Jennifer   Justin 
+       1        1        0        0        0        0        0 
+
+~~~
+
+
+
+~~~{.r}
+V(g4)$name
+~~~
+
+
+
+~~~{.output}
+[1] "John"     "Jim"      "Jack"     "Jesse"    "Janis"    "Jennifer"
+[7] "Justin"  
+
+~~~
+
+
+
+~~~{.r}
+# 엣지, 노드 속성부여 방법 1
+V(g4)$gender <- c("male", "male", "male", "male", "female", "female", "male")
+E(g4)$type <- "email"
+E(g4)$weight <- 10
+
+edge_attr(g4)
+~~~
+
+
+
+~~~{.output}
+$type
+[1] "email" "email" "email" "email"
+
+$weight
+[1] 10 10 10 10
+
+~~~
+
+
+
+~~~{.r}
+vertex_attr(g4)
+~~~
+
+
+
+~~~{.output}
+$name
+[1] "John"     "Jim"      "Jack"     "Jesse"    "Janis"    "Jennifer"
+[7] "Justin"  
+
+$gender
+[1] "male"   "male"   "male"   "male"   "female" "female" "male"  
+
+~~~
+
+
+
+~~~{.r}
+graph_attr(g4)
+~~~
+
+
+
+~~~{.output}
+named list()
+
+~~~
+
+
+
+~~~{.r}
+# 엣지, 노드 속성부여 방법 2
+g4 <- set_graph_attr(g4, "name", "Email Network")
+g4 <- set_graph_attr(g4, "something", "A thing")
+graph_attr_names(g4)
+~~~
+
+
+
+~~~{.output}
+[1] "name"      "something"
+
+~~~
+
+
+
+~~~{.r}
+graph_attr(g4, "name")
+~~~
+
+
+
+~~~{.output}
+[1] "Email Network"
+
+~~~
+
+
+
+~~~{.r}
+graph_attr(g4)
+~~~
+
+
+
+~~~{.output}
+$name
+[1] "Email Network"
+
+$something
+[1] "A thing"
+
+~~~
+
+
+
+~~~{.r}
+g4 <- delete_graph_attr(g4, "something")
+graph_attr(g4)
+~~~
+
+
+
+~~~{.output}
+$name
+[1] "Email Network"
+
+~~~
+
+
+
+~~~{.r}
+# 시각화
+plot(g4, edge.arrow.size=.5, vertex.label.color="black", vertex.label.dist=1.5,
+     vertex.color=c( "pink", "skyblue")[1+(V(g4)$gender=="male")] ) 
+~~~
+
+<img src="fig/network-data-structure-igraph-manip-1.png" title="plot of chunk network-data-structure-igraph-manip" alt="plot of chunk network-data-structure-igraph-manip" style="display: block; margin: auto;" />
+
+~~~{.r}
+# 간략화
+g4s <- simplify( g4, remove.multiple = TRUE, remove.loops = TRUE, 
+                 edge.attr.comb=c(weight="sum", type="ignore") )
+plot(g4s, vertex.label.dist=1.5)
+~~~
+
+<img src="fig/network-data-structure-igraph-manip-2.png" title="plot of chunk network-data-structure-igraph-manip" alt="plot of chunk network-data-structure-igraph-manip" style="display: block; margin: auto;" />
+
+
+
+#### 1.4. `network`, `igraph` 네트워크 객체 전환
 
 `network`와 `igraph` 네트워크 객체를 전환하는데 `intergraph` 팩키지를 사용한다.
 
@@ -833,9 +1162,9 @@ IGRAPH DNW- 17 49 --
 
 * `IGRAPH DNW- 17 49 -- ` : 
     * D 혹은 U : 방향성 있는 그래프 혹은 방향성 없는 그래프를 기술
-    * N : 노드가 `name` 속성을 갖는 것을 기술
-    * W : 가중값이 있는 그래프로 엣지에 `weight` 속성이 있음을 기술
-    * B : 이분(Bipartite, two-mode) 그래프로 노두가 `type` 속성이 있음을 기술
+    * N : 노드는 `name` 속성을 갖는 것을 기술
+    * W : 가중값이 있는 그래프로 엣지는 `weight` 속성을 갖는 것을 기술
+    * B : 이분(Bipartite, two-mode) 그래프로 `type` 속성을 갖는 것을 기술
     * 17 49 : 노드가 17, 엣지가 49 개가 그래프에 존재함을 기술
 * `attr: name (v/c), media (v/c), media.type (v/n), type.label (v/c), audience.size (v/n), type (e/c), weight (e/n)` : 
     * (g/c) : graph-level character attribute
@@ -920,34 +1249,6 @@ V(net)$media # 노드 속성 "media"
 [10] "ABC"                 "BBC"                 "Yahoo News"         
 [13] "Google News"         "Reuters.com"         "NYTimes.com"        
 [16] "WashingtonPost.com"  "AOL.com"            
-
-~~~
-
-
-
-~~~{.r}
-# 직접 네트워크 행렬을 조작
-net[1,]
-~~~
-
-
-
-~~~{.output}
-s01 s02 s03 s04 s05 s06 s07 s08 s09 s10 s11 s12 s13 s14 s15 s16 s17 
-  0  22  22  21   0   0   0   0   0   0   0   0   0   0  20   0   0 
-
-~~~
-
-
-
-~~~{.r}
-net[5,7]
-~~~
-
-
-
-~~~{.output}
-[1] 0
 
 ~~~
 

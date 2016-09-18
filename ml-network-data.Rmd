@@ -183,6 +183,7 @@ igraph 네트워크 객체로 표현하면 노드속성과 엣지속성을 표�
 
 
 ``` {r network-data-structure-igraph-01, warning=FALSE}
+suppressWarnings(suppressMessages(library(igraph)))
 #---------------------------------------------------------------------------------
 # 01. 네트워크 생성 기초
 #---------------------------------------------------------------------------------
@@ -211,7 +212,7 @@ g3
 g4 <- graph( c("John", "Jim", "Jim", "Jack", "Jim", "Jack", "John", "John"), 
              isolates=c("Jesse", "Janis", "Jennifer", "Justin") )  
 
-plot(g4, edge.arrow.size=.05, vertex.color="gold", vertex.size=15, 
+plot(g4, edge.arrow.size=.5, vertex.color="gold", vertex.size=15, 
      vertex.frame.color="gray", vertex.label.color="black", 
      vertex.label.cex=0.8, vertex.label.dist=2, edge.curved=0.2)
 ```
@@ -307,7 +308,7 @@ g4 <- delete_graph_attr(g4, "something")
 graph_attr(g4)
 
 # 시각화
-plot(g4, edge.arrow.size=.05, vertex.label.color="black", vertex.label.dist=1.5,
+plot(g4, edge.arrow.size=.5, vertex.label.color="black", vertex.label.dist=1.5,
      vertex.color=c( "pink", "skyblue")[1+(V(g4)$gender=="male")] ) 
 
 # 간략화
