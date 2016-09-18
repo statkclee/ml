@@ -49,6 +49,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [R 팩키지 사회망 분석](ml-sna-r-ecosystem.html)        
         1. [네트워크 데이터 연습문제](ml-network-data-ex.html)
         1. [네트워크 분석 사용자 안내서](ml-network-user-guide.html)
+        1. [네트워크 유형](ml-network-type.html)
     1. **[텍스트 데이터](ml-text.html)**
         1. [텍스트 데이터 수집 -- 트위터](ml-text-twitter.html)
         1. [텍스트 데이터 전처리 -- qdap](ml-text-qdap.html)        
