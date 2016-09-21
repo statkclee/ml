@@ -149,3 +149,107 @@ rules
 options(digits=2)
 inspect(rules[1:5])
 ```
+
+#### 4.1. 유의미한 연관규칙 탐색
+
+연관규칙이 너무 많이 도출되기 때문에 이중에서 가장 유의미한 규칙을 뽑아낼 필요가 있다.
+이런 경우 **신뢰도(Confidence)** 혹은 **향상도(Lift)** 를 기준으로 내림차순 정렬하면 유의미한 연관규칙을 빠르게 탐색할 수 있다.
+
+특히 연관규칙집합의 길이가 긴 경우 `maxlen=3` 인자를 조정하여 설정한다.
+
+``` {r ml-groceries-rules-sorting, warning=FALSE}
+#--------------------------------------------------------------------------------------
+# 01. 정렬
+#--------------------------------------------------------------------------------------
+# 최대 길이 3인 집합으로 한정
+rules <- apriori(Groceries, parameter = list(supp = 0.001, conf = 0.8, maxlen=3))
+rules <- sort(rules, by="confidence", decreasing=TRUE)
+inspect(rules[1:10])
+```
+
+#### 4.2. 중복 연관집합 제거
+
+흔히, 연관규칙이 반복된다. 특정 제품이 거의 모든 연관규칙에 포함된 경우 해당 제품을
+데이터에서 제거하고 연관규칙을 찾아내는 것도 방법이고, 대안으로 생성된 중복규칙을 
+제거하는 것도 바람직하다.
+
+``` {r ml-groceries-rules-redundancy, warning=FALSE}
+#--------------------------------------------------------------------------------------
+# 02. 중복 집합 제거
+#--------------------------------------------------------------------------------------
+
+subset.matrix <- is.subset(rules, rules)
+subset.matrix[lower.tri(subset.matrix, diag=T)] <- NA
+redundant <- colSums(subset.matrix, na.rm=T) >= 1
+rules.pruned <- rules[!redundant]
+
+rules.pruned <- sort(rules.pruned, by="confidence", decreasing=TRUE)
+inspect(rules.pruned[1:10])
+```
+
+#### 4.3. 목표 제품 집중 분석
+
+지금까지 연관규칙을 생성하는 방법을 학습했고, 생성된 규칙이 통상적으로 많기 때문에 
+이를 제거하거나 축약하는 방식을 살펴봤다. 이제 특정 제품에 집중해서 연관규칙을 활용하는 
+방법을 살펴보자.
+
+* 특정 제품(`whole milk`)을 장바구니에 넣기 전에, 고객이 구매할 가능성이 많은 제품은 무엇인가?
+* 특정 제품(`whole milk`)을 장바구니에 넣어 구매했다면, 고객이 추가로 구매할 가능성이 높은 제품은 무엇인가?
+
+위와 같은 질문이 특정 제품을 기준으로 제기되는 상황이 전개된는데, 이를 R 코드로 구현하는 것은 
+어렵지 않다. 즉, `lhs`, `rhs` 인자를 제어하면서 풀 수 있다.
+
+``` {r ml-groceries-rules-target-before, warning=FALSE}
+rules_before <-apriori(data=Groceries, parameter=list(supp=0.001,conf = 0.08), 
+               appearance = list(default="lhs",rhs="whole milk"),
+               control = list(verbose=F))
+rules_before <-sort(rules_before , decreasing=TRUE,by="confidence")
+inspect(rules_before [1:5])
+```
+
+`supp`, `conf` 인자를 조정하여 연관규칙이 적절히 도출되도록 제어한다.
+
+
+``` {r ml-groceries-rules-target-after, warning=FALSE}
+rules_after <-apriori(data=Groceries, parameter=list(supp=0.001,conf = 0.15,minlen=2), 
+               appearance = list(default="rhs",lhs="whole milk"),
+               control = list(verbose=F))
+rules_after <-sort(rules_after , decreasing=TRUE,by="confidence")
+inspect(rules_after [1:5])
+```
+
+### 5. 시각화
+
+#### 5.1. 단어구름
+
+연관규칙을 시각화하는데 네트워크 도표와 더불어 가장 빈발하는 제품을 `wordcloud`를 통해 
+살펴보는 것도 시각화의 한 좋은 사례다.
+
+
+``` {r ml-groceries-rules-wordcloud, warning=FALSE}
+#--------------------------------------------------------------------------------------
+# 01. 단어 구름
+#--------------------------------------------------------------------------------------
+product_name <- itemLabels(cart)
+product_cnt <- itemFrequency(cart)*9835
+
+col.pal <- brewer.pal(9, "Blues")
+
+wordcloud(words = product_name, freq = product_cnt, min.freq = 1, scale = c(3, 0.2), col = col.pal , random.order = FALSE)
+```
+
+#### 5.2. 연관규칙 시각화
+
+연관규칙을 시각화하는데 `arulesViz` 팩키지를 활용한다.
+
+``` {r ml-groceries-rules-arulesViz, warning=FALSE}
+#--------------------------------------------------------------------------------------
+# 02. 연관규칙 시각화
+#--------------------------------------------------------------------------------------
+library(arulesViz)
+plot(rules, method="graph", interactive=TRUE, shading=NA)
+
+par(mfrow=c(1,2))
+plot(rules, method="grouped")
+plot(rules, method="paracoord", control=list(reorder=TRUE))
+```
