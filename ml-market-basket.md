@@ -10,9 +10,7 @@ output:
 mainfont: NanumGothic
 ---
  
-``` {r, include=FALSE}
-source("tools/chunk-options.R")
-```
+
 
 > ### 신용평가모형 목표 {.getready}
 >
@@ -41,7 +39,8 @@ source("tools/chunk-options.R")
 
 
 
-``` {r ml-market-basket-packages, warning=FALSE}
+
+~~~{.r}
 ##======================================================================================
 ## 00. 장바구니 분석 환경 설정
 ##======================================================================================
@@ -53,7 +52,7 @@ source("tools/chunk-options.R")
 suppressWarnings(suppressMessages(library(arules)))
 suppressWarnings(suppressMessages(library(arulesViz)))
 suppressWarnings(suppressMessages(library(wordcloud)))
-```
+~~~
 
 #### 1.2. 장바구니 데이터 불러오기
 
@@ -65,14 +64,28 @@ suppressWarnings(suppressMessages(library(wordcloud)))
 
 `arules` 팩키지에 소속된 `read.transactions` 함수를 사용해서 장바구니 데이터를 연관분석을 위한 자료형으로 불러 읽어온다.
 
-``` {r ml-groceries-dataset, warning=FALSE}
+
+~~~{.r}
 ##======================================================================================
 ## 01. 장바구니 분석 데이터 가져오기
 ##======================================================================================
 
 cart  <- read.transactions("data/groceries.csv", format = "basket", sep=",")
 head(cart)
+~~~
 
+
+
+~~~{.output}
+transactions in sparse format with
+ 6 transactions (rows) and
+ 169 items (columns)
+
+~~~
+
+
+
+~~~{.r}
 library(datasets)
 data(Groceries)
 
@@ -81,7 +94,7 @@ data(Groceries)
 # G <- inspect(Groceries)
 # C <- inspect(cart)
 # identical(G, C)
-```
+~~~
 
 `library(datasets)` 팩키지에 `Groceries` 데이터가 기본으로 포함되어 있어, 이를 바로 활용해도 좋다.
 
@@ -123,29 +136,123 @@ Apriori 알고리즘이 대표적인 연관규칙 도출 알고리즘이다.
 **itemMatrix** 에서 장바구니 분석에 행렬이 성긴 행렬(Sparse Matrix)로 $9835 \times 169$ 크기를 갖는데 밀도가 `0.02609146`에 불과하다.
 즉, $9835 * 169 * 0.02609146 = 43,367$ 개 제품만이 장바구니 분석에 포함되어 있다.
 
-``` {r ml-groceries-eda, warning=FALSE}
+
+~~~{.r}
 ##======================================================================================
 ## 02. 장바구니 기술통계 분석
 ##======================================================================================
 
 summary(cart)
+~~~
 
+
+
+~~~{.output}
+transactions as itemMatrix in sparse format with
+ 9835 rows (elements/itemsets/transactions) and
+ 169 columns (items) and a density of 0.02609146 
+
+most frequent items:
+      whole milk other vegetables       rolls/buns             soda 
+            2513             1903             1809             1715 
+          yogurt          (Other) 
+            1372            34055 
+
+element (itemset/transaction) length distribution:
+sizes
+   1    2    3    4    5    6    7    8    9   10   11   12   13   14   15 
+2159 1643 1299 1005  855  645  545  438  350  246  182  117   78   77   55 
+  16   17   18   19   20   21   22   23   24   26   27   28   29   32 
+  46   29   14   14    9   11    4    6    1    1    1    1    3    1 
+
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  1.000   2.000   3.000   4.409   6.000  32.000 
+
+includes extended item information - examples:
+            labels
+1 abrasive cleaner
+2 artif. sweetener
+3   baby cosmetics
+
+~~~
+
+
+
+~~~{.r}
 itemFrequencyPlot(cart,topN=20,type="absolute")
-```
+~~~
+
+<img src="fig/ml-groceries-eda-1.png" title="plot of chunk ml-groceries-eda" alt="plot of chunk ml-groceries-eda" style="display: block; margin: auto;" />
 
 ### 4. 연관규칙 도출
 
 `apriori` 함수에 지지도 0.001, 신뢰도 0.8 값을 설정하고 연관규칙을 도출한다. 410개 규칙 중 도출된 연관규칙 중 상위 5개만 뽑아 출력한다.
 
-``` {r ml-groceries-apriori, warning=FALSE}
+
+~~~{.r}
 ##======================================================================================
 ## 03. Apriori 알고리즘: 연관규칙 도출
 ##======================================================================================
 # 연관규칙 도출
 rules <- apriori(cart, parameter = list(supp = 0.001, conf = 0.8))
-rules
+~~~
 
+
+
+~~~{.output}
+Apriori
+
+Parameter specification:
+ confidence minval smax arem  aval originalSupport support minlen maxlen
+        0.8    0.1    1 none FALSE            TRUE   0.001      1     10
+ target   ext
+  rules FALSE
+
+Algorithmic control:
+ filter tree heap memopt load sort verbose
+    0.1 TRUE TRUE  FALSE TRUE    2    TRUE
+
+Absolute minimum support count: 9 
+
+set item appearances ...[0 item(s)] done [0.00s].
+set transactions ...[169 item(s), 9835 transaction(s)] done [0.00s].
+sorting and recoding items ... [157 item(s)] done [0.00s].
+creating transaction tree ... done [0.00s].
+checking subsets of size 1 2 3 4 5 6 done [0.01s].
+writing ... [410 rule(s)] done [0.00s].
+creating S4 object  ... done [0.00s].
+
+~~~
+
+
+
+~~~{.r}
+rules
+~~~
+
+
+
+~~~{.output}
+set of 410 rules 
+
+~~~
+
+
+
+~~~{.r}
 # 상위 5개 규칙만 출력
 options(digits=2)
 inspect(rules[1:5])
-```
+~~~
+
+
+
+~~~{.output}
+  lhs                        rhs            support confidence lift
+1 {liquor,red/blush wine} => {bottled beer} 0.0019  0.90       11.2
+2 {cereals,curd}          => {whole milk}   0.0010  0.91        3.6
+3 {cereals,yogurt}        => {whole milk}   0.0017  0.81        3.2
+4 {butter,jam}            => {whole milk}   0.0010  0.83        3.3
+5 {bottled beer,soups}    => {whole milk}   0.0011  0.92        3.6
+
+~~~
