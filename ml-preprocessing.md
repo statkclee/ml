@@ -36,7 +36,7 @@ mainfont: NanumGothic
     - 척도조정(Scaling) 
 - 분산이 낮거나 상관변수를 추출: PCA
 
-<img src="fig/ml-preprocessing-overview.png" alt="데이터 전처리 과정" width="77%" />
+<img src="fig/ml-preprocessing-overview.png" alt="데이터 전처리 과정" width="97%" />
 
 ### 2. 예측모형 개발 전 데이터 전처리 과정이 필요한 이유 
 
@@ -208,34 +208,29 @@ Error in train.default(x = X, y = Y, method = "rf"): Stopping
 
 # 해결책 : 중위수 대체
 model <- caret::train(x = X, y = Y, method="rf", preProcess = "medianImpute")
-summary(model)
+model
 ~~~
 
 
 
 ~~~{.output}
-                Length Class      Mode     
-call              4    -none-     call     
-type              1    -none-     character
-predicted       506    -none-     numeric  
-mse             500    -none-     numeric  
-rsq             500    -none-     numeric  
-oob.times       506    -none-     numeric  
-importance        5    -none-     numeric  
-importanceSD      0    -none-     NULL     
-localImportance   0    -none-     NULL     
-proximity         0    -none-     NULL     
-ntree             1    -none-     numeric  
-mtry              1    -none-     numeric  
-forest           11    -none-     list     
-coefs             0    -none-     NULL     
-y               506    -none-     numeric  
-test              0    -none-     NULL     
-inbag             0    -none-     NULL     
-xNames            5    -none-     character
-problemType       1    -none-     character
-tuneValue         1    data.frame list     
-obsLevels         1    -none-     logical  
+Random Forest 
+
+506 samples
+  5 predictor
+
+Pre-processing: median imputation (4), ignore (1) 
+Resampling: Bootstrapped (25 reps) 
+Summary of sample sizes: 506, 506, 506, 506, 506, 506, ... 
+Resampling results across tuning parameters:
+
+  mtry  RMSE      Rsquared 
+  2     6.241130  0.5666617
+  3     6.303959  0.5586426
+  5     6.536000  0.5299183
+
+RMSE was used to select the optimal model using  the smallest value.
+The final value used for the model was mtry = 2. 
 
 ~~~
 
@@ -379,3 +374,147 @@ print(min(model$results$RMSE))
 ~~~
 
 ### 5. 변수 제거와 중복 변수 제거
+
+일부 변수에 정보가 없거나 매우 낮은 경우가 있다. 이를 기반으로 예측모형을 개발할 경우 쓸모 없는 변수가
+예측모형에 포함되어 기대하지 않은 많은 문제가 야기된다.
+
+- 상수 변수: 분산이 `0` 으로 변수의 모든 값이 동일.
+- 거의 상수 변수: 분산이 매우 작아 변수의 모든 값이 특정 값에 몰려있는 경우.
+
+`"zv"`, `"nzv"` 값을 `preProcess` 인자로 넣는 경우 상수 변수와 거의 상수 변수를 처리할 수 있다.
+
+- `"zv"` : 상수 변수 제거
+- `"nzv"` : 거의 상수 변수 제거 
+
+#### 5.1. 상수 변수 제거
+
+`X$variance_zero <- 7` 명령어로 임의로 상수 변수를 생성시킨다. `glm` 모형을 적합시키면 오류가 생성된다.
+`preProcess`에서 `"zv"` 인자를 넣어 분산이 0 인 변수를 전처리하여 제거한 후 예측모형을 개발하면 
+모형적합이 제대로 됨이 확인된다.
+
+
+~~~{.r}
+##==========================================================================================
+## 05. 변수 전처리 - 변수제거와 차원축소
+##==========================================================================================
+
+#-------------------------------------------------------------------------------------------
+# 05.01. 상수 변수: 분산이 0
+#-------------------------------------------------------------------------------------------
+# 임의 결측값 채워넣기
+set.seed(777)
+data("BostonHousing")
+BostonHousing[sample(1:nrow(BostonHousing), 10), "crim"] <- NA
+# 예측모형: 설명변수와 종속변수 분리
+Y <- BostonHousing$medv
+X <- BostonHousing[, 1:13]
+# 상수값으로만 구성된 변수 추가
+X$variance_zero <- 7
+
+## 모형적합
+model <- train(x = X, y = Y, method="glm", preProcess = c("medianImpute", "center", "scale", "pca"))
+~~~
+
+
+
+~~~{.output}
+Something is wrong; all the RMSE metric values are missing:
+      RMSE        Rsquared  
+ Min.   : NA   Min.   : NA  
+ 1st Qu.: NA   1st Qu.: NA  
+ Median : NA   Median : NA  
+ Mean   :NaN   Mean   :NaN  
+ 3rd Qu.: NA   3rd Qu.: NA  
+ Max.   : NA   Max.   : NA  
+ NA's   :1     NA's   :1    
+
+~~~
+
+
+
+~~~{.output}
+Error in train.default(x = X, y = Y, method = "glm", preProcess = c("medianImpute", : Stopping
+
+~~~
+
+
+
+~~~{.r}
+## 모형적합: 상수 변수 제거
+model <- train(x = X, y = Y, method="glm", preProcess = c("zv", "medianImpute", "center", "scale", "pca"))
+print(min(model$results$RMSE))
+~~~
+
+
+
+~~~{.output}
+[1] 5.24353
+
+~~~
+
+#### 5.2. 거의 상수 변수 제거
+
+`"zv"` 인자 대신에 `"nzv"` 인자를 넣어도 좋지만, 명시적으로 `nearZeroVar()` 함수로 
+거의 상수 변수를 추출하여 이를 예측변수에 넣어 예측모형을 개발한다. 
+
+
+
+~~~{.r}
+#-------------------------------------------------------------------------------------------
+# 05.02. 거의 상수 변수: 분산이 거의 0에 가까움
+#-------------------------------------------------------------------------------------------
+# 임의 결측값 채워넣기
+set.seed(777)
+data("BostonHousing")
+BostonHousing[sample(1:nrow(BostonHousing), 10), "crim"] <- NA
+# 예측모형: 설명변수와 종속변수 분리
+Y <- BostonHousing$medv
+X <- BostonHousing[, 1:13]
+
+## 거의 상수 변수 정의: freqCut
+remove <- nearZeroVar(X, freqCut = 20/5, saveMetrics=TRUE)
+
+X_small <- X[ , setdiff(names(X), remove)]
+
+## 모형적합: 상수 변수 제거
+model <- train(x = X_small, y = Y, method="glm", preProcess = c("medianImpute", "center", "scale", "pca"))
+print(min(model$results$RMSE))
+~~~
+
+
+
+~~~{.output}
+[1] 5.228813
+
+~~~
+
+#### 5.3. 중복변수 제거
+
+주성분 분석(Principal Component Analysis, PCA)을 통해 서로 상관관계가 높은 변수를 제거하여 
+다공선성(Collinearity) 문제를 해결하여 예측모형의 안정성을 높인다. `preProcess = c("pca")` 를 넣어주면 
+변수간에 상관관계가 높은 문제에 대한 전처리를 수행하게 된다.
+
+
+~~~{.r}
+#-------------------------------------------------------------------------------------------
+# 05.03. 중복변수 제거: PCA
+#-------------------------------------------------------------------------------------------
+# 임의 결측값 채워넣기
+set.seed(777)
+data("BostonHousing")
+BostonHousing[sample(1:nrow(BostonHousing), 10), "crim"] <- NA
+# 예측모형: 설명변수와 종속변수 분리
+Y <- BostonHousing$medv
+X <- BostonHousing[, 1:13]
+
+## 모형적합: 상수 변수 제거
+model <- train(x = X, y = Y, method="glm", preProcess = c("medianImpute", "center", "scale", "pca"))
+print(min(model$results$RMSE))
+~~~
+
+
+
+~~~{.output}
+[1] 5.228813
+
+~~~

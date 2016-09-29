@@ -64,7 +64,7 @@
 </ul></li>
 <li>분산이 낮거나 상관변수를 추출: PCA</li>
 </ul>
-<p><img src="fig/ml-preprocessing-overview.png" alt="데이터 전처리 과정" width="77%" /></p>
+<p><img src="fig/ml-preprocessing-overview.png" alt="데이터 전처리 과정" width="97%" /></p>
 <h3 id="예측모형-개발-전-데이터-전처리-과정이-필요한-이유">2. 예측모형 개발 전 데이터 전처리 과정이 필요한 이유</h3>
 <p>예측모형 대부분은 숫자만을 입력값으로 받아야 하는데, 결측값이 입력값으로 전달되는 경우 이를 처리할 수 없다. 이런 문제를 해결하기 위해 결측값을 제거하는데 이런 경우 데이터에 편향이 발생하여 모형신뢰성이 떨어진다.</p>
 <h4 id="결측값-대체">2.1. 결측값 대체</h4>
@@ -182,29 +182,24 @@ model &lt;-<span class="st"> </span><span class="kw">train</span>(<span class="d
 
 <span class="co"># 해결책 : 중위수 대체</span>
 model &lt;-<span class="st"> </span>caret::<span class="kw">train</span>(<span class="dt">x =</span> X, <span class="dt">y =</span> Y, <span class="dt">method=</span><span class="st">&quot;rf&quot;</span>, <span class="dt">preProcess =</span> <span class="st">&quot;medianImpute&quot;</span>)
-<span class="kw">summary</span>(model)</code></pre></div>
-<pre class="output"><code>                Length Class      Mode     
-call              4    -none-     call     
-type              1    -none-     character
-predicted       506    -none-     numeric  
-mse             500    -none-     numeric  
-rsq             500    -none-     numeric  
-oob.times       506    -none-     numeric  
-importance        5    -none-     numeric  
-importanceSD      0    -none-     NULL     
-localImportance   0    -none-     NULL     
-proximity         0    -none-     NULL     
-ntree             1    -none-     numeric  
-mtry              1    -none-     numeric  
-forest           11    -none-     list     
-coefs             0    -none-     NULL     
-y               506    -none-     numeric  
-test              0    -none-     NULL     
-inbag             0    -none-     NULL     
-xNames            5    -none-     character
-problemType       1    -none-     character
-tuneValue         1    data.frame list     
-obsLevels         1    -none-     logical  
+model</code></pre></div>
+<pre class="output"><code>Random Forest 
+
+506 samples
+  5 predictor
+
+Pre-processing: median imputation (4), ignore (1) 
+Resampling: Bootstrapped (25 reps) 
+Summary of sample sizes: 506, 506, 506, 506, 506, 506, ... 
+Resampling results across tuning parameters:
+
+  mtry  RMSE      Rsquared 
+  2     6.241130  0.5666617
+  3     6.303959  0.5586426
+  5     6.536000  0.5299183
+
+RMSE was used to select the optimal model using  the smallest value.
+The final value used for the model was mtry = 2. 
 </code></pre>
 <h4 id="임의-랜덤이-아닌-결측값---knn-대체">3.2. 임의 랜덤이 아닌 결측값 - knn 대체</h4>
 <p>데이터에 결측값이 랜덤으로 임의적으로 만들어진 것이 아닌 경우, 예를 들어 법죄가 0.5 이상인 경우 모드 결측값이 된 경우가 존재한다. 이런 경우 <code>preProcess = &quot;knnImpute&quot;</code> 인자는 다른 설명변수를 이용하여 결측값을 추정하여 채워넣게 된다. RMSE 값을 비교하면 더 향상된 것(RMSE 오차가 축소)이 확인된다.</p>
@@ -276,6 +271,95 @@ model &lt;-<span class="st"> </span><span class="kw">train</span>(<span class="d
 <pre class="output"><code>[1] 5.535754
 </code></pre>
 <h3 id="변수-제거와-중복-변수-제거">5. 변수 제거와 중복 변수 제거</h3>
+<p>일부 변수에 정보가 없거나 매우 낮은 경우가 있다. 이를 기반으로 예측모형을 개발할 경우 쓸모 없는 변수가 예측모형에 포함되어 기대하지 않은 많은 문제가 야기된다.</p>
+<ul>
+<li>상수 변수: 분산이 <code>0</code> 으로 변수의 모든 값이 동일.</li>
+<li>거의 상수 변수: 분산이 매우 작아 변수의 모든 값이 특정 값에 몰려있는 경우.</li>
+</ul>
+<p><code>&quot;zv&quot;</code>, <code>&quot;nzv&quot;</code> 값을 <code>preProcess</code> 인자로 넣는 경우 상수 변수와 거의 상수 변수를 처리할 수 있다.</p>
+<ul>
+<li><code>&quot;zv&quot;</code> : 상수 변수 제거</li>
+<li><code>&quot;nzv&quot;</code> : 거의 상수 변수 제거</li>
+</ul>
+<h4 id="상수-변수-제거">5.1. 상수 변수 제거</h4>
+<p><code>X$variance_zero &lt;- 7</code> 명령어로 임의로 상수 변수를 생성시킨다. <code>glm</code> 모형을 적합시키면 오류가 생성된다. <code>preProcess</code>에서 <code>&quot;zv&quot;</code> 인자를 넣어 분산이 0 인 변수를 전처리하여 제거한 후 예측모형을 개발하면 모형적합이 제대로 됨이 확인된다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##==========================================================================================
+## 05. 변수 전처리 - 변수제거와 차원축소
+##==========================================================================================
+
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 05.01. 상수 변수: 분산이 0</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 임의 결측값 채워넣기</span>
+<span class="kw">set.seed</span>(<span class="dv">777</span>)
+<span class="kw">data</span>(<span class="st">&quot;BostonHousing&quot;</span>)
+BostonHousing[<span class="kw">sample</span>(<span class="dv">1</span>:<span class="kw">nrow</span>(BostonHousing), <span class="dv">10</span>), <span class="st">&quot;crim&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span>
+<span class="co"># 예측모형: 설명변수와 종속변수 분리</span>
+Y &lt;-<span class="st"> </span>BostonHousing$medv
+X &lt;-<span class="st"> </span>BostonHousing[, <span class="dv">1</span>:<span class="dv">13</span>]
+<span class="co"># 상수값으로만 구성된 변수 추가</span>
+X$variance_zero &lt;-<span class="st"> </span><span class="dv">7</span>
+
+## 모형적합
+model &lt;-<span class="st"> </span><span class="kw">train</span>(<span class="dt">x =</span> X, <span class="dt">y =</span> Y, <span class="dt">method=</span><span class="st">&quot;glm&quot;</span>, <span class="dt">preProcess =</span> <span class="kw">c</span>(<span class="st">&quot;medianImpute&quot;</span>, <span class="st">&quot;center&quot;</span>, <span class="st">&quot;scale&quot;</span>, <span class="st">&quot;pca&quot;</span>))</code></pre></div>
+<pre class="output"><code>Something is wrong; all the RMSE metric values are missing:
+      RMSE        Rsquared  
+ Min.   : NA   Min.   : NA  
+ 1st Qu.: NA   1st Qu.: NA  
+ Median : NA   Median : NA  
+ Mean   :NaN   Mean   :NaN  
+ 3rd Qu.: NA   3rd Qu.: NA  
+ Max.   : NA   Max.   : NA  
+ NA&#39;s   :1     NA&#39;s   :1    
+</code></pre>
+<pre class="output"><code>Error in train.default(x = X, y = Y, method = &quot;glm&quot;, preProcess = c(&quot;medianImpute&quot;, : Stopping
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## 모형적합: 상수 변수 제거
+model &lt;-<span class="st"> </span><span class="kw">train</span>(<span class="dt">x =</span> X, <span class="dt">y =</span> Y, <span class="dt">method=</span><span class="st">&quot;glm&quot;</span>, <span class="dt">preProcess =</span> <span class="kw">c</span>(<span class="st">&quot;zv&quot;</span>, <span class="st">&quot;medianImpute&quot;</span>, <span class="st">&quot;center&quot;</span>, <span class="st">&quot;scale&quot;</span>, <span class="st">&quot;pca&quot;</span>))
+<span class="kw">print</span>(<span class="kw">min</span>(model$results$RMSE))</code></pre></div>
+<pre class="output"><code>[1] 5.24353
+</code></pre>
+<h4 id="거의-상수-변수-제거">5.2. 거의 상수 변수 제거</h4>
+<p><code>&quot;zv&quot;</code> 인자 대신에 <code>&quot;nzv&quot;</code> 인자를 넣어도 좋지만, 명시적으로 <code>nearZeroVar()</code> 함수로 거의 상수 변수를 추출하여 이를 예측변수에 넣어 예측모형을 개발한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 05.02. 거의 상수 변수: 분산이 거의 0에 가까움</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 임의 결측값 채워넣기</span>
+<span class="kw">set.seed</span>(<span class="dv">777</span>)
+<span class="kw">data</span>(<span class="st">&quot;BostonHousing&quot;</span>)
+BostonHousing[<span class="kw">sample</span>(<span class="dv">1</span>:<span class="kw">nrow</span>(BostonHousing), <span class="dv">10</span>), <span class="st">&quot;crim&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span>
+<span class="co"># 예측모형: 설명변수와 종속변수 분리</span>
+Y &lt;-<span class="st"> </span>BostonHousing$medv
+X &lt;-<span class="st"> </span>BostonHousing[, <span class="dv">1</span>:<span class="dv">13</span>]
+
+## 거의 상수 변수 정의: freqCut
+remove &lt;-<span class="st"> </span><span class="kw">nearZeroVar</span>(X, <span class="dt">freqCut =</span> <span class="dv">20</span>/<span class="dv">5</span>, <span class="dt">saveMetrics=</span><span class="ot">TRUE</span>)
+
+X_small &lt;-<span class="st"> </span>X[ , <span class="kw">setdiff</span>(<span class="kw">names</span>(X), remove)]
+
+## 모형적합: 상수 변수 제거
+model &lt;-<span class="st"> </span><span class="kw">train</span>(<span class="dt">x =</span> X_small, <span class="dt">y =</span> Y, <span class="dt">method=</span><span class="st">&quot;glm&quot;</span>, <span class="dt">preProcess =</span> <span class="kw">c</span>(<span class="st">&quot;medianImpute&quot;</span>, <span class="st">&quot;center&quot;</span>, <span class="st">&quot;scale&quot;</span>, <span class="st">&quot;pca&quot;</span>))
+<span class="kw">print</span>(<span class="kw">min</span>(model$results$RMSE))</code></pre></div>
+<pre class="output"><code>[1] 5.228813
+</code></pre>
+<h4 id="중복변수-제거">5.3. 중복변수 제거</h4>
+<p>주성분 분석(Principal Component Analysis, PCA)을 통해 서로 상관관계가 높은 변수를 제거하여 다공선성(Collinearity) 문제를 해결하여 예측모형의 안정성을 높인다. <code>preProcess = c(&quot;pca&quot;)</code> 를 넣어주면 변수간에 상관관계가 높은 문제에 대한 전처리를 수행하게 된다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 05.03. 중복변수 제거: PCA</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 임의 결측값 채워넣기</span>
+<span class="kw">set.seed</span>(<span class="dv">777</span>)
+<span class="kw">data</span>(<span class="st">&quot;BostonHousing&quot;</span>)
+BostonHousing[<span class="kw">sample</span>(<span class="dv">1</span>:<span class="kw">nrow</span>(BostonHousing), <span class="dv">10</span>), <span class="st">&quot;crim&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span>
+<span class="co"># 예측모형: 설명변수와 종속변수 분리</span>
+Y &lt;-<span class="st"> </span>BostonHousing$medv
+X &lt;-<span class="st"> </span>BostonHousing[, <span class="dv">1</span>:<span class="dv">13</span>]
+
+## 모형적합: 상수 변수 제거
+model &lt;-<span class="st"> </span><span class="kw">train</span>(<span class="dt">x =</span> X, <span class="dt">y =</span> Y, <span class="dt">method=</span><span class="st">&quot;glm&quot;</span>, <span class="dt">preProcess =</span> <span class="kw">c</span>(<span class="st">&quot;medianImpute&quot;</span>, <span class="st">&quot;center&quot;</span>, <span class="st">&quot;scale&quot;</span>, <span class="st">&quot;pca&quot;</span>))
+<span class="kw">print</span>(<span class="kw">min</span>(model$results$RMSE))</code></pre></div>
+<pre class="output"><code>[1] 5.228813
+</code></pre>
 <div class="footnotes">
 <hr />
 <ol>

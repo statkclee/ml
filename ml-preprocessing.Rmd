@@ -39,7 +39,7 @@ options(warn=-1)
     - 척도조정(Scaling) 
 - 분산이 낮거나 상관변수를 추출: PCA
 
-<img src="fig/ml-preprocessing-overview.png" alt="데이터 전처리 과정" width="77%" />
+<img src="fig/ml-preprocessing-overview.png" alt="데이터 전처리 과정" width="97%" />
 
 ### 2. 예측모형 개발 전 데이터 전처리 과정이 필요한 이유 
 
@@ -122,7 +122,7 @@ model <- train(x = X, y = Y, method="rf")
 
 # 해결책 : 중위수 대체
 model <- caret::train(x = X, y = Y, method="rf", preProcess = "medianImpute")
-summary(model)
+model
 ```
 
 #### 3.2. 임의 랜덤이 아닌 결측값 - knn 대체
