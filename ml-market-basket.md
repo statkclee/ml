@@ -256,3 +256,240 @@ inspect(rules[1:5])
 5 {bottled beer,soups}    => {whole milk}   0.0011  0.92        3.6
 
 ~~~
+
+#### 4.1. 유의미한 연관규칙 탐색
+
+연관규칙이 너무 많이 도출되기 때문에 이중에서 가장 유의미한 규칙을 뽑아낼 필요가 있다.
+이런 경우 **신뢰도(Confidence)** 혹은 **향상도(Lift)** 를 기준으로 내림차순 정렬하면 유의미한 연관규칙을 빠르게 탐색할 수 있다.
+
+특히 연관규칙집합의 길이가 긴 경우 `maxlen=3` 인자를 조정하여 설정한다.
+
+
+~~~{.r}
+#--------------------------------------------------------------------------------------
+# 01. 정렬
+#--------------------------------------------------------------------------------------
+# 최대 길이 3인 집합으로 한정
+rules <- apriori(Groceries, parameter = list(supp = 0.001, conf = 0.8, maxlen=3))
+~~~
+
+
+
+~~~{.output}
+Apriori
+
+Parameter specification:
+ confidence minval smax arem  aval originalSupport support minlen maxlen
+        0.8    0.1    1 none FALSE            TRUE   0.001      1      3
+ target   ext
+  rules FALSE
+
+Algorithmic control:
+ filter tree heap memopt load sort verbose
+    0.1 TRUE TRUE  FALSE TRUE    2    TRUE
+
+Absolute minimum support count: 9 
+
+set item appearances ...[0 item(s)] done [0.00s].
+set transactions ...[169 item(s), 9835 transaction(s)] done [0.00s].
+sorting and recoding items ... [157 item(s)] done [0.00s].
+creating transaction tree ... done [0.00s].
+checking subsets of size 1 2 3 done [0.00s].
+writing ... [29 rule(s)] done [0.00s].
+creating S4 object  ... done [0.00s].
+
+~~~
+
+
+
+~~~{.r}
+rules <- sort(rules, by="confidence", decreasing=TRUE)
+inspect(rules[1:10])
+~~~
+
+
+
+~~~{.output}
+   lhs                         rhs                support confidence lift
+1  {rice,                                                                
+    sugar}                  => {whole milk}        0.0012       1.00  3.9
+2  {canned fish,                                                         
+    hygiene articles}       => {whole milk}        0.0011       1.00  3.9
+3  {whipped/sour cream,                                                  
+    house keeping products} => {whole milk}        0.0012       0.92  3.6
+4  {rice,                                                                
+    bottled water}          => {whole milk}        0.0012       0.92  3.6
+5  {soups,                                                               
+    bottled beer}           => {whole milk}        0.0011       0.92  3.6
+6  {grapes,                                                              
+    onions}                 => {other vegetables}  0.0011       0.92  4.7
+7  {hard cheese,                                                         
+    oil}                    => {other vegetables}  0.0011       0.92  4.7
+8  {curd,                                                                
+    cereals}                => {whole milk}        0.0010       0.91  3.6
+9  {pastry,                                                              
+    sweet spreads}          => {whole milk}        0.0010       0.91  3.6
+10 {liquor,                                                              
+    red/blush wine}         => {bottled beer}      0.0019       0.90 11.2
+
+~~~
+
+#### 4.2. 중복 연관집합 제거
+
+흔히, 연관규칙이 반복된다. 특정 제품이 거의 모든 연관규칙에 포함된 경우 해당 제품을
+데이터에서 제거하고 연관규칙을 찾아내는 것도 방법이고, 대안으로 생성된 중복규칙을 
+제거하는 것도 바람직하다.
+
+
+~~~{.r}
+#--------------------------------------------------------------------------------------
+# 02. 중복 집합 제거
+#--------------------------------------------------------------------------------------
+
+subset.matrix <- is.subset(rules, rules)
+subset.matrix[lower.tri(subset.matrix, diag=T)] <- NA
+redundant <- colSums(subset.matrix, na.rm=T) >= 1
+rules.pruned <- rules[!redundant]
+
+rules.pruned <- sort(rules.pruned, by="confidence", decreasing=TRUE)
+inspect(rules.pruned[1:10])
+~~~
+
+
+
+~~~{.output}
+   lhs                         rhs                support confidence lift
+1  {rice,                                                                
+    sugar}                  => {whole milk}        0.0012       1.00  3.9
+2  {canned fish,                                                         
+    hygiene articles}       => {whole milk}        0.0011       1.00  3.9
+3  {whipped/sour cream,                                                  
+    house keeping products} => {whole milk}        0.0012       0.92  3.6
+4  {rice,                                                                
+    bottled water}          => {whole milk}        0.0012       0.92  3.6
+5  {soups,                                                               
+    bottled beer}           => {whole milk}        0.0011       0.92  3.6
+6  {grapes,                                                              
+    onions}                 => {other vegetables}  0.0011       0.92  4.7
+7  {hard cheese,                                                         
+    oil}                    => {other vegetables}  0.0011       0.92  4.7
+8  {curd,                                                                
+    cereals}                => {whole milk}        0.0010       0.91  3.6
+9  {pastry,                                                              
+    sweet spreads}          => {whole milk}        0.0010       0.91  3.6
+10 {liquor,                                                              
+    red/blush wine}         => {bottled beer}      0.0019       0.90 11.2
+
+~~~
+
+#### 4.3. 목표 제품 집중 분석
+
+지금까지 연관규칙을 생성하는 방법을 학습했고, 생성된 규칙이 통상적으로 많기 때문에 
+이를 제거하거나 축약하는 방식을 살펴봤다. 이제 특정 제품에 집중해서 연관규칙을 활용하는 
+방법을 살펴보자.
+
+* 특정 제품(`whole milk`)을 장바구니에 넣기 전에, 고객이 구매할 가능성이 많은 제품은 무엇인가?
+* 특정 제품(`whole milk`)을 장바구니에 넣어 구매했다면, 고객이 추가로 구매할 가능성이 높은 제품은 무엇인가?
+
+위와 같은 질문이 특정 제품을 기준으로 제기되는 상황이 전개된는데, 이를 R 코드로 구현하는 것은 
+어렵지 않다. 즉, `lhs`, `rhs` 인자를 제어하면서 풀 수 있다.
+
+
+~~~{.r}
+rules_before <-apriori(data=Groceries, parameter=list(supp=0.001,conf = 0.08), 
+               appearance = list(default="lhs",rhs="whole milk"),
+               control = list(verbose=F))
+rules_before <-sort(rules_before , decreasing=TRUE,by="confidence")
+inspect(rules_before [1:5])
+~~~
+
+
+
+~~~{.output}
+  lhs                     rhs          support confidence lift
+1 {rice,                                                      
+   sugar}              => {whole milk}  0.0012          1  3.9
+2 {canned fish,                                               
+   hygiene articles}   => {whole milk}  0.0011          1  3.9
+3 {root vegetables,                                           
+   butter,                                                    
+   rice}               => {whole milk}  0.0010          1  3.9
+4 {root vegetables,                                           
+   whipped/sour cream,                                        
+   flour}              => {whole milk}  0.0017          1  3.9
+5 {butter,                                                    
+   soft cheese,                                               
+   domestic eggs}      => {whole milk}  0.0010          1  3.9
+
+~~~
+
+`supp`, `conf` 인자를 조정하여 연관규칙이 적절히 도출되도록 제어한다.
+
+
+
+~~~{.r}
+rules_after <-apriori(data=Groceries, parameter=list(supp=0.001,conf = 0.15,minlen=2), 
+               appearance = list(default="rhs",lhs="whole milk"),
+               control = list(verbose=F))
+rules_after <-sort(rules_after , decreasing=TRUE,by="confidence")
+inspect(rules_after [1:5])
+~~~
+
+
+
+~~~{.output}
+  lhs             rhs                support confidence lift
+6 {whole milk} => {other vegetables} 0.075   0.29       1.5 
+5 {whole milk} => {rolls/buns}       0.057   0.22       1.2 
+4 {whole milk} => {yogurt}           0.056   0.22       1.6 
+2 {whole milk} => {root vegetables}  0.049   0.19       1.8 
+1 {whole milk} => {tropical fruit}   0.042   0.17       1.6 
+
+~~~
+
+### 5. 시각화
+
+#### 5.1. 단어구름
+
+연관규칙을 시각화하는데 네트워크 도표와 더불어 가장 빈발하는 제품을 `wordcloud`를 통해 
+살펴보는 것도 시각화의 한 좋은 사례다.
+
+
+
+~~~{.r}
+#--------------------------------------------------------------------------------------
+# 01. 단어 구름
+#--------------------------------------------------------------------------------------
+product_name <- itemLabels(cart)
+product_cnt <- itemFrequency(cart)*9835
+
+col.pal <- brewer.pal(9, "Blues")
+
+wordcloud(words = product_name, freq = product_cnt, min.freq = 1, scale = c(3, 0.2), col = col.pal , random.order = FALSE)
+~~~
+
+<img src="fig/ml-groceries-rules-wordcloud-1.png" title="plot of chunk ml-groceries-rules-wordcloud" alt="plot of chunk ml-groceries-rules-wordcloud" style="display: block; margin: auto;" />
+
+#### 5.2. 연관규칙 시각화
+
+연관규칙을 시각화하는데 `arulesViz` 팩키지를 활용한다.
+
+
+~~~{.r}
+#--------------------------------------------------------------------------------------
+# 02. 연관규칙 시각화
+#--------------------------------------------------------------------------------------
+library(arulesViz)
+plot(rules, method="graph", interactive=TRUE, shading=NA)
+
+par(mfrow=c(1,2))
+plot(rules, method="grouped")
+~~~
+
+<img src="fig/ml-groceries-rules-arulesViz-1.png" title="plot of chunk ml-groceries-rules-arulesViz" alt="plot of chunk ml-groceries-rules-arulesViz" style="display: block; margin: auto;" />
+
+~~~{.r}
+plot(rules, method="paracoord", control=list(reorder=TRUE))
+~~~
+
+<img src="fig/ml-groceries-rules-arulesViz-2.png" title="plot of chunk ml-groceries-rules-arulesViz" alt="plot of chunk ml-groceries-rules-arulesViz" style="display: block; margin: auto;" />

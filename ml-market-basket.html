@@ -214,6 +214,161 @@ creating S4 object  ... done [0.00s].
 4 {butter,jam}            =&gt; {whole milk}   0.0010  0.83        3.3
 5 {bottled beer,soups}    =&gt; {whole milk}   0.0011  0.92        3.6
 </code></pre>
+<h4 id="유의미한-연관규칙-탐색">4.1. 유의미한 연관규칙 탐색</h4>
+<p>연관규칙이 너무 많이 도출되기 때문에 이중에서 가장 유의미한 규칙을 뽑아낼 필요가 있다. 이런 경우 <strong>신뢰도(Confidence)</strong> 혹은 <strong>향상도(Lift)</strong> 를 기준으로 내림차순 정렬하면 유의미한 연관규칙을 빠르게 탐색할 수 있다.</p>
+<p>특히 연관규칙집합의 길이가 긴 경우 <code>maxlen=3</code> 인자를 조정하여 설정한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#--------------------------------------------------------------------------------------</span>
+<span class="co"># 01. 정렬</span>
+<span class="co">#--------------------------------------------------------------------------------------</span>
+<span class="co"># 최대 길이 3인 집합으로 한정</span>
+rules &lt;-<span class="st"> </span><span class="kw">apriori</span>(Groceries, <span class="dt">parameter =</span> <span class="kw">list</span>(<span class="dt">supp =</span> <span class="fl">0.001</span>, <span class="dt">conf =</span> <span class="fl">0.8</span>, <span class="dt">maxlen=</span><span class="dv">3</span>))</code></pre></div>
+<pre class="output"><code>Apriori
+
+Parameter specification:
+ confidence minval smax arem  aval originalSupport support minlen maxlen
+        0.8    0.1    1 none FALSE            TRUE   0.001      1      3
+ target   ext
+  rules FALSE
+
+Algorithmic control:
+ filter tree heap memopt load sort verbose
+    0.1 TRUE TRUE  FALSE TRUE    2    TRUE
+
+Absolute minimum support count: 9 
+
+set item appearances ...[0 item(s)] done [0.00s].
+set transactions ...[169 item(s), 9835 transaction(s)] done [0.00s].
+sorting and recoding items ... [157 item(s)] done [0.00s].
+creating transaction tree ... done [0.00s].
+checking subsets of size 1 2 3 done [0.00s].
+writing ... [29 rule(s)] done [0.00s].
+creating S4 object  ... done [0.00s].
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">rules &lt;-<span class="st"> </span><span class="kw">sort</span>(rules, <span class="dt">by=</span><span class="st">&quot;confidence&quot;</span>, <span class="dt">decreasing=</span><span class="ot">TRUE</span>)
+<span class="kw">inspect</span>(rules[<span class="dv">1</span>:<span class="dv">10</span>])</code></pre></div>
+<pre class="output"><code>   lhs                         rhs                support confidence lift
+1  {rice,                                                                
+    sugar}                  =&gt; {whole milk}        0.0012       1.00  3.9
+2  {canned fish,                                                         
+    hygiene articles}       =&gt; {whole milk}        0.0011       1.00  3.9
+3  {whipped/sour cream,                                                  
+    house keeping products} =&gt; {whole milk}        0.0012       0.92  3.6
+4  {rice,                                                                
+    bottled water}          =&gt; {whole milk}        0.0012       0.92  3.6
+5  {soups,                                                               
+    bottled beer}           =&gt; {whole milk}        0.0011       0.92  3.6
+6  {grapes,                                                              
+    onions}                 =&gt; {other vegetables}  0.0011       0.92  4.7
+7  {hard cheese,                                                         
+    oil}                    =&gt; {other vegetables}  0.0011       0.92  4.7
+8  {curd,                                                                
+    cereals}                =&gt; {whole milk}        0.0010       0.91  3.6
+9  {pastry,                                                              
+    sweet spreads}          =&gt; {whole milk}        0.0010       0.91  3.6
+10 {liquor,                                                              
+    red/blush wine}         =&gt; {bottled beer}      0.0019       0.90 11.2
+</code></pre>
+<h4 id="중복-연관집합-제거">4.2. 중복 연관집합 제거</h4>
+<p>흔히, 연관규칙이 반복된다. 특정 제품이 거의 모든 연관규칙에 포함된 경우 해당 제품을 데이터에서 제거하고 연관규칙을 찾아내는 것도 방법이고, 대안으로 생성된 중복규칙을 제거하는 것도 바람직하다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#--------------------------------------------------------------------------------------</span>
+<span class="co"># 02. 중복 집합 제거</span>
+<span class="co">#--------------------------------------------------------------------------------------</span>
+
+subset.matrix &lt;-<span class="st"> </span><span class="kw">is.subset</span>(rules, rules)
+subset.matrix[<span class="kw">lower.tri</span>(subset.matrix, <span class="dt">diag=</span>T)] &lt;-<span class="st"> </span><span class="ot">NA</span>
+redundant &lt;-<span class="st"> </span><span class="kw">colSums</span>(subset.matrix, <span class="dt">na.rm=</span>T) &gt;=<span class="st"> </span><span class="dv">1</span>
+rules.pruned &lt;-<span class="st"> </span>rules[!redundant]
+
+rules.pruned &lt;-<span class="st"> </span><span class="kw">sort</span>(rules.pruned, <span class="dt">by=</span><span class="st">&quot;confidence&quot;</span>, <span class="dt">decreasing=</span><span class="ot">TRUE</span>)
+<span class="kw">inspect</span>(rules.pruned[<span class="dv">1</span>:<span class="dv">10</span>])</code></pre></div>
+<pre class="output"><code>   lhs                         rhs                support confidence lift
+1  {rice,                                                                
+    sugar}                  =&gt; {whole milk}        0.0012       1.00  3.9
+2  {canned fish,                                                         
+    hygiene articles}       =&gt; {whole milk}        0.0011       1.00  3.9
+3  {whipped/sour cream,                                                  
+    house keeping products} =&gt; {whole milk}        0.0012       0.92  3.6
+4  {rice,                                                                
+    bottled water}          =&gt; {whole milk}        0.0012       0.92  3.6
+5  {soups,                                                               
+    bottled beer}           =&gt; {whole milk}        0.0011       0.92  3.6
+6  {grapes,                                                              
+    onions}                 =&gt; {other vegetables}  0.0011       0.92  4.7
+7  {hard cheese,                                                         
+    oil}                    =&gt; {other vegetables}  0.0011       0.92  4.7
+8  {curd,                                                                
+    cereals}                =&gt; {whole milk}        0.0010       0.91  3.6
+9  {pastry,                                                              
+    sweet spreads}          =&gt; {whole milk}        0.0010       0.91  3.6
+10 {liquor,                                                              
+    red/blush wine}         =&gt; {bottled beer}      0.0019       0.90 11.2
+</code></pre>
+<h4 id="목표-제품-집중-분석">4.3. 목표 제품 집중 분석</h4>
+<p>지금까지 연관규칙을 생성하는 방법을 학습했고, 생성된 규칙이 통상적으로 많기 때문에 이를 제거하거나 축약하는 방식을 살펴봤다. 이제 특정 제품에 집중해서 연관규칙을 활용하는 방법을 살펴보자.</p>
+<ul>
+<li>특정 제품(<code>whole milk</code>)을 장바구니에 넣기 전에, 고객이 구매할 가능성이 많은 제품은 무엇인가?</li>
+<li>특정 제품(<code>whole milk</code>)을 장바구니에 넣어 구매했다면, 고객이 추가로 구매할 가능성이 높은 제품은 무엇인가?</li>
+</ul>
+<p>위와 같은 질문이 특정 제품을 기준으로 제기되는 상황이 전개된는데, 이를 R 코드로 구현하는 것은 어렵지 않다. 즉, <code>lhs</code>, <code>rhs</code> 인자를 제어하면서 풀 수 있다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">rules_before &lt;-<span class="kw">apriori</span>(<span class="dt">data=</span>Groceries, <span class="dt">parameter=</span><span class="kw">list</span>(<span class="dt">supp=</span><span class="fl">0.001</span>,<span class="dt">conf =</span> <span class="fl">0.08</span>), 
+               <span class="dt">appearance =</span> <span class="kw">list</span>(<span class="dt">default=</span><span class="st">&quot;lhs&quot;</span>,<span class="dt">rhs=</span><span class="st">&quot;whole milk&quot;</span>),
+               <span class="dt">control =</span> <span class="kw">list</span>(<span class="dt">verbose=</span>F))
+rules_before &lt;-<span class="kw">sort</span>(rules_before , <span class="dt">decreasing=</span><span class="ot">TRUE</span>,<span class="dt">by=</span><span class="st">&quot;confidence&quot;</span>)
+<span class="kw">inspect</span>(rules_before [<span class="dv">1</span>:<span class="dv">5</span>])</code></pre></div>
+<pre class="output"><code>  lhs                     rhs          support confidence lift
+1 {rice,                                                      
+   sugar}              =&gt; {whole milk}  0.0012          1  3.9
+2 {canned fish,                                               
+   hygiene articles}   =&gt; {whole milk}  0.0011          1  3.9
+3 {root vegetables,                                           
+   butter,                                                    
+   rice}               =&gt; {whole milk}  0.0010          1  3.9
+4 {root vegetables,                                           
+   whipped/sour cream,                                        
+   flour}              =&gt; {whole milk}  0.0017          1  3.9
+5 {butter,                                                    
+   soft cheese,                                               
+   domestic eggs}      =&gt; {whole milk}  0.0010          1  3.9
+</code></pre>
+<p><code>supp</code>, <code>conf</code> 인자를 조정하여 연관규칙이 적절히 도출되도록 제어한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">rules_after &lt;-<span class="kw">apriori</span>(<span class="dt">data=</span>Groceries, <span class="dt">parameter=</span><span class="kw">list</span>(<span class="dt">supp=</span><span class="fl">0.001</span>,<span class="dt">conf =</span> <span class="fl">0.15</span>,<span class="dt">minlen=</span><span class="dv">2</span>), 
+               <span class="dt">appearance =</span> <span class="kw">list</span>(<span class="dt">default=</span><span class="st">&quot;rhs&quot;</span>,<span class="dt">lhs=</span><span class="st">&quot;whole milk&quot;</span>),
+               <span class="dt">control =</span> <span class="kw">list</span>(<span class="dt">verbose=</span>F))
+rules_after &lt;-<span class="kw">sort</span>(rules_after , <span class="dt">decreasing=</span><span class="ot">TRUE</span>,<span class="dt">by=</span><span class="st">&quot;confidence&quot;</span>)
+<span class="kw">inspect</span>(rules_after [<span class="dv">1</span>:<span class="dv">5</span>])</code></pre></div>
+<pre class="output"><code>  lhs             rhs                support confidence lift
+6 {whole milk} =&gt; {other vegetables} 0.075   0.29       1.5 
+5 {whole milk} =&gt; {rolls/buns}       0.057   0.22       1.2 
+4 {whole milk} =&gt; {yogurt}           0.056   0.22       1.6 
+2 {whole milk} =&gt; {root vegetables}  0.049   0.19       1.8 
+1 {whole milk} =&gt; {tropical fruit}   0.042   0.17       1.6 
+</code></pre>
+<h3 id="시각화">5. 시각화</h3>
+<h4 id="단어구름">5.1. 단어구름</h4>
+<p>연관규칙을 시각화하는데 네트워크 도표와 더불어 가장 빈발하는 제품을 <code>wordcloud</code>를 통해 살펴보는 것도 시각화의 한 좋은 사례다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#--------------------------------------------------------------------------------------</span>
+<span class="co"># 01. 단어 구름</span>
+<span class="co">#--------------------------------------------------------------------------------------</span>
+product_name &lt;-<span class="st"> </span><span class="kw">itemLabels</span>(cart)
+product_cnt &lt;-<span class="st"> </span><span class="kw">itemFrequency</span>(cart)*<span class="dv">9835</span>
+
+col.pal &lt;-<span class="st"> </span><span class="kw">brewer.pal</span>(<span class="dv">9</span>, <span class="st">&quot;Blues&quot;</span>)
+
+<span class="kw">wordcloud</span>(<span class="dt">words =</span> product_name, <span class="dt">freq =</span> product_cnt, <span class="dt">min.freq =</span> <span class="dv">1</span>, <span class="dt">scale =</span> <span class="kw">c</span>(<span class="dv">3</span>, <span class="fl">0.2</span>), <span class="dt">col =</span> col.pal , <span class="dt">random.order =</span> <span class="ot">FALSE</span>)</code></pre></div>
+<p><img src="fig/ml-groceries-rules-wordcloud-1.png" title="plot of chunk ml-groceries-rules-wordcloud" alt="plot of chunk ml-groceries-rules-wordcloud" style="display: block; margin: auto;" /></p>
+<h4 id="연관규칙-시각화">5.2. 연관규칙 시각화</h4>
+<p>연관규칙을 시각화하는데 <code>arulesViz</code> 팩키지를 활용한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#--------------------------------------------------------------------------------------</span>
+<span class="co"># 02. 연관규칙 시각화</span>
+<span class="co">#--------------------------------------------------------------------------------------</span>
+<span class="kw">library</span>(arulesViz)
+<span class="kw">plot</span>(rules, <span class="dt">method=</span><span class="st">&quot;graph&quot;</span>, <span class="dt">interactive=</span><span class="ot">TRUE</span>, <span class="dt">shading=</span><span class="ot">NA</span>)
+
+<span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))
+<span class="kw">plot</span>(rules, <span class="dt">method=</span><span class="st">&quot;grouped&quot;</span>)</code></pre></div>
+<p><img src="fig/ml-groceries-rules-arulesViz-1.png" title="plot of chunk ml-groceries-rules-arulesViz" alt="plot of chunk ml-groceries-rules-arulesViz" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(rules, <span class="dt">method=</span><span class="st">&quot;paracoord&quot;</span>, <span class="dt">control=</span><span class="kw">list</span>(<span class="dt">reorder=</span><span class="ot">TRUE</span>))</code></pre></div>
+<p><img src="fig/ml-groceries-rules-arulesViz-2.png" title="plot of chunk ml-groceries-rules-arulesViz" alt="plot of chunk ml-groceries-rules-arulesViz" style="display: block; margin: auto;" /></p>
 <div class="footnotes">
 <hr />
 <ol>
