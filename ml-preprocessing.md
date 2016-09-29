@@ -16,10 +16,7 @@ mainfont: NanumGothic
 > * 데이터 전처리가 필요한 이유를 살펴본다.
 > * 예측모형 개발을 위한 데이터 전처리 파이프라인을 실습한다.
 
-```{r, include=FALSE}
-source("tools/chunk-options.R")
-options(warn=-1)
-```
+
 
 
 ### 1. 예측모형을 위한 데이터 전처리 과정
@@ -59,7 +56,8 @@ options(warn=-1)
 
 회귀분석 사례로 많이 사용되는 보스터 집값 사례를 살펴보자. 데이터를 불러와서 `glimpse`, `summary` 함수로 일별한다.
 
-``` {r boston-housing-price-setting, warnings=FALSE}
+
+~~~{.r}
 ##==========================================================================================
 ## 00. 환경설정
 ##==========================================================================================
@@ -78,8 +76,69 @@ data("BostonHousing")
 
 # 데이터 살펴보기
 glimpse(BostonHousing)
+~~~
+
+
+
+~~~{.output}
+Observations: 506
+Variables: 14
+$ crim    <dbl> 0.00632, 0.02731, 0.02729, 0.03237, 0.06905, 0.02985, ...
+$ zn      <dbl> 18.0, 0.0, 0.0, 0.0, 0.0, 0.0, 12.5, 12.5, 12.5, 12.5,...
+$ indus   <dbl> 2.31, 7.07, 7.07, 2.18, 2.18, 2.18, 7.87, 7.87, 7.87, ...
+$ chas    <fctr> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,...
+$ nox     <dbl> 0.538, 0.469, 0.469, 0.458, 0.458, 0.458, 0.524, 0.524...
+$ rm      <dbl> 6.575, 6.421, 7.185, 6.998, 7.147, 6.430, 6.012, 6.172...
+$ age     <dbl> 65.2, 78.9, 61.1, 45.8, 54.2, 58.7, 66.6, 96.1, 100.0,...
+$ dis     <dbl> 4.0900, 4.9671, 4.9671, 6.0622, 6.0622, 6.0622, 5.5605...
+$ rad     <dbl> 1, 2, 2, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, ...
+$ tax     <dbl> 296, 242, 242, 222, 222, 222, 311, 311, 311, 311, 311,...
+$ ptratio <dbl> 15.3, 17.8, 17.8, 18.7, 18.7, 18.7, 15.2, 15.2, 15.2, ...
+$ b       <dbl> 396.90, 396.90, 392.83, 394.63, 396.90, 394.12, 395.60...
+$ lstat   <dbl> 4.98, 9.14, 4.03, 2.94, 5.33, 5.21, 12.43, 19.15, 29.9...
+$ medv    <dbl> 24.0, 21.6, 34.7, 33.4, 36.2, 28.7, 22.9, 27.1, 16.5, ...
+
+~~~
+
+
+
+~~~{.r}
 summary(BostonHousing)
-```
+~~~
+
+
+
+~~~{.output}
+      crim                zn             indus       chas   
+ Min.   : 0.00632   Min.   :  0.00   Min.   : 0.46   0:471  
+ 1st Qu.: 0.08204   1st Qu.:  0.00   1st Qu.: 5.19   1: 35  
+ Median : 0.25651   Median :  0.00   Median : 9.69          
+ Mean   : 3.61352   Mean   : 11.36   Mean   :11.14          
+ 3rd Qu.: 3.67708   3rd Qu.: 12.50   3rd Qu.:18.10          
+ Max.   :88.97620   Max.   :100.00   Max.   :27.74          
+      nox               rm             age              dis        
+ Min.   :0.3850   Min.   :3.561   Min.   :  2.90   Min.   : 1.130  
+ 1st Qu.:0.4490   1st Qu.:5.886   1st Qu.: 45.02   1st Qu.: 2.100  
+ Median :0.5380   Median :6.208   Median : 77.50   Median : 3.207  
+ Mean   :0.5547   Mean   :6.285   Mean   : 68.57   Mean   : 3.795  
+ 3rd Qu.:0.6240   3rd Qu.:6.623   3rd Qu.: 94.08   3rd Qu.: 5.188  
+ Max.   :0.8710   Max.   :8.780   Max.   :100.00   Max.   :12.127  
+      rad              tax           ptratio            b         
+ Min.   : 1.000   Min.   :187.0   Min.   :12.60   Min.   :  0.32  
+ 1st Qu.: 4.000   1st Qu.:279.0   1st Qu.:17.40   1st Qu.:375.38  
+ Median : 5.000   Median :330.0   Median :19.05   Median :391.44  
+ Mean   : 9.549   Mean   :408.2   Mean   :18.46   Mean   :356.67  
+ 3rd Qu.:24.000   3rd Qu.:666.0   3rd Qu.:20.20   3rd Qu.:396.23  
+ Max.   :24.000   Max.   :711.0   Max.   :22.00   Max.   :396.90  
+     lstat            medv      
+ Min.   : 1.73   Min.   : 5.00  
+ 1st Qu.: 6.95   1st Qu.:17.02  
+ Median :11.36   Median :21.20  
+ Mean   :12.65   Mean   :22.53  
+ 3rd Qu.:16.95   3rd Qu.:25.00  
+ Max.   :37.97   Max.   :50.00  
+
+~~~
 
 #### 3.1. 임의 결측값 대체 전략 - 중위수 대체
 
@@ -89,7 +148,8 @@ summary(BostonHousing)
 
 `preProcess = "medianImpute"` 인자를 `train` 함수에 넣어 중위수 대체를 하게 되면 결측값에 따른 문제가 해소된다.
 
-``` {r boston-housing-price-median, warnings=FALSE}
+
+~~~{.r}
 ##==========================================================================================
 ## 02. 데이터 전처리
 ##==========================================================================================
@@ -107,7 +167,33 @@ Y <- BostonHousing$medv
 X <- BostonHousing[, 1:5]
 # caret 예측모형 적합
 model <- train(x = X, y = Y, method="rf")
+~~~
 
+
+
+~~~{.output}
+Something is wrong; all the RMSE metric values are missing:
+      RMSE        Rsquared  
+ Min.   : NA   Min.   : NA  
+ 1st Qu.: NA   1st Qu.: NA  
+ Median : NA   Median : NA  
+ Mean   :NaN   Mean   :NaN  
+ 3rd Qu.: NA   3rd Qu.: NA  
+ Max.   : NA   Max.   : NA  
+ NA's   :3     NA's   :3    
+
+~~~
+
+
+
+~~~{.output}
+Error in train.default(x = X, y = Y, method = "rf"): Stopping
+
+~~~
+
+
+
+~~~{.r}
   # Something is wrong; all the RMSE metric values are missing:
   #   RMSE        Rsquared  
   # Min.   : NA   Min.   : NA  
@@ -123,12 +209,41 @@ model <- train(x = X, y = Y, method="rf")
 # 해결책 : 중위수 대체
 model <- caret::train(x = X, y = Y, method="rf", preProcess = "medianImpute")
 summary(model)
-```
+~~~
+
+
+
+~~~{.output}
+                Length Class      Mode     
+call              4    -none-     call     
+type              1    -none-     character
+predicted       506    -none-     numeric  
+mse             500    -none-     numeric  
+rsq             500    -none-     numeric  
+oob.times       506    -none-     numeric  
+importance        5    -none-     numeric  
+importanceSD      0    -none-     NULL     
+localImportance   0    -none-     NULL     
+proximity         0    -none-     NULL     
+ntree             1    -none-     numeric  
+mtry              1    -none-     numeric  
+forest           11    -none-     list     
+coefs             0    -none-     NULL     
+y               506    -none-     numeric  
+test              0    -none-     NULL     
+inbag             0    -none-     NULL     
+xNames            5    -none-     character
+problemType       1    -none-     character
+tuneValue         1    data.frame list     
+obsLevels         1    -none-     logical  
+
+~~~
 
 데이터에 결측값이 랜덤으로 임의적으로 만들어진 것이 아닌 경우, 예를 들어 법죄가 0.5 이상인 경우 모드 결측값이 된 경우가 존재한다.
 이런 경우 `preProcess = "knnImpute"` 인자는 다른 설명변수를 이용하여 결측값을 추정하여 채워넣게 된다. RMSE 값을 비교하면 더 향상된 것(RMSE 오차가 축소)이 확인된다.
 
-``` {r boston-housing-price-knn, warnings=FALSE}
+
+~~~{.r}
 #-------------------------------------------------------------------------------------------
 # 02.02. knn 대체 : 결측값이 임의가 아님
 #-------------------------------------------------------------------------------------------
@@ -142,8 +257,26 @@ X <- BostonHousing[, c(1:3,5)]
 
 model_median <- caret::train(x = X, y = Y, method = "glm", preProcess = "medianImpute")
 print(min(model_median$results$RMSE))
+~~~
 
+
+
+~~~{.output}
+[1] 8.250787
+
+~~~
+
+
+
+~~~{.r}
 # install.packages("RANN")
 model_knn <- caret::train(x = X, y = Y, method = "glm", preProcess = "knnImpute")
 print(min(model_knn$results$RMSE))
-```
+~~~
+
+
+
+~~~{.output}
+[1] 7.775939
+
+~~~
