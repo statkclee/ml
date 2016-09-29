@@ -206,6 +206,7 @@ problemType       1    -none-     character
 tuneValue         1    data.frame list     
 obsLevels         1    -none-     logical  
 </code></pre>
+<h4 id="임의-랜덤이-아닌-결측값---knn-대체">3.2. 임의 랜덤이 아닌 결측값 - knn 대체</h4>
 <p>데이터에 결측값이 랜덤으로 임의적으로 만들어진 것이 아닌 경우, 예를 들어 법죄가 0.5 이상인 경우 모드 결측값이 된 경우가 존재한다. 이런 경우 <code>preProcess = &quot;knnImpute&quot;</code> 인자는 다른 설명변수를 이용하여 결측값을 추정하여 채워넣게 된다. RMSE 값을 비교하면 더 향상된 것(RMSE 오차가 축소)이 확인된다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-------------------------------------------------------------------------------------------</span>
 <span class="co"># 02.02. knn 대체 : 결측값이 임의가 아님</span>
@@ -227,6 +228,54 @@ model_knn &lt;-<span class="st"> </span>caret::<span class="kw">train</span>(<sp
 <span class="kw">print</span>(<span class="kw">min</span>(model_knn$results$RMSE))</code></pre></div>
 <pre class="output"><code>[1] 7.775939
 </code></pre>
+<h3 id="변수-전처리-파이프라인">4. 변수 전처리 파이프라인</h3>
+<p>각 변수별로 결측값이 존재하는 경우 중위수 대체와 knn 대체 방법을 통해 가능하면 많은 변수를 모형에 활용할 수 있다. 결측값 처리 외에도 중심화, 척도조정 등 일련의 전처리 과정을 통해 예측모형 성능을 개선시켜 나간다.</p>
+<p>이와 같은 결측값 처리, 중심화, 척도조정 작업이 <code>caret</code> 팩키지 <code>preProcess</code> 인자를 순차적으로 연결하여 자동화한다. 이런 경우 작업 순서가 매우 중요하다.</p>
+<ol style="list-style-type: decimal">
+<li>분산이 없거나, 매우 낮은 분산을 갖는 변수 제거 → <code>zv</code>, <code>nzv</code></li>
+<li>결측값 대체, 중위수 대체법, knn 대체 → <code>medianImpute</code>, <code>knnImpute</code></li>
+<li>중심화(Centering) → <code>center</code></li>
+<li>척도조정(Scaling) → <code>scale</code></li>
+<li>분산이 낮거나 상관변수를 추출, PCA → <code>pca</code>, <code>spatialSign</code></li>
+</ol>
+<p><img src="fig/ml-preprocessing-workflow.png" alt="변수제거, 결측값, 중복정보 제거" width="77%" /></p>
+<p>임의 결측값을 보스턴집값 데이터셋에 10개 넣은 후에 중위수 대체만 적용시켜 전처리하여 예측모형에 적합시킨 결과, 중위수 대체+중심화+척도조정 전처리하여 예측모형에 적합시킨 결과, 중위수 대체+중심화+척도조정+PCA 전처리하여 예측모형에 적합시킨 결과 RMSE 값을 비교하여 가장 적합한 전처리 방법을 선정한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##==========================================================================================
+## 03. 데이터 전처리 파이프라인
+##==========================================================================================
+
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 03.01. 전처리 파이프라인</span>
+<span class="co">#-------------------------------------------------------------------------------------------</span>
+<span class="co"># 임의 결측값 채워넣기</span>
+<span class="kw">set.seed</span>(<span class="dv">777</span>)
+<span class="kw">data</span>(<span class="st">&quot;BostonHousing&quot;</span>)
+BostonHousing[<span class="kw">sample</span>(<span class="dv">1</span>:<span class="kw">nrow</span>(BostonHousing), <span class="dv">10</span>), <span class="st">&quot;crim&quot;</span>] &lt;-<span class="st"> </span><span class="ot">NA</span>
+<span class="co"># 예측모형: 설명변수와 종속변수 분리</span>
+Y &lt;-<span class="st"> </span>BostonHousing$medv
+X &lt;-<span class="st"> </span>BostonHousing[, <span class="dv">1</span>:<span class="dv">13</span>]
+
+<span class="co"># caret 예측모형 적합: 기준</span>
+model &lt;-<span class="st"> </span><span class="kw">train</span>(<span class="dt">x =</span> X, <span class="dt">y =</span> Y, <span class="dt">method=</span><span class="st">&quot;glm&quot;</span>, <span class="dt">preProcess =</span> <span class="kw">c</span>(<span class="st">&quot;medianImpute&quot;</span>))
+<span class="kw">print</span>(<span class="kw">min</span>(model$results$RMSE))</code></pre></div>
+<pre class="output"><code>[1] 4.957745
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># caret 예측모형 적합: 전처리 기본 파이프라인 적용</span>
+model &lt;-<span class="st"> </span><span class="kw">train</span>(<span class="dt">x =</span> X, <span class="dt">y =</span> Y, <span class="dt">method=</span><span class="st">&quot;glm&quot;</span>, <span class="dt">preProcess =</span> <span class="kw">c</span>(<span class="st">&quot;medianImpute&quot;</span>, <span class="st">&quot;center&quot;</span>, <span class="st">&quot;scale&quot;</span>))
+<span class="kw">print</span>(<span class="kw">min</span>(model$results$RMSE))</code></pre></div>
+<pre class="output"><code>[1] 4.919155
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># caret 예측모형 적합: 전처리 전체 파이프라인 적용(PCA)</span>
+model &lt;-<span class="st"> </span><span class="kw">train</span>(<span class="dt">x =</span> X, <span class="dt">y =</span> Y, <span class="dt">method=</span><span class="st">&quot;glm&quot;</span>, <span class="dt">preProcess =</span> <span class="kw">c</span>(<span class="st">&quot;medianImpute&quot;</span>, <span class="st">&quot;center&quot;</span>, <span class="st">&quot;scale&quot;</span>, <span class="st">&quot;pca&quot;</span>))
+<span class="kw">print</span>(<span class="kw">min</span>(model$results$RMSE))</code></pre></div>
+<pre class="output"><code>[1] 5.395042
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># caret 예측모형 적합: 전처리 전체 파이프라인 적용(PCA)</span>
+model &lt;-<span class="st"> </span><span class="kw">train</span>(<span class="dt">x =</span> X, <span class="dt">y =</span> Y, <span class="dt">method=</span><span class="st">&quot;glm&quot;</span>, <span class="dt">preProcess =</span> <span class="kw">c</span>(<span class="st">&quot;medianImpute&quot;</span>, <span class="st">&quot;center&quot;</span>, <span class="st">&quot;scale&quot;</span>, <span class="st">&quot;spatialSign&quot;</span>))
+<span class="kw">print</span>(<span class="kw">min</span>(model$results$RMSE))</code></pre></div>
+<pre class="output"><code>[1] 5.535754
+</code></pre>
+<h3 id="변수-제거와-중복-변수-제거">5. 변수 제거와 중복 변수 제거</h3>
 <div class="footnotes">
 <hr />
 <ol>

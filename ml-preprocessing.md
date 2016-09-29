@@ -239,6 +239,8 @@ obsLevels         1    -none-     logical
 
 ~~~
 
+#### 3.2. 임의 랜덤이 아닌 결측값 - knn 대체
+
 데이터에 결측값이 랜덤으로 임의적으로 만들어진 것이 아닌 경우, 예를 들어 법죄가 0.5 이상인 경우 모드 결측값이 된 경우가 존재한다.
 이런 경우 `preProcess = "knnImpute"` 인자는 다른 설명변수를 이용하여 결측값을 추정하여 채워넣게 된다. RMSE 값을 비교하면 더 향상된 것(RMSE 오차가 축소)이 확인된다.
 
@@ -280,3 +282,100 @@ print(min(model_knn$results$RMSE))
 [1] 7.775939
 
 ~~~
+
+### 4. 변수 전처리 파이프라인
+
+각 변수별로 결측값이 존재하는 경우 중위수 대체와 knn 대체 방법을 통해 가능하면 많은 변수를 모형에 활용할 수 있다.
+결측값 처리 외에도 중심화, 척도조정 등 일련의 전처리 과정을 통해 예측모형 성능을 개선시켜 나간다.
+
+이와 같은 결측값 처리, 중심화, 척도조정 작업이 `caret` 팩키지 `preProcess` 인자를 순차적으로 연결하여 자동화한다.
+이런 경우 작업 순서가 매우 중요하다. 
+
+1. 분산이 없거나, 매우 낮은 분산을 갖는 변수 제거 &rarr; `zv`, `nzv` 
+1. 결측값 대체, 중위수 대체법, knn 대체 &rarr; `medianImpute`, `knnImpute`
+1. 중심화(Centering) &rarr; `center`
+1. 척도조정(Scaling) &rarr; `scale`
+1. 분산이 낮거나 상관변수를 추출, PCA &rarr; `pca`, `spatialSign`
+
+<img src="fig/ml-preprocessing-workflow.png" alt="변수제거, 결측값, 중복정보 제거" width="77%" />
+
+임의 결측값을 보스턴집값 데이터셋에 10개 넣은 후에 중위수 대체만 적용시켜 전처리하여 예측모형에 적합시킨 결과,
+중위수 대체+중심화+척도조정 전처리하여 예측모형에 적합시킨 결과,
+중위수 대체+중심화+척도조정+PCA 전처리하여 예측모형에 적합시킨 결과 RMSE 값을 비교하여 가장 적합한 전처리 방법을 
+선정한다.
+
+
+~~~{.r}
+##==========================================================================================
+## 03. 데이터 전처리 파이프라인
+##==========================================================================================
+
+#-------------------------------------------------------------------------------------------
+# 03.01. 전처리 파이프라인
+#-------------------------------------------------------------------------------------------
+# 임의 결측값 채워넣기
+set.seed(777)
+data("BostonHousing")
+BostonHousing[sample(1:nrow(BostonHousing), 10), "crim"] <- NA
+# 예측모형: 설명변수와 종속변수 분리
+Y <- BostonHousing$medv
+X <- BostonHousing[, 1:13]
+
+# caret 예측모형 적합: 기준
+model <- train(x = X, y = Y, method="glm", preProcess = c("medianImpute"))
+print(min(model$results$RMSE))
+~~~
+
+
+
+~~~{.output}
+[1] 4.957745
+
+~~~
+
+
+
+~~~{.r}
+# caret 예측모형 적합: 전처리 기본 파이프라인 적용
+model <- train(x = X, y = Y, method="glm", preProcess = c("medianImpute", "center", "scale"))
+print(min(model$results$RMSE))
+~~~
+
+
+
+~~~{.output}
+[1] 4.919155
+
+~~~
+
+
+
+~~~{.r}
+# caret 예측모형 적합: 전처리 전체 파이프라인 적용(PCA)
+model <- train(x = X, y = Y, method="glm", preProcess = c("medianImpute", "center", "scale", "pca"))
+print(min(model$results$RMSE))
+~~~
+
+
+
+~~~{.output}
+[1] 5.395042
+
+~~~
+
+
+
+~~~{.r}
+# caret 예측모형 적합: 전처리 전체 파이프라인 적용(PCA)
+model <- train(x = X, y = Y, method="glm", preProcess = c("medianImpute", "center", "scale", "spatialSign"))
+print(min(model$results$RMSE))
+~~~
+
+
+
+~~~{.output}
+[1] 5.535754
+
+~~~
+
+### 5. 변수 제거와 중복 변수 제거
