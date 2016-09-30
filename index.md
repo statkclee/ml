@@ -26,13 +26,14 @@ subtitle: 데이터 과학자가 바라본 기계학습
 1. 기계학습 적용
     1. [테스트 주도 기계학습](31-ml-tdd.html)
     1. [알고리즘 성능평가](ml-assessment.html)
-    1. [데이터 전처리 및 정제](14-ml-data-munging.html)
-        1. [탐색적 데이터 분석(EDA)](ml-eda.html)
+    1. 데이터 전처리        
         1. [예측모형 적용을 위한 전처리](ml-preprocessing.html)
+        1. [데이터 전처리 및 정제(파이썬)](14-ml-data-munging.html)
+    1. [탐색적 데이터 분석(EDA)](ml-eda.html)        
     1. [데이터 적합 모형 개발](ml-modeling.html)
         1. **인간 중심 기계학습 모형**
-            1. [통계적 모형개발 기초](ml-modeling-basic.html)    
-            1. [선형대수와 함께하는 회귀분석](ml-linear-algebra-reg.html)    
+            1. [선형대수와 함께하는 회귀분석 이해](ml-linear-algebra-reg.html)    
+            1. [통계적 모형개발 기초](ml-modeling-basic.html)
             1. [전통방식 모형개발 -타이타닉 생존데이터](ml-modeling-titanic.html)  
         1. **인간과 기계가 함께하는 기계학습 예측모형**  
             1. [예측모형 A-Z(연속형)](ml-pm-continuous.html)
@@ -41,7 +42,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
             1. [예측모형 A-Z(이산형) - 카드발급](ml-credit-greene.html)
             1. [모형식별 및 선택](ml-model-selection.html)
         1. **기계 중심 기계학습**              
-1. **기계학습 적용 데이터**
+1. **데이터 유형별 기계학습 모형**
     1. **[네트워크 데이터 들어가며 -- 색상과 글꼴](ml-network-overview.html)**        
         1. [네트워크 데이터](ml-network-data.html)
         1. [정적 네트워크 데이터 시각화](ml-network-static-viz.html)
@@ -66,7 +67,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [신용평가와 신용평점모형](ml-credit-scoring-business.html)
         1. [소매금융 부도예측 - 독일신용 데이터](ml-credit-scoring.html)
     1. [예측모형 활용분야](ml-pm-applications.html)
-    1. [기계학습 운영 - 파이프라인](ml-production.html)
+1. [기계학습 운영 및 자동화 - 파이프라인](ml-production.html)
 
 
 ## 기계학습 관련 정보 [^David-Julian-2016]
