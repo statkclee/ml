@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">기계학습 예측모형 기초</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li></li>
+</ul>
+</div>
+</section>
+<h3 id="전통적-통계모형과-예측모형-비교">1. 전통적 통계모형과 예측모형 비교</h3>
+<p><a href="https://en.wikipedia.org/wiki/Predictive_modelling">예측모형(Predictive Model)</a>은 정확도가 높은 모형을 개발하는 과정이다. 따라서, 전통적 통계학에서 강조하는 추론, 타당성, 유의성, 가정과 같은 개념적인 것보다는 “실질적으로 정확하게 예측을 할 수 있는가?” 라는 문제늘 더 중요하게 다루고 있다.</p>
+<aside class="callout panel panel-info">
+<div class="panel-heading">
+<h3 id="예측모형-정의predictive-modeling"><span class="glyphicon glyphicon-pushpin"></span>예측모형 정의(Predictive Modeling)</h3>
+</div>
+<div class="panel-body">
+<p>“Predictive Modeling is the process of creating a model whose primary goal is to achieve high levels of accuracy.”<br />
+– Max Kuhn from Pfizer R&amp;D</p>
+</div>
+</aside>
+<p><strong>예측모형에서 중요하게 고려되는 사항</strong></p>
+<ul>
+<li>예측모형 성능</li>
+<li>예측의 단순성</li>
+<li>복잡성과 컴퓨팅 비용을 줄이도록 변수(특성, Feature) 축소</li>
+<li>예측수식 평활(smoothness)</li>
+<li>예측모형의 강건성</li>
+</ul>
+<p><img src="fig/ml-parameter-tuning.png" alt="예측모형 개발과정" width="70%" ></p>
+<h3 id="찾으려는-예측모형-특성">2. 찾으려는 예측모형 특성</h3>
+<p>오랜기간 좋은 예측모형을 찾으려고 백방으로 수소문하여 현재까지 가장 좋은 예측모형은 지금까지 보지 않던 표본 데이터에 가장 좋은 성능을 보여주는 예측모형이 답이다.</p>
+<p>주어진 데이터에서 다양한 예측모형을 개발하지만, 결국 예측모형이 처음으로 접하는 데이터에도 좋은 성능을 내는, 즉 외표본 오차를 최소화하는 예측모형이 찾고자하는 모형이다.</p>
+<p>이를 위해서 과대적합(Overfitting)하지 말하야 되고, 일반적/강건한 모형이 되어야 한다. 교차검증(Cross-Validation, CV) 방법이 이 문제에 대한 열쇠를 쥐고 있다.</p>
+<p><img src="fig/ml-predictive-model-cv.png" alt="예측모형 오라클" width="77%" /></p>
+<h3 id="caret-팩키지">3. <code>caret</code> 팩키지</h3>
+<p><code>caret</code> 팩키지와 같은 예측모형 전용 팩키지가 필요한 이유는 너무나 많은 예측모형이 존재하고, 더 큰 문제는 사용법과 해석이 모두 다르다는데 있다. 너무 많은 사람이들이 오랜기간에 걸쳐 개발하다보니 어쩌면 당연한 문제라고 볼 수도 있다.</p>
+<h3 id="r-팩키지-구문">2.1. R 팩키지 구문</h3>
+<p>기계학습에서 가장 많이 작업하는 것 중에 하나가 분류문제에 대한 예측 알고리즘을 제시하는 것이다. 데이터도 다양하지만, 분류문제에 대한 다양한 이론이 존재하고, R로 구현된 팩키지도 정말 다양한다. 예를 들어, <code>lda</code>는 판별분석(Linear Discrimant Analsyis)을 돌릴 때 사용되는 것으로 <code>MASS</code> 팩키지에 포함되어 있고, 훈련데이터 혹은 검증데이터에 예측값을 구할 경우 <code>predict</code> 함수에 <code>lda</code> 반환값을 넣어주면 되고 추가설정은 필요없다. <code>glm</code>은 일반화 선형모형을 적합할 때 특히 링크함수로 <code>logit</code>을 넣어 설정하고 <code>stats</code> 팩키지에 포함되어 있고, 구문은 <code>lda</code>와 확연한 차이를 볼 수 있다.</p>
+<p><code>gbm</code>, <code>mda</code>, <code>rpart</code>, <code>Weka</code>, <code>LogitBoost</code>등 다양한 예측 알고리즘이 존재한다. 다음은 <strong>Max Kuhn</strong> 박사가 <code>caret</code>을 개발한 주요한 사유로 정리한 표다. 이를 일관된 인터페이스로 제공하고 나아가 각 모형의 성능을 객관적으로 비교할 수 있는 성능평가 지표 도출 및 확정을 위해서 꼭 필요한 것으로 판단된다. (본인이 필요해서 개발하지 않았을까 생각되고, 누구나 이런 코드는 갖고 있는데 체계적으로 정리해서 공개한 후, 10년에 걸쳐 시간을 투여한 Kuhn 박사님께 감사드립니다.)</p>
+<table>
+<thead>
+<tr class="header">
+<th align="center">예측함수명</th>
+<th align="center">팩키지명</th>
+<th align="left"><code>predict</code> 함수 예측구문</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">lda</td>
+<td align="center">MASS</td>
+<td align="left">predict(obj) (추가 인자설정 불필요)</td>
+</tr>
+<tr class="even">
+<td align="center">glm</td>
+<td align="center">stats</td>
+<td align="left">predict(obj, type = “response”)</td>
+</tr>
+<tr class="odd">
+<td align="center">gbm</td>
+<td align="center">gbm</td>
+<td align="left">predict(obj, type = “response”, n.trees)</td>
+</tr>
+<tr class="even">
+<td align="center">mda</td>
+<td align="center">mda</td>
+<td align="left">predict(obj, type = “posterior”)</td>
+</tr>
+<tr class="odd">
+<td align="center">rpart</td>
+<td align="center">rpart</td>
+<td align="left">predict(obj, type = “prob”)</td>
+</tr>
+<tr class="even">
+<td align="center">Weka</td>
+<td align="center">RWeka</td>
+<td align="left">predict(obj, type = “probability”)</td>
+</tr>
+<tr class="odd">
+<td align="center">LogitBoost</td>
+<td align="center">caTools</td>
+<td align="left">predict(obj, type = “raw”, nIter)</td>
+</tr>
+</tbody>
+</table>
+<p><code>caret</code>에서 지원하는 예측모형 목록 중 일부는 다음과 같고, 전체 목록은 <a href="http://topepo.github.io/caret/modelList.html">예측모형 caret 목록</a>을 참조한다. 2014년 2월 기준 예측모형과 예측함수 147개, 2016년 1월 기준 216개 폭증.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">모형</th>
+<th align="left">예측함수명</th>
+<th align="left">팩키지</th>
+<th align="left">세부조정 모수</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">재귀적 분할</td>
+<td align="left">rpart</td>
+<td align="left">rpart</td>
+<td align="left">maxdepth</td>
+</tr>
+<tr class="even">
+<td align="left">Boosted trees</td>
+<td align="left">gbm</td>
+<td align="left">gbm</td>
+<td align="left">interaction.depth, n.trees, shrinkage</td>
+</tr>
+<tr class="odd">
+<td align="left">Random forests</td>
+<td align="left">rf</td>
+<td align="left">randomForest</td>
+<td align="left">mtry</td>
+</tr>
+<tr class="even">
+<td align="left">신경망</td>
+<td align="left">nnet</td>
+<td align="left">nnet</td>
+<td align="left">decay, size</td>
+</tr>
+<tr class="odd">
+<td align="left">Support Vector Machine (RBF 커널)</td>
+<td align="left">svmRadial</td>
+<td align="left">kernlab</td>
+<td align="left">sigma, C</td>
+</tr>
+<tr class="even">
+<td align="left">Support Vector Machine (다항식 커널)</td>
+<td align="left">svmPoly</td>
+<td align="left">kernlab</td>
+<td align="left">scale, degree, C</td>
+</tr>
+<tr class="odd">
+<td align="left">선형회귀</td>
+<td align="left">lm</td>
+<td align="left">stats</td>
+<td align="left">없음</td>
+</tr>
+<tr class="even">
+<td align="left">…</td>
+<td align="left">…</td>
+<td align="left">…</td>
+<td align="left">…</td>
+</tr>
+</tbody>
+</table>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>
