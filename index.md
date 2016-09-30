@@ -21,8 +21,8 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [(사업) 문제의 정의](01-problem.html)
         1. [데이터(Data)](02-data.html)
         1. [데이터를 통한 문제풀이 과정](03-process.html)
-    1. [알고리즘](04-algorithm.html)
-    1. [활용도 높은 기계학습 알고리즘 -- 분류, 예측, 군집화](ml-basic-dc.html)    
+    1. [기계학습 알고리즘](04-algorithm.html)
+        1. [활용도 높은 기계학습 알고리즘 -- 분류, 예측, 군집화](ml-basic-dc.html)
 1. 기계학습 적용
     1. [테스트 주도 기계학습](31-ml-tdd.html)
     1. [알고리즘 성능평가](ml-assessment.html)
@@ -30,12 +30,13 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [예측모형 적용을 위한 전처리](ml-preprocessing.html)
         1. [데이터 전처리 및 정제(파이썬)](14-ml-data-munging.html)
     1. [탐색적 데이터 분석(EDA)](ml-eda.html)        
-    1. [데이터 적합 모형 개발](ml-modeling.html)
+    1. [데이터에 무게를 둔 예측모형](ml-modeling.html)
         1. **인간 중심 기계학습 모형**
             1. [선형대수와 함께하는 회귀분석 이해](ml-linear-algebra-reg.html)    
             1. [통계적 모형개발 기초](ml-modeling-basic.html)
             1. [전통방식 모형개발 -타이타닉 생존데이터](ml-modeling-titanic.html)  
         1. **인간과 기계가 함께하는 기계학습 예측모형**  
+            1. [기계학습 예측모형(Predictive Modeling)](ml-predictive-modeling.html)
             1. [예측모형 A-Z(연속형)](ml-pm-continuous.html)
             1. [예측모형 A-Z(연속형) - 콘크리트 강도](ml-pm-continuous-concrete.html)
             1. [예측모형 A-Z(이산형)](ml-pm-discrete.html)  
