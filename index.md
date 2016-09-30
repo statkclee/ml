@@ -36,6 +36,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
             1. [통계적 모형개발 기초](ml-modeling-basic.html)
             1. [전통방식 모형개발 -타이타닉 생존데이터](ml-modeling-titanic.html)  
         1. **인간과 기계가 함께하는 기계학습 예측모형**  
+            1. [기계학습 예측모형 기초](ml-predictive-modeling-basic.html)
             1. [기계학습 예측모형(Predictive Modeling)](ml-predictive-modeling.html)
             1. [예측모형 A-Z(연속형)](ml-pm-continuous.html)
             1. [예측모형 A-Z(연속형) - 콘크리트 강도](ml-pm-continuous-concrete.html)
