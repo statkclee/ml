@@ -12,11 +12,20 @@ mainfont: NanumGothic
  
 > ## 학습목표 {.objectives}
 >
-> * 
+> * 예측모형 개발에 필요한 중요개념을 학습한다.
+> * 내표본, 외표본, 교차검증에 대해 살펴본다.
+> * 훈련/검증 데이터 쪼개기를 실습한다.
+> * 범주 예측에 활용되는 오차행렬를 생성한다.
+> * `caret` 팩키지 개발 배경을 이해한다. 
 
 
 ``` {r, include=FALSE}
 source("tools/chunk-options.R")
+library(dplyr)
+library(caret)
+library(mlbench)
+data(BostonHousing)
+data(Sonar)
 ```
 
 ### 1. 전통적 통계모형과 예측모형 비교
@@ -86,7 +95,6 @@ predicted <- predict(model, BostonHousing[1:100, ], type = "response")
 # 5. RMSE 오차 계산
 actual <- BostonHousing[1:100, "medv"] 
 sqrt(mean((predicted - actual)^2)) 
-# [1] 2.037201
 ```
 
 #### 2.2. 내표본 오차
@@ -94,7 +102,7 @@ sqrt(mean((predicted - actual)^2))
 내표본 오차가 최소화되는 모형이 좋지만, 결국 중요한 것은 지금까지 보지 못한 사례 외표본에 대한
 RMSE 오차를 계산하는 것이 성능이 좋은 예측모형인지 판단하는 근거가 된다.
 
-``` {r ml-overfitting-cv-out-of-sample-error, warning=FALSE}
+``` {r ml-overfitting-cv-out-of-sample-errors, warning=FALSE}
 #-------------------------------------------------------------------------------------------
 # 03.02. 외표본 오차 
 #-------------------------------------------------------------------------------------------
@@ -108,7 +116,6 @@ predicted <- predict(model, BostonHousing[101:200, ], type = "response")
 # 5. RMSE 오차 계산
 actual <- BostonHousing[101:200, "medv"] 
 sqrt(mean((predicted - actual)^2)) 
-# [1] 3.294872
 ```
 
 #### 2.3. 교차검증
