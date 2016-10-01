@@ -52,6 +52,82 @@ levels of accuracy."
 
 <img src="fig/ml-predictive-model-cv.png" alt="예측모형 오라클" width="77%" />
 
+#### 2.1. 내표본 오차
+
+과대적합에 대한 치료법으로 교차검증이 많이 활용되는데 먼저 내표본(In-sample) 오차를 계산한다.
+가장 먼저 선형회귀모형을 보스톤 집값 데이터에 적합을 시키기 위해서 모형에 들어갈 변수를 선정하고,
+예측모형을 `lm` 함수에 밀어 넣는데, 첫번째부터 100개 관측점만 모형에 사용한다. 
+
+그리고 나서, 선형 회귀식에 예측값을 산출하고 실제값과 RMSE 오차를 계산한다.
+
+``` {r ml-overfitting-cv-in-sample-error, warning=FALSE}
+##==========================================================================================
+## 03. 과대적합 - 교차검증
+##==========================================================================================
+
+#-------------------------------------------------------------------------------------------
+# 03.01. 내표본 오차 계
+#-------------------------------------------------------------------------------------------
+glimpse(BostonHousing)
+
+# 1. 독립변수 선택
+ind <- dput(names(BostonHousing))
+ind_sel <- setdiff(ind, c("medv", "chas"))
+
+# 2. 모형 개발
+housing_model <- as.formula(paste("medv", "~", paste(ind_sel, collapse="+"),collapse=""))
+
+# 3. 모형 적합
+model <- lm(housing_model, data=BostonHousing[1:100,])
+
+# 4. 내표본 예측값 산출
+predicted <- predict(model, BostonHousing[1:100, ], type = "response") 
+
+# 5. RMSE 오차 계산
+actual <- BostonHousing[1:100, "medv"] 
+sqrt(mean((predicted - actual)^2)) 
+# [1] 2.037201
+```
+
+#### 2.2. 내표본 오차
+
+내표본 오차가 최소화되는 모형이 좋지만, 결국 중요한 것은 지금까지 보지 못한 사례 외표본에 대한
+RMSE 오차를 계산하는 것이 성능이 좋은 예측모형인지 판단하는 근거가 된다.
+
+``` {r ml-overfitting-cv-out-of-sample-error, warning=FALSE}
+#-------------------------------------------------------------------------------------------
+# 03.02. 외표본 오차 
+#-------------------------------------------------------------------------------------------
+
+# 3. 모형 적합
+model <- lm(housing_model, data=BostonHousing[1:100,])
+
+# 4. 내표본 예측값 산출
+predicted <- predict(model, BostonHousing[101:200, ], type = "response") 
+
+# 5. RMSE 오차 계산
+actual <- BostonHousing[101:200, "medv"] 
+sqrt(mean((predicted - actual)^2)) 
+# [1] 3.294872
+```
+
+#### 2.3. 교차검증
+
+내표본 오차와 외표본 오차 개념을 바탕으로 교차검증을 통해 선형회귀모형에 10번 적용한 후 가장 좋은 모형을 자동으로 뽑아낸다.
+`caret` 팩키지 `train()` 함수에 `method = "cv"`, `number = 10` 인자를 설정하여 교차검증 방법을 적용한 선형회귀모형을 실행시킨다.
+
+``` {r ml-overfitting-cv, warning=FALSE}
+#-------------------------------------------------------------------------------------------
+# 03.03. Cross Validation
+#------------------------------------------------------------------------------------------
+set.seed(77) 
+model <- train(housing_model, BostonHousing, 
+               method = "lm",
+               trControl = trainControl(method = "cv", number = 10, verboseIter = TRUE)
+               )
+model
+```
+
 
 ### 3. `caret` 팩키지 
 
