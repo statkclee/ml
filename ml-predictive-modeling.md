@@ -13,9 +13,11 @@ mainfont: NanumGothic
 > ## 학습목표 {.objectives}
 >
 > * 전통적 통계모형과 비교하여 예측모형에 대해 이해한다.
-> * `caret` 팩키지의 등장배경을 이해한다.
-> * 데이터기반 기계학습 예측모형을 이해한다.
+> * `caret` 팩키지의 등장배경과 데이터기반 기계학습 예측모형을 이해한다.
 > * `caret` 팩키지의 10년에 걸친 여정을 살펴본다.
+> * 예측모형 튜딩에 대해 이해한다. 특히 하이퍼-파라미터를 데이터를 활용하여 객관적으로 찾아낸다.
+> * 범주 예측에 `randomForest` 대신 `ranger`로 모형을 구축한다.
+> * 연속형 예측에 `glm` 대신 `glmnet`으로 모형을 구축한다.
 
 
 
@@ -87,11 +89,172 @@ levels of accuracy."
 | 선형회귀 | lm | stats | 없음 |
 | ... | ... | ... | ... |
 
-## 3. 고객 이탈 예측 사례
+### 3. 고객 이탈 예측 사례
 
-고객 이탈(churn)은 마케팅을 통한 고객획득과 마찬가지로 상당히 중요한 의미를 갖는다. 고객이탈을 고객유지(retention)의 반대쪽 면으로 볼 수 있고, 고객평생가치적인 측면에서도 상당히 중요한 사업적 의미를 갖는다. [SGI, Silicon Graphics International](http://www.sgi.com/tech/mlc/)에도 상당히 좋은 데이터를 많이 제공하고 있다. [churn.all, churn.data, churn.names, churn.test](http://www.sgi.com/tech/mlc/db/)데이터를 활용하여 직접 예측모형을 개발한다.
+고객 이탈(churn)은 마케팅을 통한 고객획득과 마찬가지로 상당히 중요한 의미를 갖는다. 
+고객이탈을 고객유지(retention)의 반대쪽 면으로 볼 수 있고, 
+고객평생가치적인 측면에서도 상당히 중요한 사업적 의미를 갖는다. 
+[SGI, Silicon Graphics International](http://www.sgi.com/tech/mlc/)에도 
+상당히 좋은 데이터를 많이 제공하고 있다. 
+[churn.all, churn.data, churn.names, churn.test](http://www.sgi.com/tech/mlc/db/)데이터를 
+활용하여 직접 예측모형을 개발한다.
 
-### 3.1. 고객이탈 데이터 준비
+#### 3.1. 예측모형 공구상자
+
+##### 3.1.1. 확률숲(Random Forest)
+
+단순 의사결정나무모형은 데이터에 적합모형 개발에 시간이 많이 걸리지 않지만, 성능이 떨어진다.
+물론, 단순 의사결정나무모형은 나무형태로 예측모형을 생성해 나가 모형이해와 설명, 커뮤니케이션에는 장점이 많다.
+하지만, 성능이 좋지 않아, *배깅(Bagging, Bootsrap Aggregation)*을 사용한다.
+배깅은 부츠트랩 표본을 뽑아 단순 나무모형을 적합시켜 나온 결과를 사용하여 성능을 획기적으로 높인다.
+의사결정나무 모형과 확률숲(`randomForest`) 모형에 대한 장단점은 다음과 같다.
+
+의사결정나무 모형(Decision Tree)
+
+**장점**
+
+1. 모형을 개발한 후에 비전문가에게 커뮤니케이션하기 용이함.
+1. 변수 선택 과정이 거의 자동
+1. 결측치에 강건하고 특별한 통계적 가정이 요구되지 않음.
+
+**단점**
+
+1. 한번에 변수 하나만 고려하여 상호작용관계가 반영되기 어려움
+1. 수직 혹은 수평으로 분류를 하기 때문에 곡선을 반영하기 어려운 한계가 있음.
+
+확률숲(Random Forest)
+
+**장점** 
+
+1. 초심자가 사용하기 적합
+1. 과대적합 문제에 강건.
+1. 매우 정확한 비선형 모형.
+1. 가장 인기가 있는 기계학습 모형
+
+**단점** 
+
+1. 선형모형에는 없는 *하이퍼-파라미터(Hyper-parameter)*를 설정.
+1. 하이퍼-파라미터는 수작업으로 찾아 설정해야 됨.
+1. 하이퍼-파라미터는 데이터별로 설정해줘야 하는데, 모형성능에 영향을 많이 준다.
+1. 모형에 기본설정된 값을 사용해도 되지만, 직접 미세조정을 해야될 경우도 많다.
+
+> ### 확률숲 하이퍼-파라미터 {.callout}
+>
+> `mtry`는 각 분기마다 사용되는 임의 선택된 변수 갯수다.
+>
+> - 더 작은 `mtry`: 더 무작위 랜덤 의미
+> - 더 높은 `mtry`: 덜 무작위 랜덤 의미
+
+##### 3.1.2. 일반화 선형모형 
+
+`glmnet` 팩키지는 `glm` 팩키지를 기반으로 기능을 확장한 것으로 자체 변수 선택기능이 내장되어 있다.
+*다공선성(collinearity)*과 더불어 표본크기가 작은 경우 처리에 도움이 된다.
+과다적합 문제에 대해 두가지 형태 선택옵션을 제공한다.
+
+- 라소 회귀모형(Lasso Regression): `0`이 아닌 회귀계수에 갯수에 벌칙을 부과
+- 능선 회귀모형(Ridge Regression): 회귀계수 절대값 규모에 벌칙을 부과
+
+확률숲 모형과 짝을 이루며 성능평가 및 여타 기본 모형으로 훌륭한 역할을 하는 유용한 예측모형이다.
+
+> ### `glmnet` 하이퍼-파라미터 {.callout}
+>
+> `glmnet`은 라소와 능선 회귀모형을 조합으로 두 모형을 섞어 예측모형을 개발할 수 있다.
+>
+> - `alpha[0,1]` : 0 에 가까울수록 라쏘, 1에 가까울수록 능선.
+> - `lambda(0, inﬁnity)` : 벌칙 크기 
+
+`trainControl` 함수에 사전 예측모형 개발에 필요한 설정을 적어 둔다. 이를 `train` 함수에 넘겨 `glmnet` 팩키지를 사용해서
+라소와 능선 회귀모형으로 수뢰를 판별하는 예측모형을 개발한다. 기본설정으로 `alpha`값 3개, `lamdba` 값 3개가 적용하여 
+가장 ROC 값이 높은 조합을 찾아낸다.
+
+
+~~~{.r}
+#-------------------------------------------------------------------------------------------
+# 03.01. 일반화 선형모형: glmnet
+#-------------------------------------------------------------------------------------------
+# 모형제어 사전설정
+# install.packages("glmnet")
+# install.packages("pROC")
+sonarControl <- trainControl(
+  method = "cv", number = 10,
+  summaryFunction = twoClassSummary,
+  classProbs = TRUE,
+  verboseIter = TRUE
+)
+~~~
+
+
+
+~~~{.output}
+Error in eval(expr, envir, enclos): 함수 "trainControl"를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+glm_model <- train(
+  Class ~ ., Sonar,
+  method = "glmnet",
+  metric = "ROC",
+  trControl = sonarControl
+)
+~~~
+
+
+
+~~~{.output}
+Error in eval(expr, envir, enclos): 함수 "train"를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+# 하이퍼-파라미터
+plot(glm_model)
+~~~
+
+
+
+~~~{.output}
+Error in plot(glm_model): 객체 'glm_model'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+# 모형 요약
+glm_model
+~~~
+
+
+
+~~~{.output}
+Error in eval(expr, envir, enclos): 객체 'glm_model'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+# ROC 기준 최적모형
+max(glm_model[["results"]][["ROC"]])
+~~~
+
+
+
+~~~{.output}
+Error in eval(expr, envir, enclos): 객체 'glm_model'를 찾을 수 없습니다
+
+~~~
+
+## 준비
+
+### 3.1. 고객이탈 데이터 준비 [^ml-mastery]
+
+[^ml-mastery]: [How to Build an Ensemble Of Machine Learning Algorithms in R (ready to use boosting, bagging and stacking)](http://machinelearningmastery.com/machine-learning-ensembles-with-r/)
 
 `C50` 팩키지에 `churn` 데이터로 준비되어 있어, 굳이 웹사이트에서 다운로드 받아 이를 가공하는 과정을 생략할 수 있다.
 `data(churn)` 명령어를 수행하면 `ls()` 명령어를 통해서 `churnTest`, `churnTrain` 데이터프레임이 생성된 것을 확인하게 된다.
@@ -219,25 +382,25 @@ Confusion Matrix and Statistics
 
           Reference
 Prediction  yes   no
-       yes  127   21
-       no    49 1052
+       yes  135   12
+       no    41 1061
                                           
-               Accuracy : 0.944           
-                 95% CI : (0.9297, 0.9561)
+               Accuracy : 0.9576          
+                 95% CI : (0.9449, 0.9681)
     No Information Rate : 0.8591          
     P-Value [Acc > NIR] : < 2e-16         
                                           
-                  Kappa : 0.752           
- Mcnemar's Test P-Value : 0.00125         
+                  Kappa : 0.8118          
+ Mcnemar's Test P-Value : 0.00012         
                                           
-            Sensitivity : 0.7216          
-            Specificity : 0.9804          
-         Pos Pred Value : 0.8581          
-         Neg Pred Value : 0.9555          
+            Sensitivity : 0.7670          
+            Specificity : 0.9888          
+         Pos Pred Value : 0.9184          
+         Neg Pred Value : 0.9628          
              Prevalence : 0.1409          
-         Detection Rate : 0.1017          
-   Detection Prevalence : 0.1185          
-      Balanced Accuracy : 0.8510          
+         Detection Rate : 0.1081          
+   Detection Prevalence : 0.1177          
+      Balanced Accuracy : 0.8779          
                                           
        'Positive' Class : yes             
                                           
@@ -256,12 +419,12 @@ head(gbmProbs)
 
 ~~~{.output}
          yes        no
-1 0.01218449 0.9878155
-2 0.01780994 0.9821901
-3 0.17363391 0.8263661
-4 0.03286104 0.9671390
-5 0.01783787 0.9821621
-6 0.07892892 0.9210711
+1 0.05617519 0.9438248
+2 0.31374970 0.6862503
+3 0.11440106 0.8855989
+4 0.78140029 0.2185997
+5 0.08179541 0.9182046
+6 0.03044891 0.9695511
 
 ~~~
 
@@ -285,6 +448,6 @@ Call:
 roc.default(response = churnTest$churn, predictor = gbmProbs[,     "yes"], levels = rev(levels(churnTest$churn)))
 
 Data: gbmProbs[, "yes"] in 1073 controls (churnTest$churn no) < 176 cases (churnTest$churn yes).
-Area under the curve: 0.907
+Area under the curve: 0.9408
 
 ~~~
