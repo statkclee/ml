@@ -89,19 +89,9 @@ levels of accuracy."
 | 선형회귀 | lm | stats | 없음 |
 | ... | ... | ... | ... |
 
-### 3. 고객 이탈 예측 사례
+### 3. 예측모형 공구상자
 
-고객 이탈(churn)은 마케팅을 통한 고객획득과 마찬가지로 상당히 중요한 의미를 갖는다. 
-고객이탈을 고객유지(retention)의 반대쪽 면으로 볼 수 있고, 
-고객평생가치적인 측면에서도 상당히 중요한 사업적 의미를 갖는다. 
-[SGI, Silicon Graphics International](http://www.sgi.com/tech/mlc/)에도 
-상당히 좋은 데이터를 많이 제공하고 있다. 
-[churn.all, churn.data, churn.names, churn.test](http://www.sgi.com/tech/mlc/db/)데이터를 
-활용하여 직접 예측모형을 개발한다.
-
-#### 3.1. 예측모형 공구상자
-
-##### 3.1.1. 확률숲(Random Forest)
+#### 3.1 확률숲(Random Forest)
 
 단순 의사결정나무모형은 데이터에 적합모형 개발에 시간이 많이 걸리지 않지만, 성능이 떨어진다.
 물론, 단순 의사결정나무모형은 나무형태로 예측모형을 생성해 나가 모형이해와 설명, 커뮤니케이션에는 장점이 많다.
@@ -109,43 +99,193 @@ levels of accuracy."
 배깅은 부츠트랩 표본을 뽑아 단순 나무모형을 적합시켜 나온 결과를 사용하여 성능을 획기적으로 높인다.
 의사결정나무 모형과 확률숲(`randomForest`) 모형에 대한 장단점은 다음과 같다.
 
-의사결정나무 모형(Decision Tree)
-
-**장점**
-
-1. 모형을 개발한 후에 비전문가에게 커뮤니케이션하기 용이함.
-1. 변수 선택 과정이 거의 자동
-1. 결측치에 강건하고 특별한 통계적 가정이 요구되지 않음.
-
-**단점**
-
-1. 한번에 변수 하나만 고려하여 상호작용관계가 반영되기 어려움
-1. 수직 혹은 수평으로 분류를 하기 때문에 곡선을 반영하기 어려운 한계가 있음.
-
-확률숲(Random Forest)
-
-**장점** 
-
-1. 초심자가 사용하기 적합
-1. 과대적합 문제에 강건.
-1. 매우 정확한 비선형 모형.
-1. 가장 인기가 있는 기계학습 모형
-
-**단점** 
-
-1. 선형모형에는 없는 *하이퍼-파라미터(Hyper-parameter)*를 설정.
-1. 하이퍼-파라미터는 수작업으로 찾아 설정해야 됨.
-1. 하이퍼-파라미터는 데이터별로 설정해줘야 하는데, 모형성능에 영향을 많이 준다.
-1. 모형에 기본설정된 값을 사용해도 되지만, 직접 미세조정을 해야될 경우도 많다.
+|     의사결정나무 모형(Decision Tree)                            |              확률숲(Random Forest)          |
+|-----------------------------------------------------------------|---------------------------------------------|
+|            **장점**                                             |        **장점**                             |
+| 1. 모형을 개발한 후에 비전문가에게 커뮤니케이션하기 용이함.     | 1. 초심자가 사용하기 적합 |
+| 1. 변수 선택 과정이 거의 자동                                   | 1. 과대적합 문제에 강건. |
+| 1. 결측치에 강건하고 특별한 통계적 가정이 요구되지 않음.        | 1. 매우 정확한 비선형 모형. |
+|                                                                 | 1. 가장 인기가 있는 기계학습 모형 |
+|           **단점**                                              |  **단점**  |
+| 1. 한번에 변수 하나만 고려하여 상호작용관계가 반영되기 어려움   | 1. 선형모형에는 없는 *하이퍼-파라미터(Hyper-parameter)*를 설정. |
+| 1. 수직/수평만으로 학습를 하기 때문에 곡선을 반영에 한계가 있음 | 1. 하이퍼-파라미터는 수작업으로 찾아 설정해야 됨. |
+|                                                                 | 1. 하이퍼-파라미터는 데이터별로 설정해줘야 하는데, 모형성능에 영향을 많이 준다. |
+|                                                                 | 1. 모형에 기본설정된 값을 사용해도 되지만, 직접 미세조정을 해야될 경우도 많다. |
 
 > ### 확률숲 하이퍼-파라미터 {.callout}
 >
-> `mtry`는 각 분기마다 사용되는 임의 선택된 변수 갯수다.
+> `mtry`는 각 분기마다 사용되는 임의 선택 변수 갯수다.
 >
 > - 더 작은 `mtry`: 더 무작위 랜덤 의미
 > - 더 높은 `mtry`: 덜 무작위 랜덤 의미
 
-##### 3.1.2. 일반화 선형모형 
+`caret` 팩키지에 포함된 `GermanCredit` 데이터에 확률숲(randomForest) 모형을 적합시킨다.
+채무불이행 `Class` 변수를 종속변수로 두고, 나머지 설명변수 중에서 
+불필요한 변수를 제거하고 `rf` 인자를 넣고 예측모형을 구축한다.
+
+
+~~~{.r}
+#-------------------------------------------------------------------------------------------
+# 03.02. 확률숲(Random Forest)
+#-------------------------------------------------------------------------------------------
+data("GermanCredit")
+dim(GermanCredit)
+~~~
+
+
+
+~~~{.output}
+[1] 1000   62
+
+~~~
+
+
+
+~~~{.r}
+# 변수 전처리: 변수제거
+GermanCredit <- GermanCredit[, -nearZeroVar(GermanCredit)]
+GermanCredit$CheckingAccountStatus.lt.0 <- NULL
+GermanCredit$SavingsAccountBonds.lt.100 <- NULL
+GermanCredit$EmploymentDuration.lt.1 <- NULL
+GermanCredit$EmploymentDuration.Unemployed <- NULL
+GermanCredit$Personal.Male.Married.Widowed <- NULL
+GermanCredit$Property.Unknown <- NULL
+GermanCredit$Housing.ForFree <- NULL
+
+dim(GermanCredit)
+~~~
+
+
+
+~~~{.output}
+[1] 1000   42
+
+~~~
+
+
+
+~~~{.r}
+# 모형제어 사전설정
+gcControl <- trainControl(
+  method = "cv", number = 10,
+  summaryFunction = twoClassSummary,
+  classProbs = TRUE,
+  verboseIter = FALSE
+)
+
+#확률숲(Random Forest)
+rf_model <- train(
+  Class ~ ., data=GermanCredit,
+  method = "rf",
+  metric = "ROC",
+  tuneLength = 5,
+  tuneGrid = data.frame(mtry=c(2,5,10,20,30,40)),
+  trControl = gcControl
+)
+~~~
+
+
+
+~~~{.output}
+Loading required package: randomForest
+
+~~~
+
+
+
+~~~{.output}
+randomForest 4.6-12
+
+~~~
+
+
+
+~~~{.output}
+Type rfNews() to see new features/changes/bug fixes.
+
+~~~
+
+
+
+~~~{.output}
+
+Attaching package: 'randomForest'
+
+~~~
+
+
+
+~~~{.output}
+The following object is masked from 'package:ggplot2':
+
+    margin
+
+~~~
+
+
+
+~~~{.output}
+The following object is masked from 'package:dplyr':
+
+    combine
+
+~~~
+
+
+
+~~~{.r}
+plot(rf_model)
+~~~
+
+<img src="fig/ml-rf-setting-1.png" title="plot of chunk ml-rf-setting" alt="plot of chunk ml-rf-setting" style="display: block; margin: auto;" />
+
+~~~{.r}
+# 모형 요약
+rf_model
+~~~
+
+
+
+~~~{.output}
+Random Forest 
+
+1000 samples
+  41 predictor
+   2 classes: 'Bad', 'Good' 
+
+No pre-processing
+Resampling: Cross-Validated (10 fold) 
+Summary of sample sizes: 900, 900, 900, 900, 900, 900, ... 
+Resampling results across tuning parameters:
+
+  mtry  ROC        Sens       Spec     
+   2    0.7826905  0.1033333  0.9942857
+   5    0.7903095  0.3733333  0.9414286
+  10    0.7887857  0.4100000  0.9185714
+  20    0.7815952  0.4500000  0.8914286
+  30    0.7798333  0.4400000  0.8857143
+  40    0.7789048  0.4466667  0.8742857
+
+ROC was used to select the optimal model using  the largest value.
+The final value used for the model was mtry = 5. 
+
+~~~
+
+
+
+~~~{.r}
+# ROC 기준 최적모형
+max(rf_model[["results"]][["ROC"]])
+~~~
+
+
+
+~~~{.output}
+[1] 0.7903095
+
+~~~
+
+#### 3.2. 일반화 선형모형 
 
 `glmnet` 팩키지는 `glm` 팩키지를 기반으로 기능을 확장한 것으로 자체 변수 선택기능이 내장되어 있다.
 *다공선성(collinearity)*과 더불어 표본크기가 작은 경우 처리에 도움이 된다.
@@ -179,20 +319,10 @@ sonarControl <- trainControl(
   method = "cv", number = 10,
   summaryFunction = twoClassSummary,
   classProbs = TRUE,
-  verboseIter = TRUE
+ verboseIter = FALSE
 )
-~~~
 
 
-
-~~~{.output}
-Error in eval(expr, envir, enclos): 함수 "trainControl"를 찾을 수 없습니다
-
-~~~
-
-
-
-~~~{.r}
 glm_model <- train(
   Class ~ ., Sonar,
   method = "glmnet",
@@ -204,7 +334,28 @@ glm_model <- train(
 
 
 ~~~{.output}
-Error in eval(expr, envir, enclos): 함수 "train"를 찾을 수 없습니다
+Loading required package: glmnet
+
+~~~
+
+
+
+~~~{.output}
+Loading required package: Matrix
+
+~~~
+
+
+
+~~~{.output}
+Loading required package: foreach
+
+~~~
+
+
+
+~~~{.output}
+Loaded glmnet 2.0-5
 
 ~~~
 
@@ -215,14 +366,7 @@ Error in eval(expr, envir, enclos): 함수 "train"를 찾을 수 없습니다
 plot(glm_model)
 ~~~
 
-
-
-~~~{.output}
-Error in plot(glm_model): 객체 'glm_model'를 찾을 수 없습니다
-
-~~~
-
-
+<img src="fig/ml-glmnet-setting-1.png" title="plot of chunk ml-glmnet-setting" alt="plot of chunk ml-glmnet-setting" style="display: block; margin: auto;" />
 
 ~~~{.r}
 # 모형 요약
@@ -232,7 +376,31 @@ glm_model
 
 
 ~~~{.output}
-Error in eval(expr, envir, enclos): 객체 'glm_model'를 찾을 수 없습니다
+glmnet 
+
+208 samples
+ 60 predictor
+  2 classes: 'M', 'R' 
+
+No pre-processing
+Resampling: Cross-Validated (10 fold) 
+Summary of sample sizes: 187, 188, 187, 188, 187, 186, ... 
+Resampling results across tuning parameters:
+
+  alpha  lambda        ROC        Sens       Spec     
+  0.10   0.0004318733  0.8361869  0.7939394  0.7222222
+  0.10   0.0043187332  0.8506818  0.8121212  0.7333333
+  0.10   0.0431873324  0.8604293  0.8022727  0.7844444
+  0.55   0.0004318733  0.8350758  0.7939394  0.7022222
+  0.55   0.0043187332  0.8564394  0.8212121  0.7333333
+  0.55   0.0431873324  0.8404040  0.7674242  0.7433333
+  1.00   0.0004318733  0.8319949  0.7939394  0.6722222
+  1.00   0.0043187332  0.8501515  0.7757576  0.7433333
+  1.00   0.0431873324  0.8471212  0.7931818  0.7433333
+
+ROC was used to select the optimal model using  the largest value.
+The final values used for the model were alpha = 0.1 and lambda
+ = 0.04318733. 
 
 ~~~
 
@@ -246,13 +414,208 @@ max(glm_model[["results"]][["ROC"]])
 
 
 ~~~{.output}
-Error in eval(expr, envir, enclos): 객체 'glm_model'를 찾을 수 없습니다
+[1] 0.8604293
 
 ~~~
 
-## 준비
+### 4. 예측 모형 종합 
 
-### 3.1. 고객이탈 데이터 준비 [^ml-mastery]
+전화회사 고객이탈 예측을 위해 세가지 예측모형을 적합시키고, ROC 기준 가장 성능이 좋은 예측함수를 식별해 낸다.
+세가지 예측함수는 GLM, Random Forest, SVM이고, `resamples` 함수를 통해 예측모형 성능을 비교평가한다.
+
+
+~~~{.r}
+##==========================================================================================
+## 00. 환경설정
+##==========================================================================================
+suppressMessages(library(caret))
+
+##==========================================================================================
+## 01. 데이터 가져오기
+##==========================================================================================
+suppressMessages(library(pROC))
+suppressMessages(library(C50))
+data(churn)
+
+##==========================================================================================
+## 02. 데이터 전처리
+##==========================================================================================
+# 
+
+numerics <- c("account_length", "total_day_calls", "total_night_calls")
+procValues <- preProcess(churnTrain[,numerics], method = c("center", "scale", "YeoJohnson"))
+
+##==========================================================================================
+## 03. 모형적합
+##==========================================================================================
+
+#-------------------------------------------------------------------------------------------
+# 03.00. 데이터 쪼개기
+#-------------------------------------------------------------------------------------------
+
+dim(churnTrain)
+~~~
+
+
+
+~~~{.output}
+[1] 3333   20
+
+~~~
+
+
+
+~~~{.r}
+dim(churnTest)
+~~~
+
+
+
+~~~{.output}
+[1] 1667   20
+
+~~~
+
+
+
+~~~{.r}
+churn_y <- churnTrain$churn
+
+# glmnet은 요인(factor) 자료형을 직접 처리하지 못함.
+churnTrain <- churnTrain[, sapply(churnTrain, is.numeric) | sapply(churnTrain, is.integer) ]
+
+churn_x <- churnTrain[, setdiff(names(churnTrain), "churn")]
+
+#-------------------------------------------------------------------------------------------
+# 03.01. 예측모형 제어설정
+#-------------------------------------------------------------------------------------------
+
+# 고객이탈 예측 제어 환경설정
+churnControl <- trainControl(
+  method = "repeatedcv", repeats = 1,
+  summaryFunction = twoClassSummary,
+  classProbs = TRUE,
+  verboseIter = FALSE,
+  savePredictions = TRUE
+)
+
+#-------------------------------------------------------------------------------------------
+# 03.02. 예측모형 도구상자
+#-------------------------------------------------------------------------------------------
+# 일반화 선형모형
+
+model_glmnet <- train(
+  x = churn_x, y = churn_y,
+  metric = "ROC",
+  method = "glmnet",
+  trControl = churnControl
+)
+
+# 확률숲(Random Forest)
+model_rf <- train(
+  x = churn_x, y = churn_y,
+  metric = "ROC",
+  method = "rf",
+  trControl = churnControl
+)
+
+# SVM
+model_svm <- train(
+  x = churn_x, y = churn_y,
+  metric = "ROC",
+  method = "svmRadial",
+  trControl = churnControl
+)
+~~~
+
+
+
+~~~{.output}
+Loading required package: kernlab
+
+~~~
+
+
+
+~~~{.output}
+
+Attaching package: 'kernlab'
+
+~~~
+
+
+
+~~~{.output}
+The following object is masked from 'package:ggplot2':
+
+    alpha
+
+~~~
+
+
+
+~~~{.r}
+#-------------------------------------------------------------------------------------------
+# 03.03. 예측모형 비교
+#-------------------------------------------------------------------------------------------
+# 예측모형 목록 생성
+model_list <- list(GLM = model_glmnet , Random_Forest = model_rf, SVM=model_svm)
+# 예측모형 비교
+model_comp <- resamples(model_list)
+# 예측모형 성능 요약
+summary(model_comp)
+~~~
+
+
+
+~~~{.output}
+
+Call:
+summary.resamples(object = model_comp)
+
+Models: GLM, Random_Forest, SVM 
+Number of resamples: 10 
+
+ROC 
+                Min. 1st Qu. Median   Mean 3rd Qu.   Max. NA's
+GLM           0.6974  0.7337 0.7526 0.7567  0.7795 0.8205    0
+Random_Forest 0.8209  0.8459 0.8672 0.8674  0.8766 0.9193    0
+SVM           0.8015  0.8238 0.8535 0.8501  0.8754 0.8954    0
+
+Sens 
+                Min. 1st Qu. Median    Mean 3rd Qu.   Max. NA's
+GLM           0.0000 0.08333 0.1042 0.09736  0.1378 0.1458    0
+Random_Forest 0.3673 0.43750 0.4688 0.47810  0.5417 0.5714    0
+SVM           0.4167 0.45310 0.5257 0.51320  0.5545 0.6122    0
+
+Spec 
+                Min. 1st Qu. Median   Mean 3rd Qu.  Max. NA's
+GLM           0.9719  0.9789 0.9895 0.9874  0.9956 1.000    0
+Random_Forest 0.9825  0.9930 0.9947 0.9940  0.9965 1.000    0
+SVM           0.9649  0.9781 0.9860 0.9832  0.9886 0.993    0
+
+~~~
+
+
+
+~~~{.r}
+# 시각화
+bwplot(model_comp, metric="ROC")
+~~~
+
+<img src="fig/ml-model-comparison-1.png" title="plot of chunk ml-model-comparison" alt="plot of chunk ml-model-comparison" style="display: block; margin: auto;" />
+
+### 5. 고객 이탈 예측 사례
+
+고객 이탈(churn)은 마케팅을 통한 고객획득과 마찬가지로 상당히 중요한 의미를 갖는다. 
+고객이탈을 고객유지(retention)의 반대쪽 면으로 볼 수 있고, 
+고객평생가치적인 측면에서도 상당히 중요한 사업적 의미를 갖는다. 
+[SGI, Silicon Graphics International](http://www.sgi.com/tech/mlc/)에도 
+상당히 좋은 데이터를 많이 제공하고 있다. 
+[churn.all, churn.data, churn.names, churn.test](http://www.sgi.com/tech/mlc/db/)데이터를 
+활용하여 직접 예측모형을 개발한다.
+
+### 5.1. 고객이탈 데이터 준비 [^ml-mastery]
 
 [^ml-mastery]: [How to Build an Ensemble Of Machine Learning Algorithms in R (ready to use boosting, bagging and stacking)](http://machinelearningmastery.com/machine-learning-ensembles-with-r/)
 
@@ -261,28 +624,24 @@ Error in eval(expr, envir, enclos): 객체 'glm_model'를 찾을 수 없습니�
 
 
 ~~~{.r}
-suppressMessages(library(pROC))
-suppressMessages(library(C50))
-data(churn)
+suppressMessages(library(doMC))
+registerDoMC(cores=7)
 ls()
 ~~~
 
 
 
 ~~~{.output}
-[1] "churnTest"  "churnTrain" "hook_in"    "hook_out"  
+ [1] "BostonHousing" "churn_x"       "churn_y"       "churnControl" 
+ [5] "churnTest"     "churnTrain"    "gcControl"     "GermanCredit" 
+ [9] "glm_model"     "hook_in"       "hook_out"      "model_comp"   
+[13] "model_glmnet"  "model_list"    "model_rf"      "model_svm"    
+[17] "numerics"      "procValues"    "rf_model"      "Sonar"        
+[21] "sonarControl" 
 
 ~~~
 
-
-
-~~~{.r}
-suppressMessages(library(doMC))
-registerDoMC(cores=7)
-suppressMessages(library(caret))
-~~~
-
-### 3.2. 기계학습 훈련-검증 데이터 쪼개기
+### 5.2. 기계학습 훈련-검증 데이터 쪼개기
 
 `churnTest`, `churnTrain` 데이터프레임을 `allData`로 결합한다. 그리고 나서,
 훈련데이터와 검증데이터를 75:25 비율로 나눈다. `caret` 팩키지에 데이터를 쪼개는 다양한 방법을 제공하고 있어,
@@ -290,6 +649,7 @@ suppressMessages(library(caret))
 
 
 ~~~{.r}
+data(churn)
 # 데이터 나누기
 allData <- rbind(churnTrain, churnTest)
 
@@ -301,7 +661,7 @@ churnTest <- allData[-inTrainingSet,]
 predictors <- names(churnTrain)[names(churnTrain) != "churn"]
 ~~~
 
-### 3.3. 부스팅 나무 모수 세부조정
+### 5.3. 부스팅 나무 모수 세부조정
 
 `부스팅(Boosted Tree)` 모형을 `caret`에 적용하기 전에 먼저 이탈여부("yes", "no")를 
 재코딩해야된다. 왜냐면, `gbm`에서 종속변수를 요인 자료형을 받지 않기 때문이다.
@@ -320,7 +680,7 @@ forGBM <- churnTrain
 forGBM$churn <- ifelse(forGBM$churn == "yes", 1, 0)
 
 suppressMessages(library(gbm))
-ctrl <- trainControl(method = "repeatedcv", repeats = 5,
+ctrl <- trainControl(method = "repeatedcv", repeats = 1,
                      classProbs = TRUE,
                      summaryFunction = twoClassSummary)
 
@@ -351,7 +711,48 @@ Warning: package 'plyr' was built under R version 3.2.5
 
 ~~~
 
-### 3.4. 최종 모형 성능평가 및 검증데이터 예측 
+
+
+~~~{.output}
+-------------------------------------------------------------------------
+
+~~~
+
+
+
+~~~{.output}
+You have loaded plyr after dplyr - this is likely to cause problems.
+If you need functions from both plyr and dplyr, please load plyr first, then dplyr:
+library(plyr); library(dplyr)
+
+~~~
+
+
+
+~~~{.output}
+-------------------------------------------------------------------------
+
+~~~
+
+
+
+~~~{.output}
+
+Attaching package: 'plyr'
+
+~~~
+
+
+
+~~~{.output}
+The following objects are masked from 'package:dplyr':
+
+    arrange, count, desc, failwith, id, mutate, rename, summarise,
+    summarize
+
+~~~
+
+### 5.4. 최종 모형 성능평가 및 검증데이터 예측 
 
 나무깊이, `shrinkage`, 노드 최소 훈련표본 갯수를 기반으로 ROC 면적이 
 교차타당도 결과로 산출되고 가장 좋은 것을 선정한다.
@@ -382,25 +783,25 @@ Confusion Matrix and Statistics
 
           Reference
 Prediction  yes   no
-       yes  135   12
-       no    41 1061
+       yes  124    8
+       no    52 1065
                                           
-               Accuracy : 0.9576          
-                 95% CI : (0.9449, 0.9681)
+               Accuracy : 0.952           
+                 95% CI : (0.9386, 0.9631)
     No Information Rate : 0.8591          
-    P-Value [Acc > NIR] : < 2e-16         
+    P-Value [Acc > NIR] : < 2.2e-16       
                                           
-                  Kappa : 0.8118          
- Mcnemar's Test P-Value : 0.00012         
+                  Kappa : 0.7784          
+ Mcnemar's Test P-Value : 2.836e-08       
                                           
-            Sensitivity : 0.7670          
-            Specificity : 0.9888          
-         Pos Pred Value : 0.9184          
-         Neg Pred Value : 0.9628          
-             Prevalence : 0.1409          
-         Detection Rate : 0.1081          
-   Detection Prevalence : 0.1177          
-      Balanced Accuracy : 0.8779          
+            Sensitivity : 0.70455         
+            Specificity : 0.99254         
+         Pos Pred Value : 0.93939         
+         Neg Pred Value : 0.95345         
+             Prevalence : 0.14091         
+         Detection Rate : 0.09928         
+   Detection Prevalence : 0.10568         
+      Balanced Accuracy : 0.84854         
                                           
        'Positive' Class : yes             
                                           
@@ -418,17 +819,17 @@ head(gbmProbs)
 
 
 ~~~{.output}
-         yes        no
-1 0.05617519 0.9438248
-2 0.31374970 0.6862503
-3 0.11440106 0.8855989
-4 0.78140029 0.2185997
-5 0.08179541 0.9182046
-6 0.03044891 0.9695511
+         yes         no
+1 0.08382212 0.91617788
+2 0.03720826 0.96279174
+3 0.17426527 0.82573473
+4 0.03225082 0.96774918
+5 0.71224969 0.28775031
+6 0.97700906 0.02299094
 
 ~~~
 
-### 3.5. `pROC` 팩키지 ROC 곡선
+### 5.5. `pROC` 팩키지 ROC 곡선
 
 `pROC` 팩키지 ROC 곡선을 통해 민감도와 특이성에 대한 자세한 정보를 확인할 수 있다.
 
@@ -448,6 +849,6 @@ Call:
 roc.default(response = churnTest$churn, predictor = gbmProbs[,     "yes"], levels = rev(levels(churnTest$churn)))
 
 Data: gbmProbs[, "yes"] in 1073 controls (churnTest$churn no) < 176 cases (churnTest$churn yes).
-Area under the curve: 0.9408
+Area under the curve: 0.9032
 
 ~~~

@@ -24,8 +24,10 @@ source("tools/chunk-options.R")
 library(dplyr)
 library(caret)
 library(mlbench)
+library(C50)
 data(BostonHousing)
 data(Sonar)
+data(GermanCredit)
 ```
 
 ### 1. 전통적 통계모형과 예측모형 비교
