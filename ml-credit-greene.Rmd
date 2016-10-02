@@ -1,7 +1,7 @@
 ---
 layout: page
 title: xwMOOC 기계학습
-subtitle: 예측모형 A-Z(이산형) - 카드발급
+subtitle: 사례 - 카드발급
 output:
   html_document: 
     keep_md: yes

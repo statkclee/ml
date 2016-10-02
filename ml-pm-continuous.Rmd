@@ -1,7 +1,7 @@
 ---
 layout: page
 title: xwMOOC 기계학습
-subtitle: 예측모형 A-Z (연속형)
+subtitle: 사례 - 도요타 중고차 가격 예측
 output:
   html_document: 
     keep_md: yes

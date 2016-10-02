@@ -38,11 +38,10 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. **인간과 기계가 함께하는 기계학습 예측모형**  
             1. [기계학습 예측모형 준비](ml-predictive-modeling-basic.html)
             1. [기계학습 예측모형 실습](ml-predictive-modeling.html)
-            1. [예측모형 A-Z(연속형)](ml-pm-continuous.html)
-            1. [예측모형 A-Z(연속형) - 콘크리트 강도](ml-pm-continuous-concrete.html)
-            1. [예측모형 A-Z(이산형)](ml-pm-discrete.html)  
-            1. [예측모형 A-Z(이산형) - 카드발급](ml-credit-greene.html)
-            1. [모형식별 및 선택](ml-model-selection.html)
+            1. [모형식별 및 선택](ml-model-selection.html)            
+            1. [사례 - 도요타 중고차 가격 예측](ml-pm-continuous.html)
+            1. [사례 - 콘크리트 강도](ml-pm-continuous-concrete.html)
+            1. [사례 - 카드발급](ml-credit-greene.html)
         1. **기계 중심 기계학습**              
 1. **데이터 유형별 기계학습 모형**
     1. **[네트워크 데이터 들어가며 -- 색상과 글꼴](ml-network-overview.html)**        
@@ -69,6 +68,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [신용평가와 신용평점모형](ml-credit-scoring-business.html)
         1. [소매금융 부도예측 - 독일신용 데이터](ml-credit-scoring.html)
     1. [예측모형 활용분야](ml-pm-applications.html)
+    1. [마케팅 반응 예측모형](ml-pm-discrete.html)  
 1. [기계학습 운영 및 자동화 - 파이프라인](ml-production.html)
 
 
