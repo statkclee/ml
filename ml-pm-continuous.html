@@ -38,7 +38,7 @@
       <div class="row">
         <div class="col-md-10 col-md-offset-1">
                     <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
-          <h2 class="subtitle">예측모형 A-Z (연속형)</h2>
+          <h2 class="subtitle">사례 - 도요타 중고차 가격 예측</h2>
           <section class="objectives panel panel-warning">
 <div class="panel-heading">
 <h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
@@ -69,11 +69,29 @@
 ## 01. 데이터 가져오기
 ##==============================================================================================
 <span class="co"># 1.1. 데이터 불러오기</span>
-<span class="kw">suppressMessages</span>(<span class="kw">library</span>(readr))
-<span class="kw">suppressMessages</span>(<span class="kw">library</span>(dplyr))
-<span class="kw">suppressMessages</span>(<span class="kw">library</span>(caret))
-tuc.df &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/datailluminations/PredictingToyotaPricesBlog/master/ToyotaCorolla.csv&quot;</span>)
-<span class="kw">dim</span>(tuc.df)</code></pre></div>
+<span class="kw">suppressMessages</span>(<span class="kw">library</span>(readr))</code></pre></div>
+<pre class="output"><code>Warning: package &#39;readr&#39; was built under R version 3.2.5
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">suppressMessages</span>(<span class="kw">library</span>(dplyr))</code></pre></div>
+<pre class="output"><code>Warning: package &#39;dplyr&#39; was built under R version 3.2.5
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">suppressMessages</span>(<span class="kw">library</span>(caret))
+tuc.df &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/datailluminations/PredictingToyotaPricesBlog/master/ToyotaCorolla.csv&quot;</span>)</code></pre></div>
+<pre class="output"><code>Parsed with column specification:
+cols(
+  Price = col_integer(),
+  Age = col_integer(),
+  KM = col_integer(),
+  FuelType = col_character(),
+  HP = col_integer(),
+  MetColor = col_integer(),
+  Automatic = col_integer(),
+  CC = col_integer(),
+  Doors = col_integer(),
+  Weight = col_integer()
+)
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dim</span>(tuc.df)</code></pre></div>
 <pre class="output"><code>[1] 1436   10
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 1.2. 훈련데이터, 검증데이터</span>
@@ -116,7 +134,7 @@ tuc.lm.pred &lt;-<span class="st"> </span><span class="kw">predict</span>(tuc.lm
 tuc.lm.values &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">obs =</span> tuc.test.Y, <span class="dt">pred =</span> tuc.lm.pred) 
 <span class="kw">defaultSummary</span>(tuc.lm.values)</code></pre></div>
 <pre class="output"><code>        RMSE     Rsquared 
-1530.2292476    0.8317572 
+1645.2551971    0.8051162 
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 3.2. 강건 선형회귀모형</span>
 <span class="kw">suppressMessages</span>(<span class="kw">library</span>(MASS))
@@ -126,7 +144,7 @@ tuc.rlm.pred &lt;-<span class="st"> </span><span class="kw">predict</span>(tuc.r
 tuc.rlm.values &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">obs =</span> tuc.test.Y, <span class="dt">pred =</span> tuc.rlm.pred) 
 <span class="kw">defaultSummary</span>(tuc.rlm.values)</code></pre></div>
 <pre class="output"><code>        RMSE     Rsquared 
-1559.0294491    0.8249595 
+1683.7388061    0.7958306 
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 3.3. PLS (Partial Least Square)</span>
 <span class="kw">suppressMessages</span>(<span class="kw">library</span>(pls))
@@ -145,7 +163,7 @@ tuc.ridge.coef &lt;-<span class="st"> </span><span class="kw">predict</span>(tuc
 
 tuc.ridge.coef$coefficients</code></pre></div>
 <pre class="output"><code>      Age        KM        HP  MetColor Automatic        CC     Doors 
--30.33547   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000 
+-30.13668   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000 
    Weight 
   0.00000 
 </code></pre>
@@ -182,11 +200,11 @@ tuc.lm.tune</code></pre></div>
 
 No pre-processing
 Resampling: Cross-Validated (10 fold) 
-Summary of sample sizes: 907, 908, 905, 906, 906, 907, ... 
+Summary of sample sizes: 907, 905, 907, 907, 905, 907, ... 
 Resampling results:
 
   RMSE      Rsquared 
-  1283.974  0.8770455
+  1213.993  0.8855471
 
  
 </code></pre>
@@ -202,11 +220,11 @@ tuc.rlm.tune</code></pre></div>
 
 No pre-processing
 Resampling: Cross-Validated (10 fold) 
-Summary of sample sizes: 906, 907, 907, 906, 905, 906, ... 
+Summary of sample sizes: 905, 906, 907, 907, 907, 906, ... 
 Resampling results:
 
   RMSE      Rsquared 
-  1288.344  0.8720056
+  1221.612  0.8796729
 
  
 </code></pre>
@@ -224,22 +242,22 @@ tuc.plsr.tune</code></pre></div>
 
 Pre-processing: centered (10), scaled (10) 
 Resampling: Cross-Validated (10 fold) 
-Summary of sample sizes: 907, 905, 907, 906, 907, 906, ... 
+Summary of sample sizes: 906, 906, 906, 905, 907, 907, ... 
 Resampling results across tuning parameters:
 
   ncomp  RMSE      Rsquared 
-  1      1566.494  0.8137621
-  2      1433.461  0.8459205
-  3      1350.163  0.8640282
-  4      1300.201  0.8729217
-  5      1295.672  0.8735787
-  6      1292.586  0.8738965
-  7      1292.198  0.8739449
-  8      1290.955  0.8740824
-  9      1290.099  0.8741463
+  1      1534.532  0.8089126
+  2      1388.937  0.8458538
+  3      1285.898  0.8685475
+  4      1230.082  0.8795397
+  5      1226.702  0.8795170
+  6      1220.973  0.8803446
+  7      1220.801  0.8802879
+  8      1216.400  0.8813875
+  9      1216.528  0.8814116
 
 RMSE was used to select the optimal model using  the smallest value.
-The final value used for the model was ncomp = 9. 
+The final value used for the model was ncomp = 8. 
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 4. 능선회귀모형</span>
 ridgeGrid &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">.lambda =</span> <span class="kw">seq</span>(<span class="dv">0</span>, .<span class="dv">1</span>, <span class="dt">length =</span> <span class="dv">15</span>))
@@ -255,25 +273,25 @@ tuc.ridge.tune</code></pre></div>
 
 No pre-processing
 Resampling: Cross-Validated (10 fold) 
-Summary of sample sizes: 906, 907, 907, 907, 906, 906, ... 
+Summary of sample sizes: 906, 906, 907, 907, 905, 906, ... 
 Resampling results across tuning parameters:
 
   lambda       RMSE      Rsquared 
-  0.000000000  1287.789  0.8761048
-  0.007142857  1287.808  0.8761740
-  0.014285714  1288.095  0.8761969
-  0.021428571  1288.620  0.8761806
-  0.028571429  1289.358  0.8761308
-  0.035714286  1290.285  0.8760524
-  0.042857143  1291.385  0.8759495
-  0.050000000  1292.639  0.8758258
-  0.057142857  1294.036  0.8756842
-  0.064285714  1295.563  0.8755271
-  0.071428571  1297.210  0.8753570
-  0.078571429  1298.966  0.8751755
-  0.085714286  1300.826  0.8749844
-  0.092857143  1302.780  0.8747852
-  0.100000000  1304.824  0.8745789
+  0.000000000  1229.739  0.8809887
+  0.007142857  1229.916  0.8810014
+  0.014285714  1230.362  0.8809695
+  0.021428571  1231.042  0.8809004
+  0.028571429  1231.927  0.8808005
+  0.035714286  1232.994  0.8806748
+  0.042857143  1234.223  0.8805275
+  0.050000000  1235.598  0.8803622
+  0.057142857  1237.105  0.8801817
+  0.064285714  1238.732  0.8799885
+  0.071428571  1240.469  0.8797848
+  0.078571429  1242.307  0.8795723
+  0.085714286  1244.239  0.8793525
+  0.092857143  1246.257  0.8791266
+  0.100000000  1248.357  0.8788959
 
 RMSE was used to select the optimal model using  the smallest value.
 The final value used for the model was lambda = 0. 
@@ -293,70 +311,70 @@ tuc.lasso.tune</code></pre></div>
 
 No pre-processing
 Resampling: Cross-Validated (10 fold) 
-Summary of sample sizes: 906, 906, 906, 906, 907, 907, ... 
+Summary of sample sizes: 906, 907, 906, 906, 905, 907, ... 
 Resampling results across tuning parameters:
 
   lambda  fraction  RMSE      Rsquared 
-  0.00    0.05      3381.854  0.7741226
-  0.00    0.10      3144.744  0.7741226
-  0.00    0.15      2915.269  0.7741226
-  0.00    0.20      2695.444  0.7741226
-  0.00    0.25      2487.934  0.7741226
-  0.00    0.30      2296.247  0.7741226
-  0.00    0.35      2131.516  0.7781362
-  0.00    0.40      1988.694  0.7907208
-  0.00    0.45      1854.188  0.8111188
-  0.00    0.50      1732.115  0.8269871
-  0.00    0.55      1628.557  0.8389092
-  0.00    0.60      1534.999  0.8493421
-  0.00    0.65      1458.766  0.8561388
-  0.00    0.70      1402.552  0.8601380
-  0.00    0.75      1367.264  0.8638263
-  0.00    0.80      1338.417  0.8683626
-  0.00    0.85      1317.779  0.8713530
-  0.00    0.90      1305.903  0.8729941
-  0.00    0.95      1298.232  0.8740580
-  0.00    1.00      1295.416  0.8743474
-  0.01    0.05      3383.190  0.7741226
-  0.01    0.10      3147.339  0.7741226
-  0.01    0.15      2919.020  0.7741226
-  0.01    0.20      2700.205  0.7741226
-  0.01    0.25      2493.499  0.7741226
-  0.01    0.30      2302.327  0.7741226
-  0.01    0.35      2138.117  0.7784138
-  0.01    0.40      1995.132  0.7911574
-  0.01    0.45      1860.468  0.8116416
-  0.01    0.50      1737.799  0.8273128
-  0.01    0.55      1634.290  0.8386402
-  0.01    0.60      1540.338  0.8490707
-  0.01    0.65      1463.197  0.8559463
-  0.01    0.70      1405.674  0.8600364
-  0.01    0.75      1369.961  0.8630349
-  0.01    0.80      1340.677  0.8677158
-  0.01    0.85      1319.369  0.8708940
-  0.01    0.90      1307.200  0.8726483
-  0.01    0.95      1299.154  0.8738615
-  0.01    1.00      1295.728  0.8743415
-  0.10    0.05      3389.168  0.7741226
-  0.10    0.10      3158.969  0.7741226
-  0.10    0.15      2935.848  0.7741226
-  0.10    0.20      2721.601  0.7741226
-  0.10    0.25      2518.580  0.7741226
-  0.10    0.30      2329.937  0.7741432
-  0.10    0.35      2170.707  0.7827375
-  0.10    0.40      2026.647  0.7985962
-  0.10    0.45      1890.984  0.8179881
-  0.10    0.50      1766.899  0.8312803
-  0.10    0.55      1658.276  0.8400877
-  0.10    0.60      1566.437  0.8479099
-  0.10    0.65      1485.362  0.8549828
-  0.10    0.70      1422.144  0.8593916
-  0.10    0.75      1379.133  0.8617649
-  0.10    0.80      1357.924  0.8628490
-  0.10    0.85      1337.722  0.8664318
-  0.10    0.90      1324.232  0.8691208
-  0.10    0.95      1317.704  0.8708612
-  0.10    1.00      1313.394  0.8722438
+  0.00    0.05      3327.498  0.7825124
+  0.00    0.10      3089.675  0.7825124
+  0.00    0.15      2859.472  0.7825124
+  0.00    0.20      2638.957  0.7825124
+  0.00    0.25      2430.884  0.7825124
+  0.00    0.30      2238.892  0.7825124
+  0.00    0.35      2074.010  0.7852647
+  0.00    0.40      1935.450  0.7945641
+  0.00    0.45      1801.337  0.8171827
+  0.00    0.50      1680.609  0.8332263
+  0.00    0.55      1572.715  0.8470914
+  0.00    0.60      1478.213  0.8569125
+  0.00    0.65      1400.773  0.8631942
+  0.00    0.70      1343.191  0.8667806
+  0.00    0.75      1304.381  0.8704795
+  0.00    0.80      1273.948  0.8749672
+  0.00    0.85      1251.076  0.8779865
+  0.00    0.90      1236.779  0.8795463
+  0.00    0.95      1227.795  0.8805412
+  0.00    1.00      1224.745  0.8805817
+  0.01    0.05      3329.432  0.7825124
+  0.01    0.10      3093.437  0.7825124
+  0.01    0.15      2864.910  0.7825124
+  0.01    0.20      2645.862  0.7825124
+  0.01    0.25      2438.957  0.7825124
+  0.01    0.30      2247.714  0.7825124
+  0.01    0.35      2083.307  0.7854234
+  0.01    0.40      1944.768  0.7946651
+  0.01    0.45      1810.833  0.8171012
+  0.01    0.50      1689.192  0.8329929
+  0.01    0.55      1581.916  0.8463637
+  0.01    0.60      1486.742  0.8563432
+  0.01    0.65      1408.088  0.8627889
+  0.01    0.70      1348.690  0.8665393
+  0.01    0.75      1308.795  0.8694378
+  0.01    0.80      1277.736  0.8741167
+  0.01    0.85      1253.892  0.8774040
+  0.01    0.90      1238.659  0.8791891
+  0.01    0.95      1228.973  0.8803459
+  0.01    1.00      1225.348  0.8805310
+  0.10    0.05      3338.437  0.7825124
+  0.10    0.10      3110.957  0.7825124
+  0.10    0.15      2890.268  0.7825124
+  0.10    0.20      2678.110  0.7825124
+  0.10    0.25      2476.767  0.7825124
+  0.10    0.30      2289.226  0.7825124
+  0.10    0.35      2130.568  0.7884747
+  0.10    0.40      1991.430  0.8000598
+  0.10    0.45      1857.366  0.8205602
+  0.10    0.50      1734.109  0.8346674
+  0.10    0.55      1625.059  0.8440931
+  0.10    0.60      1528.910  0.8534689
+  0.10    0.65      1444.980  0.8605441
+  0.10    0.70      1377.652  0.8649882
+  0.10    0.75      1329.331  0.8674261
+  0.10    0.80      1301.833  0.8683743
+  0.10    0.85      1279.132  0.8717199
+  0.10    0.90      1260.028  0.8750238
+  0.10    0.95      1248.951  0.8770922
+  0.10    1.00      1245.174  0.8779843
 
 RMSE was used to select the optimal model using  the smallest value.
 The final values used for the model were fraction = 1 and lambda = 0. 

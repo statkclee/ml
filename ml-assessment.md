@@ -61,9 +61,24 @@ mainfont: NanumGothic
 
 $$F_1 = \frac{2}{\frac{1}{정밀도}+\frac{1}{재현율}} = 2 \times \frac{정밀도 \times 재현율}{정밀도 + 재현율}$$
 
-#### 1.1. ROC 곡선, PR 그래프 
+#### 1.1. 범주형 예측 모형 평가
 
-[ROC 곡선](https://en.wikipedia.org/wiki/Receiver_operating_characteristic)은 오인식률(1종오류)과 오거부률(2종오류) 간의 상충관계를 시각적으로 나타낸 그래프로, 정밀도(Precision)와 재현율(Recall)을 유사하게 표현한 것이 PR 그래프로 시각화를 하고, 아래 면적을 측정하여 성능을 평가하기도 한다.
+범주형 예측모형의 성능평가를 위해 도입되는 척도는 다음과 같다.
+
+* 정확도
+* 카파($\kappa$) 통계량
+* 범주가 두가지인 경우 수신자 조작 특성(ROC, Receiver Operating Characteristic) 곡선
+
+카파($\kappa$) 통계량은 최초 두평가자가 일치하는지에 대한 척도로 개발되었으나, 예측모형에서는 예측모형의 일치여부를 판정하는 통계량으로 사용한다. 
+
+$$\kappa = \frac {O - E}{1- E}$$
+
+
+#### 1.2. ROC 곡선, PR 그래프 
+
+[ROC 곡선](https://en.wikipedia.org/wiki/Receiver_operating_characteristic)은 오인식률(1종오류)과 
+오거부률(2종오류) 간의 상충관계를 시각적으로 나타낸 그래프로, 정밀도(Precision)와 재현율(Recall)을 유사하게 표현한 것이 PR 그래프로 시각화를 하고, 
+아래 면적을 측정하여 성능을 평가하기도 한다.
 
 #### 1.2. 독일신용평가 데이터 사례
 
@@ -148,28 +163,28 @@ Confusion Matrix and Statistics
 
           Reference
 Prediction Bad Good
-      Bad   62   55
-      Good  16  167
-                                          
-               Accuracy : 0.7633          
-                 95% CI : (0.7111, 0.8103)
-    No Information Rate : 0.74            
-    P-Value [Acc > NIR] : 0.1969          
-                                          
-                  Kappa : 0.4708          
- Mcnemar's Test P-Value : 6.49e-06        
-                                          
-            Sensitivity : 0.7523          
-            Specificity : 0.7949          
-         Pos Pred Value : 0.9126          
-         Neg Pred Value : 0.5299          
-             Prevalence : 0.7400          
-         Detection Rate : 0.5567          
-   Detection Prevalence : 0.6100          
-      Balanced Accuracy : 0.7736          
-                                          
-       'Positive' Class : Good            
-                                          
+      Bad   69   50
+      Good  25  156
+                                        
+               Accuracy : 0.75          
+                 95% CI : (0.697, 0.798)
+    No Information Rate : 0.6867        
+    P-Value [Acc > NIR] : 0.009618      
+                                        
+                  Kappa : 0.4582        
+ Mcnemar's Test P-Value : 0.005584      
+                                        
+            Sensitivity : 0.7573        
+            Specificity : 0.7340        
+         Pos Pred Value : 0.8619        
+         Neg Pred Value : 0.5798        
+             Prevalence : 0.6867        
+         Detection Rate : 0.5200        
+   Detection Prevalence : 0.6033        
+      Balanced Accuracy : 0.7457        
+                                        
+       'Positive' Class : Good          
+                                        
 
 ~~~
 
@@ -224,9 +239,11 @@ sqrt(mean((dat.df$pred-dat.df$yvalue.v)^2))
 
 #### 2.2. 연속형 성능평가 모니터링
 
-회귀분석 등을 통해서 연속형 변수 성능을 평가하고 모니터링할 경우, 평균제곱오차(Mean Squared Error)를 사용한다. 그렇다고 평균제곱오차가 가장 좋다는 의미는 아니다. 다만, 기본적인 성능평가 추정 모니터링 방법은 다음과 같다.
+회귀분석 등을 통해서 연속형 변수 성능을 평가하고 모니터링할 경우, 평균제곱오차(Mean Squared Error)를 사용한다. 
+그렇다고 평균제곱오차가 가장 좋다는 의미는 아니다. 다만, 기본적인 성능평가 추정 모니터링 방법은 다음과 같다.
 
-$(\hat{y} -y)^2 = \epsilon$으로 오차가 되고, 오차 평균은 $\bar{\epsilon}_n = \frac{\epsilon_1 + \epsilon_2 + \dots + \epsilon_n}{n}$ 와 같이 되고, 새로 추가되는 오차는 $\overline{\epsilon_{n+1}} = \frac{\epsilon_1 + \epsilon_2 + \dots + \epsilon_n + \epsilon_{n+1}}{n+1}$와 같이 되고, 정리하면, 
+$(\hat{y} -y)^2 = \epsilon$으로 오차가 되고, 오차 평균은 $\bar{\epsilon}_n = \frac{\epsilon_1 + \epsilon_2 + \dots + \epsilon_n}{n}$ 와 같이 되고, 
+새로 추가되는 오차는 $\overline{\epsilon_{n+1}} = \frac{\epsilon_1 + \epsilon_2 + \dots + \epsilon_n + \epsilon_{n+1}}{n+1}$와 같이 되고, 정리하면, 
 
 $$\overline{\epsilon_{n+1}} = \frac{n\times\bar{\epsilon_n} + \epsilon_{n+1}}{n+1}$$
 

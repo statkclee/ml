@@ -106,7 +106,16 @@
 </ul>
 <p>이를 하나의 숫자로 바꾼것이 <span class="math inline">\(F_1\)</span> 점수(<span class="math inline">\(F_1\)</span> Score, <span class="math inline">\(F\)</span>-Score, <span class="math inline">\(F\)</span>-Measure)로 불리는 것으로 정밀도와 재현율을 조화평균한 것이다.</p>
 <p><span class="math display">\[F_1 = \frac{2}{\frac{1}{정밀도}+\frac{1}{재현율}} = 2 \times \frac{정밀도 \times 재현율}{정밀도 + 재현율}\]</span></p>
-<h4 id="roc-곡선-pr-그래프">1.1. ROC 곡선, PR 그래프</h4>
+<h4 id="범주형-예측-모형-평가">1.1. 범주형 예측 모형 평가</h4>
+<p>범주형 예측모형의 성능평가를 위해 도입되는 척도는 다음과 같다.</p>
+<ul>
+<li>정확도</li>
+<li>카파(<span class="math inline">\(\kappa\)</span>) 통계량</li>
+<li>범주가 두가지인 경우 수신자 조작 특성(ROC, Receiver Operating Characteristic) 곡선</li>
+</ul>
+<p>카파(<span class="math inline">\(\kappa\)</span>) 통계량은 최초 두평가자가 일치하는지에 대한 척도로 개발되었으나, 예측모형에서는 예측모형의 일치여부를 판정하는 통계량으로 사용한다.</p>
+<p><span class="math display">\[\kappa = \frac {O - E}{1- E}\]</span></p>
+<h4 id="roc-곡선-pr-그래프">1.2. ROC 곡선, PR 그래프</h4>
 <p><a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">ROC 곡선</a>은 오인식률(1종오류)과 오거부률(2종오류) 간의 상충관계를 시각적으로 나타낸 그래프로, 정밀도(Precision)와 재현율(Recall)을 유사하게 표현한 것이 PR 그래프로 시각화를 하고, 아래 면적을 측정하여 성능을 평가하기도 한다.</p>
 <h4 id="독일신용평가-데이터-사례">1.2. 독일신용평가 데이터 사례</h4>
 <p><code>caret</code> 팩키지에 포함된 <code>data(&quot;GermanCredit&quot;)</code> 신용평가 데이터를 통해 좀더 직접적인 사례를 확인해 보자.</p>
@@ -167,28 +176,28 @@ test.df$results75 &lt;-<span class="st"> </span><span class="kw">ifelse</span>(t
 
           Reference
 Prediction Bad Good
-      Bad   62   55
-      Good  16  167
-                                          
-               Accuracy : 0.7633          
-                 95% CI : (0.7111, 0.8103)
-    No Information Rate : 0.74            
-    P-Value [Acc &gt; NIR] : 0.1969          
-                                          
-                  Kappa : 0.4708          
- Mcnemar&#39;s Test P-Value : 6.49e-06        
-                                          
-            Sensitivity : 0.7523          
-            Specificity : 0.7949          
-         Pos Pred Value : 0.9126          
-         Neg Pred Value : 0.5299          
-             Prevalence : 0.7400          
-         Detection Rate : 0.5567          
-   Detection Prevalence : 0.6100          
-      Balanced Accuracy : 0.7736          
-                                          
-       &#39;Positive&#39; Class : Good            
-                                          
+      Bad   69   50
+      Good  25  156
+                                        
+               Accuracy : 0.75          
+                 95% CI : (0.697, 0.798)
+    No Information Rate : 0.6867        
+    P-Value [Acc &gt; NIR] : 0.009618      
+                                        
+                  Kappa : 0.4582        
+ Mcnemar&#39;s Test P-Value : 0.005584      
+                                        
+            Sensitivity : 0.7573        
+            Specificity : 0.7340        
+         Pos Pred Value : 0.8619        
+         Neg Pred Value : 0.5798        
+             Prevalence : 0.6867        
+         Detection Rate : 0.5200        
+   Detection Prevalence : 0.6033        
+      Balanced Accuracy : 0.7457        
+                                        
+       &#39;Positive&#39; Class : Good          
+                                        
 </code></pre>
 <h3 id="연속형-성능평가">2. 연속형 성능평가</h3>
 <h4 id="연속형-성능평가-측정-rmse">2.1. 연속형 성능평가 측정 → RMSE</h4>
