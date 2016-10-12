@@ -98,7 +98,7 @@ modFormula <- as.formula(modFormula)
 # 제어변수 설정
 
 controlObject <- trainControl(method = "repeatedcv",
-                              repeats = 5, number = 10, 
+                              repeats = 1, number = 1, 
                               verboseIter = TRUE)
 # 1. 선형회귀
 linearReg <- train(modFormula, 

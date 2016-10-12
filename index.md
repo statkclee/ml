@@ -14,6 +14,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
 
 1. **환경설정**
     1. [명령라인 데이터 분석 맛보기](00-toolchain-cmd.html)    
+        1. [대용량 데이터 표본추출](ml-random-sampling.html)    
     1. [파이썬기반 기계학습 툴체인(toolchain)](00-toolchain.html): 파이썬 기계학습 생태계
     1. [기계학습 (순수한) 맛보기](ml-taste-with-r.html): 전통적인 통계모형 개발과정 맛보기     
 1. **[기계학습 지도](ml-map.html)**
