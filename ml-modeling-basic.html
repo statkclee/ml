@@ -123,7 +123,59 @@
 </table>
 </div>
 </aside>
-<h3 id="전통적인-가내수공업-방식-모형개발-사례">2. 전통적인 가내수공업 방식 모형개발 사례</h3>
+<h3 id="과대적합-사례">2. 과대적합 사례</h3>
+<p><span class="math inline">\(y=x^2 + \epsilon\)</span> 오차는 정규분포 평균 0, 표준편차 0.2를 갖는 모형을 따른다고 가정하고, 이를 차수가 높은 다항식을 사용하여 적합시킨 결과를 확인하는 절차는 다음과 같다.</p>
+<ol style="list-style-type: decimal">
+<li><code>tidyr</code>, <code>modelr</code>, <code>ggplot2</code> 팩키지를 불러와서 환경을 설정한다.</li>
+<li><span class="math inline">\(y=x^2 + \epsilon\)</span>, 오차는 <span class="math inline">\(N(0, 0.25)\)</span>을 따르는 모형을 생성하고, <code>df</code> 데이터프레임에 결과를 저장한다.</li>
+<li><code>poly_fit_model</code> 함수를 통해 7차 다항식으로 적합시킨다.</li>
+<li>적합결과를 <code>ggplot</code>을 통해 시각화한다.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#--------------------------------------------------------------------------------</span>
+<span class="co"># 01. 환경설정</span>
+<span class="co">#--------------------------------------------------------------------------------</span>
+<span class="kw">library</span>(tidyr)
+<span class="kw">library</span>(modelr)
+<span class="kw">library</span>(ggplot2)
+<span class="co">#--------------------------------------------------------------------------------</span>
+<span class="co"># 02. 참모형 데이터 생성: y = x**2</span>
+<span class="co">#--------------------------------------------------------------------------------</span>
+
+true_model &lt;-<span class="st"> </span>function(x) {
+  y =<span class="st"> </span>x **<span class="st"> </span><span class="dv">2</span> +<span class="st"> </span><span class="kw">rnorm</span>(<span class="kw">length</span>(x), <span class="dt">sd=</span><span class="fl">0.25</span>)
+  <span class="kw">return</span>(y)
+}
+
+x =<span class="st"> </span><span class="kw">seq</span>(-<span class="dv">1</span>,<span class="dv">1</span>, <span class="dt">length=</span><span class="dv">20</span>)
+y =<span class="st"> </span><span class="kw">true_model</span>(x)
+df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(x,y)
+
+<span class="co">#--------------------------------------------------------------------------------</span>
+<span class="co"># 03. 10차 다항식 적합</span>
+<span class="co">#--------------------------------------------------------------------------------</span>
+
+poly_fit_model &lt;-<span class="st"> </span>function(df, order) {
+  <span class="kw">lm</span>(y ~<span class="st"> </span><span class="kw">poly</span>(x, order), <span class="dt">data=</span>df)
+}
+
+fitted_mod &lt;-<span class="st"> </span><span class="kw">poly_fit_model</span>(df, <span class="dv">7</span>)
+
+<span class="co">#--------------------------------------------------------------------------------</span>
+<span class="co"># 04. 적합결과 시각화</span>
+<span class="co">#--------------------------------------------------------------------------------</span>
+
+grid &lt;-<span class="st"> </span>df %&gt;%<span class="st"> </span>tidyr::<span class="kw">expand</span>(<span class="dt">x =</span> <span class="kw">seq_range</span>(x, <span class="dv">50</span>))
+preds &lt;-<span class="st"> </span>grid %&gt;%<span class="st"> </span>modelr::<span class="kw">add_predictions</span>(fitted_mod, <span class="dt">var =</span> <span class="st">&quot;y&quot;</span>)
+
+df %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(x, y)) +
+<span class="st">  </span><span class="kw">geom_line</span>(<span class="dt">data=</span>preds) +
+<span class="st">  </span><span class="kw">geom_point</span>()</code></pre></div>
+<p><img src="fig/unnamed-chunk-2-1.png" title="plot of chunk unnamed-chunk-2" alt="plot of chunk unnamed-chunk-2" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modelr::<span class="kw">rmse</span>(fitted_mod, df)</code></pre></div>
+<pre class="output"><code>[1] 0.1893603
+</code></pre>
+<h3 id="전통적인-가내수공업-방식-모형개발-사례">3. 전통적인 가내수공업 방식 모형개발 사례</h3>
 <p>데이터과학 제품을 만드는 방식은 여러가지 방식이 존재한다. 공학적인 방식으로 보면 장인이 제자에게 비법을 가미해서 전통적으로 내려오던 가내수공업 방식부터 컨베이어 벨트를 타고 포드생산방식을 거쳐 Mass Customization을 지나 기계학습과 딥러닝이 결합된 모형개발 방식까지 정말 다양한 방식이 혼재되어 있다.</p>
 <p>전통적인 가내수공업 방식은 인간이 가장 많은 것을 이해하고 주문형 모형을 만들어내는 가장 최적의 방식이다. 이를 간략하게 살펴본다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##========================================================
@@ -137,12 +189,12 @@ y &lt;-<span class="st"> </span>x**<span class="dv">2</span> +<span class="st"> 
 df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(x,y)
 <span class="kw">head</span>(df)</code></pre></div>
 <pre class="output"><code>  x          y
-1 1  199.95978
-2 2   72.16085
-3 3 -125.35916
-4 4  -20.31980
-5 5  152.79559
-6 6  -53.19589
+1 1  136.72375
+2 2  -50.86586
+3 3 -169.66308
+4 4   96.48862
+5 5   67.82954
+6 6  -94.61818
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">##========================================================
 ## 02. 탐색적 데이터 분석
@@ -151,10 +203,10 @@ df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(x,y)
 psych::<span class="kw">describe</span>(df)</code></pre></div>
 <pre class="output"><code>  vars   n    mean      sd  median trimmed     mad     min      max
 x    1 100   50.50   29.01   50.50   50.50   37.06    1.00   100.00
-y    2 100 3435.98 3062.66 2568.57 3133.75 3289.32 -125.36 10078.45
+y    2 100 3429.21 3070.14 2511.15 3127.73 3232.05 -169.66 10093.96
      range skew kurtosis     se
 x    99.00 0.00    -1.24   2.90
-y 10203.81 0.63    -0.91 306.27
+y 10263.62 0.62    -0.88 307.01
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 산점도</span>
 <span class="kw">plot</span>(x, y)</code></pre></div>
@@ -173,18 +225,18 @@ lm(formula = y ~ x, data = df)
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--1019.3  -682.5  -198.7   564.2  1819.4 
+-1003.8  -632.5  -272.4   487.7  1783.3 
 
 Coefficients:
              Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept) -1721.581    157.000  -10.97   &lt;2e-16 ***
-x             102.130      2.699   37.84   &lt;2e-16 ***
+(Intercept) -1749.127    153.699  -11.38   &lt;2e-16 ***
+x             102.541      2.642   38.81   &lt;2e-16 ***
 ---
 Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 
-Residual standard error: 779.1 on 98 degrees of freedom
-Multiple R-squared:  0.9359,    Adjusted R-squared:  0.9353 
-F-statistic:  1432 on 1 and 98 DF,  p-value: &lt; 2.2e-16
+Residual standard error: 762.7 on 98 degrees of freedom
+Multiple R-squared:  0.9389,    Adjusted R-squared:  0.9383 
+F-statistic:  1506 on 1 and 98 DF,  p-value: &lt; 2.2e-16
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))
 <span class="co"># 적합모형 시각화</span>
@@ -208,19 +260,19 @@ lm(formula = y ~ x + x2, data = df)
 
 Residuals:
      Min       1Q   Median       3Q      Max 
--207.060 -115.671    1.534  122.378  211.462 
+-192.576  -96.514   -9.126  102.801  202.867 
 
 Coefficients:
-            Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept) 32.35774   38.64238   0.837    0.404    
-x           -1.04303    1.76606  -0.591    0.556    
-x2           1.02151    0.01694  60.298   &lt;2e-16 ***
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) -29.52909   35.67210  -0.828    0.410    
+x             1.38848    1.63031   0.852    0.396    
+x2            1.00151    0.01564  64.040   &lt;2e-16 ***
 ---
 Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 
-Residual standard error: 126.2 on 97 degrees of freedom
-Multiple R-squared:  0.9983,    Adjusted R-squared:  0.9983 
-F-statistic: 2.909e+04 on 2 and 97 DF,  p-value: &lt; 2.2e-16
+Residual standard error: 116.5 on 97 degrees of freedom
+Multiple R-squared:  0.9986,    Adjusted R-squared:  0.9986 
+F-statistic: 3.431e+04 on 2 and 97 DF,  p-value: &lt; 2.2e-16
 </code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))
 <span class="co"># 적합모형 시각화</span>
