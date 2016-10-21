@@ -18,6 +18,8 @@ mainfont: NanumGothic
 ```{r, include=FALSE}
 source("tools/chunk-options.R")
 options(warn=-1)
+library(ggplot2)
+library(dplyr)
 ```
 
 ## 1. [탐색적 데이터 분석](https://en.wikipedia.org/wiki/Exploratory_data_analysis) [^r-marketing]
@@ -98,7 +100,7 @@ diamonds %>%
 `geom_histogram()`과 동일한 연산과정을 거치지만, `geom_freqpoly()`은 직선을 사용해서 시각적으로 이해하기 좋다.
 
 ``` {r visualize-multiple-groups, warning=FALSE}
-ggplot(data = smaller, mapping = aes(x = carat, colour = cut)) +
+ggplot(data = diamonds, mapping = aes(x = carat, colour = cut)) +
   geom_freqpoly(binwidth = 0.1)
 ```
 
@@ -118,7 +120,7 @@ ggplot(diamonds) +
 `y` 변수값 대부분이 한곳에 몰려있지만, 보이지 않지만 `60`까지 쭉 뻗은 펼쳐진 것이 확인된다. 
 이런 경우 정보량이 많은 관측점인지 아니면 관측점 자체에 입력 오류가 있는지 파악한다.
 
-``` {r visualize-outlier, warning=FALSE}
+``` {r visualize-outliers, warning=FALSE}
 unusual <- diamonds %>% 
   dplyr::filter(y < 3 | y > 20) %>% 
   arrange(y)
@@ -172,7 +174,7 @@ ggplot(data = diamonds, mapping = aes(x = price, y = ..density..)) +
 `reorder()` 함수와 관련된 사항은 요인 자료형을 참조한다.
 `coord_flip()` 함수를 사용하면 좌표를 90도 회전시킬 수 있다.
 
-``` {r visualize-categorical-continuous, warning=FALSE}
+``` {r visualize-categorical-continuous-reorder, warning=FALSE}
 ggplot(data = mpg) +
   geom_boxplot(mapping = aes(x = reorder(class, hwy, FUN = median), y = hwy))
 # coord_flip()  
@@ -221,19 +223,19 @@ ggplot(data = diamonds) +
   geom_point(mapping = aes(x = carat, y = price), alpha = 1 / 100)
 
 # 직사각형 구간 
-ggplot(data = smaller) +
+ggplot(data = diamonds) +
   geom_bin2d(mapping = aes(x = carat, y = price))
 
 # 육각형 구간
-install.packages("hexbin")
-ggplot(data = smaller) +
+# install.packages("hexbin")
+ggplot(data = diamonds) +
   geom_hex(mapping = aes(x = carat, y = price))  
 ```
 
 연속형 변수를 범주화하여 상자그림으로 시각화하는 방법도 많이 사용된다.
 
 ``` {r visualize-scatterplot-boxplot, warning=FALSE}
-ggplot(data = smaller, mapping = aes(x = carat, y = price)) + 
+ggplot(data = diamonds, mapping = aes(x = carat, y = price)) + 
   geom_boxplot(mapping = aes(group = cut_number(carat, 20)))
 ```
 
