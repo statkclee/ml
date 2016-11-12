@@ -20,6 +20,8 @@ library(ggplot2)
 library(rapportools)
 library(outliers)
 library(nycflights13)
+library(dplyr)
+library(readr)
 ```
 
 
@@ -50,12 +52,13 @@ library(nycflights13)
 # 2. 데이터 가져오기-------------------------------------------
 #install.packages("nycflights13")
 #library(nycflights13)
+flights <- read_csv("~/Dropbox/02_data_family/01-outlier/data/flights_1_pcnt.csv")
 ```
 
 1. 연습문제 : 분석할 데이터(`flights`)에 대한 자료구조와 요약통계량을 확인한다.
 
 ``` {r, ex-01}
-str(flights)
+glimpse(flights)
 summary(flights)
 ```
 
