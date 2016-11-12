@@ -43,7 +43,7 @@ UCI 콘크리트 강도 데이터는 [Concrete Compressive Strength Data Set ](h
 
 `mixtures` 데이터셋은 `concrete` 데이터의 짝꿍으로 이해하면 된다.
 
-```{r pm-concrete, tidy=FALSE}
+```{r pm-concrete, tidy=FALSE, eval=FALSE}
 # 0.0 환경설정, 각자 컴퓨터 코어 숫자를 확인하고 설정한다.
 # 기본원칙은 최대 코어숫자에서 1개를 뺀 숫자를 작업에 할당한다.
 suppressMessages(library(doMC))

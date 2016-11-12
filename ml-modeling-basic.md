@@ -56,8 +56,75 @@ mainfont: NanumGothic
 > |`y~x:z`       | $y_i = \beta_0 + \beta_1 x_i \times z_i +\epsilon_i$ | `x`와 `z` 교호작용 항을 `y`에 적합시키는 1차 선형회귀식 |
 > |`y~x*z`       | $y_i = \beta_0 + \beta_1 x_i + \beta_2 z_i + \beta_1 x_i \times z_i +\epsilon_i$ | `x`와 `z`, 교호작용항을 `y`에 적합시키는 1차 선형회귀식 |
 
+### 2. 과대적합 사례
 
-### 2. 전통적인 가내수공업 방식 모형개발 사례
+$y=x^2 + \epsilon$ 오차는 정규분포 평균 0, 표준편차 0.2를 갖는 모형을 따른다고 가정하고, 
+이를 차수가 높은 다항식을 사용하여 적합시킨 결과를 확인하는 절차는 다음과 같다.
+
+1. `tidyr`, `modelr`, `ggplot2` 팩키지를 불러와서 환경을 설정한다.
+1. $y=x^2 + \epsilon$, 오차는 $N(0, 0.25)$을 따르는 모형을 생성하고, `df` 데이터프레임에 결과를 저장한다.
+1. `poly_fit_model` 함수를 통해 7차 다항식으로 적합시킨다.
+1. 적합결과를 `ggplot`을 통해 시각화한다.
+
+
+
+~~~{.r}
+#--------------------------------------------------------------------------------
+# 01. 환경설정
+#--------------------------------------------------------------------------------
+library(tidyr)
+library(modelr)
+library(ggplot2)
+#--------------------------------------------------------------------------------
+# 02. 참모형 데이터 생성: y = x**2
+#--------------------------------------------------------------------------------
+
+true_model <- function(x) {
+  y = x ** 2 + rnorm(length(x), sd=0.25)
+  return(y)
+}
+
+x = seq(-1,1, length=20)
+y = true_model(x)
+df <- data.frame(x,y)
+
+#--------------------------------------------------------------------------------
+# 03. 10차 다항식 적합
+#--------------------------------------------------------------------------------
+
+poly_fit_model <- function(df, order) {
+  lm(y ~ poly(x, order), data=df)
+}
+
+fitted_mod <- poly_fit_model(df, 7)
+
+#--------------------------------------------------------------------------------
+# 04. 적합결과 시각화
+#--------------------------------------------------------------------------------
+
+grid <- df %>% tidyr::expand(x = seq_range(x, 50))
+preds <- grid %>% modelr::add_predictions(fitted_mod, var = "y")
+
+df %>% 
+  ggplot(aes(x, y)) +
+  geom_line(data=preds) +
+  geom_point()
+~~~
+
+<img src="fig/unnamed-chunk-2-1.png" title="plot of chunk unnamed-chunk-2" alt="plot of chunk unnamed-chunk-2" style="display: block; margin: auto;" />
+
+~~~{.r}
+modelr::rmse(fitted_mod, df)
+~~~
+
+
+
+~~~{.output}
+[1] 0.1893603
+
+~~~
+
+### 3. 전통적인 가내수공업 방식 모형개발 사례
 
 데이터과학 제품을 만드는 방식은 여러가지 방식이 존재한다. 공학적인 방식으로 보면
 장인이 제자에게 비법을 가미해서 전통적으로 내려오던 가내수공업 방식부터 컨베이어 벨트를 타고 포드생산방식을 거쳐
@@ -84,12 +151,12 @@ head(df)
 
 ~~~{.output}
   x          y
-1 1  199.95978
-2 2   72.16085
-3 3 -125.35916
-4 4  -20.31980
-5 5  152.79559
-6 6  -53.19589
+1 1  136.72375
+2 2  -50.86586
+3 3 -169.66308
+4 4   96.48862
+5 5   67.82954
+6 6  -94.61818
 
 ~~~
 
@@ -108,10 +175,10 @@ psych::describe(df)
 ~~~{.output}
   vars   n    mean      sd  median trimmed     mad     min      max
 x    1 100   50.50   29.01   50.50   50.50   37.06    1.00   100.00
-y    2 100 3435.98 3062.66 2568.57 3133.75 3289.32 -125.36 10078.45
+y    2 100 3429.21 3070.14 2511.15 3127.73 3232.05 -169.66 10093.96
      range skew kurtosis     se
 x    99.00 0.00    -1.24   2.90
-y 10203.81 0.63    -0.91 306.27
+y 10263.62 0.62    -0.88 307.01
 
 ~~~
 
@@ -144,18 +211,18 @@ lm(formula = y ~ x, data = df)
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--1019.3  -682.5  -198.7   564.2  1819.4 
+-1003.8  -632.5  -272.4   487.7  1783.3 
 
 Coefficients:
              Estimate Std. Error t value Pr(>|t|)    
-(Intercept) -1721.581    157.000  -10.97   <2e-16 ***
-x             102.130      2.699   37.84   <2e-16 ***
+(Intercept) -1749.127    153.699  -11.38   <2e-16 ***
+x             102.541      2.642   38.81   <2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 779.1 on 98 degrees of freedom
-Multiple R-squared:  0.9359,	Adjusted R-squared:  0.9353 
-F-statistic:  1432 on 1 and 98 DF,  p-value: < 2.2e-16
+Residual standard error: 762.7 on 98 degrees of freedom
+Multiple R-squared:  0.9389,	Adjusted R-squared:  0.9383 
+F-statistic:  1506 on 1 and 98 DF,  p-value: < 2.2e-16
 
 ~~~
 
@@ -193,19 +260,19 @@ lm(formula = y ~ x + x2, data = df)
 
 Residuals:
      Min       1Q   Median       3Q      Max 
--207.060 -115.671    1.534  122.378  211.462 
+-192.576  -96.514   -9.126  102.801  202.867 
 
 Coefficients:
-            Estimate Std. Error t value Pr(>|t|)    
-(Intercept) 32.35774   38.64238   0.837    0.404    
-x           -1.04303    1.76606  -0.591    0.556    
-x2           1.02151    0.01694  60.298   <2e-16 ***
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -29.52909   35.67210  -0.828    0.410    
+x             1.38848    1.63031   0.852    0.396    
+x2            1.00151    0.01564  64.040   <2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 126.2 on 97 degrees of freedom
-Multiple R-squared:  0.9983,	Adjusted R-squared:  0.9983 
-F-statistic: 2.909e+04 on 2 and 97 DF,  p-value: < 2.2e-16
+Residual standard error: 116.5 on 97 degrees of freedom
+Multiple R-squared:  0.9986,	Adjusted R-squared:  0.9986 
+F-statistic: 3.431e+04 on 2 and 97 DF,  p-value: < 2.2e-16
 
 ~~~
 

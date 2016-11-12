@@ -125,7 +125,7 @@ modFormula &lt;-<span class="st"> </span><span class="kw">as.formula</span>(modF
 <span class="co"># 제어변수 설정</span>
 
 controlObject &lt;-<span class="st"> </span><span class="kw">trainControl</span>(<span class="dt">method =</span> <span class="st">&quot;repeatedcv&quot;</span>,
-                              <span class="dt">repeats =</span> <span class="dv">5</span>, <span class="dt">number =</span> <span class="dv">10</span>, 
+                              <span class="dt">repeats =</span> <span class="dv">1</span>, <span class="dt">number =</span> <span class="dv">1</span>, 
                               <span class="dt">verboseIter =</span> <span class="ot">TRUE</span>)
 <span class="co"># 1. 선형회귀</span>
 linearReg &lt;-<span class="st"> </span><span class="kw">train</span>(modFormula, 
