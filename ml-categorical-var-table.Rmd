@@ -22,6 +22,7 @@ library(outliers)
 library(nycflights13)
 library(dplyr)
 library(readr)
+library(DescTools)
 ```
 
 ## 1. R로 표 작성 [^DescTools-table]
@@ -111,8 +112,6 @@ Red         10    10   7    7    16     7    7      7
 Blond       3     30   5    8    4      64   5      8
 "
 tab <- as.table(read.ftable(textConnection(txt))) 
-
-tab
 ```
 
 ### 2.1. 숫자형 변수에서 범주형 자료 생성
