@@ -46,6 +46,8 @@
 <div class="panel-body">
 <ul>
 <li>범주형 변수와 짝꿍인 표를 생성하는 작업흐름을 이해한다.</li>
+<li>표를 생성하는 3가지 자료구조를 이해한다.</li>
+<li>표를 생성하고, 표현하고, 시각화 과정을 실습한다.</li>
 </ul>
 </div>
 </section>
@@ -185,7 +187,7 @@ tab %&gt;%<span class="st"> </span>head</code></pre></div>
 <h2 id="범주형-데이터-구성">3. 범주형 데이터 구성</h2>
 <p>표를 작성하는데 있어 가장 먼저 확인해야 되는 사항은 범주형 자료구조를 확인하는데 있다.</p>
 <ol style="list-style-type: decimal">
-<li><strong>관측점 하나에 빈도수 하나인 경우</strong>: <code>data.frame</code> 혹은 행렬에 원자료에 각행에 사례 한가지만 기록되어 저장되어 있는 경우.</li>
+<li><strong>관측점 하나에 빈도수 하나인 경우(Case-by-Case)</strong>: <code>data.frame</code> 혹은 행렬에 원자료에 각행에 사례 한가지만 기록되어 저장되어 있는 경우.</li>
 </ol>
 <p><code>Untable()</code> 함수는 데이터프레임을 입력받아 관측점 하나에 빈도수 하나인 데이터프레임으로 변환시킨다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Untable</span>(UCBAdmissions) %&gt;%<span class="st"> </span>head</code></pre></div>
@@ -230,6 +232,189 @@ Admit      Male Female
   Rejected  207      8
 </code></pre>
 <p>세가지 범주형 데이터 표현방식은 각기 다른 사용도와 의미가 내포되어 있다. 예를 들어 2번 표현은 1번 표현보다 훨씬 적은 저장공간을 차지하게 되고, 1번 표현방식은 즉각적으로 데이터를 표로 작성하는데 용이하다.</p>
+<h2 id="표-만들기tabulate">4. 표 만들기(Tabulate)</h2>
+<p><code>DescTools</code> 팩키지에 포함된 <code>HairEyeColor</code>객체는 <code>table</code> 자료형을 갖고 있다. 이를 <code>Untable</code> 명령어를 통해 한 행에 빈도수 하나만 갖는 데이터로 변환을 시킨다. 그리고 이를 바탕으로 다양한 표를 생성시켜 보자.</p>
+<h3 id="단변량-범주형-변수">4.1. 단변량 범주형 변수</h3>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d.col &lt;-<span class="st"> </span><span class="kw">Untable</span>(HairEyeColor)
+d.col %&gt;%<span class="st"> </span>dplyr::<span class="kw">filter</span>(Sex==<span class="st">&quot;Male&quot;</span>, Hair==<span class="st">&quot;Blond&quot;</span>, Eye==<span class="st">&quot;Brown&quot;</span>)</code></pre></div>
+<pre class="output"><code>   Hair   Eye  Sex
+1 Blond Brown Male
+2 Blond Brown Male
+3 Blond Brown Male
+</code></pre>
+<p>요인형 자료를 갖고 표를 생성시키는 방법은 <code>table</code> 함수로 빈도수, <code>prop.table</code> 함수로 백분율을 표로 표현한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(d.col$Hair)</code></pre></div>
+<pre class="output"><code>
+Black Brown   Red Blond 
+  108   286    71   127 
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop.table</span>(<span class="kw">table</span>(d.col$Hair))</code></pre></div>
+<pre class="output"><code>
+    Black     Brown       Red     Blond 
+0.1824324 0.4831081 0.1199324 0.2145270 
+</code></pre>
+<p><code>Freq</code> 함수를 사용해서 단변량 범주형 변수의 경우 빈도수와 백분율을 간단히 표로 표현한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Freq</span>(d.col$Hair, <span class="dt">ord=</span><span class="st">&quot;desc&quot;</span>)</code></pre></div>
+<pre class="output"><code>   level   freq   perc  cumfreq  cumperc
+1  Brown  3e+02  48.3%    3e+02    48.3%
+2  Blond  1e+02  21.5%    4e+02    69.8%
+3  Black  1e+02  18.2%    5e+02    88.0%
+4    Red  7e+01  12.0%    6e+02   100.0%
+</code></pre>
+<h3 id="이변량-범주형-변수">4.2. 이변량 범주형 변수</h3>
+<p>이변량 범주형 변수를 표로 표현하는 전통적인 방식은 <code>table</code>과 <code>prop.table</code> 함수를 사용하는 것은 동일하다. 하지만, 행 백분율/열 백분율/전체 백분율을 표현하여야 하기 때문에 <code>margin=</code> 인수를 넣어 제어한다.</p>
+<ul>
+<li><code>margin=1</code> : 행 백분율</li>
+<li><code>margin=2</code> : 열 백분율</li>
+<li><code>margin=NULL</code> : 전체 백분율</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">with</span>(d.col, <span class="kw">table</span>(Hair, Sex))</code></pre></div>
+<pre class="output"><code>       Sex
+Hair    Male Female
+  Black   56     52
+  Brown  143    143
+  Red     34     37
+  Blond   46     81
+</code></pre>
+<p>혹은 <code>plyr</code>, <code>dplyr</code> 팩키지의 <code>count()</code> 함수를 사용하면 <code>table</code>, <code>as.data.frame</code> 단계를 거치지 않고 일관된 방식으로 표생성에 필요한 데이터를 만들어 낼 수 있다. 이를 <code>xtabs</code> 함수와 결합하여 표</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dplyr_tbl &lt;-<span class="st"> </span>d.col %&gt;%<span class="st"> </span><span class="kw">count</span>(Hair, Sex)
+<span class="kw">xtabs</span>(n~Hair+Sex, dplyr_tbl)</code></pre></div>
+<pre class="output"><code>       Sex
+Hair    Male Female
+  Black   56     52
+  Brown  143    143
+  Red     34     37
+  Blond   46     81
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">with</span>(d.col, <span class="kw">prop.table</span>(<span class="kw">table</span>(Hair, Eye), <span class="dv">1</span>)) <span class="co"># 행기준</span></code></pre></div>
+<pre class="output"><code>       Eye
+Hair         Brown       Blue      Hazel      Green
+  Black 0.62962963 0.18518519 0.13888889 0.04629630
+  Brown 0.41608392 0.29370629 0.18881119 0.10139860
+  Red   0.36619718 0.23943662 0.19718310 0.19718310
+  Blond 0.05511811 0.74015748 0.07874016 0.12598425
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">with</span>(d.col, <span class="kw">prop.table</span>(<span class="kw">table</span>(Hair, Eye), <span class="dv">2</span>)) <span class="co"># 열기준  </span></code></pre></div>
+<pre class="output"><code>       Eye
+Hair         Brown       Blue      Hazel      Green
+  Black 0.30909091 0.09302326 0.16129032 0.07812500
+  Brown 0.54090909 0.39069767 0.58064516 0.45312500
+  Red   0.11818182 0.07906977 0.15053763 0.21875000
+  Blond 0.03181818 0.43720930 0.10752688 0.25000000
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">with</span>(d.col, <span class="kw">prop.table</span>(<span class="kw">table</span>(Hair, Eye), <span class="dt">margin=</span><span class="ot">NULL</span>)) <span class="co"># 전체</span></code></pre></div>
+<pre class="output"><code>       Eye
+Hair          Brown        Blue       Hazel       Green
+  Black 0.114864865 0.033783784 0.025337838 0.008445946
+  Brown 0.201013514 0.141891892 0.091216216 0.048986486
+  Red   0.043918919 0.028716216 0.023648649 0.023648649
+  Blond 0.011824324 0.158783784 0.016891892 0.027027027
+</code></pre>
+<p><code>PercTable()</code> 함수를 <code>rfrq=</code> 인자를 상대빈도수를 제어한다. <code>011</code>은 행과 열 백분율만 출력한다.</p>
+<ul>
+<li>rfrq 첫번째 : 전체 백분율</li>
+<li>rfrq 두번째 : 행 백분율</li>
+<li>rfrq 세번째 : 열 백분율</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">PercTable</span>(Hair ~<span class="st"> </span>Eye, <span class="dt">data=</span>d.col, <span class="dt">rfrq=</span><span class="st">&quot;111&quot;</span>, <span class="dt">margins=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</code></pre></div>
+<pre class="output"><code>             Eye
+              Brown   Blue  Hazel  Green    Sum
+Hair                                           
+
+Black freq    7e+01  2e+01  2e+01  5e+00  1e+02
+      perc    11.5%   3.4%   2.5%   0.8%  18.2%
+      p.row   63.0%  18.5%  13.9%   4.6%      .
+      p.col   30.9%   9.3%  16.1%   7.8%      .
+
+Brown freq    1e+02  8e+01  5e+01  3e+01  3e+02
+      perc    20.1%  14.2%   9.1%   4.9%  48.3%
+      p.row   41.6%  29.4%  18.9%  10.1%      .
+      p.col   54.1%  39.1%  58.1%  45.3%      .
+
+Red   freq    3e+01  2e+01  1e+01  1e+01  7e+01
+      perc     4.4%   2.9%   2.4%   2.4%  12.0%
+      p.row   36.6%  23.9%  19.7%  19.7%      .
+      p.col   11.8%   7.9%  15.1%  21.9%      .
+
+Blond freq    7e+00  9e+01  1e+01  2e+01  1e+02
+      perc     1.2%  15.9%   1.7%   2.7%  21.5%
+      p.row    5.5%  74.0%   7.9%  12.6%      .
+      p.col    3.2%  43.7%  10.8%  25.0%      .
+
+Sum   freq    2e+02  2e+02  9e+01  6e+01  6e+02
+      perc    37.2%  36.3%  15.7%  10.8% 100.0%
+      p.row       .      .      .      .      .
+      p.col       .      .      .      .      .
+</code></pre>
+<p><code>Margins(HairEyeColor, ord=&quot;desc&quot;)</code> 명령어처럼 <code>Margins()</code> 함수가 있어 표 자료형을 입력받아 각 표차원별로 표를 신속하게 생성할 수 있다.</p>
+<h2 id="표-데이터-자료형-변환">5. 표 데이터 자료형 변환</h2>
+<p>표데이터를 다음과 같이 <code>Case-by-Case</code>, <code>빈도수 가중치</code>, <code>표</code> 세가지 자료형이 존재한다.</p>
+<ol style="list-style-type: decimal">
+<li><strong>관측점 하나에 빈도수 하나인 경우(Case-by-Case)</strong>: <code>d.col &lt;- Untable(HairEyeColor)</code></li>
+<li><strong>빈도수(Frequency)</strong>: <code>d.weight &lt;- as.data.frame(HairEyeColor)</code></li>
+<li><strong>표(Table)</strong>: <code>tab &lt;- HairEyeColor</code></li>
+</ol>
+<ul>
+<li><code>사례별(Case-by-Case)</code> → <code>빈도수(Frequency)</code> : <code>as.data.frame(table(d.col))</code>
+<ul>
+<li><code>사례별(Case-by-Case)</code> → 표(Table) → <code>빈도수(Frequency)</code> 변환시킴</li>
+</ul></li>
+<li><code>빈도수(Frequency)</code> → <code>사례별(Case-by-Case)</code> : <code>Untable(d.weight)</code>
+<ul>
+<li><code>library(DescTools)</code> 팩키지 <code>Untable()</code> 함수 사용</li>
+</ul></li>
+<li><code>사례별(Case-by-Case)</code> → <code>표(Table)</code> : <code>table(d.col)</code></li>
+<li><code>표(Table)</code> → <code>사례별(Case-by-Case)</code> : <code>Untable(tab)</code></li>
+<li><code>빈도수(Frequency)</code> → <code>표(Table)</code> : <code>xtabs(Freq ~ ., d.weight)</code></li>
+<li><code>표(Table)</code> → <code>빈도수(Frequency)</code> : <code>as.data.frame(tab)</code></li>
+</ul>
+<h2 id="시각화">6. 시각화</h2>
+<p><code>mosaicplot()</code> 모자이크 그래프를 사용하여 범주형 데이터를 시각화 한다. 먼저 데이터를 준비하고 색상을 정의한다. 그리고 나서 <code>PlotMosaic()</code> 함수를 호출하여 도식화한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tab &lt;-<span class="st"> </span><span class="kw">as.table</span>(<span class="kw">apply</span>(HairEyeColor, <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>), sum))
+tab &lt;-<span class="st"> </span>tab[,<span class="kw">c</span>(<span class="st">&quot;Brown&quot;</span>,<span class="st">&quot;Hazel&quot;</span>,<span class="st">&quot;Green&quot;</span>,<span class="st">&quot;Blue&quot;</span>)]
+cols &lt;-<span class="st"> </span><span class="kw">SetAlpha</span>(<span class="kw">c</span>(<span class="st">&quot;sienna4&quot;</span>, <span class="st">&quot;burlywood&quot;</span>, <span class="st">&quot;chartreuse3&quot;</span>, <span class="st">&quot;slategray1&quot;</span>), <span class="fl">0.6</span>)
+<span class="kw">PlotMosaic</span>(tab, <span class="dt">col=</span>cols, <span class="dt">main =</span> <span class="st">&quot;Hair ~ Eye&quot;</span>) </code></pre></div>
+<p><img src="fig/unnamed-chunk-19-1.png" title="plot of chunk unnamed-chunk-19" alt="plot of chunk unnamed-chunk-19" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">PercTable</span>(tab, <span class="dt">freq=</span><span class="ot">FALSE</span>, <span class="dt">rfrq=</span><span class="st">&quot;010&quot;</span>)</code></pre></div>
+<pre class="output"><code>      Eye
+       Brown Hazel Green  Blue
+Hair                          
+Black  63.0% 13.9%  4.6% 18.5%
+Brown  41.6% 18.9% 10.1% 29.4%
+Red    36.6% 19.7% 19.7% 23.9%
+Blond   5.5%  7.9% 12.6% 74.0%
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop.table</span>(<span class="kw">margin.table</span>(tab, <span class="dv">1</span>)) </code></pre></div>
+<pre class="output"><code>Hair
+    Black     Brown       Red     Blond 
+0.1824324 0.4831081 0.1199324 0.2145270 
+</code></pre>
+<p><code>horiz = FALSE</code> 인자를 넘겨 행과 열을 바꿔 모자이크 그래프로 도식화도 가능하다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cols &lt;-<span class="st"> </span><span class="kw">SetAlpha</span>(<span class="kw">c</span>(<span class="st">&quot;moccasin&quot;</span>, <span class="st">&quot;salmon1&quot;</span>, <span class="st">&quot;wheat3&quot;</span>, <span class="st">&quot;gray32&quot;</span>), <span class="fl">0.8</span>)
+<span class="kw">PlotMosaic</span>(tab, <span class="dt">col=</span>cols, <span class="dt">main =</span> <span class="st">&quot;Hair ~ Eye&quot;</span>, <span class="dt">horiz =</span> <span class="ot">FALSE</span>) </code></pre></div>
+<p><img src="fig/unnamed-chunk-21-1.png" title="plot of chunk unnamed-chunk-21" alt="plot of chunk unnamed-chunk-21" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">PercTable</span>(tab, <span class="dt">freq=</span><span class="ot">FALSE</span>, <span class="dt">rfrq=</span><span class="st">&quot;001&quot;</span>)</code></pre></div>
+<pre class="output"><code>      Eye
+       Brown Hazel Green  Blue
+Hair                          
+Black  30.9% 16.1%  7.8%  9.3%
+Brown  54.1% 58.1% 45.3% 39.1%
+Red    11.8% 15.1% 21.9%  7.9%
+Blond   3.2% 10.8% 25.0% 43.7%
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop.table</span>(<span class="kw">margin.table</span>(tab, <span class="dv">2</span>))</code></pre></div>
+<pre class="output"><code>Eye
+    Brown     Hazel     Green      Blue 
+0.3716216 0.1570946 0.1081081 0.3631757 
+</code></pre>
+<p><code>PlotCirc()</code> 함수를 통해 두 변수의 각 수준별 관련성을 도식화하는 것도 가능하다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 원그래프</span>
+cols &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;moccasin&quot;</span>, <span class="st">&quot;salmon1&quot;</span>,
+          <span class="st">&quot;wheat3&quot;</span>, <span class="st">&quot;gray32&quot;</span>,
+          <span class="st">&quot;slategray1&quot;</span>, <span class="st">&quot;chartreuse3&quot;</span>,
+          <span class="st">&quot;burlywood&quot;</span>, <span class="st">&quot;sienna4&quot;</span>)
+<span class="kw">PlotCirc</span>(<span class="kw">t</span>(tab), <span class="dt">acol=</span>cols)</code></pre></div>
+<p><img src="fig/unnamed-chunk-23-1.png" title="plot of chunk unnamed-chunk-23" alt="plot of chunk unnamed-chunk-23" style="display: block; margin: auto;" /></p>
 <div class="footnotes">
 <hr />
 <ol>

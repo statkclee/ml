@@ -13,6 +13,8 @@ mainfont: NanumGothic
 > ## 학습목표 {.objectives}
 >
 > * 범주형 변수와 짝꿍인 표를 생성하는 작업흐름을 이해한다.
+> * 표를 생성하는 3가지 자료구조를 이해한다.
+> * 표를 생성하고, 표현하고, 시각화 과정을 실습한다.
 
 ``` {r, include=FALSE}
 source("tools/chunk-options.R")
