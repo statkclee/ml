@@ -198,7 +198,7 @@ data(mtcars)
 mtcars$model_name <- rownames(mtcars)
 
 with(mtcars,
-     bagplot(qsec, mpg, xlab="mpg", ylab="mpg", show.outlier= TRUE,
+     bagplot(qsec, mpg, xlab="qsec", ylab="mpg", show.outlier= TRUE,
              show.looppoints=TRUE,
              show.bagpoints=TRUE,dkmethod=2,
              show.whiskers=TRUE,show.loophull=TRUE,
