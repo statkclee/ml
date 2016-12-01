@@ -33,6 +33,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
     1. [탐색적 데이터 분석(EDA)](ml-eda.html)
         1. [R 조합수학(Combinatorics)](ml-combinatorics.html)        
         1. [범주형 변수와 표](ml-categorical-var-table.html)        
+        1. [이상점(Outlier) 검출](ml-detect-outliers.html)        
     1. [데이터에 무게를 둔 예측모형](ml-modeling.html)
         1. **인간 중심 기계학습 모형**
             1. [선형대수와 함께하는 회귀분석 이해](ml-linear-algebra-reg.html)    
