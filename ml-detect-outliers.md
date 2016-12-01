@@ -10,12 +10,7 @@ output:
 mainfont: NanumGothic
 ---
 
-``` {r, include=FALSE}
-source("tools/chunk-options.R")
-library(ggplot2)
-library(aplpack)
-library(tidyverse)
-```
+
  
 > ## 핵심 개념 {.objectives}
 >
@@ -35,7 +30,8 @@ library(tidyverse)
 1. ggplot의 `geom_text` 함수에 `ifelse` 문을 적용하여 이상점만 표식한다.
 
 
-``` {r univariate-boxplot}
+
+~~~{.r}
 # library(ggplot2) 
 data(mtcars)
 
@@ -51,7 +47,9 @@ mtcars <- mtcars %>%
 ggplot(mtcars, aes(qsec, x=1)) +
   geom_boxplot(outlier.colour = "red", outlier.size = 3) +
   geom_text(aes(label=ifelse(qsec_outlier, model_name, "")), na.rm=TRUE, hjust=-0.3)
-```
+~~~
+
+<img src="fig/univariate-boxplot-1.png" title="plot of chunk univariate-boxplot" alt="plot of chunk univariate-boxplot" style="display: block; margin: auto;" />
 
 ## 2. 이변량 이상점 검출 [^aplpack-plot] [^bagplot-paper]
 
@@ -64,7 +62,8 @@ ggplot(mtcars, aes(qsec, x=1)) +
 깊이 중위수(depth median)이 중심이 되며, $\frac{n}{2}$의 데이터가 가운데 "가방(bag)"에 몰려있고, 가방을 3배 확장하여 펜스(fence)를 두르고 그 밖에 위치한 점은 이상점으로 별도로 표시한다.
 
 
-``` {r bivariate-boxplot}
+
+~~~{.r}
 # library(ggplot2)
 # library(aplpack)
 
@@ -78,13 +77,30 @@ with(mtcars,
              show.bagpoints=TRUE,dkmethod=2,
              show.whiskers=TRUE,show.loophull=TRUE,
              show.baghull=TRUE,verbose=FALSE))
+~~~
 
+<img src="fig/bivariate-boxplot-1.png" title="plot of chunk bivariate-boxplot" alt="plot of chunk bivariate-boxplot" style="display: block; margin: auto;" />
+
+~~~{.r}
 # 이상점 표기
 mtcars_bagplot <- with(mtcars, bagplot(qsec, mpg, xlab="qsec", ylab="mpg"))
 mtcars_outlier <- as.data.frame(mtcars_bagplot$pxy.outlier)
 names(mtcars_outlier) <- c("qsec", "mpg")
 mtcars_outliers <- left_join(mtcars_outlier, mtcars)
+~~~
 
+
+
+~~~{.output}
+Joining, by = c("qsec", "mpg")
+
+~~~
+
+
+
+~~~{.r}
 text(mtcars_outliers$qsec, mtcars_outliers$mpg, labels=mtcars_outliers$model_name, pos=1)
-```
+~~~
+
+<img src="fig/bivariate-boxplot-2.png" title="plot of chunk bivariate-boxplot" alt="plot of chunk bivariate-boxplot" style="display: block; margin: auto;" />
 

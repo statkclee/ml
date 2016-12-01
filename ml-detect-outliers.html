@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">이상점(Outlier) 검출</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="핵심-개념"><span class="glyphicon glyphicon-certificate"></span>핵심 개념</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>시각화를 통해 이상점 식별한다.</li>
+</ul>
+</div>
+</section>
+<h2 id="단변량-이상점-검출-boxplot-outlier-labeling">1. 단변량 이상점 검출 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h2>
+<p><a href="https://ko.wikipedia.org/wiki/상자_수염_그림">상자그림(boxplot)</a>을 통해 분포를 시각화하거나 서로 다른 집단간 분포를 쉽게 시각화하여 비교가 가능하다. 특히, 이상점을 한눈에 볼 수 있게 <code>ggplot</code>을 활용하여 시각화하는 방법은 다음과 같다.</p>
+<ol style="list-style-type: decimal">
+<li><code>is_outlier</code> 함수를 통해 상자수염그림에서 이상점을 별도 점으로 표시하는 로직을 작성한다.</li>
+<li><code>mtcars</code> 데이터는 rownames를 갖는 데이터프레임이라 모델명을 별도 변수로 저장한다.
+<ul>
+<li>이상점 표식에 사용될 라벨로 사용됨</li>
+</ul></li>
+<li><code>is_outlier</code> 함수를 통해 이상점을 식별하여 <code>qsec_outlier</code> 변수에 저장한다.</li>
+<li>ggplot의 <code>geom_text</code> 함수에 <code>ifelse</code> 문을 적용하여 이상점만 표식한다.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># library(ggplot2) </span>
+<span class="kw">data</span>(mtcars)
+
+is_outlier &lt;-<span class="st"> </span>function(x) {
+  <span class="kw">return</span>(x &lt;<span class="st"> </span><span class="kw">quantile</span>(x, <span class="fl">0.25</span>) -<span class="st"> </span><span class="fl">1.5</span> *<span class="st"> </span><span class="kw">IQR</span>(x) |<span class="st"> </span>x &gt;<span class="st"> </span><span class="kw">quantile</span>(x, <span class="fl">0.75</span>) +<span class="st"> </span><span class="fl">1.5</span> *<span class="st"> </span><span class="kw">IQR</span>(x))
+}
+
+mtcars$model_name &lt;-<span class="st"> </span><span class="kw">rownames</span>(mtcars)
+
+mtcars &lt;-<span class="st"> </span>mtcars %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">qsec_outlier =</span> <span class="kw">is_outlier</span>(qsec))
+
+<span class="kw">ggplot</span>(mtcars, <span class="kw">aes</span>(qsec, <span class="dt">x=</span><span class="dv">1</span>)) +
+<span class="st">  </span><span class="kw">geom_boxplot</span>(<span class="dt">outlier.colour =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">outlier.size =</span> <span class="dv">3</span>) +
+<span class="st">  </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">label=</span><span class="kw">ifelse</span>(qsec_outlier, model_name, <span class="st">&quot;&quot;</span>)), <span class="dt">na.rm=</span><span class="ot">TRUE</span>, <span class="dt">hjust=</span>-<span class="fl">0.3</span>)</code></pre></div>
+<p><img src="fig/univariate-boxplot-1.png" title="plot of chunk univariate-boxplot" alt="plot of chunk univariate-boxplot" style="display: block; margin: auto;" /></p>
+<h2 id="이변량-이상점-검출-aplpack-plot-bagplot-paper">2. 이변량 이상점 검출 <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> <a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a></h2>
+<p>상자그림은 단변량 분포를 시각화하고 이상점을 추출할 때 적합하지만, 이변량인 경우 <code>bagplot()</code>을 통해 분포를 시각화하고 이상점을 추출하는 것이 가능해졌다.</p>
+<p>깊이 중위수(depth median)이 중심이 되며, <span class="math inline">\(\frac{n}{2}\)</span>의 데이터가 가운데 “가방(bag)”에 몰려있고, 가방을 3배 확장하여 펜스(fence)를 두르고 그 밖에 위치한 점은 이상점으로 별도로 표시한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># library(ggplot2)</span>
+<span class="co"># library(aplpack)</span>
+
+<span class="kw">data</span>(mtcars)
+
+mtcars$model_name &lt;-<span class="st"> </span><span class="kw">rownames</span>(mtcars)
+
+<span class="kw">with</span>(mtcars,
+     <span class="kw">bagplot</span>(qsec, mpg, <span class="dt">xlab=</span><span class="st">&quot;mpg&quot;</span>, <span class="dt">ylab=</span><span class="st">&quot;mpg&quot;</span>, <span class="dt">show.outlier=</span> <span class="ot">TRUE</span>,
+             <span class="dt">show.looppoints=</span><span class="ot">TRUE</span>,
+             <span class="dt">show.bagpoints=</span><span class="ot">TRUE</span>,<span class="dt">dkmethod=</span><span class="dv">2</span>,
+             <span class="dt">show.whiskers=</span><span class="ot">TRUE</span>,<span class="dt">show.loophull=</span><span class="ot">TRUE</span>,
+             <span class="dt">show.baghull=</span><span class="ot">TRUE</span>,<span class="dt">verbose=</span><span class="ot">FALSE</span>))</code></pre></div>
+<p><img src="fig/bivariate-boxplot-1.png" title="plot of chunk bivariate-boxplot" alt="plot of chunk bivariate-boxplot" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 이상점 표기</span>
+mtcars_bagplot &lt;-<span class="st"> </span><span class="kw">with</span>(mtcars, <span class="kw">bagplot</span>(qsec, mpg, <span class="dt">xlab=</span><span class="st">&quot;qsec&quot;</span>, <span class="dt">ylab=</span><span class="st">&quot;mpg&quot;</span>))
+mtcars_outlier &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(mtcars_bagplot$pxy.outlier)
+<span class="kw">names</span>(mtcars_outlier) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;qsec&quot;</span>, <span class="st">&quot;mpg&quot;</span>)
+mtcars_outliers &lt;-<span class="st"> </span><span class="kw">left_join</span>(mtcars_outlier, mtcars)</code></pre></div>
+<pre class="output"><code>Joining, by = c(&quot;qsec&quot;, &quot;mpg&quot;)
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">text</span>(mtcars_outliers$qsec, mtcars_outliers$mpg, <span class="dt">labels=</span>mtcars_outliers$model_name, <span class="dt">pos=</span><span class="dv">1</span>)</code></pre></div>
+<p><img src="fig/bivariate-boxplot-2.png" title="plot of chunk bivariate-boxplot" alt="plot of chunk bivariate-boxplot" style="display: block; margin: auto;" /></p>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="http://stackoverflow.com/questions/33524669/labeling-outliers-of-boxplots-in-r">Labeling Outliers of Boxplots in R</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="https://cran.r-project.org/web/packages/aplpack/">aplpack - Another Plot PACKage: stem.leaf, bagplot, faces, spin3R, plotsummary, plothulls, and some slider functions</a><a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p><a href="http://venus.unive.it/romanaz/ada2/bagplot.pdf">Rousseeuw, Peter J., Ruts I., Tukey J.W. (1999). “The Bagplot: A Bivariate Boxplot”. The American Statistician. 53 (4): 382–387</a><a href="#fnref3">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>
