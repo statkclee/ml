@@ -12,7 +12,9 @@ mainfont: NanumGothic
 
 ``` {r, include=FALSE}
 source("tools/chunk-options.R")
-library(DescTools)
+library(ggplot2)
+library(aplpack)
+library(tidyverse)
 ```
  
 > ## 핵심 개념 {.objectives}
@@ -34,7 +36,7 @@ library(DescTools)
 
 
 ``` {r}
-library(ggplot2)
+# library(ggplot2)
 data(mtcars)
 
 is_outlier <- function(x) {
@@ -51,12 +53,20 @@ ggplot(mtcars, aes(qsec, x=1)) +
   geom_text(aes(label=ifelse(qsec_outlier, model_name, "")), na.rm=TRUE, hjust=-0.3)
 ```
 
+## 2. 이변량 이상점 검출 [^aplpack-plot] [^bagplot-paper]
 
-## 2. 이변량 이상점 검출
+[^aplpack-plot]: [aplpack - Another Plot PACKage: stem.leaf, bagplot, faces, spin3R, plotsummary, plothulls, and some slider functions](https://cran.r-project.org/web/packages/aplpack/)
+
+[^bagplot-paper]: [Rousseeuw, Peter J., Ruts I., Tukey J.W. (1999). "The Bagplot: A Bivariate Boxplot". The American Statistician. 53 (4): 382–387](http://venus.unive.it/romanaz/ada2/bagplot.pdf)
+
+상자그림은 단변량 분포를 시각화하고 이상점을 추출할 때 적합하지만, 이변량인 경우 `bagplot()`을 통해 분포를 시각화하고 이상점을 추출하는 것이 가능해졌다.
+
+깊이 중위수(depth median)이 중심이 되며, $\frac{n}{2}$의 데이터가 가운데 "가방(bag)"에 몰려있고, 가방을 3배 확장하여 펜스(fence)를 두르고 그 밖에 위치한 점은 이상점으로 별도로 표시한다.
+
 
 ``` {r}
-library(ggplot2)
-library(aplpack)
+# library(ggplot2)
+# library(aplpack)
 
 data(mtcars)
 
