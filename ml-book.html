@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">저녁이 있는 삶 – 손학규</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>기본적인 한국어 텍스트 데이터 분석과정을 살펴본다.</li>
+<li>손학규 전 민주당 대표가 저술한 저녁이 있는 삶, 책 데이터를 분석한다.</li>
+</ul>
+</div>
+</section>
+<h2 id="책-데이터-분석-작업흐름">책 데이터 분석 작업흐름</h2>
+<p>텍스트 책 데이터를 분석하는 과정은 영문 텍스트를 분석하는 것과 크게 다르지 않는다.</p>
+<ul>
+<li>텍스트 분석을 위한 기반 팩키지를 설치.
+<ul>
+<li><code>KoNLP</code>, <code>tm</code>, <code>wordcloud</code>, <code>RColorBrewer</code></li>
+<li><code>KoNLP</code> 팩키지가 의존성을 갖는 <code>RSQLite</code> 및 <code>rJava</code>를 설치 및 설정</li>
+</ul></li>
+<li>컴퓨터, 즉 R이 분석할 수 있도록 텍스트 데이터를 전처리.</li>
+<li>시각화 및 고급 분석 기법을 통한 모형 개발</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># install.packages(&quot;KoNLP&quot;)</span>
+<span class="co"># install.packages(&quot;RSQLite&quot;)</span>
+
+<span class="co"># Sys.setenv(JAVA_HOME=&#39;C:\\Program Files\\Java\\jre1.8.0_102&#39;) # for 64-bit version</span>
+
+<span class="co"># library(rJava)</span>
+<span class="co"># library(KoNLP)</span>
+<span class="co"># library(tidyverse)</span>
+<span class="co"># library(RColorBrewer)</span>
+<span class="co"># library(wordcloud)</span>
+<span class="co"># library(tm)</span>
+<span class="co"># library(stringr)</span></code></pre></div>
+<h2 id="konlp-팩키지"><code>KoNLP</code> 팩키지</h2>
+<p>최근 <a href="https://cran.r-project.org/web/packages/KoNLP/index.html">KoNLP</a> 팩키지가 버젼업되면서 기존 36만개 형태소가 120만개 형태소 사전을 갖게 되어 더욱 강력한 텍스트 분석이 가능해졌다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># useNIADic()</span>
+<span class="kw">useNIADic</span>(<span class="dt">which_dic =</span> <span class="kw">c</span>(<span class="st">&quot;woorimalsam&quot;</span>, <span class="st">&quot;insighter&quot;</span>), <span class="dt">category_dic_nms =</span> <span class="st">&quot;political&quot;</span>, <span class="dt">backup =</span> T)</code></pre></div>
+<pre class="output"><code>Backup was just finished!
+984210 words dictionary was built.
+</code></pre>
+<h2 id="저녁이-있는-삶">저녁이 있는 삶</h2>
+<p><a href="https://www.kyobobook.co.kr/product/detailViewKor.laf?mallGb=KOR&amp;ejkGb=KOR&amp;barcode=9788992792318&amp;orderClick=JAj">저녁이 있는 삶 - 손학규의 민생경제론</a>은 <a href="http://www.hq.or.kr/main/">손학규</a> 전 민주당 대표가 2012년 대선을 준비하면서 펴낸 책으로 김종인 민주당 의원 <a href="http://www.kyobobook.co.kr/product/detailViewKor.laf?barcode=9788943103996">지금 왜 경제민주화인가 - 한국 경제의 미래를 위하여</a>와 더불어 많이 회자되고 있는 책이다.</p>
+<p>먼저 책 데이터를 불러온 다음, 한글 관련 내용만 추출하고 나서, 말뭉치 정제 과정을 거친다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">book &lt;-<span class="st"> </span><span class="kw">readLines</span>(<span class="st">&quot;data/저녁이 있는 삶.txt&quot;</span>, <span class="dt">encoding=</span><span class="st">&quot;UTF-8&quot;</span>)
+
+<span class="co"># http://stackoverflow.com/questions/9637278/r-tm-package-invalid-input-in-utf8towcs</span>
+book &lt;-<span class="st"> </span><span class="kw">str_replace_all</span>(book,<span class="st">&quot;[^[:graph:]]&quot;</span>, <span class="st">&quot; &quot;</span>)
+book &lt;-<span class="st"> </span><span class="kw">str_replace_all</span>(book,<span class="st">&quot;[^[ㄱ-흫]]&quot;</span>, <span class="st">&quot; &quot;</span>) 
+book &lt;-<span class="st"> </span>book[<span class="kw">which</span>(book !=<span class="st"> &quot;&quot;</span>)]
+
+book_corpus &lt;-<span class="st"> </span><span class="kw">sapply</span>(book, function(x) {<span class="kw">paste</span>(<span class="kw">extractNoun</span>(x), <span class="dt">collapse=</span><span class="st">&quot; &quot;</span>)}, <span class="dt">USE.NAMES=</span>F)
+
+<span class="co">#말뭉치 정제과정</span>
+book_corpus &lt;-<span class="st"> </span><span class="kw">Corpus</span>(<span class="kw">VectorSource</span>(book_corpus))
+book_corpus &lt;-<span class="st"> </span><span class="kw">tm_map</span>(book_corpus, removePunctuation)
+book_corpus &lt;-<span class="st"> </span><span class="kw">tm_map</span>(book_corpus, removeNumbers)
+book_corpus &lt;-<span class="st"> </span><span class="kw">tm_map</span>(book_corpus, tolower)
+book_corpus &lt;-<span class="st"> </span><span class="kw">tm_map</span>(book_corpus, stripWhitespace)
+book_stopwords &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">stopwords</span>(<span class="st">&quot;english&quot;</span>), <span class="st">&quot;되&quot;</span>, <span class="st">&quot;하면&quot;</span>, <span class="st">&quot;것&quot;</span>, <span class="st">&quot;그것&quot;</span>, <span class="st">&quot;음&quot;</span>, <span class="st">&quot;수&quot;</span>, <span class="st">&quot;들이&quot;</span>, <span class="st">&quot;한&quot;</span>, <span class="st">&quot;할&quot;</span>, <span class="st">&quot;있&quot;</span>, <span class="st">&quot;년&quot;</span>, <span class="st">&quot;하기&quot;</span>, <span class="st">&quot;하지&quot;</span>, <span class="st">&quot;하&quot;</span>)
+book_corpus &lt;-<span class="kw">tm_map</span>(book_corpus, removeWords, book_stopwords)
+book_corpus &lt;-<span class="kw">tm_map</span>(book_corpus, PlainTextDocument)
+
+book_tdm &lt;-<span class="st"> </span><span class="kw">TermDocumentMatrix</span>(book_corpus, <span class="dt">control=</span><span class="kw">list</span>(<span class="dt">wordLengths=</span><span class="kw">c</span>(<span class="dv">2</span>,<span class="ot">Inf</span>)))</code></pre></div>
+<p>가장 많이 회자되고 있는 단어는 경제가 중심이고, 사회, 성장, 복지, 우리, 국민 순으로 체계적으로 정리된 것이 관찰된다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#시각화---------------------------------------------------------------------</span>
+<span class="kw">library</span>(ggplot2)
+
+book_term_freq &lt;-<span class="st"> </span><span class="kw">rowSums</span>(<span class="kw">as.matrix</span>(book_tdm))
+book_term_freq &lt;-<span class="st"> </span><span class="kw">subset</span>(book_term_freq, book_term_freq &gt;=<span class="st"> </span><span class="dv">50</span>)
+
+book_term_df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">term =</span> <span class="kw">names</span>(book_term_freq), <span class="dt">freq =</span> book_term_freq) %&gt;%<span class="st"> </span><span class="kw">arrange</span>(<span class="kw">desc</span>(freq)) 
+
+<span class="kw">ggplot</span>(book_term_df[<span class="dv">1</span>:<span class="dv">20</span>,], <span class="kw">aes</span>(<span class="kw">reorder</span>(term, freq), freq)) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">stat=</span><span class="st">&quot;identity&quot;</span>) +<span class="st"> </span><span class="kw">coord_flip</span>() +
+<span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;단어 빈도수&quot;</span>) +
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;&quot;</span>)</code></pre></div>
+<p><img src="fig/hq-wordcloud-1.png" title="plot of chunk hq-wordcloud" alt="plot of chunk hq-wordcloud" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">m &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(book_tdm)
+wordFreq &lt;-<span class="st"> </span><span class="kw">sort</span>(<span class="kw">rowSums</span>(m), <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)
+
+pal &lt;-<span class="st"> </span><span class="kw">brewer.pal</span>(<span class="dv">8</span>, <span class="st">&quot;Dark2&quot;</span>)
+<span class="kw">wordcloud</span>(<span class="dt">words =</span> <span class="kw">names</span>(wordFreq), <span class="dt">freq =</span> wordFreq, <span class="dt">min.freq =</span> <span class="dv">20</span>, <span class="dt">random.order =</span> F, 
+          <span class="dt">rot.per =</span> <span class="fl">0.1</span>, <span class="dt">colors =</span> pal, <span class="dt">family=</span><span class="st">&quot;NanumGothic&quot;</span>)</code></pre></div>
+<p><img src="fig/hq-wordcloud-2.png" title="plot of chunk hq-wordcloud" alt="plot of chunk hq-wordcloud" style="display: block; margin: auto;" /></p>
+<h2 id="저녁이-있는-삶---형태소-분석">저녁이 있는 삶 - 형태소 분석</h2>
+<p>형태소 분석기를 사용하는 과정은 적절한 형태소 분석기를 활용하여 한국어를 분석할 경우 유용하다. 몇가지 형태소 분석기가 존재하지만, 한국어의 복잡성으로 인해 그다지 만족스러운 결과를 가져다 주지 않고 있다. KAIST 품사 태그셋 <code>SimplePos22</code> 형태소 분석결과를 바탕으로 분석하면 다음과 같다. 보통명사만 뽑아내서 분석하는 과정은 다음과 같다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">book_lem &lt;-<span class="st"> </span><span class="kw">sapply</span>(book, SimplePos22, <span class="dt">USE.NAMES =</span> <span class="ot">FALSE</span>)
+<span class="co"># NC 보통명사</span>
+book_lem_nc &lt;-<span class="st"> </span><span class="kw">lapply</span>(book_lem, function(x) <span class="kw">grep</span>(<span class="st">&quot;/NC&quot;</span>, x, <span class="dt">value=</span>T))
+book_lem_nc &lt;-<span class="st"> </span><span class="kw">lapply</span>(book_lem_nc, function(x) <span class="kw">str_subset</span>(x, <span class="st">&quot;/NC$&quot;</span>))
+book_lem_nc &lt;-<span class="st"> </span><span class="kw">lapply</span>(book_lem_nc, function(x) <span class="kw">str_replace_all</span>(x, <span class="st">&quot;/NC&quot;</span>, <span class="st">&quot;&quot;</span>))
+<span class="co"># NC 고유명사</span>
+book_lem_nq &lt;-<span class="st"> </span><span class="kw">lapply</span>(book_lem, function(x) <span class="kw">grep</span>(<span class="st">&quot;/NQ&quot;</span>, x, <span class="dt">value=</span>T))
+book_lem_nq &lt;-<span class="st"> </span><span class="kw">lapply</span>(book_lem_nq, function(x) <span class="kw">str_subset</span>(x, <span class="st">&quot;/NQ$&quot;</span>))
+book_lem_nq &lt;-<span class="st"> </span><span class="kw">lapply</span>(book_lem_nq, function(x) <span class="kw">str_replace_all</span>(x, <span class="st">&quot;/NQ&quot;</span>, <span class="st">&quot;&quot;</span>))
+
+book_corpus &lt;-<span class="st"> </span><span class="kw">c</span>(book_lem_nc, book_lem_nq)
+
+<span class="co">#말뭉치 정제과정</span>
+book_corpus &lt;-<span class="st"> </span><span class="kw">Corpus</span>(<span class="kw">VectorSource</span>(book_corpus))
+book_corpus &lt;-<span class="st"> </span><span class="kw">tm_map</span>(book_corpus, removePunctuation)
+book_corpus &lt;-<span class="st"> </span><span class="kw">tm_map</span>(book_corpus, removeNumbers)
+book_corpus &lt;-<span class="st"> </span><span class="kw">tm_map</span>(book_corpus, tolower)
+book_corpus &lt;-<span class="st"> </span><span class="kw">tm_map</span>(book_corpus, stripWhitespace)
+book_stopwords &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">stopwords</span>(<span class="st">&quot;english&quot;</span>),<span class="st">&quot;이후&quot;</span>, <span class="st">&quot;없&quot;</span>, <span class="st">&quot;되&quot;</span>, <span class="st">&quot;하면&quot;</span>, <span class="st">&quot;것&quot;</span>, <span class="st">&quot;그것&quot;</span>, <span class="st">&quot;음&quot;</span>, <span class="st">&quot;수&quot;</span>, <span class="st">&quot;들이&quot;</span>, <span class="st">&quot;한&quot;</span>, <span class="st">&quot;할&quot;</span>, <span class="st">&quot;있&quot;</span>, <span class="st">&quot;년&quot;</span>, <span class="st">&quot;하기&quot;</span>, <span class="st">&quot;하지&quot;</span>, <span class="st">&quot;하&quot;</span>)
+book_corpus &lt;-<span class="kw">tm_map</span>(book_corpus, removeWords, book_stopwords)
+book_corpus &lt;-<span class="kw">tm_map</span>(book_corpus, PlainTextDocument)
+
+book_tdm &lt;-<span class="st"> </span><span class="kw">TermDocumentMatrix</span>(book_corpus, <span class="dt">control=</span><span class="kw">list</span>(<span class="dt">wordLengths=</span><span class="kw">c</span>(<span class="dv">2</span>,<span class="ot">Inf</span>)))
+<span class="co">#시각화---------------------------------------------------------------------</span>
+<span class="kw">library</span>(ggplot2)
+
+book_term_freq &lt;-<span class="st"> </span><span class="kw">rowSums</span>(<span class="kw">as.matrix</span>(book_tdm))
+book_term_freq &lt;-<span class="st"> </span><span class="kw">subset</span>(book_term_freq, book_term_freq &gt;=<span class="st"> </span><span class="dv">20</span>)
+
+book_term_df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">term =</span> <span class="kw">names</span>(book_term_freq), <span class="dt">freq =</span> book_term_freq) %&gt;%<span class="st"> </span><span class="kw">arrange</span>(<span class="kw">desc</span>(freq))
+
+<span class="kw">ggplot</span>(book_term_df[<span class="dv">1</span>:<span class="dv">20</span>,], <span class="kw">aes</span>(<span class="kw">reorder</span>(term, freq), freq)) +<span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">stat=</span><span class="st">&quot;identity&quot;</span>) +<span class="st"> </span><span class="kw">coord_flip</span>() +
+<span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;단어 빈도수&quot;</span>) +
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;&quot;</span>)</code></pre></div>
+<p><img src="fig/hq-morphanalyzer-1.png" title="plot of chunk hq-morphanalyzer" alt="plot of chunk hq-morphanalyzer" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">m &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(book_tdm)
+wordFreq &lt;-<span class="st"> </span><span class="kw">sort</span>(<span class="kw">rowSums</span>(m), <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)
+
+pal &lt;-<span class="st"> </span><span class="kw">brewer.pal</span>(<span class="dv">8</span>, <span class="st">&quot;Dark2&quot;</span>)
+<span class="kw">wordcloud</span>(<span class="dt">words =</span> <span class="kw">names</span>(wordFreq), <span class="dt">freq =</span> wordFreq, <span class="dt">min.freq =</span> <span class="dv">7</span>, <span class="dt">random.order =</span> F, 
+          <span class="dt">rot.per =</span> <span class="fl">0.1</span>, <span class="dt">colors =</span> pal, <span class="dt">family=</span><span class="st">&quot;NanumGothic&quot;</span>)</code></pre></div>
+<p><img src="fig/hq-morphanalyzer-2.png" title="plot of chunk hq-morphanalyzer" alt="plot of chunk hq-morphanalyzer" style="display: block; margin: auto;" /></p>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

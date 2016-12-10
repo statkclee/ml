@@ -11,3 +11,4 @@ _site
 .ipynb_*
 twitterOAuth.R
 .httr-oauth
+*삶.txt

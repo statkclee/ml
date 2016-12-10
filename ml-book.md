@@ -16,17 +16,7 @@ mainfont: NanumGothic
 > * 손학규 전 민주당 대표가 저술한 저녁이 있는 삶, 책 데이터를 분석한다.
 
 
-``` {r, include=FALSE}
-source("tools/chunk-options.R")
-library(rJava)
-library(KoNLP)
-library(tidyverse)
-library(RColorBrewer)
-library(wordcloud)
-library(tm)
-library(stringr)
-theme_set(theme_gray(base_family='NanumGothic'))
-```
+
 
 ## 책 데이터 분석 작업흐름
 
@@ -39,7 +29,8 @@ theme_set(theme_gray(base_family='NanumGothic'))
 - 시각화 및 고급 분석 기법을 통한 모형 개발
 
 
-``` {r hq-setup}
+
+~~~{.r}
 # install.packages("KoNLP")
 # install.packages("RSQLite")
 
@@ -52,7 +43,7 @@ theme_set(theme_gray(base_family='NanumGothic'))
 # library(wordcloud)
 # library(tm)
 # library(stringr)
-```
+~~~
 
 ## `KoNLP` 팩키지
 
@@ -60,10 +51,19 @@ theme_set(theme_gray(base_family='NanumGothic'))
 텍스트 분석이 가능해졌다.
 
 
-``` {r hq-dictionary}
+
+~~~{.r}
 # useNIADic()
 useNIADic(which_dic = c("woorimalsam", "insighter"), category_dic_nms = "political", backup = T)
-```
+~~~
+
+
+
+~~~{.output}
+Backup was just finished!
+984210 words dictionary was built.
+
+~~~
 
 ## 저녁이 있는 삶 
 
@@ -73,7 +73,8 @@ useNIADic(which_dic = c("woorimalsam", "insighter"), category_dic_nms = "politic
 
 먼저 책 데이터를 불러온 다음, 한글 관련 내용만 추출하고 나서, 말뭉치 정제 과정을 거친다.
 
-``` {r hq-corpus}
+
+~~~{.r}
 book <- readLines("data/저녁이 있는 삶.txt", encoding="UTF-8")
 
 # http://stackoverflow.com/questions/9637278/r-tm-package-invalid-input-in-utf8towcs
@@ -94,11 +95,12 @@ book_corpus <-tm_map(book_corpus, removeWords, book_stopwords)
 book_corpus <-tm_map(book_corpus, PlainTextDocument)
 
 book_tdm <- TermDocumentMatrix(book_corpus, control=list(wordLengths=c(2,Inf)))
-```
+~~~
 
 가장 많이 회자되고 있는 단어는 경제가 중심이고, 사회, 성장, 복지, 우리, 국민 순으로 체계적으로 정리된 것이 관찰된다.
 
-``` {r hq-wordcloud}
+
+~~~{.r}
 #시각화---------------------------------------------------------------------
 library(ggplot2)
 
@@ -111,14 +113,20 @@ ggplot(book_term_df[1:20,], aes(reorder(term, freq), freq)) +
   geom_bar(stat="identity") + coord_flip() +
   ylab("단어 빈도수") +
   xlab("")
+~~~
 
+<img src="fig/hq-wordcloud-1.png" title="plot of chunk hq-wordcloud" alt="plot of chunk hq-wordcloud" style="display: block; margin: auto;" />
+
+~~~{.r}
 m <- as.matrix(book_tdm)
 wordFreq <- sort(rowSums(m), decreasing = TRUE)
 
 pal <- brewer.pal(8, "Dark2")
 wordcloud(words = names(wordFreq), freq = wordFreq, min.freq = 20, random.order = F, 
           rot.per = 0.1, colors = pal, family="NanumGothic")
-```
+~~~
+
+<img src="fig/hq-wordcloud-2.png" title="plot of chunk hq-wordcloud" alt="plot of chunk hq-wordcloud" style="display: block; margin: auto;" />
 
 ## 저녁이 있는 삶 - 형태소 분석
 
@@ -127,7 +135,8 @@ wordcloud(words = names(wordFreq), freq = wordFreq, min.freq = 20, random.order 
 KAIST 품사 태그셋 `SimplePos22` 형태소 분석결과를 바탕으로 분석하면 다음과 같다.
 보통명사만 뽑아내서 분석하는 과정은 다음과 같다.
 
-``` {r hq-morphanalyzer}
+
+~~~{.r}
 book_lem <- sapply(book, SimplePos22, USE.NAMES = FALSE)
 # NC 보통명사
 book_lem_nc <- lapply(book_lem, function(x) grep("/NC", x, value=T))
@@ -163,12 +172,18 @@ ggplot(book_term_df[1:20,], aes(reorder(term, freq), freq)) +
   geom_bar(stat="identity") + coord_flip() +
   ylab("단어 빈도수") +
   xlab("")
+~~~
 
+<img src="fig/hq-morphanalyzer-1.png" title="plot of chunk hq-morphanalyzer" alt="plot of chunk hq-morphanalyzer" style="display: block; margin: auto;" />
+
+~~~{.r}
 m <- as.matrix(book_tdm)
 wordFreq <- sort(rowSums(m), decreasing = TRUE)
 
 pal <- brewer.pal(8, "Dark2")
 wordcloud(words = names(wordFreq), freq = wordFreq, min.freq = 7, random.order = F, 
           rot.per = 0.1, colors = pal, family="NanumGothic")
-```
+~~~
+
+<img src="fig/hq-morphanalyzer-2.png" title="plot of chunk hq-morphanalyzer" alt="plot of chunk hq-morphanalyzer" style="display: block; margin: auto;" />
 
