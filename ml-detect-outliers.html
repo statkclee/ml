@@ -41,15 +41,17 @@
           <h2 class="subtitle">이상점(Outlier) 검출</h2>
           <section class="objectives panel panel-warning">
 <div class="panel-heading">
-<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+<h2 id="핵심-개념"><span class="glyphicon glyphicon-certificate"></span>핵심 개념</h2>
 </div>
 <div class="panel-body">
 <ul>
-<li></li>
+<li>이상점 탐지 방법론에 대해 개괄적으로 살펴본다.</li>
+<li>연속형, 범주형 자료형에 따른 이상점 탐지를 실습한다.</li>
+<li>단변량, 이변량 상장그림을 통해 이상점을 식별한다.</li>
 </ul>
 </div>
 </section>
-<h2 id="이상점-탐지-방법론">1. 이상점 탐지 방법론</h2>
+<h2 id="이상점-탐지-방법론-outlier-detection-techniques">1. 이상점 탐지 방법론 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h2>
 <ul>
 <li>모형기반 (Model-based)
 <ul>
@@ -64,15 +66,12 @@
 </ul></li>
 <li>고차원 접근법 (High dimensional Approaches)</li>
 </ul>
-<h2 id="이상점-추출-및-처리-연습문제-r-exercise-outlier-outlier-detection-techniques">2. 이상점 추출 및 처리 연습문제 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></h2>
+<h2 id="이상점-추출-및-처리-연습문제-r-exercise-outlier">2. 이상점 추출 및 처리 연습문제 <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></h2>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 1. 환경설정-------------------------------------------</span>
-<span class="co">#install.packages(&#39;rapportools&#39;)</span>
 <span class="co">#library(rapportools)</span>
-<span class="co">#install.packages(&#39;outliers&#39;)</span>
 <span class="co">#library(outliers)</span>
 
 <span class="co"># 2. 데이터 가져오기-------------------------------------------</span>
-<span class="co">#install.packages(&quot;nycflights13&quot;)</span>
 <span class="co">#library(nycflights13)</span>
 flights &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;~/Dropbox/02_data_family/01-outlier/data/flights_1_pcnt.csv&quot;</span>)</code></pre></div>
 <pre class="output"><code>Parsed with column specification:
@@ -211,8 +210,6 @@ carrier_tbl &lt;-<span class="st"> </span>flights %&gt;%<span class="st"> </span
 cancel_tbl &lt;-<span class="st"> </span>flights %&gt;%<span class="st"> </span><span class="kw">count</span>(CancellationCode)
 <span class="kw">ggplot</span>(cancel_tbl, <span class="kw">aes</span>(<span class="dt">x=</span>CancellationCode, <span class="dt">y=</span>n)) +<span class="st"> </span>
 <span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">stat=</span><span class="st">&quot;identity&quot;</span>)</code></pre></div>
-<pre class="output"><code>Warning: Removed 1 rows containing missing values (position_stack).
-</code></pre>
 <p><img src="fig/ex-02-2.png" title="plot of chunk ex-02" alt="plot of chunk ex-02" style="display: block; margin: auto;" /></p>
 <ol start="3" style="list-style-type: decimal">
 <li>연습문제 : 2번 연습문제에서 맞닥드린 이상점을 제거하라. <code>subset</code> 혹은 <code>filter</code> 함수를 사용한다.</li>
@@ -225,7 +222,7 @@ flights &lt;-<span class="st"> </span>flights %&gt;%<span class="st"> </span>
 <ol start="4" style="list-style-type: decimal">
 <li>연습문제 : 숫자형 변수의 경우 이상점을 탐지하는데 권장되는 방식은 <code>boxplot</code>을 활용하는 것이다. <code>flights$ActualElapsedTime</code> 변수에 대해서 상자그림을 도식화하시오.</li>
 </ol>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(flights, <span class="kw">aes</span>(<span class="dt">x=</span><span class="dv">1</span>, <span class="dt">y=</span>ActualElapsedTime)) +
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(flights, <span class="kw">aes</span>(ActualElapsedTime, <span class="dt">x=</span><span class="dv">1</span>)) +
 <span class="st">  </span><span class="kw">geom_boxplot</span>() +<span class="st"> </span><span class="kw">coord_flip</span>()</code></pre></div>
 <p><img src="fig/ex-04-1.png" title="plot of chunk ex-04" alt="plot of chunk ex-04" style="display: block; margin: auto;" /></p>
 <ol start="5" style="list-style-type: decimal">
@@ -234,7 +231,7 @@ flights &lt;-<span class="st"> </span>flights %&gt;%<span class="st"> </span>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">flights &lt;-<span class="st"> </span>flights %&gt;%<span class="st"> </span>
 <span class="st">  </span>dplyr::<span class="kw">filter</span>(!(ActualElapsedTime %in%<span class="st"> </span><span class="kw">boxplot.stats</span>(flights$ActualElapsedTime)$out))
 
-<span class="kw">ggplot</span>(flights, <span class="kw">aes</span>(<span class="dt">x=</span><span class="dv">1</span>, <span class="dt">y=</span>ActualElapsedTime)) +
+<span class="kw">ggplot</span>(flights, <span class="kw">aes</span>(ActualElapsedTime, <span class="dt">x=</span><span class="dv">1</span>)) +
 <span class="st">  </span><span class="kw">geom_boxplot</span>() +<span class="st"> </span><span class="kw">coord_flip</span>()</code></pre></div>
 <p><img src="fig/ex-05-1.png" title="plot of chunk ex-05" alt="plot of chunk ex-05" style="display: block; margin: auto;" /></p>
 <ol start="6" style="list-style-type: decimal">
@@ -279,11 +276,68 @@ logical    1363
 FALSE  TRUE 
  1303    45 
 </code></pre>
+<h2 id="상자그림-이상점-검출">3. 상자그림 이상점 검출</h2>
+<h3 id="단변량-이상점-검출-boxplot-outlier-labeling">3.1. 단변량 이상점 검출 <a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a></h3>
+<p><a href="https://ko.wikipedia.org/wiki/상자_수염_그림">상자그림(boxplot)</a>을 통해 분포를 시각화하거나 서로 다른 집단간 분포를 쉽게 시각화하여 비교가 가능하다. 특히, 이상점을 한눈에 볼 수 있게 <code>ggplot</code>을 활용하여 시각화하는 방법은 다음과 같다.</p>
+<ol style="list-style-type: decimal">
+<li><code>is_outlier</code> 함수를 통해 상자수염그림에서 이상점을 별도 점으로 표시하는 로직을 작성한다.</li>
+<li><code>mtcars</code> 데이터는 rownames를 갖는 데이터프레임이라 모델명을 별도 변수로 저장한다.
+<ul>
+<li>이상점 표식에 사용될 라벨로 사용됨</li>
+</ul></li>
+<li><code>is_outlier</code> 함수를 통해 이상점을 식별하여 <code>qsec_outlier</code> 변수에 저장한다.</li>
+<li>ggplot의 <code>geom_text</code> 함수에 <code>ifelse</code> 문을 적용하여 이상점만 표식한다.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># library(ggplot2) </span>
+<span class="kw">data</span>(mtcars)
+
+is_outlier &lt;-<span class="st"> </span>function(x) {
+  <span class="kw">return</span>(x &lt;<span class="st"> </span><span class="kw">quantile</span>(x, <span class="fl">0.25</span>) -<span class="st"> </span><span class="fl">1.5</span> *<span class="st"> </span><span class="kw">IQR</span>(x) |<span class="st"> </span>x &gt;<span class="st"> </span><span class="kw">quantile</span>(x, <span class="fl">0.75</span>) +<span class="st"> </span><span class="fl">1.5</span> *<span class="st"> </span><span class="kw">IQR</span>(x))
+}
+
+mtcars$model_name &lt;-<span class="st"> </span><span class="kw">rownames</span>(mtcars)
+
+mtcars &lt;-<span class="st"> </span>mtcars %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">qsec_outlier =</span> <span class="kw">is_outlier</span>(qsec))
+
+<span class="kw">ggplot</span>(mtcars, <span class="kw">aes</span>(qsec, <span class="dt">x=</span><span class="dv">1</span>)) +
+<span class="st">  </span><span class="kw">geom_boxplot</span>(<span class="dt">outlier.colour =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">outlier.size =</span> <span class="dv">3</span>) +
+<span class="st">  </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">label=</span><span class="kw">ifelse</span>(qsec_outlier, model_name, <span class="st">&quot;&quot;</span>)), <span class="dt">na.rm=</span><span class="ot">TRUE</span>, <span class="dt">hjust=</span>-<span class="fl">0.3</span>)</code></pre></div>
+<p><img src="fig/univariate-boxplot-1.png" title="plot of chunk univariate-boxplot" alt="plot of chunk univariate-boxplot" style="display: block; margin: auto;" /></p>
+<h3 id="이변량-이상점-검출-aplpack-plot-bagplot-paper">3.2. 이변량 이상점 검출 <a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a> <a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a></h3>
+<p>상자그림은 단변량 분포를 시각화하고 이상점을 추출할 때 적합하지만, 이변량인 경우 <code>bagplot()</code>을 통해 분포를 시각화하고 이상점을 추출하는 것이 가능해졌다.</p>
+<p>깊이 중위수(depth median)이 중심이 되며, <span class="math inline">\(\frac{n}{2}\)</span>의 데이터가 가운데 “가방(bag)”에 몰려있고, 가방을 3배 확장하여 펜스(fence)를 두르고 그 밖에 위치한 점은 이상점으로 별도로 표시한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># library(ggplot2)</span>
+<span class="co"># library(aplpack)</span>
+
+<span class="kw">data</span>(mtcars)
+
+mtcars$model_name &lt;-<span class="st"> </span><span class="kw">rownames</span>(mtcars)
+
+<span class="kw">with</span>(mtcars,
+     <span class="kw">bagplot</span>(qsec, mpg, <span class="dt">xlab=</span><span class="st">&quot;qsec&quot;</span>, <span class="dt">ylab=</span><span class="st">&quot;mpg&quot;</span>, <span class="dt">show.outlier=</span> <span class="ot">TRUE</span>,
+             <span class="dt">show.looppoints=</span><span class="ot">TRUE</span>,
+             <span class="dt">show.bagpoints=</span><span class="ot">TRUE</span>,<span class="dt">dkmethod=</span><span class="dv">2</span>,
+             <span class="dt">show.whiskers=</span><span class="ot">TRUE</span>,<span class="dt">show.loophull=</span><span class="ot">TRUE</span>,
+             <span class="dt">show.baghull=</span><span class="ot">TRUE</span>,<span class="dt">verbose=</span><span class="ot">FALSE</span>))
+
+<span class="co"># 이상점 표기</span>
+mtcars_bagplot &lt;-<span class="st"> </span><span class="kw">with</span>(mtcars, <span class="kw">bagplot</span>(qsec, mpg, <span class="dt">xlab=</span><span class="st">&quot;qsec&quot;</span>, <span class="dt">ylab=</span><span class="st">&quot;mpg&quot;</span>))
+mtcars_outlier &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(mtcars_bagplot$pxy.outlier)
+<span class="kw">names</span>(mtcars_outlier) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;qsec&quot;</span>, <span class="st">&quot;mpg&quot;</span>)
+mtcars_outliers &lt;-<span class="st"> </span><span class="kw">left_join</span>(mtcars_outlier, mtcars)</code></pre></div>
+<pre class="output"><code>Joining, by = c(&quot;qsec&quot;, &quot;mpg&quot;)
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">text</span>(mtcars_outliers$qsec, mtcars_outliers$mpg, <span class="dt">labels=</span>mtcars_outliers$model_name, <span class="dt">pos=</span><span class="dv">1</span>)</code></pre></div>
+<p><img src="fig/bivariate-boxplot-1.png" title="plot of chunk bivariate-boxplot" alt="plot of chunk bivariate-boxplot" style="display: block; margin: auto;" /></p>
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p><a href="http://r-exercises.com/2016/11/10/descriptive-analytics-part-3-outlier-treatment/">Descriptive Analytics-Part 3 : Outlier treatment</a><a href="#fnref1">↩</a></p></li>
-<li id="fn2"><p><a href="http://www.dbs.ifi.lmu.de/~zimek/publications/KDD2010/kdd10-outlier-tutorial.pdf">Outlier Detection Techniques</a><a href="#fnref2">↩</a></p></li>
+<li id="fn1"><p><a href="http://www.dbs.ifi.lmu.de/~zimek/publications/KDD2010/kdd10-outlier-tutorial.pdf">Outlier Detection Techniques</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="http://r-exercises.com/2016/11/10/descriptive-analytics-part-3-outlier-treatment/">Descriptive Analytics-Part 3 : Outlier treatment</a><a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p><a href="http://stackoverflow.com/questions/33524669/labeling-outliers-of-boxplots-in-r">Labeling Outliers of Boxplots in R</a><a href="#fnref3">↩</a></p></li>
+<li id="fn4"><p><a href="https://cran.r-project.org/web/packages/aplpack/">aplpack - Another Plot PACKage: stem.leaf, bagplot, faces, spin3R, plotsummary, plothulls, and some slider functions</a><a href="#fnref4">↩</a></p></li>
+<li id="fn5"><p><a href="http://venus.unive.it/romanaz/ada2/bagplot.pdf">Rousseeuw, Peter J., Ruts I., Tukey J.W. (1999). “The Bagplot: A Bivariate Boxplot”. The American Statistician. 53 (4): 382–387</a><a href="#fnref5">↩</a></p></li>
 </ol>
 </div>
         </div>

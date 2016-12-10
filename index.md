@@ -33,6 +33,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
     1. [탐색적 데이터 분석(EDA)](ml-eda.html)
         1. [R 조합수학(Combinatorics)](ml-combinatorics.html)        
         1. [범주형 변수와 표](ml-categorical-var-table.html)        
+        1. [이상점(Outlier) 검출](ml-detect-outliers.html)        
     1. [데이터에 무게를 둔 예측모형](ml-modeling.html)
         1. **인간 중심 기계학습 모형**
             1. [선형대수와 함께하는 회귀분석 이해](ml-linear-algebra-reg.html)    
@@ -64,7 +65,6 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [소설 텍스트 데이터 분석 -- 소나기](ml-text-basic.html)
         1. [저녁이 있는 삶 -- 손학규](ml-book.html)
     1. **[장바구니 데이터 분석](ml-market-basket.html)**        
-    1. [이상점(Outlier) 검출](ml-outlier.html)
 1. **기계학습 상용화**
     1. [신용평점모형 개발](ml-credit-scoring-overview.html)
         1. [신용평점모형 탐색적 데이터 분석, 전처리](ml-credit-scoring-eda.html)

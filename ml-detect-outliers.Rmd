@@ -9,23 +9,27 @@ output:
     latex_engine: xelatex
 mainfont: NanumGothic
 ---
- 
-> ## 학습목표 {.objectives}
->
-> * 
 
 ``` {r, include=FALSE}
 source("tools/chunk-options.R")
 library(ggplot2)
+library(aplpack)
+library(tidyverse)
 library(rapportools)
 library(outliers)
 library(nycflights13)
-library(dplyr)
 library(readr)
 ```
+ 
+> ## 핵심 개념 {.objectives}
+>
+> * 이상점 탐지 방법론에 대해 개괄적으로 살펴본다.
+> * 연속형, 범주형 자료형에 따른 이상점 탐지를 실습한다.
+> * 단변량, 이변량 상장그림을 통해 이상점을 식별한다.
 
+## 1. 이상점 탐지 방법론 [^outlier-detection-techniques]
 
-## 1. 이상점 탐지 방법론
+[^outlier-detection-techniques]: [Outlier Detection Techniques](http://www.dbs.ifi.lmu.de/~zimek/publications/KDD2010/kdd10-outlier-tutorial.pdf)
 
 - 모형기반 (Model-based) 
     - 통계검증 (Statistical Tests)
@@ -37,20 +41,16 @@ library(readr)
 - 고차원 접근법 (High dimensional Approaches)
 
 
-## 2. 이상점 추출 및 처리 연습문제 [^r-exercise-outlier] [^outlier-detection-techniques]
+## 2. 이상점 추출 및 처리 연습문제 [^r-exercise-outlier] 
 
 [^r-exercise-outlier]: [Descriptive Analytics-Part 3 : Outlier treatment](http://r-exercises.com/2016/11/10/descriptive-analytics-part-3-outlier-treatment/)
-[^outlier-detection-techniques]: [Outlier Detection Techniques](http://www.dbs.ifi.lmu.de/~zimek/publications/KDD2010/kdd10-outlier-tutorial.pdf)
 
 ``` {r, setup}
 # 1. 환경설정-------------------------------------------
-#install.packages('rapportools')
 #library(rapportools)
-#install.packages('outliers')
 #library(outliers)
 
 # 2. 데이터 가져오기-------------------------------------------
-#install.packages("nycflights13")
 #library(nycflights13)
 flights <- read_csv("~/Dropbox/02_data_family/01-outlier/data/flights_1_pcnt.csv")
 ```
@@ -91,7 +91,7 @@ flights <- flights %>%
 `flights$ActualElapsedTime` 변수에 대해서 상자그림을 도식화하시오.
 
 ``` {r, ex-04}
-ggplot(flights, aes(x=1, y=ActualElapsedTime)) +
+ggplot(flights, aes(ActualElapsedTime, x=1)) +
   geom_boxplot() + coord_flip()
 ```
 
@@ -101,7 +101,7 @@ ggplot(flights, aes(x=1, y=ActualElapsedTime)) +
 flights <- flights %>% 
   dplyr::filter(!(ActualElapsedTime %in% boxplot.stats(flights$ActualElapsedTime)$out))
 
-ggplot(flights, aes(x=1, y=ActualElapsedTime)) +
+ggplot(flights, aes(ActualElapsedTime, x=1)) +
   geom_boxplot() + coord_flip()
 ```
 
@@ -144,5 +144,72 @@ outliers <- outliers::scores(flights$CRSElapsedTime, type="chisq", prob=0.98)
 table(outliers)
 ```
 
+## 3. 상자그림 이상점 검출
 
+### 3.1. 단변량 이상점 검출 [^boxplot-outlier-labeling]
+
+[^boxplot-outlier-labeling]: [Labeling Outliers of Boxplots in R](http://stackoverflow.com/questions/33524669/labeling-outliers-of-boxplots-in-r)
+
+[상자그림(boxplot)](https://ko.wikipedia.org/wiki/상자_수염_그림)을 통해 분포를 시각화하거나 서로 다른 집단간 분포를 쉽게 시각화하여 비교가 가능하다.
+특히, 이상점을 한눈에 볼 수 있게 `ggplot`을 활용하여 시각화하는 방법은 다음과 같다.
+
+1. `is_outlier` 함수를 통해 상자수염그림에서 이상점을 별도 점으로 표시하는 로직을 작성한다.
+1. `mtcars` 데이터는 rownames를 갖는 데이터프레임이라 모델명을 별도 변수로 저장한다.
+    - 이상점 표식에 사용될 라벨로 사용됨
+1. `is_outlier` 함수를 통해 이상점을 식별하여 `qsec_outlier` 변수에 저장한다.
+1. ggplot의 `geom_text` 함수에 `ifelse` 문을 적용하여 이상점만 표식한다.
+
+
+``` {r univariate-boxplot}
+# library(ggplot2) 
+data(mtcars)
+
+is_outlier <- function(x) {
+  return(x < quantile(x, 0.25) - 1.5 * IQR(x) | x > quantile(x, 0.75) + 1.5 * IQR(x))
+}
+
+mtcars$model_name <- rownames(mtcars)
+
+mtcars <- mtcars %>% 
+  mutate(qsec_outlier = is_outlier(qsec))
+
+ggplot(mtcars, aes(qsec, x=1)) +
+  geom_boxplot(outlier.colour = "red", outlier.size = 3) +
+  geom_text(aes(label=ifelse(qsec_outlier, model_name, "")), na.rm=TRUE, hjust=-0.3)
+```
+
+### 3.2. 이변량 이상점 검출 [^aplpack-plot] [^bagplot-paper]
+
+[^aplpack-plot]: [aplpack - Another Plot PACKage: stem.leaf, bagplot, faces, spin3R, plotsummary, plothulls, and some slider functions](https://cran.r-project.org/web/packages/aplpack/)
+
+[^bagplot-paper]: [Rousseeuw, Peter J., Ruts I., Tukey J.W. (1999). "The Bagplot: A Bivariate Boxplot". The American Statistician. 53 (4): 382–387](http://venus.unive.it/romanaz/ada2/bagplot.pdf)
+
+상자그림은 단변량 분포를 시각화하고 이상점을 추출할 때 적합하지만, 이변량인 경우 `bagplot()`을 통해 분포를 시각화하고 이상점을 추출하는 것이 가능해졌다.
+
+깊이 중위수(depth median)이 중심이 되며, $\frac{n}{2}$의 데이터가 가운데 "가방(bag)"에 몰려있고, 가방을 3배 확장하여 펜스(fence)를 두르고 그 밖에 위치한 점은 이상점으로 별도로 표시한다.
+
+
+``` {r bivariate-boxplot}
+# library(ggplot2)
+# library(aplpack)
+
+data(mtcars)
+
+mtcars$model_name <- rownames(mtcars)
+
+with(mtcars,
+     bagplot(qsec, mpg, xlab="qsec", ylab="mpg", show.outlier= TRUE,
+             show.looppoints=TRUE,
+             show.bagpoints=TRUE,dkmethod=2,
+             show.whiskers=TRUE,show.loophull=TRUE,
+             show.baghull=TRUE,verbose=FALSE))
+
+# 이상점 표기
+mtcars_bagplot <- with(mtcars, bagplot(qsec, mpg, xlab="qsec", ylab="mpg"))
+mtcars_outlier <- as.data.frame(mtcars_bagplot$pxy.outlier)
+names(mtcars_outlier) <- c("qsec", "mpg")
+mtcars_outliers <- left_join(mtcars_outlier, mtcars)
+
+text(mtcars_outliers$qsec, mtcars_outliers$mpg, labels=mtcars_outliers$model_name, pos=1)
+```
 
