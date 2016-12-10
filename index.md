@@ -62,6 +62,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [텍스트 데이터 전처리 -- qdap](ml-text-qdap.html)        
         1. [단어문서행렬 -- 단어 빈도](ml-text-tdm.html)
         1. [소설 텍스트 데이터 분석 -- 소나기](ml-text-basic.html)
+        1. [저녁이 있는 삶 -- 손학규](ml-book.html)
     1. **[장바구니 데이터 분석](ml-market-basket.html)**        
     1. [이상점(Outlier) 검출](ml-outlier.html)
 1. **기계학습 상용화**
