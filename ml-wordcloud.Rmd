@@ -1,7 +1,7 @@
 ---
 layout: page
 title: xwMOOC 기계학습
-subtitle: 텍스트 데이터 전처리 -- `qdap`
+subtitle: 텍스트 단어구름(Word Cloud)
 output:
   html_document: 
     keep_md: yes
@@ -10,15 +10,36 @@ output:
 mainfont: NanumGothic
 ---
  
-> ## 학습목표 {.objectives}
+``` {r, include=FALSE}
+source("tools/chunk-options.R")
+
+```
+
+> ### 학습 목표 {.getready}
 >
-> * 텍스트 데이터 전처리 과정에 대해 이해한다.
-> * `qdap` 팩키지를 통해 다양한 전처리 과정을 이해한다.
+> * 텍스트 데이터 분석 작업흐름을 이해한다.
+> * 단어주머니(Bag of Words) 모형을 이해한다.
+> * 텍스트 데이터 전처리 과정의 핵심 팩키지 `tm`과 `qdap`을 활용한다.
 
+## 1. 텍스트 분석 R 팩키지
 
+- [tm](https://cran.r-project.org/web/packages/tm/) : 텍스트 마이닝 
+- SnowballC : 어간추출(Stemming)
+- ggplot2 : 시각화
+- wordcloud : 단어구름
 
+## 2. 텍스트 분석 작업흐름도
 
-### 1. `qdap`, `tm` 텍스트 자료구조 비교
+텍스트 데이터를 말뭉치(Corpus)로 변환하여 데이터를 분석하는 것도 가능하지만,
+`qdap` 팩키지와 정규표현식의 기능을 적극 활용하여 가능하면 텍스트에서 전처리를 하고 나서,
+말뭉치로 변환한 후에 `tm` 팩키지 정제기능을 활용하는 것도 가능하다. 물론 중복되는 부분도 있을 수 있으나 
+빨래를 할 때 세탁기로 넣어 한 번 돌리고, 손빨래로 두번째 빨래를 깔끔하게 마무리하는 것으로 봐도 좋을 듯 하다.
+
+깔끔한 말뭉치로 텍스트 데이터가 정제되고 나면 행렬로 변화시켜 다양한 통계 분석을 시작한다.
+
+<img src="fig/tm_workflow.png" alt="텍스트에서 말뭉치로 변환" width="77%" />
+
+### 2.1. `qdap`, `tm` 텍스트 자료구조 비교
 
 [텍스트 마이닝(Text Mining)](https://en.wikipedia.org/wiki/Text_mining)을 위한 R의 대표적인  팩키지가 `qdap` `tm` 이다.
 
@@ -33,7 +54,7 @@ mainfont: NanumGothic
 
 두 팩키지 모두 공통으로 사용하는 단어/용어 빈도수에는 행렬(`matrix`)을 사용한다. 이를 그림을 표현하면 다음과 같다.
 
-<img src="fig/ml-text-qdap-tm-comp.png" alt="qdap, tm 비교" width="77%" />
+<img src="fig/ml-text-qdap-tm-comp.png" alt="qdap, tm 비교" width="57%" />
 
 * `qdap` 텍스트 원문 `qdap_dat` &rarr; `qview(qdap_dat)`
 * `tm` 텍스트 원문 `tm_dat` &rarr; inspect(tm_dat)
@@ -43,7 +64,6 @@ mainfont: NanumGothic
 ### 2. `tm`, `qdap` 데이터 정제 기능
 
 <img src="fig/ml-text-cleaning.png" alt="tm, qdap 전처리 기능" width="70%" />
-
 
 단어 주머니 기법을 활용하여 텍스트를 분석할 때, 데이터 정제를 통해 단어를 합산하는데 큰 도움이 된다.
 영어 단어 예를 들어, statistics, statistical, stats 등은 모두 통계라는 한 단어로 정리되면 좋다.
@@ -60,11 +80,11 @@ mainfont: NanumGothic
 * bracketX(): 괄호 내 모든 텍스트 제거 
     * "It's (very) nice" &rarr; "It's nice"
 * replace_number(): 아라비아 숫자를 대응되는 영어문자로 변환
-    * "7" &rarr; "seven")
+    * "7" &rarr; "seven"
 * replace_abbreviation(): 축약어를 대응되는 전체 문자로 풀어냄
-    * "Jan" &rarr; "Janunary")
+    * "Jan" &rarr; "Janunary"
 * replace_contraction(): 단어 축약을 원래 상태로 되돌림
-    * "can't" &rarr; "can not")
+    * "can't" &rarr; "can not"
 * replace_symbol(): 일반 기호를 대응되는 단어로 교체
      * "$" &rarr; "dollar"
 
@@ -73,14 +93,33 @@ mainfont: NanumGothic
 수집된 거의 모든 문서에 특정 단어가 포함되어 있어 이것도 도움이 되지 않아 불용어에 등록하여 텍스트 
 분석을 수행한다.
 
-~~~ {.r}
+```{r qdap-removeWords, eval=FALSE}
 removeWords(text, stopwords("english"))
 stop_words_lst <- c("rstudio", "statistics", stopwords("english"))
 removeWords(text, stop_words_lst)
-~~~
+```
 
 `stopwords("english")` 영어불용어 사전에 "rstudio", "statistics" 단어를 더해서 불용어 사전을 완성하고 나서 
 removeWords() 함수로 새로 갱신된 사전에 맞춰 불용어를 정리한다.
+
+
+### 2.2. 텍스트에서 말뭉치(Corpus)로 변환
+
+텍스트 마이닝을 통해 데이터를 분석하려면 우선 원데이터가 텍스트 형태로 되어 있고 이를 말뭉치로 변환하여야 한다.
+데이터가 벡터 형태(연설문 등) 혹은 데이터프레임 형태(트위터 트윗 등)에 따라 `VectorSource()`, `DataframeSource()` 함수를 적용하여 
+**Source 객체**로 변형을 시킨다. 그리고 나서 `VCorpus()` 함수를 활용하여 말뭉치(Corpus)로 저장한다.
+휘발성 말뭉치(Volatile Corpus, VCorpus)와 영구저장 말뭉치(Permanent Corpus, PCorpus)로 변환이 가능하다. 주로 `VCorpus`를 메모리에 적재하여 
+텍스트 데이터 분석에 활용한다.
+
+<img src="fig/tm_from_text_to_corpus.png" alt="텍스트에서 말뭉치로 변환" width="77%" />
+
+### 2.3. 말뭉치 정제 
+
+텍스트를 말뭉치 객체로 저장시켜 놓으면, 말뭉치 정제 과정을 거치야 된다.
+기본적으로 어떤 말뭉치 정제에 사용되는 기본 정제함수는 `tm` 팩키지를 활용하고,
+추가적으로 `qdap` 팩키지 특수 말뭉치 정제 함수도 적극 활용한다.
+
+<img src="fig/tm_clean_corpus.png" alt="말뭉치 정제" width="77%" />
 
 
 ### 참고문헌
@@ -89,9 +128,23 @@ removeWords() 함수로 새로 갱신된 사전에 맞춰 불용어를 정리한
 * [Basic Text Mining in R](https://rstudio-pubs-static.s3.amazonaws.com/31867_8236987cf0a8444e962ccd2aec46d9c3.html)
 * [Hands-On Data Science with R Text Mining, Graham.Williams](http://onepager.togaware.com/TextMiningO.pdf)
 * [Natural Language Processing Tutorial](http://www.vikparuchuri.com/blog/natural-language-processing-tutorial/)
+* [slides from my R tutorial on Twitter text mining](https://jeffreybreen.wordpress.com/2011/07/04/twitter-text-mining-r-slides/)
 
 * [Statistics meets rhetoric: A text analysis of "I Have a Dream" in R](http://anythingbutrbitrary.blogspot.kr/2014/01/statistics-meets-rhetoric-text-analysis.html)
 * [How to Create WordCloud of Twitter Data using R Programming](http://technokarak.com/how-to-create-wordcloud-of-twitter-data-using-r-programming.html)
 * [How to Clean the Twitter Data using R – Twitter Mining Tutorial](http://technokarak.com/how-to-clean-the-twitter-data-using-r-twitter-mining-tutorial.html)
 * [How to Load Twitter Tweets in R Environment](http://technokarak.com/how-to-load-twitter-tweets-in-r-environment.html)
+
+
+### 2.4. 단어문서행렬(Term Document Matrix, TDM)
+
+`TermDocumentMatrix()` 함수를 활용하여 단어가 문서에 출현하는 빈도수를 행렬로 저장한다.
+행렬형태 데이터를 저장하게 되면 고급 통계 분석이 가능하게 된다.
+`DocumentTermMatrix()`는 `TermDocumentMatrix()` 함수로 통해 나온 행렬을 전치(transpose)시킨 것이다.
+
+ 
+ ## 3. 텍스트 데이터 시각화
+
+ 
+
 
