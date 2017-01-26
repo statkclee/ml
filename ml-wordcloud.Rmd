@@ -145,6 +145,33 @@ removeWords() 함수로 새로 갱신된 사전에 맞춰 불용어를 정리한
  
  ## 3. 텍스트 데이터 시각화
 
- 
+
+### 3.1. 막대그래프
+
+### 3.2. 단어구름
+
+#### 3.2.1. 단독 단어구름
+
+`wordcloud()`
+
+#### 3.2.2. 공통 단어구름
+
+`commonality.cloud()`
+
+#### 3.2.3. 비교 단어구름
+
+`comparison.cloud()`
+
+#### 3.2.4. 피라미드 그래프
+
+`pyramid.plot()`
+
+### 3.3. 단어 연관
+
+`word_associate()`
+
+
+word_network_plot(text.var=DATA$state, grouping.var=list(DATA$sex, DATA$adult))
+
 
 
