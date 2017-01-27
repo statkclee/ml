@@ -12,7 +12,43 @@ mainfont: NanumGothic
  
 ``` {r, include=FALSE}
 source("tools/chunk-options.R")
+library(tm)
+library(tidytext)
+library(qdap)
+library(tidyverse)
+library(wordcloud)
+library(tibble)
+library(plotrix)
+library(stringr)
 
+clean_text <- function(text){
+  text <- tolower(text)
+  # text <- removeNumbers(text)
+  # text <- bracketX(text)
+  text <- replace_number(text)
+  text <- replace_abbreviation(text)
+  text <- replace_contraction(text)
+  text <- replace_symbol(text)
+  text <- removePunctuation(text)
+  text <- stripWhitespace(text)
+  text <- str_replace_all(text, "americans", "america")
+  
+  indexes <- which(text == "")
+  if(length(indexes) > 0){
+    text <- text[-indexes]
+  } 
+  return(text)
+}
+
+clean_corpus <- function(corpus){
+  corpus <- tm_map(corpus, content_transformer(replace_abbreviation))
+  corpus <- tm_map(corpus, stripWhitespace)
+  corpus <- tm_map(corpus, removePunctuation)
+  corpus <- tm_map(corpus, removeNumbers)
+  corpus <- tm_map(corpus, removeWords, c(stopwords("en"), "Top200Words"))
+  corpus <- tm_map(corpus, content_transformer(tolower))
+  return(corpus)
+}
 ```
 
 > ### 학습 목표 {.getready}
@@ -138,40 +174,166 @@ removeWords() 함수로 새로 갱신된 사전에 맞춰 불용어를 정리한
 
 ### 2.4. 단어문서행렬(Term Document Matrix, TDM)
 
+단어문서행렬을 통한 방법이 일반적으로 많이 사용된다. 이를 위해 입력값이 데이터프레임인 경우 `DataframeSource`,
+벡터인 경우 `VectorSource`를 사용하여 말뭉치(Corpus)로 변환하고, 이를 `TermDocumentMatrix` 함수에 넣어 
+단어문서행렬을 생성한다. 물론 텍스트를 바로 넣어 `wfm` 단어빈도행렬(Word Frequency Matrix)을 생성시켜 분석을 하기도 하지만 일반적인 방식은 아니다. 
+
 `TermDocumentMatrix()` 함수를 활용하여 단어가 문서에 출현하는 빈도수를 행렬로 저장한다.
 행렬형태 데이터를 저장하게 되면 고급 통계 분석이 가능하게 된다.
 `DocumentTermMatrix()`는 `TermDocumentMatrix()` 함수로 통해 나온 행렬을 전치(transpose)시킨 것이다.
-
  
- ## 3. 텍스트 데이터 시각화
+## 3. 텍스트 데이터 시각화 [^obama-farewell] [^trump-inauguration]
 
+[^obama-farewell]: [Full Transcript: President Barack Obama’s farewell speech](http://www.vox.com/policy-and-politics/2017/1/10/14229878/full-transcript-president-barack-obama-farewell-speech)
+[^trump-inauguration]: [Trump inauguration transcript 2017: Read the president full speech and remarks](https://mic.com/articles/166134/trump-inauguration-transcript-2017-read-the-president-s-full-speech-and-remarks#.VLFHVUrTE)
 
-### 3.1. 막대그래프
+오바마 퇴임 연설문과 트럼프 취임 연설문을 통해 텍스트 데이터를 시각화한다.
 
-### 3.2. 단어구름
+### 3.1. 환경설정
 
-#### 3.2.1. 단독 단어구름
+`tm`, `qdap` 텍스트 데이터 전처리를 위한 팩키지를 불러오고, 텍스트 시각화를 위한 `wordcloud`, `plotrix` 팩키지도 가져오고,
+데이터 전처리 함수를 두개 생성한다. 하나는 텍스트 수준에서 텍스트 데이터를 전처리하는 함수로 `qdap`에서 불러오고,
+또 다른 함수는 `tm`에서 지원하는 함수로 중복되는 부분도 있다. 상황에 따라 편리한 함수를 활용한다.
 
-`wordcloud()`
+``` {r text-wordcloud-setup, eval=FALSE}
+# 0. 환경설정 -------------------------------------------------------
+library(tm)
+library(tidytext)
+library(qdap)
+library(tidyverse)
+library(wordcloud)
+library(tibble)
+library(plotrix)
+library(stringr)
 
-#### 3.2.2. 공통 단어구름
+clean_text <- function(text){
+  text <- tolower(text)
+  # text <- removeNumbers(text)
+  # text <- bracketX(text)
+  text <- replace_number(text)
+  text <- replace_abbreviation(text)
+  text <- replace_contraction(text)
+  text <- replace_symbol(text)
+  text <- removePunctuation(text)
+  text <- stripWhitespace(text)
+  text <- str_replace_all(text, "americans", "america")
+  
+  indexes <- which(text == "")
+  if(length(indexes) > 0){
+    text <- text[-indexes]
+  } 
+  return(text)
+}
 
-`commonality.cloud()`
+clean_corpus <- function(corpus){
+  corpus <- tm_map(corpus, content_transformer(replace_abbreviation))
+  corpus <- tm_map(corpus, stripWhitespace)
+  corpus <- tm_map(corpus, removePunctuation)
+  corpus <- tm_map(corpus, removeNumbers)
+  corpus <- tm_map(corpus, removeWords, c(stopwords("en"), "Top200Words"))
+  corpus <- tm_map(corpus, content_transformer(tolower))
+  return(corpus)
+}
+```
 
-#### 3.2.3. 비교 단어구름
+### 3.2. 데이터 불러오기
 
-`comparison.cloud()`
+오바마 퇴임식 연설문과 트럼프 취임식 연설문을 불러온다. 
 
-#### 3.2.4. 피라미드 그래프
+``` {r text-wordcloud-import}
+# 1. 데이터 불러오기 -------------------------------------------------------
+obama <- readLines("data/obama_farewell.txt", encoding = "UTF-8")
+trump <- readLines("data/trump_inauguration.txt", encoding = "UTF-8")
+```
 
-`pyramid.plot()`
+### 3.3. 데이터 전처리
 
-### 3.3. 단어 연관
+텍스트를 넣어 `qdap` 팩키지 전처리 함수를 조합한 `clean_text` 함수를 통해 텍스트 데이터를 정제하고 나서
+말뭉치(Corpus)를 생성시키고 나서 이를 또다시 `clean_corpus` 함수로 정제한다. 그리고 나서, 
+단어구름 시각화를 위한 데이터프레임 형태로 변환시킨다.
 
-`word_associate()`
+``` {r text-wordcloud-preprocessing}
+# 2. 데이터 전처리 -------------------------------------------------------
+source("code/clean_fun.R")
 
+make_corpus <- function(text) {
+  text_clean <- clean_text(text)
+  text_source <- VectorSource(text_clean)
+  text_corpus <- VCorpus(text_source)
+  corpus <- clean_corpus(text_corpus)
+}
 
-word_network_plot(text.var=DATA$state, grouping.var=list(DATA$sex, DATA$adult))
+obama_corpus <- make_corpus(obama)
+trump_corpus <- make_corpus(trump)
 
+# 3. 말뭉치를 데이터프레임으로 변환 --------------------------------------
 
+word_freq <- function(corpus) {
+    doc_tdm <- TermDocumentMatrix(corpus)
+    doc_m <- as.matrix(doc_tdm)
+    doc_term_freq <- rowSums(doc_m)
+    doc_word_freqs <- data.frame(term = names(doc_term_freq),
+                             num = doc_term_freq) %>% arrange(desc(num))
+    return(doc_word_freqs)
+}
 
+obama_word_freqs <- word_freq(obama_corpus)
+trump_word_freqs <- word_freq(trump_corpus)
+```
+
+### 3.4. 텍스트 데이터 시각화
+
+텍스트 데이터 시각화로 가장 많이 사용되는 단어구름(wordcloud)을 활용하여 
+트럼프 취임 연설문과 오바마 퇴임 연설문을 시각화한다.
+오바마 퇴임 연설문, 트럼프 취임 연설문 각각에 대한 단어구름을 생성시키고 나서,
+두 연설문의 공통된 단어 및 두 연설문에 공통적으로 나타나지 않는 차이나는 단어를 시각화한다.
+
+마지막으로 두 연설문의 공통적으로 나타나는 단어만 뽑아 피라미드 그래프를 통해 
+공통적으로 언급하고 있으나 강도에 대한 부분을 시각화한다.
+
+``` {r text-wordcloud-viz}
+# 4. 시각화 --------------------------------------------------------------
+## 4.1. 단어구름----------------------------------------------------------
+par(mfrow=c(1,2))
+blues <- brewer.pal(8, "Blues")[-(1:2)]
+wordcloud(obama_word_freqs$term, obama_word_freqs$num, max.words=100, colors=blues)
+
+reds <- brewer.pal(8, "Reds")[-(1:2)]
+wordcloud(trump_word_freqs$term, trump_word_freqs$num, max.words=100, colors=reds)
+
+## 4.2. 공통 단어구름
+
+all_obama <- paste(obama, collapse = " ")
+all_trump <- paste(trump, collapse = " ")
+
+obama_trump <- c(all_obama, all_trump)
+
+obama_trump_corpus <- make_corpus(obama_trump)
+obama_trump_word_freqs <- word_freq(obama_trump_corpus)
+
+obama_trump_tdm <- TermDocumentMatrix(obama_trump_corpus)
+obama_trump_m <- as.matrix(obama_trump_tdm)
+
+commonality.cloud(obama_trump_m,  colors ="steelblue1", max.words=100)
+
+## 4.3. 비교 단어구름
+colnames(obama_trump_tdm) <- c("Obama", "Trump")
+obama_trump_df <- as.matrix(obama_trump_tdm) %>% as.data.frame()
+
+comparison.cloud(obama_trump_df, colors = c("blue", "red"), max.words = 50)
+
+## 4.4. 피라미드 그래프
+par(mfrow=c(1,1))
+
+common_words_25 <- obama_trump_df %>% 
+  mutate(label = rownames(obama_trump_df)) %>% 
+  dplyr::filter(Obama > 0 & Trump >0) %>% 
+  mutate(diff = abs(Obama - Trump)) %>% 
+  arrange(desc(diff)) %>% slice(1:25)
+
+plotrix::pyramid.plot(common_words_25$Obama, common_words_25$Trump,
+             labels = common_words_25$label, gap = 8,
+             top.labels = c("Obama", "Words", "Trump"),
+             main = "Words in Common", laxlab = NULL, 
+             raxlab = NULL, unit = NULL)
+```
