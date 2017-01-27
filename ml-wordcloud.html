@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">텍스트 단어구름(Word Cloud)</h2>
+          <section class="getready panel panel-warning">
+<div class="panel-heading">
+<h3 id="학습-목표"><span class="glyphicon glyphicon-check"></span>학습 목표</h3>
+</div>
+<div class="panel-body">
+<ul>
+<li>텍스트 데이터 분석 작업흐름을 이해한다.</li>
+<li>단어주머니(Bag of Words) 모형을 이해한다.</li>
+<li>텍스트 데이터 전처리 과정의 핵심 팩키지 <code>tm</code>과 <code>qdap</code>을 활용한다.</li>
+</ul>
+</div>
+</section>
+<h2 id="텍스트-분석-r-팩키지">1. 텍스트 분석 R 팩키지</h2>
+<ul>
+<li><a href="https://cran.r-project.org/web/packages/tm/">tm</a> : 텍스트 마이닝</li>
+<li>SnowballC : 어간추출(Stemming)</li>
+<li>ggplot2 : 시각화</li>
+<li>wordcloud : 단어구름</li>
+</ul>
+<h2 id="텍스트-분석-작업흐름도">2. 텍스트 분석 작업흐름도</h2>
+<p>텍스트 데이터를 말뭉치(Corpus)로 변환하여 데이터를 분석하는 것도 가능하지만, <code>qdap</code> 팩키지와 정규표현식의 기능을 적극 활용하여 가능하면 텍스트에서 전처리를 하고 나서, 말뭉치로 변환한 후에 <code>tm</code> 팩키지 정제기능을 활용하는 것도 가능하다. 물론 중복되는 부분도 있을 수 있으나 빨래를 할 때 세탁기로 넣어 한 번 돌리고, 손빨래로 두번째 빨래를 깔끔하게 마무리하는 것으로 봐도 좋을 듯 하다.</p>
+<p>깔끔한 말뭉치로 텍스트 데이터가 정제되고 나면 행렬로 변화시켜 다양한 통계 분석을 시작한다.</p>
+<p><img src="fig/tm_workflow.png" alt="텍스트에서 말뭉치로 변환" width="77%" /></p>
+<h3 id="qdap-tm-텍스트-자료구조-비교">2.1. <code>qdap</code>, <code>tm</code> 텍스트 자료구조 비교</h3>
+<p><a href="https://en.wikipedia.org/wiki/Text_mining">텍스트 마이닝(Text Mining)</a>을 위한 R의 대표적인 팩키지가 <code>qdap</code> <code>tm</code> 이다.</p>
+<table>
+<colgroup>
+<col width="11%" />
+<col width="27%" />
+<col width="61%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">팩키지명</th>
+<th align="left">원 텍스트</th>
+<th align="left">단어 빈도수(word counts)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><strong>qdap</strong></td>
+<td align="left">데이터프레임(Dataframe)</td>
+<td align="left">단어 빈도 행렬(Word Frequency Matrix)</td>
+</tr>
+<tr class="even">
+<td align="left"><strong>tm</strong></td>
+<td align="left">말뭉치 (Corpus)</td>
+<td align="left">단어 문서행렬(Term Document Matrix)/문서 단어행렬(Document Term Matrix)</td>
+</tr>
+</tbody>
+</table>
+<p><a href="https://cran.r-project.org/web/packages/qdap/">qdap</a>은 원 텍스트 데이터를 데이터프레임 형태로 저장하는 반면에, <a href="https://cran.r-project.org/web/packages/tm/">tm</a> 팩키지는 <code>Corpus</code> 말뭉치 형태로 원 텍스트 데이터를 저장한다는 점에서 차이가 난다.</p>
+<p>두 팩키지 모두 공통으로 사용하는 단어/용어 빈도수에는 행렬(<code>matrix</code>)을 사용한다. 이를 그림을 표현하면 다음과 같다.</p>
+<p><img src="fig/ml-text-qdap-tm-comp.png" alt="qdap, tm 비교" width="57%" /></p>
+<ul>
+<li><code>qdap</code> 텍스트 원문 <code>qdap_dat</code> → <code>qview(qdap_dat)</code></li>
+<li><code>tm</code> 텍스트 원문 <code>tm_dat</code> → inspect(tm_dat)</li>
+<li><code>qdap</code> 단어 빈도수 <code>qdap_wfm</code> → summary(qdap_wfm)</li>
+<li><code>tm</code> 단어 빈도수 <code>tm_tdm</code> → inspect(tm_tdm)</li>
+</ul>
+<h3 id="tm-qdap-데이터-정제-기능">2. <code>tm</code>, <code>qdap</code> 데이터 정제 기능</h3>
+<p><img src="fig/ml-text-cleaning.png" alt="tm, qdap 전처리 기능" width="70%" /></p>
+<p>단어 주머니 기법을 활용하여 텍스트를 분석할 때, 데이터 정제를 통해 단어를 합산하는데 큰 도움이 된다. 영어 단어 예를 들어, statistics, statistical, stats 등은 모두 통계라는 한 단어로 정리되면 좋다.</p>
+<p><code>tm</code> 팩키지 및 <code>base</code> 팩키지에 내장된 데이터 정제 기능은 다음과 같다.</p>
+<ul>
+<li>tolower(): <code>base</code>에 포함된 함수로 모든 문자를 소문자로 변환.</li>
+<li>removePunctuation(): <code>tm</code>에 포함된 함수로 모든 구두점을 제거.</li>
+<li>removeNumbers(): <code>tm</code>에 포함된 함수로 숫자를 제거</li>
+<li>stripWhitespace(): <code>tm</code>에 포함된 함수로 공백(whitespace)을 제거</li>
+</ul>
+<p><code>qdap</code>에는 좀더 다양한 텍스트 정제 함수가 지원된다.</p>
+<ul>
+<li>bracketX(): 괄호 내 모든 텍스트 제거
+<ul>
+<li>“It’s (very) nice” → “It’s nice”</li>
+</ul></li>
+<li>replace_number(): 아라비아 숫자를 대응되는 영어문자로 변환
+<ul>
+<li>“7” → “seven”</li>
+</ul></li>
+<li>replace_abbreviation(): 축약어를 대응되는 전체 문자로 풀어냄
+<ul>
+<li>“Jan” → “Janunary”</li>
+</ul></li>
+<li>replace_contraction(): 단어 축약을 원래 상태로 되돌림
+<ul>
+<li>“can’t” → “can not”</li>
+</ul></li>
+<li>replace_symbol(): 일반 기호를 대응되는 단어로 교체
+<ul>
+<li>“$” → “dollar”</li>
+</ul></li>
+</ul>
+<p>텍스트가 너무 자주 출현하여 거의 정보를 제공하지 않는 단어를 <strong>불용어(stop words)</strong> 라고 부른다. <code>tm</code> 팩키지에는 영어기준으로 174개 불용어가 등재되어 있다. 또한, 관심있는 주제로 문서를 모았다면 수집된 거의 모든 문서에 특정 단어가 포함되어 있어 이것도 도움이 되지 않아 불용어에 등록하여 텍스트 분석을 수행한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">removeWords</span>(text, <span class="kw">stopwords</span>(<span class="st">&quot;english&quot;</span>))
+stop_words_lst &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;rstudio&quot;</span>, <span class="st">&quot;statistics&quot;</span>, <span class="kw">stopwords</span>(<span class="st">&quot;english&quot;</span>))
+<span class="kw">removeWords</span>(text, stop_words_lst)</code></pre></div>
+<p><code>stopwords(&quot;english&quot;)</code> 영어불용어 사전에 “rstudio”, “statistics” 단어를 더해서 불용어 사전을 완성하고 나서 removeWords() 함수로 새로 갱신된 사전에 맞춰 불용어를 정리한다.</p>
+<h3 id="텍스트에서-말뭉치corpus로-변환">2.2. 텍스트에서 말뭉치(Corpus)로 변환</h3>
+<p>텍스트 마이닝을 통해 데이터를 분석하려면 우선 원데이터가 텍스트 형태로 되어 있고 이를 말뭉치로 변환하여야 한다. 데이터가 벡터 형태(연설문 등) 혹은 데이터프레임 형태(트위터 트윗 등)에 따라 <code>VectorSource()</code>, <code>DataframeSource()</code> 함수를 적용하여 <strong>Source 객체</strong>로 변형을 시킨다. 그리고 나서 <code>VCorpus()</code> 함수를 활용하여 말뭉치(Corpus)로 저장한다. 휘발성 말뭉치(Volatile Corpus, VCorpus)와 영구저장 말뭉치(Permanent Corpus, PCorpus)로 변환이 가능하다. 주로 <code>VCorpus</code>를 메모리에 적재하여 텍스트 데이터 분석에 활용한다.</p>
+<p><img src="fig/tm_from_text_to_corpus.png" alt="텍스트에서 말뭉치로 변환" width="77%" /></p>
+<h3 id="말뭉치-정제">2.3. 말뭉치 정제</h3>
+<p>텍스트를 말뭉치 객체로 저장시켜 놓으면, 말뭉치 정제 과정을 거치야 된다. 기본적으로 어떤 말뭉치 정제에 사용되는 기본 정제함수는 <code>tm</code> 팩키지를 활용하고, 추가적으로 <code>qdap</code> 팩키지 특수 말뭉치 정제 함수도 적극 활용한다.</p>
+<p><img src="fig/tm_clean_corpus.png" alt="말뭉치 정제" width="77%" /></p>
+<h3 id="단어문서행렬term-document-matrix-tdm">2.4. 단어문서행렬(Term Document Matrix, TDM)</h3>
+<p>단어문서행렬을 통한 방법이 일반적으로 많이 사용된다. 이를 위해 입력값이 데이터프레임인 경우 <code>DataframeSource</code>, 벡터인 경우 <code>VectorSource</code>를 사용하여 말뭉치(Corpus)로 변환하고, 이를 <code>TermDocumentMatrix</code> 함수에 넣어 단어문서행렬을 생성한다. 물론 텍스트를 바로 넣어 <code>wfm</code> 단어빈도행렬(Word Frequency Matrix)을 생성시켜 분석을 하기도 하지만 일반적인 방식은 아니다.</p>
+<p><code>TermDocumentMatrix()</code> 함수를 활용하여 단어가 문서에 출현하는 빈도수를 행렬로 저장한다. 행렬형태 데이터를 저장하게 되면 고급 통계 분석이 가능하게 된다. <code>DocumentTermMatrix()</code>는 <code>TermDocumentMatrix()</code> 함수로 통해 나온 행렬을 전치(transpose)시킨 것이다.</p>
+<h2 id="텍스트-데이터-시각화-obama-farewell-trump-inauguration">3. 텍스트 데이터 시각화 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></h2>
+<p>오바마 퇴임 연설문과 트럼프 취임 연설문을 통해 텍스트 데이터를 시각화한다.</p>
+<h3 id="환경설정">3.1. 환경설정</h3>
+<p><code>tm</code>, <code>qdap</code> 텍스트 데이터 전처리를 위한 팩키지를 불러오고, 텍스트 시각화를 위한 <code>wordcloud</code>, <code>plotrix</code> 팩키지도 가져오고, 데이터 전처리 함수를 두개 생성한다. 하나는 텍스트 수준에서 텍스트 데이터를 전처리하는 함수로 <code>qdap</code>에서 불러오고, 또 다른 함수는 <code>tm</code>에서 지원하는 함수로 중복되는 부분도 있다. 상황에 따라 편리한 함수를 활용한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 0. 환경설정 -------------------------------------------------------</span>
+<span class="kw">library</span>(tm)
+<span class="kw">library</span>(tidytext)
+<span class="kw">library</span>(qdap)
+<span class="kw">library</span>(tidyverse)
+<span class="kw">library</span>(wordcloud)
+<span class="kw">library</span>(tibble)
+<span class="kw">library</span>(plotrix)
+<span class="kw">library</span>(stringr)
+
+clean_text &lt;-<span class="st"> </span>function(text){
+  text &lt;-<span class="st"> </span><span class="kw">tolower</span>(text)
+  <span class="co"># text &lt;- removeNumbers(text)</span>
+  <span class="co"># text &lt;- bracketX(text)</span>
+  text &lt;-<span class="st"> </span><span class="kw">replace_number</span>(text)
+  text &lt;-<span class="st"> </span><span class="kw">replace_abbreviation</span>(text)
+  text &lt;-<span class="st"> </span><span class="kw">replace_contraction</span>(text)
+  text &lt;-<span class="st"> </span><span class="kw">replace_symbol</span>(text)
+  text &lt;-<span class="st"> </span><span class="kw">removePunctuation</span>(text)
+  text &lt;-<span class="st"> </span><span class="kw">stripWhitespace</span>(text)
+  text &lt;-<span class="st"> </span><span class="kw">str_replace_all</span>(text, <span class="st">&quot;americans&quot;</span>, <span class="st">&quot;america&quot;</span>)
+  
+  indexes &lt;-<span class="st"> </span><span class="kw">which</span>(text ==<span class="st"> &quot;&quot;</span>)
+  if(<span class="kw">length</span>(indexes) &gt;<span class="st"> </span><span class="dv">0</span>){
+    text &lt;-<span class="st"> </span>text[-indexes]
+  } 
+  <span class="kw">return</span>(text)
+}
+
+clean_corpus &lt;-<span class="st"> </span>function(corpus){
+  corpus &lt;-<span class="st"> </span><span class="kw">tm_map</span>(corpus, <span class="kw">content_transformer</span>(replace_abbreviation))
+  corpus &lt;-<span class="st"> </span><span class="kw">tm_map</span>(corpus, stripWhitespace)
+  corpus &lt;-<span class="st"> </span><span class="kw">tm_map</span>(corpus, removePunctuation)
+  corpus &lt;-<span class="st"> </span><span class="kw">tm_map</span>(corpus, removeNumbers)
+  corpus &lt;-<span class="st"> </span><span class="kw">tm_map</span>(corpus, removeWords, <span class="kw">c</span>(<span class="kw">stopwords</span>(<span class="st">&quot;en&quot;</span>), <span class="st">&quot;Top200Words&quot;</span>))
+  corpus &lt;-<span class="st"> </span><span class="kw">tm_map</span>(corpus, <span class="kw">content_transformer</span>(tolower))
+  <span class="kw">return</span>(corpus)
+}</code></pre></div>
+<h3 id="데이터-불러오기">3.2. 데이터 불러오기</h3>
+<p>오바마 퇴임식 연설문과 트럼프 취임식 연설문을 불러온다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 1. 데이터 불러오기 -------------------------------------------------------</span>
+obama &lt;-<span class="st"> </span><span class="kw">readLines</span>(<span class="st">&quot;data/obama_farewell.txt&quot;</span>, <span class="dt">encoding =</span> <span class="st">&quot;UTF-8&quot;</span>)
+trump &lt;-<span class="st"> </span><span class="kw">readLines</span>(<span class="st">&quot;data/trump_inauguration.txt&quot;</span>, <span class="dt">encoding =</span> <span class="st">&quot;UTF-8&quot;</span>)</code></pre></div>
+<h3 id="데이터-전처리">3.3. 데이터 전처리</h3>
+<p>텍스트를 넣어 <code>qdap</code> 팩키지 전처리 함수를 조합한 <code>clean_text</code> 함수를 통해 텍스트 데이터를 정제하고 나서 말뭉치(Corpus)를 생성시키고 나서 이를 또다시 <code>clean_corpus</code> 함수로 정제한다. 그리고 나서, 단어구름 시각화를 위한 데이터프레임 형태로 변환시킨다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 2. 데이터 전처리 -------------------------------------------------------</span>
+<span class="kw">source</span>(<span class="st">&quot;code/clean_fun.R&quot;</span>)
+
+make_corpus &lt;-<span class="st"> </span>function(text) {
+  text_clean &lt;-<span class="st"> </span><span class="kw">clean_text</span>(text)
+  text_source &lt;-<span class="st"> </span><span class="kw">VectorSource</span>(text_clean)
+  text_corpus &lt;-<span class="st"> </span><span class="kw">VCorpus</span>(text_source)
+  corpus &lt;-<span class="st"> </span><span class="kw">clean_corpus</span>(text_corpus)
+}
+
+obama_corpus &lt;-<span class="st"> </span><span class="kw">make_corpus</span>(obama)
+trump_corpus &lt;-<span class="st"> </span><span class="kw">make_corpus</span>(trump)
+
+<span class="co"># 3. 말뭉치를 데이터프레임으로 변환 --------------------------------------</span>
+
+word_freq &lt;-<span class="st"> </span>function(corpus) {
+    doc_tdm &lt;-<span class="st"> </span><span class="kw">TermDocumentMatrix</span>(corpus)
+    doc_m &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(doc_tdm)
+    doc_term_freq &lt;-<span class="st"> </span><span class="kw">rowSums</span>(doc_m)
+    doc_word_freqs &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">term =</span> <span class="kw">names</span>(doc_term_freq),
+                             <span class="dt">num =</span> doc_term_freq) %&gt;%<span class="st"> </span><span class="kw">arrange</span>(<span class="kw">desc</span>(num))
+    <span class="kw">return</span>(doc_word_freqs)
+}
+
+obama_word_freqs &lt;-<span class="st"> </span><span class="kw">word_freq</span>(obama_corpus)
+trump_word_freqs &lt;-<span class="st"> </span><span class="kw">word_freq</span>(trump_corpus)</code></pre></div>
+<h3 id="텍스트-데이터-시각화">3.4. 텍스트 데이터 시각화</h3>
+<p>텍스트 데이터 시각화로 가장 많이 사용되는 단어구름(wordcloud)을 활용하여 트럼프 취임 연설문과 오바마 퇴임 연설문을 시각화한다. 오바마 퇴임 연설문, 트럼프 취임 연설문 각각에 대한 단어구름을 생성시키고 나서, 두 연설문의 공통된 단어 및 두 연설문에 공통적으로 나타나지 않는 차이나는 단어를 시각화한다.</p>
+<p>마지막으로 두 연설문의 공통적으로 나타나는 단어만 뽑아 피라미드 그래프를 통해 공통적으로 언급하고 있으나 강도에 대한 부분을 시각화한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 4. 시각화 --------------------------------------------------------------</span>
+## 4.1. 단어구름----------------------------------------------------------
+<span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))
+blues &lt;-<span class="st"> </span><span class="kw">brewer.pal</span>(<span class="dv">8</span>, <span class="st">&quot;Blues&quot;</span>)[-(<span class="dv">1</span>:<span class="dv">2</span>)]
+<span class="kw">wordcloud</span>(obama_word_freqs$term, obama_word_freqs$num, <span class="dt">max.words=</span><span class="dv">100</span>, <span class="dt">colors=</span>blues)
+
+reds &lt;-<span class="st"> </span><span class="kw">brewer.pal</span>(<span class="dv">8</span>, <span class="st">&quot;Reds&quot;</span>)[-(<span class="dv">1</span>:<span class="dv">2</span>)]
+<span class="kw">wordcloud</span>(trump_word_freqs$term, trump_word_freqs$num, <span class="dt">max.words=</span><span class="dv">100</span>, <span class="dt">colors=</span>reds)</code></pre></div>
+<p><img src="fig/text-wordcloud-viz-1.png" title="plot of chunk text-wordcloud-viz" alt="plot of chunk text-wordcloud-viz" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## 4.2. 공통 단어구름
+
+all_obama &lt;-<span class="st"> </span><span class="kw">paste</span>(obama, <span class="dt">collapse =</span> <span class="st">&quot; &quot;</span>)
+all_trump &lt;-<span class="st"> </span><span class="kw">paste</span>(trump, <span class="dt">collapse =</span> <span class="st">&quot; &quot;</span>)
+
+obama_trump &lt;-<span class="st"> </span><span class="kw">c</span>(all_obama, all_trump)
+
+obama_trump_corpus &lt;-<span class="st"> </span><span class="kw">make_corpus</span>(obama_trump)
+obama_trump_word_freqs &lt;-<span class="st"> </span><span class="kw">word_freq</span>(obama_trump_corpus)
+
+obama_trump_tdm &lt;-<span class="st"> </span><span class="kw">TermDocumentMatrix</span>(obama_trump_corpus)
+obama_trump_m &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(obama_trump_tdm)
+
+<span class="kw">commonality.cloud</span>(obama_trump_m,  <span class="dt">colors =</span><span class="st">&quot;steelblue1&quot;</span>, <span class="dt">max.words=</span><span class="dv">100</span>)
+
+## 4.3. 비교 단어구름
+<span class="kw">colnames</span>(obama_trump_tdm) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Obama&quot;</span>, <span class="st">&quot;Trump&quot;</span>)
+obama_trump_df &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(obama_trump_tdm) %&gt;%<span class="st"> </span><span class="kw">as.data.frame</span>()
+
+<span class="kw">comparison.cloud</span>(obama_trump_df, <span class="dt">colors =</span> <span class="kw">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;red&quot;</span>), <span class="dt">max.words =</span> <span class="dv">50</span>)</code></pre></div>
+<p><img src="fig/text-wordcloud-viz-2.png" title="plot of chunk text-wordcloud-viz" alt="plot of chunk text-wordcloud-viz" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## 4.4. 피라미드 그래프
+<span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>))
+
+common_words_25 &lt;-<span class="st"> </span>obama_trump_df %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">label =</span> <span class="kw">rownames</span>(obama_trump_df)) %&gt;%<span class="st"> </span>
+<span class="st">  </span>dplyr::<span class="kw">filter</span>(Obama &gt;<span class="st"> </span><span class="dv">0</span> &amp;<span class="st"> </span>Trump &gt;<span class="dv">0</span>) %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">diff =</span> <span class="kw">abs</span>(Obama -<span class="st"> </span>Trump)) %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">arrange</span>(<span class="kw">desc</span>(diff)) %&gt;%<span class="st"> </span><span class="kw">slice</span>(<span class="dv">1</span>:<span class="dv">25</span>)
+
+plotrix::<span class="kw">pyramid.plot</span>(common_words_25$Obama, common_words_25$Trump,
+             <span class="dt">labels =</span> common_words_25$label, <span class="dt">gap =</span> <span class="dv">8</span>,
+             <span class="dt">top.labels =</span> <span class="kw">c</span>(<span class="st">&quot;Obama&quot;</span>, <span class="st">&quot;Words&quot;</span>, <span class="st">&quot;Trump&quot;</span>),
+             <span class="dt">main =</span> <span class="st">&quot;Words in Common&quot;</span>, <span class="dt">laxlab =</span> <span class="ot">NULL</span>, 
+             <span class="dt">raxlab =</span> <span class="ot">NULL</span>, <span class="dt">unit =</span> <span class="ot">NULL</span>)</code></pre></div>
+<p><img src="fig/text-wordcloud-viz-3.png" title="plot of chunk text-wordcloud-viz" alt="plot of chunk text-wordcloud-viz" style="display: block; margin: auto;" /></p>
+<pre class="output"><code>[1] 5.1 4.1 4.1 2.1
+</code></pre>
+<h3 id="참고문헌">참고문헌</h3>
+<ul>
+<li><a href="https://cran.r-project.org/web/packages/qdap/vignettes/tm_package_compatibility.pdf">Tyler W. Rinker, qdap-tm Package Compatibility</a></li>
+<li><a href="https://rstudio-pubs-static.s3.amazonaws.com/31867_8236987cf0a8444e962ccd2aec46d9c3.html">Basic Text Mining in R</a></li>
+<li><a href="http://onepager.togaware.com/TextMiningO.pdf">Hands-On Data Science with R Text Mining, Graham.Williams</a></li>
+<li><a href="http://www.vikparuchuri.com/blog/natural-language-processing-tutorial/">Natural Language Processing Tutorial</a></li>
+<li><p><a href="https://jeffreybreen.wordpress.com/2011/07/04/twitter-text-mining-r-slides/">slides from my R tutorial on Twitter text mining</a></p></li>
+<li><a href="http://anythingbutrbitrary.blogspot.kr/2014/01/statistics-meets-rhetoric-text-analysis.html">Statistics meets rhetoric: A text analysis of “I Have a Dream” in R</a></li>
+<li><a href="http://technokarak.com/how-to-create-wordcloud-of-twitter-data-using-r-programming.html">How to Create WordCloud of Twitter Data using R Programming</a></li>
+<li><a href="http://technokarak.com/how-to-clean-the-twitter-data-using-r-twitter-mining-tutorial.html">How to Clean the Twitter Data using R – Twitter Mining Tutorial</a></li>
+<li><p><a href="http://technokarak.com/how-to-load-twitter-tweets-in-r-environment.html">How to Load Twitter Tweets in R Environment</a></p></li>
+</ul>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="http://www.vox.com/policy-and-politics/2017/1/10/14229878/full-transcript-president-barack-obama-farewell-speech">Full Transcript: President Barack Obama’s farewell speech</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="https://mic.com/articles/166134/trump-inauguration-transcript-2017-read-the-president-s-full-speech-and-remarks#.VLFHVUrTE">Trump inauguration transcript 2017: Read the president full speech and remarks</a><a href="#fnref2">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

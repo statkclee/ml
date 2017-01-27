@@ -10,47 +10,7 @@ output:
 mainfont: NanumGothic
 ---
  
-``` {r, include=FALSE}
-source("tools/chunk-options.R")
-options(warn=-1)
-library(tm)
-library(tidytext)
-library(qdap)
-library(tidyverse)
-library(wordcloud)
-library(tibble)
-library(plotrix)
-library(stringr)
 
-clean_text <- function(text){
-  text <- tolower(text)
-  # text <- removeNumbers(text)
-  # text <- bracketX(text)
-  text <- replace_number(text)
-  text <- replace_abbreviation(text)
-  text <- replace_contraction(text)
-  text <- replace_symbol(text)
-  text <- removePunctuation(text)
-  text <- stripWhitespace(text)
-  text <- str_replace_all(text, "americans", "america")
-  
-  indexes <- which(text == "")
-  if(length(indexes) > 0){
-    text <- text[-indexes]
-  } 
-  return(text)
-}
-
-clean_corpus <- function(corpus){
-  corpus <- tm_map(corpus, content_transformer(replace_abbreviation))
-  corpus <- tm_map(corpus, stripWhitespace)
-  corpus <- tm_map(corpus, removePunctuation)
-  corpus <- tm_map(corpus, removeNumbers)
-  corpus <- tm_map(corpus, removeWords, c(stopwords("en"), "Top200Words"))
-  corpus <- tm_map(corpus, content_transformer(tolower))
-  return(corpus)
-}
-```
 
 > ### 학습 목표 {.getready}
 >
@@ -130,11 +90,12 @@ clean_corpus <- function(corpus){
 수집된 거의 모든 문서에 특정 단어가 포함되어 있어 이것도 도움이 되지 않아 불용어에 등록하여 텍스트 
 분석을 수행한다.
 
-```{r qdap-removeWords, eval=FALSE}
+
+~~~{.r}
 removeWords(text, stopwords("english"))
 stop_words_lst <- c("rstudio", "statistics", stopwords("english"))
 removeWords(text, stop_words_lst)
-```
+~~~
 
 `stopwords("english")` 영어불용어 사전에 "rstudio", "statistics" 단어를 더해서 불용어 사전을 완성하고 나서 
 removeWords() 함수로 새로 갱신된 사전에 맞춰 불용어를 정리한다.
@@ -182,7 +143,8 @@ removeWords() 함수로 새로 갱신된 사전에 맞춰 불용어를 정리한
 데이터 전처리 함수를 두개 생성한다. 하나는 텍스트 수준에서 텍스트 데이터를 전처리하는 함수로 `qdap`에서 불러오고,
 또 다른 함수는 `tm`에서 지원하는 함수로 중복되는 부분도 있다. 상황에 따라 편리한 함수를 활용한다.
 
-``` {r text-wordcloud-setup, eval=FALSE}
+
+~~~{.r}
 # 0. 환경설정 -------------------------------------------------------
 library(tm)
 library(tidytext)
@@ -221,17 +183,18 @@ clean_corpus <- function(corpus){
   corpus <- tm_map(corpus, content_transformer(tolower))
   return(corpus)
 }
-```
+~~~
 
 ### 3.2. 데이터 불러오기
 
 오바마 퇴임식 연설문과 트럼프 취임식 연설문을 불러온다. 
 
-``` {r text-wordcloud-import}
+
+~~~{.r}
 # 1. 데이터 불러오기 -------------------------------------------------------
 obama <- readLines("data/obama_farewell.txt", encoding = "UTF-8")
 trump <- readLines("data/trump_inauguration.txt", encoding = "UTF-8")
-```
+~~~
 
 ### 3.3. 데이터 전처리
 
@@ -239,7 +202,8 @@ trump <- readLines("data/trump_inauguration.txt", encoding = "UTF-8")
 말뭉치(Corpus)를 생성시키고 나서 이를 또다시 `clean_corpus` 함수로 정제한다. 그리고 나서, 
 단어구름 시각화를 위한 데이터프레임 형태로 변환시킨다.
 
-``` {r text-wordcloud-preprocessing}
+
+~~~{.r}
 # 2. 데이터 전처리 -------------------------------------------------------
 source("code/clean_fun.R")
 
@@ -266,7 +230,7 @@ word_freq <- function(corpus) {
 
 obama_word_freqs <- word_freq(obama_corpus)
 trump_word_freqs <- word_freq(trump_corpus)
-```
+~~~
 
 ### 3.4. 텍스트 데이터 시각화
 
@@ -278,7 +242,8 @@ trump_word_freqs <- word_freq(trump_corpus)
 마지막으로 두 연설문의 공통적으로 나타나는 단어만 뽑아 피라미드 그래프를 통해 
 공통적으로 언급하고 있으나 강도에 대한 부분을 시각화한다.
 
-``` {r text-wordcloud-viz, warn=FALSE, message=FALSE}
+
+~~~{.r}
 # 4. 시각화 --------------------------------------------------------------
 ## 4.1. 단어구름----------------------------------------------------------
 par(mfrow=c(1,2))
@@ -287,7 +252,11 @@ wordcloud(obama_word_freqs$term, obama_word_freqs$num, max.words=100, colors=blu
 
 reds <- brewer.pal(8, "Reds")[-(1:2)]
 wordcloud(trump_word_freqs$term, trump_word_freqs$num, max.words=100, colors=reds)
+~~~
 
+<img src="fig/text-wordcloud-viz-1.png" title="plot of chunk text-wordcloud-viz" alt="plot of chunk text-wordcloud-viz" style="display: block; margin: auto;" />
+
+~~~{.r}
 ## 4.2. 공통 단어구름
 
 all_obama <- paste(obama, collapse = " ")
@@ -308,7 +277,11 @@ colnames(obama_trump_tdm) <- c("Obama", "Trump")
 obama_trump_df <- as.matrix(obama_trump_tdm) %>% as.data.frame()
 
 comparison.cloud(obama_trump_df, colors = c("blue", "red"), max.words = 50)
+~~~
 
+<img src="fig/text-wordcloud-viz-2.png" title="plot of chunk text-wordcloud-viz" alt="plot of chunk text-wordcloud-viz" style="display: block; margin: auto;" />
+
+~~~{.r}
 ## 4.4. 피라미드 그래프
 par(mfrow=c(1,1))
 
@@ -323,7 +296,14 @@ plotrix::pyramid.plot(common_words_25$Obama, common_words_25$Trump,
              top.labels = c("Obama", "Words", "Trump"),
              main = "Words in Common", laxlab = NULL, 
              raxlab = NULL, unit = NULL)
-```
+~~~
+
+<img src="fig/text-wordcloud-viz-3.png" title="plot of chunk text-wordcloud-viz" alt="plot of chunk text-wordcloud-viz" style="display: block; margin: auto;" />
+
+~~~{.output}
+[1] 5.1 4.1 4.1 2.1
+
+~~~
 
 ### 참고문헌 
 
