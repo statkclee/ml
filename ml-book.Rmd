@@ -26,6 +26,7 @@ library(wordcloud)
 library(tm)
 library(stringr)
 theme_set(theme_gray(base_family='NanumGothic'))
+
 ```
 
 ## 책 데이터 분석 작업흐름
@@ -39,19 +40,19 @@ theme_set(theme_gray(base_family='NanumGothic'))
 - 시각화 및 고급 분석 기법을 통한 모형 개발
 
 
-``` {r hq-setup}
+``` {r hq-setup, eval=FALSE}
 # install.packages("KoNLP")
 # install.packages("RSQLite")
 
 # Sys.setenv(JAVA_HOME='C:\\Program Files\\Java\\jre1.8.0_102') # for 64-bit version
 
-# library(rJava)
-# library(KoNLP)
-# library(tidyverse)
-# library(RColorBrewer)
-# library(wordcloud)
-# library(tm)
-# library(stringr)
+library(rJava)
+library(KoNLP)
+library(tidyverse)
+library(RColorBrewer)
+library(wordcloud)
+library(tm)
+library(stringr)
 ```
 
 ## `KoNLP` 팩키지
@@ -172,3 +173,72 @@ wordcloud(words = names(wordFreq), freq = wordFreq, min.freq = 7, random.order =
           rot.per = 0.1, colors = pal, family="NanumGothic")
 ```
 
+## 단어구름을 이미지와 결합
+
+[‘저녁이 있는 삶’ 손학규 17일 국민의당 입당](http://sports.khan.co.kr/news/sk_index.html?art_id=201702161434003&amp;sec_id=560901) 기사에 영감을 받아
+국민의당 로고에 "저녁이 있는 삶" 단어를 넣으면 시각화로도 의미가 있어 보인다.
+
+앞서 순차적으로 처리한 텍스트 전처리 명령어를 함수로 만들어 추상화를 하여 간결한 코드로 생성하고 나서
+[`wordcloud2`](https://cran.r-project.org/web/packages/wordcloud2/vignettes/wordcloud.html) 팩키지의 기능 중
+이미지를 **마스크(Mask)**로 삼아 시각화한다.
+
+``` {r hq-book-wordcloud2}
+# 1. 텍스트 전처리 함수
+clean_text <- function(text){
+  text <- str_replace_all(text,"[^[:graph:]]", " ")
+  text <- str_replace_all(text,"[^[ㄱ-흫]]", " ") 
+    
+    indexes <- which(text == "")
+    if(length(indexes) > 0){
+        text <- text[-indexes]
+    } 
+    return(text)
+}
+
+clean_corpus <- function(corpus){
+    corpus <- tm_map(corpus, stripWhitespace)
+    corpus <- tm_map(corpus, removePunctuation)
+    corpus <- tm_map(corpus, removeNumbers)
+    corpus <- tm_map(corpus, removeWords, c(stopwords("en"), "되", "하면", "것", "그것", "음", "수", "들이", "한", "할", "있", "년", "하기", "하지", "하"))
+    corpus <- tm_map(corpus, content_transformer(tolower))
+    corpus <- tm_map(corpus, PlainTextDocument)
+    return(corpus)
+}
+
+make_corpus <- function(text) {
+    text_clean <- clean_text(text)
+    text_source <- VectorSource(text_clean)
+    text_corpus <- VCorpus(text_source)
+    corpus <- clean_corpus(text_corpus)
+}
+
+word_freq <- function(corpus) {
+    doc_tdm<- TermDocumentMatrix(corpus, control=list(wordLengths=c(2,Inf))) # 한글
+    doc_m <- as.matrix(doc_tdm)
+    doc_term_freq <- rowSums(doc_m)
+    doc_word_freqs <- data.frame(term = names(doc_term_freq),
+                                 num = doc_term_freq) %>% arrange(desc(num))
+    return(doc_word_freqs)
+}
+
+# 2. 한글 데이터 정제 ----------------------------------------------------------------
+book <- readLines("03_data/저녁이 있는 삶.txt", encoding="UTF-8")
+
+book <- clean_text(book)
+
+book_noun <- sapply(book, function(x) {paste(extractNoun(x), collapse=" ")}, USE.NAMES=F)
+
+#말뭉치 정제과정
+
+book_corpus <- make_corpus(book_noun)
+
+book_corpus <- clean_corpus(book_corpus)
+
+book_term_df <- word_freq(book_corpus)
+
+#3. 시각화---------------------------------------------------------------------
+
+rownames(book_term_df) <- book_term_df$term
+
+wordcloud2(book_term_df, figPath = "03_data/people_logo.jpg", size = 1.1, color = "#006245", fontFamily ="AppleGothic")
+```
