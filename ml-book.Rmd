@@ -23,6 +23,7 @@ library(KoNLP)
 library(tidyverse)
 library(RColorBrewer)
 library(wordcloud)
+library(wordcloud2)
 library(tm)
 library(stringr)
 theme_set(theme_gray(base_family='NanumGothic'))
@@ -53,6 +54,7 @@ library(RColorBrewer)
 library(wordcloud)
 library(tm)
 library(stringr)
+library(wordcloud2)
 ```
 
 ## `KoNLP` 팩키지
@@ -222,7 +224,7 @@ word_freq <- function(corpus) {
 }
 
 # 2. 한글 데이터 정제 ----------------------------------------------------------------
-book <- readLines("03_data/저녁이 있는 삶.txt", encoding="UTF-8")
+book <- readLines("data/저녁이 있는 삶.txt", encoding="UTF-8")
 
 book <- clean_text(book)
 
@@ -240,5 +242,5 @@ book_term_df <- word_freq(book_corpus)
 
 rownames(book_term_df) <- book_term_df$term
 
-wordcloud2(book_term_df, figPath = "03_data/people_logo.jpg", size = 1.1, color = "#006245", fontFamily ="AppleGothic")
+wordcloud2(book_term_df, figPath = "data/people_logo.jpg", size = 1.1, color = "#006245", fontFamily ="AppleGothic")
 ```
