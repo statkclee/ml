@@ -13,7 +13,8 @@ mainfont: NanumGothic
 
 > ## 학습 목표 {.objectives}
 >
-> * PC에서 AWS 접속을 위한 환경을 설정한다.
+> * PC에서 AWS S3 접속 환경을 설정한다.
+> * PC에 S3 데이터 분석과 기계학습 알고리즘 개발 환경을 구축한다.
 
 ``` {r, include=FALSE}
 source("tools/chunk-options.R")
@@ -92,7 +93,7 @@ R을 데이터분석환경을 사용하는 경우 [RStudio](https://www.rstudio.
 PC에서 S3 데이터를 다운로드 받아 RStudio 혹은 아나콘다 쥬피터 노트북으로 통해 데이터를 분석하거나 알고리즘을 개발하는 경우 
 특정 디렉토리를 작업 폴더로 지정하는 것이 프로젝트로 관리 측면에서 편리성이 있다.
 
-<img src="fig/aaws-s3-sync-pc.png" alt="AWS S3 데이터 동기화" width="57%" />
+<img src="fig/aws-s3-sync-pc.png" alt="AWS S3 데이터 동기화" width="57%" />
 
 
 - S3와 PC 디렉토리 동기화: `aws s3 sync . s3://버킷명` 명령어를 통해 현재 작업디렉토리와 S3 버킷을 동기화한다.
