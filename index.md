@@ -27,6 +27,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
 1. **기계학습 환경설정**
     1. [AWS RStudio 서버](ds-aws-rstudio-server.html)
     1. [PC에서 바라본 AWS](ml-aws-from-pc.html)
+    1. [EC2 스파크 - 부싯돌(flintrock)](ml-aws-ec2-flintrock.html)
 1. 기계학습 적용
     1. [테스트 주도 기계학습](31-ml-tdd.html)
     1. [알고리즘 성능평가](ml-assessment.html)

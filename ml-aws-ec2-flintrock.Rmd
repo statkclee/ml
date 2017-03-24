@@ -1,0 +1,123 @@
+---
+layout: page
+title: 기계학습
+subtitle: EC2 스파크 - 부싯돌(flintrock)
+output:
+  html_document: 
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
+---
+
+
+> ## 학습 목표 {.objectives}
+>
+> * AWS 위에 EC2 클러스터를 생성한다.
+
+``` {r, include=FALSE}
+source("tools/chunk-options.R")
+knitr::opts_chunk$set(error = TRUE)
+```
+
+## AWS EC2를 활용 스파크 클러스터 생성[^aws-reference-01] [^aws-reference-02] [^aws-reference-03]
+
+
+[^aws-reference-01]: [BUILDING A DATA SCIENCE PLATFORM FOR R&D, PART 1 – SETTING-UP AWS](https://alexioannides.com/2016/08/16/building-a-data-science-platform-for-rd-part-1-setting-up-aws/)
+[^aws-reference-02]: [BUILDING A DATA SCIENCE PLATFORM FOR R&D, PART 2 – DEPLOYING SPARK ON AWS USING FLINTROCK](https://alexioannides.com/2016/08/18/building-a-data-science-platform-for-rd-part-2-deploying-spark-on-aws-using-flintrock/)
+[^aws-reference-03]: [BUILDING A DATA SCIENCE PLATFORM FOR R&D, PART 3 – R, R STUDIO SERVER, SPARKR & SPARKLYR](https://alexioannides.com/2016/08/22/building-a-data-science-platform-for-rd-part-3-r-r-studio-server-sparkr-sparklyr/)
+
+대용량 데이터를 병렬처리하기 위해, 특히 R을 분석언어로 빅데이터를 분석하고자 하는 사람들이 AWS 위에서 간단히 스파크 클러스터를 구축하고자 하는 노력을 많이 하였다.
+가장 대표적인 것이 `spark-ec2` 프로젝트다.
+
+- [Scripts used to setup a Spark cluster on EC2](https://github.com/amplab/spark-ec2)
+
+하지만, `spark-ec2`가 편리성에 초점을 맞춰 개발되고, 특히 현재 저작시점에 `ap-northeast-2` 서울 리젼에 대한 지원이 되고 있지 않다.
+[ap-northeast-2 seoul region support](https://github.com/amplab/spark-ec2/issues/94) 관련해서 이슈를 제기하니 다들 `flintrock` 검토를 추천한다.
+
+[Flintrock: A Faster, Better spark-ec2](https://www.youtube.com/watch?v=3aeIpOGrJOA&t=1104s) 동영상을 보면 왜 `flintrock`을 개발하게 되었는지 사례가 나온다.
+가장 큰 매력은 속도가 가장 큰 것이고, 이것도 역시 `ap-northeast-2` 서울 리젼에 대한 이슈가 있는 것으로 파악되어 `ap-northeast-1` 일본 리젼에 설치를 해본다.
+
+<iframe width="300" height="180" src="https://www.youtube.com/embed/3aeIpOGrJOA" frameborder="0" allowfullscreen></iframe>
+
+### `flintrock` 설치 [^ec2-flintrock]
+
+[^ec2-flintrock]: [A command-line tool for launching Apache Spark clusters.](https://github.com/nchammas/flintrock)
+
+`flintrock`을 설치하려면 우선 파이썬3를 설치한다. 그리고 나서 `pip3` 팩키지 설치 관리자를 통해 `flintrock`을 설치한다.
+
+``` {r flintrock-install eval=FALSE}
+$ sudo apt-get remove python3-pip; sudo apt-get install python3-pip
+$ sudo pip3 install flintrock
+```
+
+### `flintrock` 환경설정
+
+`flintrock`설치가 되면 `flintrock configure` 명령어를 통해 EC2 스파크 클러스터 설치를 위한 환경을 설정한다.
+예를 들어, `ap-northeast-1` 리젼, EC2 유형 등.
+
+``` {r flintrock-configure eval=FALSE}
+$ flintrock configure
+
+services:
+  spark:
+    version: 2.1.0
+    # git-commit: latest  # if not 'latest', provide a full commit SHA; e.g. d6dc12ef0146ae409834c78737c116050961f350
+    # git-repository:  # optional; defaults to https://github.com/apache/spark
+    # optional; defaults to download from from the official Spark S3 bucket
+    #   - must contain a {v} template corresponding to the version
+    #   - Spark must be pre-built
+    #   - must be a tar.gz file
+    # download-source: "https://www.example.com/files/spark/{v}/spark-{v}.tar.gz"
+  hdfs:
+    version: 2.7.3
+    # optional; defaults to download from a dynamically selected Apache mirror
+    #   - must contain a {v} template corresponding to the version
+    #   - must be a .tar.gz file
+    # download-source: "https://www.example.com/files/hadoop/{v}/hadoop-{v}.tar.gz"
+
+provider: ec2
+
+providers:
+  ec2:
+    key-name: sohn-jp
+    identity-file: /etc/sohn-jp.pem
+    instance-type: m3.medium
+    region: ap-northeast-1
+    ami: ami-56d4ad31   # Amazon Linux, us-northeast-1
+    user: ec2-user
+    tenancy: default  # default | dedicated
+    ebs-optimized: no  # yes | no
+    instance-initiated-shutdown-behavior: terminate  # terminate | stop
+
+launch:
+  num-slaves: 1
+```
+
+`providers`에 `ec2` 항목에 `.pem` 인증키와 `region`, `ami` `user`등을 설정한다.
+
+
+### EC2 스파크 클러스터 생성 
+
+위와 같은 준비가 완료되면 그 다음은 클러스터 생성 명령은 간단하다. 
+`flintrock launch bigdata-cluster` 명령어를 실행하게 되면 `config.yaml` 파일에 설정된 규칙에 맞춰 `bigdata-cluster`가 생성된다.
+`spark-ec2` 보다 클러스터 생성속도가 무척이나 빠르다.
+스파크 클러스터가 생성되고 나면 사용한 후에 중단 시킬 경우 `flintrock stop bigdata-cluster` 명령어를 사용해서 잠시 멈춘다.
+만약 클러스터를 삭제하려고 하는 경우 `flintrock destroy bigdata-cluster` 명령어를 사용한다.
+
+``` {r flintrock-configure eval=FALSE}
+$ flintrock launch bigdata-cluster
+$ flintrock stop bigdata-cluster
+$ flintrock destroy bigdata-cluster
+```
+
+
+### EC2 스파크 클러스터 접속
+
+EC2 스파크 클러스터가 생성되면 생성된 클러스터에 접속하여 추가적인 작업을 수행한다. 이에 해당되는 명령어는 다음과 같다.
+
+EC2 스파크 클러스터가 생성되어 있으면 `ssh` 명령어를 `.pem` 파일을 사용해서 접속한다.
+
+``` {r flintrock-login eval=FALSE}
+ssh -i "sohn-jp.pem" ec2-user@ec2-54-250-192-181.ap-northeast-1.compute.amazonaws.com
+```
