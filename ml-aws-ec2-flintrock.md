@@ -1,24 +1,11 @@
----
-layout: page
-title: 기계학습
-subtitle: EC2 스파크 - 부싯돌(flintrock)
-output:
-  html_document: 
-    keep_md: yes
-  pdf_document:
-    latex_engine: xelatex
-mainfont: NanumGothic
----
+# 기계학습
 
 
 > ## 학습 목표 {.objectives}
 >
 > * AWS 위에 EC2 클러스터를 생성한다.
 
-``` {r, include=FALSE}
-source("tools/chunk-options.R")
-knitr::opts_chunk$set(error = TRUE)
-```
+
 
 ## AWS EC2를 활용 스파크 클러스터 생성 [^aws-reference-01] [^aws-reference-02] [^aws-reference-03]
 
@@ -46,17 +33,19 @@ knitr::opts_chunk$set(error = TRUE)
 
 `flintrock`을 설치하려면 우선 파이썬3를 설치한다. 그리고 나서 `pip3` 팩키지 설치 관리자를 통해 `flintrock`을 설치한다.
 
-``` {r, flintrock-install, eval=FALSE}
+
+~~~{.r}
 $ sudo apt-get remove python3-pip; sudo apt-get install python3-pip
 $ sudo pip3 install flintrock
-```
+~~~
 
 ### `flintrock` 환경설정
 
 `flintrock`설치가 되면 `flintrock configure` 명령어를 통해 EC2 스파크 클러스터 설치를 위한 환경을 설정한다.
 예를 들어, `ap-northeast-1` 리젼, EC2 유형 등.
 
-``` {r flintrock-configure, eval=FALSE}
+
+~~~{.r}
 $ flintrock configure
 
 services:
@@ -92,7 +81,7 @@ providers:
 
 launch:
   num-slaves: 1
-```
+~~~
 
 `providers`에 `ec2` 항목에 `.pem` 인증키와 `region`, `ami` `user`등을 설정한다.
 
@@ -105,11 +94,12 @@ launch:
 스파크 클러스터가 생성되고 나면 사용한 후에 중단 시킬 경우 `flintrock stop bigdata-cluster` 명령어를 사용해서 잠시 멈춘다.
 만약 클러스터를 삭제하려고 하는 경우 `flintrock destroy bigdata-cluster` 명령어를 사용한다.
 
-``` {r flintrock-launch, eval=FALSE}
+
+~~~{.r}
 $ flintrock launch bigdata-cluster
 $ flintrock stop bigdata-cluster
 $ flintrock destroy bigdata-cluster
-```
+~~~
 
 
 ### EC2 스파크 클러스터 접속
@@ -118,6 +108,7 @@ EC2 스파크 클러스터가 생성되면 생성된 클러스터에 접속하�
 
 EC2 스파크 클러스터가 생성되어 있으면 `ssh` 명령어를 `.pem` 파일을 사용해서 접속한다.
 
-``` {r flintrock-login, eval=FALSE}
+
+~~~{.r}
 ssh -i "sohn-jp.pem" ec2-user@ec2-54-250-192-181.ap-northeast-1.compute.amazonaws.com
-```
+~~~
