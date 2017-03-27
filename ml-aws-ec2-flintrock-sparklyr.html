@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">기계학습</h1></a>
+          <h2 class="subtitle">스파크 EC2 클러스터 - 데이터과학 툴체인(R, sparklyr)</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습-목표"><span class="glyphicon glyphicon-certificate"></span>학습 목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>AWS 위에 생성된 스파크 EC2 클러스터에 데이터 과학 툴체인을 구축한다.</li>
+<li>R, RStudio 서버, sparklyr 혹은 sparkr 데이터 과학 툴체인을 설치한다.</li>
+<li>사용자를 등록시키고 포트(port)를 열어 웹인터페이스를 통해 데이터 과학을 위한 환경을 구축한다.</li>
+</ul>
+</div>
+</section>
+<h2 id="스파크-ec2-클러스터---데이터과학-툴체인r-sparklyr-구축-aws-reference-01-aws-reference-02-aws-reference-03">스파크 EC2 클러스터 - 데이터과학 툴체인(R, sparklyr) 구축 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> <a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a></h2>
+<h3 id="r-설치">R 설치</h3>
+<p>아마존 AMI 이미지로 리눅스를 설치했다면 <code>R</code> 설치를 시작한다. <a href="https://curl.haxx.se/">Curl</a>, <a href="https://www.openssl.org/">OpenSSL</a>이 사전에 설치되어야 함. 다양한 R 팩키지를 설치하는데 <code>httr</code>, <code>curl</code>이 운영체제에 설치된 소프트웨어를 활용하여 작업을 수행하기 때문.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">$<span class="st"> </span>sudo yum update
+$<span class="st"> </span>sudo yum install R
+$<span class="st"> </span>sudo yum install libcurl libcurl-devel <span class="co"># Curl이 사전에 설치되어야 함.</span>
+$<span class="st"> </span>sudo yum install openssl openssl-devel <span class="co"># OpenSSL이 사전에 설치되어야 함.</span></code></pre></div>
+<h3 id="rstudio-서버-설치">RStudio 서버 설치</h3>
+<p>로컬 컴퓨터에서 RStudio를 설치해서 사용하는 것이 아니라 원격으로 AWS 클라우드에 설치된 RStudio를 사용할 것이기 때문에 <a href="https://www.rstudio.com/products/rstudio/download/preview/">RStudio Preview</a> 혹은 <a href="https://www.rstudio.com/products/rstudio/download-server/">RStudio 배포</a> 버젼을 설치한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">$<span class="st"> </span>[ec2-user@ip<span class="dv">-172-31-30-45</span> ~]$<span class="st"> </span>wget https:<span class="er">//</span>s3.amazonaws.com/rstudio-dailybuilds/rstudio-server-rhel<span class="fl">-1.0.136</span>-x86_64.rpm
+$<span class="st"> </span>sudo yum install --nogpgcheck rstudio-server-rhel<span class="fl">-1.0.136</span>-x86_64.rpm</code></pre></div>
+<p>설치가 끝났으며… RStudio 서버에 접속할 수 있도록 물론 웹으로 … 사용자를 등록한다.</p>
+<p>ssh 비밀키로 로그인 했다면 <code>ec2-user</code>에 대한 비번이 설정되어 있지 않기 때문에 비밀번호를 설정한다. 여러명이 스파크 EC2 클러스터를 사용하는 경우 사용자를 추가(<code>xwmooc</code>)로 추가하고 비번을 설정한다. 추가 사용자도 동일한 환경을 사용할 수 있도록 환경설정과 관련된 파일을 복사를 한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">$<span class="st"> </span>sudo passwd ec2-user <span class="co"># 비밀번호 설정</span>
+$<span class="st"> </span>sudo useradd xwmooc <span class="co"># 사용자 추가</span>
+$<span class="st"> </span>sudo passwd xmmooc
+$<span class="st"> </span>cd /home/ec2-user <span class="co"># 추가 사용자에 대한 환경설정</span>
+$<span class="st"> </span>sudo cp -r spark /usr/local/lib</code></pre></div>
+<h3 id="aws-스파크-ec2-클러스터-rstudio-서버-접속">AWS 스파크 EC2 클러스터 RStudio 서버 접속</h3>
+<p>AWS 스파크 EC2 클러스터 RStudio 서버 접속하기 위해서 몇가지 추가 작업이 더 필요하다. 가장 먼저 <code>ssh</code> 포트를 열어 놔서 <code>putty</code>나 리눅스 CLI를 사용할 수 있도록 한다. <a href="https://www.r-bloggers.com/installing-rstudio-shiny-server-on-aws/">Installing RStudio Shiny Server on AWS</a>에서 Shiny 서버를 설정하듯이 <code>ssh</code> 포트번호 <strong>22</strong>, <code>rstudio</code> 서버 포트번호 <strong>8787</strong> 를 설정해야 접속할 수 있다.</p>
+<p><img src="fig/aws-ec2-port-config.png" alt="AWS EC2 포트 설정" width="57%" /></p>
+<p>그리고 나서 웹브라우져를 열고 <code>http://ec2-52-XXX-XX-X15.ap-northeast-1.compute.amazonaws.com:8787</code> 주소를 입력하면 RStudio IDE 작업환경으로 들어가게 된다. 8787 포트번호를 제외한 <code>http://ec2-52-XXX-XX-X15.ap-northeast-1.compute.amazonaws.com</code> 주소는 스파크 EC2 클러스터 마스터 노드를 클릭하면 <strong>EC2 Dashboard</strong> → INSTANCES → Instances 화면에서 스파크 클러스터 EC2 마스터를 클릭하면 <strong>Public DNS (IPv4) </strong>에 웹주소가 나온다. 이를 복사하고 포트번호 8787 붙여 접속하면 로그인 화면이 나오고 준비된 사용자명과 비번을 입력하면 바로 R로 작업할 수 있는 작업환경이 나타난다.</p>
+<p><img src="fig/aws-spark-ec2-rstudio.png" alt="AWS 스파크 EC2 클러스터 RStudio 서버 접속 화면" width="57%" /></p>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://alexioannides.com/2016/08/16/building-a-data-science-platform-for-rd-part-1-setting-up-aws/">BUILDING A DATA SCIENCE PLATFORM FOR R&amp;D, PART 1 – SETTING-UP AWS</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="https://alexioannides.com/2016/08/18/building-a-data-science-platform-for-rd-part-2-deploying-spark-on-aws-using-flintrock/">BUILDING A DATA SCIENCE PLATFORM FOR R&amp;D, PART 2 – DEPLOYING SPARK ON AWS USING FLINTROCK</a><a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p><a href="https://alexioannides.com/2016/08/22/building-a-data-science-platform-for-rd-part-3-r-r-studio-server-sparkr-sparklyr/">BUILDING A DATA SCIENCE PLATFORM FOR R&amp;D, PART 3 – R, R STUDIO SERVER, SPARKR &amp; SPARKLYR</a><a href="#fnref3">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

@@ -1,9 +1,21 @@
-# 기계학습
+---
+layout: page
+title: 기계학습
+subtitle: EC2 스파크 - 부싯돌(flintrock)
+output:
+  html_document: 
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
+---
 
 
 > ## 학습 목표 {.objectives}
 >
-> * AWS 위에 EC2 클러스터를 생성한다.
+> * AWS 위에 스파크 EC2 클러스터를 생성한다.
+> * `flintrock`을 사용하여 편리하면서도 신속하게 스파크 EC2 클러스터를 AWS에 생성시킨다.
+> * 스파크 EC2 클러스터를 생성, 접근, 중단, 제거한다.
 
 
 
@@ -96,9 +108,10 @@ launch:
 
 
 ~~~{.r}
-$ flintrock launch bigdata-cluster
-$ flintrock stop bigdata-cluster
-$ flintrock destroy bigdata-cluster
+$ flintrock launch bigdata-cluster   # `bigdata-cluster` 생성 명령어
+$ flintrock stop bigdata-cluster     # `bigdata-cluster` 중지 명령어
+$ flintrock start bigdata-cluster    # `bigdata-cluster` 시작 명령어
+$ flintrock destroy bigdata-cluster  # `bigdata-cluster` 제거 명령어
 ~~~
 
 
@@ -110,5 +123,7 @@ EC2 스파크 클러스터가 생성되어 있으면 `ssh` 명령어를 `.pem` �
 
 
 ~~~{.r}
-ssh -i "sohn-jp.pem" ec2-user@ec2-54-250-192-181.ap-northeast-1.compute.amazonaws.com
+$ ssh -i "sohn-jp.pem" ec2-user@ec2-54-250-192-181.ap-northeast-1.compute.amazonaws.com
 ~~~
+
+
