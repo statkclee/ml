@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">기계학습</h1></a>
+          <h2 class="subtitle">S3 데이터와 EC2, 스파크 EC2 클러스터</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습-목표"><span class="glyphicon glyphicon-certificate"></span>학습 목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>AWS EC2에서 S3 버킷에 저장된 데이터를 데이터분석에 활용한다.</li>
+<li>AWS 스파크 EC2 클러스터에서 S3 버킷에 저장된 데이터를 데이터분석에 활용한다.</li>
+</ul>
+</div>
+</section>
+<p><img src="fig/aws-ec2-s3-link.png" alt="AWS EC2 S3 연결" width="77%" /></p>
+<h2 id="aws-s3-데이터를-ec2-rstudio에서-읽어오기-aws-s3-read-write-cloudyr-aws-s3">AWS S3 데이터를 EC2 RStudio에서 읽어오기 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></h2>
+<p>EC2에 RStudio 서버가 설치되면 AWS S3 저장소의 데이터를 불러와서 작업을 해야한다.</p>
+<h3 id="환경설정">환경설정</h3>
+<p><code>aws.s3</code> 팩키지를 통해 AWS S3와 R이 작업을 할 수 있도록 한다. <code>devtools::install_github(&quot;cloudyr/aws.s3&quot;)</code> 명령어를 통해 팩키지를 설치한다. <code>Sys.setenv</code> 명령어를 통해 <code>AWS_ACCESS_KEY_ID</code>, <code>AWS_SECRET_ACCESS_KEY</code> 을 설정한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># aws.s3 설치</span>
+devtools::<span class="kw">install_github</span>(<span class="st">&quot;cloudyr/aws.s3&quot;</span>)
+
+<span class="kw">library</span>(aws.s3)
+
+<span class="co"># S3 버킷 접근을 위한 키값 설정</span>
+<span class="kw">Sys.setenv</span>(<span class="st">&quot;AWS_ACCESS_KEY_ID&quot;</span> =<span class="st"> &quot;xxx&quot;</span>,
+           <span class="st">&quot;AWS_SECRET_ACCESS_KEY&quot;</span> =<span class="st"> &quot;xxx&quot;</span>,
+           <span class="st">&quot;AWS_DEFAULT_REGION&quot;</span> =<span class="st"> &quot;ap-northeast-2&quot;</span>)</code></pre></div>
+<h3 id="설정환경-확인">설정환경 확인</h3>
+<p><code>AWS_ACCESS_KEY_ID</code>, <code>AWS_SECRET_ACCESS_KEY</code>에 부여된 권한에 맞춰 제대로 S3 버킷에 접근할 수 있는지 확인한다. 접근 권한이 있는 모든 S3 버킷 정보가 화면에 출력된다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">bucketlist</span>()</code></pre></div>
+<h3 id="설정환경-확인-1">설정환경 확인</h3>
+<p><code>get_object</code> 명령어를 통해 <code>v-seoul</code> 버킷 최상위 디렉토리에 있는 <code>iris.csv</code> 파일을 불러온다. 바이러니 형태라 사람이 읽을 수 있는 문자형으로 변환시키고 <code>textConnection</code> 함수를 통해 <code>.csv</code> 파일을 R에서 작업할 수 있는 데이터프레임 형태로 변환시킨다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iris_dat &lt;-<span class="st"> </span><span class="kw">get_object</span>(<span class="st">&quot;iris.csv&quot;</span>, <span class="dt">bucket =</span> <span class="st">&quot;v-seoul&quot;</span>)
+
+iris_obj &lt;-<span class="st"> </span><span class="kw">rawToChar</span>(iris_dat)  
+con &lt;-<span class="st"> </span><span class="kw">textConnection</span>(iris_obj)  
+iris_df &lt;-<span class="st"> </span><span class="kw">read.csv</span>(con)  
+<span class="kw">close</span>(con)  
+
+iris_df</code></pre></div>
+<h2 id="aws-s3-데이터를-스파크-ec2-클러스터-rstudio에서-읽어오기">AWS S3 데이터를 스파크 EC2 클러스터 RStudio에서 읽어오기</h2>
+<p><img src="fig/aws-ec2-spark-s3-link.png" alt="AWS EC2 스파크 S3 연결" width="77%" /></p>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="http://datascience.ibm.com/blog/read-and-write-data-to-and-from-amazon-s3-buckets-in-rstudio/">Read and Write Data To and From Amazon S3 Buckets in Rstudio</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="https://github.com/cloudyr/aws.s3">Amazon Simple Storage Service (S3) API Client</a><a href="#fnref2">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

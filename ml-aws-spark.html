@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">기계학습</h1></a>
+          <h2 class="subtitle">기계학습 환경설정-스파크</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습-목표"><span class="glyphicon glyphicon-certificate"></span>학습 목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>AWS에 다양한 스파크 분석환경을 구축하는 시나리오를 검토한다.</li>
+<li>컴퓨터 한대와 클러스터에 분석환경을 구축하는 차이점을 살펴본다.</li>
+</ul>
+</div>
+</section>
+<h2 id="기계학습을-위한-aws-클라우드-환경">기계학습을 위한 AWS 클라우드 환경</h2>
+<p>데이터 로그가 AWS S3에 저장되면 대용량 데이터를 바로 <code>S3 Browser</code> 혹은 AWS CLI 복사 명령어를 통해 로컬 컴퓨터에 저장하여 R, 파이썬 엑셀로 분석하는 형태부터 단속적으로 스파크 EMR 클러스터를 잠시 띄워 작업하고 없애는 방식까지 다양한 스펙트럼이 존재한다.</p>
+<ul>
+<li>S3 + 로컬 컴퓨터 : 기존 MySQL 데이터베이스에서 데이터를 추출하여 PC에서 분석하는 전형적인 형태</li>
+<li>S3 + EC2 서버: 데이터를 로컬PC등으로 내려 분석하지 않고 모든 데이터를 클라우드 EC2에서 데이터 분석</li>
+<li>S3 + 스파크 EC2 클러스터: 상태정보를 항시 보유하고 있는 EC2 클러스터를 구성하여 S3 데이터를 분석</li>
+<li>S3 + 스파크 EMR 클러스터: 단속적으로 필요시 대량 EMR 클러스터를 구축하여 S3 데이터를 분석</li>
+</ul>
+<p><img src="fig/aws-spark-scenarios.png" alt="AWS 스파크 데이터 분석 환경" width="77%" /></p>
+<h3 id="클라우드-s3-데이터-저장">클라우드 S3 데이터 저장</h3>
+<p>개인이 식별될 수 있는 데이터는 모형개발과 데이터 분석에는 도움이 되지 않는다. 개인이 식별되는 유일한 정보는 하나이기 때문에 데이터 분석이 끝나 뒤나 실행에 옮기기 위해서 필요한 정보이기 때문에 데이터 분석과 모형 개발을 위해서는 개인정보를 난독화하는 해쉬함수를 활용하여 난독화 과정을 거치 데이터를 폐쇄 개발망에서 오픈된 인터넷망에서 분석환경을 별도로 구축하는 것도 가능하다.</p>
+<p>폐쇄망에서 인터넷망으로 가져오는 과정에서 <code>.csv</code> 파일을 파케이 파일로 변환하여 저장공간을 대폭줄여 이동시키고 나서 EC2, EMR 스파크 클러스터를 통해 데이터 분석 및 모형개발 작업을 수행한다.</p>
+<h3 id="데이터-과학-분석-r-인프라">데이터 과학 분석 R 인프라</h3>
+<p>작업장 분석에 필요한 데이터가 준비되면 이를 분석할 수 있는 데이터 과학 인프라 구축이 필요하다.</p>
+<ul>
+<li>스몰데이터(일회성, 분석속도, 동일하지 않는 데이터) : S3에서 데이터를 <code>S3 Browser</code>를 통해 다운받아 데이터 분석가 분석 PC에서 작업 [^s3-pc]</li>
+<li>중형데이터: 데이터 분석가 PC는 단순한 터미널 기능을 수행하고 S3 데이터와 EC2 컴퓨터는 모두 AWS 클라우드에 위치 [^s3-ec2]</li>
+<li>빅데이터 (동일한, 반복적인, 서버별 대용량 데이터) 및 예측모형 개발 [^s3-ec2-spark]
+<ul>
+<li>AWS S3 + 스파크 + EC2 스파크 클러스터</li>
+<li>AWS S3 + 스파크 + EMR 스파크 클러스터</li>
+</ul></li>
+</ul>
+<h2 id="대용량-데이터-분석-환경-비교-ms-azure-spark-tutorial">대용량 데이터 분석 환경 비교 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h2>
+<p>대용량 데이터를 분산처리작업을 진행하기 전에 현존하는 분산기술에 대해 살펴보자.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">접근방법</th>
+<th align="left">확장성(Scalability)</th>
+<th align="left">스파크</th>
+<th align="left">하둡</th>
+<th align="left">SQL</th>
+<th align="left">라이선스</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">CRAN <span class="math inline">\(R_1\)</span></td>
+<td align="left">컴퓨터 1 대</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">오픈</td>
+</tr>
+<tr class="even">
+<td align="left">bigmemory</td>
+<td align="left">컴퓨터 1 대</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">오픈</td>
+</tr>
+<tr class="odd">
+<td align="left">ff</td>
+<td align="left">컴퓨터 1 대</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">오픈</td>
+</tr>
+<tr class="even">
+<td align="left">SparkR</td>
+<td align="left">컴퓨터 1 대 + 분산 컴퓨팅</td>
+<td align="left">X</td>
+<td align="left"></td>
+<td align="left">X</td>
+<td align="left">오픈</td>
+</tr>
+<tr class="odd">
+<td align="left">sparklyr</td>
+<td align="left">컴퓨터 1 대 + 분산 컴퓨팅</td>
+<td align="left">X</td>
+<td align="left"></td>
+<td align="left">X</td>
+<td align="left">오픈</td>
+</tr>
+<tr class="even">
+<td align="left">RevoScaleR</td>
+<td align="left">컴퓨터 1 대 + 분산 컴퓨팅</td>
+<td align="left">X</td>
+<td align="left">X</td>
+<td align="left">X</td>
+<td align="left">기업</td>
+</tr>
+</tbody>
+</table>
+<p>스파크 클러스터가 구축되면 R 환경은 다음과 같다. <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></p>
+<ul>
+<li>데이터 저장: Hive</li>
+<li>스파크 응용프로그램 실행: YARN 클러스터</li>
+<li>데이터 코드: dplyr이 지원되는 R</li>
+</ul>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="http://blog.revolutionanalytics.com/2016/10/tutorial-scalable-r-on-spark.html">Tutorial: Scalable R on Spark with SparkR, sparklyr and RevoScaleR</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="http://r-addict.com/2016/08/25/Extending-Sparklyr.html">Extending sparklyr to Compute Cost for K-means on YARN Cluster with Spark ML Library</a><a href="#fnref2">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>
