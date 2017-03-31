@@ -28,7 +28,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
     1. [AWS RStudio 서버](ds-aws-rstudio-server.html)
     1. [PC에서 바라본 AWS](ml-aws-from-pc.html)
     1. [스파크 EC2 클러스터 - 부싯돌(flintrock)](ml-aws-ec2-flintrock.html)
-    1. [스파크 EC2 클러스터 - 데이터과학 툴체인(R, sparklyr)](ml-aws-ec2-flintrock-sparklyr.html)
+        1. [스파크 EC2 클러스터 - 데이터과학 툴체인(R, sparklyr)](ml-aws-ec2-flintrock-sparklyr.html)
     1. [S3 데이터와 EC2, 스파크 EC2 클러스터](ml-ec2-s3.html)
     1. [EMR 스파크 클러스터 - wadal](ml-emr-wadal.html)
 1. 기계학습 적용
