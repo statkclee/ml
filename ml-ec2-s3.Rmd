@@ -21,8 +21,21 @@ source("tools/chunk-options.R")
 knitr::opts_chunk$set(error = TRUE)
 ```
 
-<img src="fig/aws-ec2-s3-link.png" alt="AWS EC2 S3 연결" width="77%" />
+## AWS S3 데이터를 읽어오는 전략
 
+AWS S3에 저장된 대용량 데이터를 읽어오는 전략은 다음과 크게 4가지 방식이 존재한다.
+
+- EC2 컴퓨터에서 직접 `aws.s3` 팩키지를 통해 직접 S3 저장소 접근
+- 스파크 클러스터를 EC2 컴퓨터를 로컬 컴퓨터로 생성시켜 S3 저장소 접근 
+- EC2 컴퓨터를 `flintrock` 유형의 도구를 활용하여 스파크 클러스터를 생성시켜 S3 저장소 접근 
+- AWS EMR을 활용하여 단속으로 필요시 마다 스파크 클러스터를 생성시켜 S3 저장소 접근 
+
+첫번째 방식은 많이 활용되는 방식으로 아래 매뉴얼을 활용하여 따라가면 문제가 없고, 
+AWS EMR 방식도 AWS에서 EMR 스파크 클러스터를 생성시킬 때 설정을 잘 맞춰놔서 필요한 일부 설정만으로도 S3 저장소에 접근할 수 있다.
+EC2에 스파크 클러스터를 직접 설치하는 경우 S3 저장소에 설정을 잘 맞춰놓는 것이 그렇게 쉽지만은 않다.
+
+
+<img src="fig/aws-ec2-spark-s3-link.png" alt="AWS EC2 스파크 S3 연결" width="57%" />
 
 ## AWS S3 데이터를 EC2 RStudio에서 읽어오기 [^aws-s3-read-write] [^cloudyr-aws-s3]
 
@@ -32,6 +45,8 @@ knitr::opts_chunk$set(error = TRUE)
 
 
 EC2에 RStudio 서버가 설치되면 AWS S3 저장소의 데이터를 불러와서 작업을 해야한다.
+
+<img src="fig/aws-ec2-s3-link.png" alt="AWS EC2 S3 연결" width="67%" />
 
 ### 환경설정 
 
@@ -78,10 +93,30 @@ close(con)
 iris_df
 ```
 
-## AWS S3 데이터를 스파크 EC2 클러스터 RStudio에서 읽어오기
+## AWS S3 데이터를 스파크 EMR 클러스터 RStudio에서 읽어오기
 
-<img src="fig/aws-ec2-spark-s3-link.png" alt="AWS EC2 스파크 S3 연결" width="77%" />
+AWS EMR 클러스터를 통해 S3에 저장된 대용량 데이터 특히 `.parquet` 형태로 압축된 데이터인 경우, 
+우선 다음 작업과정을 거쳐 분석 가능한 형태 데이터로 정제한다.
+
+1. `.parquet` 데이터를 `spark_read_parquet` 함수로 스파크 데이터프레임으로 읽어온다.
+1. `sparklyr` 팩키지 `sdf_sample()` 함수를 활용하여 표본 추출한다. 
+    - 1억건이 넘어가는 데이터의 경우 100 GB를 쉽게 넘고 0.1% 표본추출해도 수백MB가 된다.
+1. `collect()` 함수를 통해 스파크 데이터프레임을 R 데이터프레임으로 변환한다.
+1. `aws.s3` 팩키지 `s3save()` 함수로 인메모리 S3객체를 `.Rdata` 파일로 S3 버킷에 저장시킨다.
+    - 상기 과정을 `save_s3_from_parquet` 함수로 만들어 활용한 사례가 아래 나와 있다.
+1. 마지막으로 `aws.s3` 팩키지 `s3load()` 함수를 통해 EC2 컴퓨터에서 불러와서 R로 후속 작업을 이어간다.
+
+<img src="fig/aws-s3-dataframe-sync.png" alt="AWS EC2 스파크 S3 연결" width="57%" />
 
 
+``` {r, aws-s3-save-workaround, eval=FALSE}
+save_s3_from_parquet <- function(spark_df, parquet_file, frac) {
+  tmp_df <- spark_read_parquet(sc, paste0("df_", spark_df), parquet_file)
+  tmp_df_smpl <- sdf_sample(tmp_df, fraction = frac, replacement = FALSE, seed = NULL)
+  tmp_df_smpl_df <- collect(tmp_df_smpl)
+  s3save(tmp_df_smpl_df, bucket = "S3버킷명/경로명", object = paste0(spark_df, "_smpl_df.Rdata"))
+}
 
+save_s3_from_parquet("df_0325", "s3://버킷명/2017/03/action_20170326.parquet", 0.01)
+```
 
