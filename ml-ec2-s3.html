@@ -50,9 +50,19 @@
 </ul>
 </div>
 </section>
-<p><img src="fig/aws-ec2-s3-link.png" alt="AWS EC2 S3 연결" width="77%" /></p>
+<h2 id="aws-s3-데이터를-읽어오는-전략">AWS S3 데이터를 읽어오는 전략</h2>
+<p>AWS S3에 저장된 대용량 데이터를 읽어오는 전략은 다음과 크게 4가지 방식이 존재한다.</p>
+<ul>
+<li>EC2 컴퓨터에서 직접 <code>aws.s3</code> 팩키지를 통해 직접 S3 저장소 접근</li>
+<li>스파크 클러스터를 EC2 컴퓨터를 로컬 컴퓨터로 생성시켜 S3 저장소 접근</li>
+<li>EC2 컴퓨터를 <code>flintrock</code> 유형의 도구를 활용하여 스파크 클러스터를 생성시켜 S3 저장소 접근</li>
+<li>AWS EMR을 활용하여 단속으로 필요시 마다 스파크 클러스터를 생성시켜 S3 저장소 접근</li>
+</ul>
+<p>첫번째 방식은 많이 활용되는 방식으로 아래 매뉴얼을 활용하여 따라가면 문제가 없고, AWS EMR 방식도 AWS에서 EMR 스파크 클러스터를 생성시킬 때 설정을 잘 맞춰놔서 필요한 일부 설정만으로도 S3 저장소에 접근할 수 있다. EC2에 스파크 클러스터를 직접 설치하는 경우 S3 저장소에 설정을 잘 맞춰놓는 것이 그렇게 쉽지만은 않다.</p>
+<p><img src="fig/aws-ec2-spark-s3-link.png" alt="AWS EC2 스파크 S3 연결" width="57%" /></p>
 <h2 id="aws-s3-데이터를-ec2-rstudio에서-읽어오기-aws-s3-read-write-cloudyr-aws-s3">AWS S3 데이터를 EC2 RStudio에서 읽어오기 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></h2>
 <p>EC2에 RStudio 서버가 설치되면 AWS S3 저장소의 데이터를 불러와서 작업을 해야한다.</p>
+<p><img src="fig/aws-ec2-s3-link.png" alt="AWS EC2 S3 연결" width="67%" /></p>
 <h3 id="환경설정">환경설정</h3>
 <p><code>aws.s3</code> 팩키지를 통해 AWS S3와 R이 작업을 할 수 있도록 한다. <code>devtools::install_github(&quot;cloudyr/aws.s3&quot;)</code> 명령어를 통해 팩키지를 설치한다. <code>Sys.setenv</code> 명령어를 통해 <code>AWS_ACCESS_KEY_ID</code>, <code>AWS_SECRET_ACCESS_KEY</code> 을 설정한다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># aws.s3 설치</span>
@@ -77,8 +87,30 @@ iris_df &lt;-<span class="st"> </span><span class="kw">read.csv</span>(con)
 <span class="kw">close</span>(con)  
 
 iris_df</code></pre></div>
-<h2 id="aws-s3-데이터를-스파크-ec2-클러스터-rstudio에서-읽어오기">AWS S3 데이터를 스파크 EC2 클러스터 RStudio에서 읽어오기</h2>
-<p><img src="fig/aws-ec2-spark-s3-link.png" alt="AWS EC2 스파크 S3 연결" width="77%" /></p>
+<h2 id="aws-s3-데이터를-스파크-emr-클러스터-rstudio에서-읽어오기">AWS S3 데이터를 스파크 EMR 클러스터 RStudio에서 읽어오기</h2>
+<p>AWS EMR 클러스터를 통해 S3에 저장된 대용량 데이터 특히 <code>.parquet</code> 형태로 압축된 데이터인 경우, 우선 다음 작업과정을 거쳐 분석 가능한 형태 데이터로 정제한다.</p>
+<ol style="list-style-type: decimal">
+<li><code>.parquet</code> 데이터를 <code>spark_read_parquet</code> 함수로 스파크 데이터프레임으로 읽어온다.</li>
+<li><code>sparklyr</code> 팩키지 <code>sdf_sample()</code> 함수를 활용하여 표본 추출한다.
+<ul>
+<li>1억건이 넘어가는 데이터의 경우 100 GB를 쉽게 넘고 0.1% 표본추출해도 수백MB가 된다.</li>
+</ul></li>
+<li><code>collect()</code> 함수를 통해 스파크 데이터프레임을 R 데이터프레임으로 변환한다.</li>
+<li><code>aws.s3</code> 팩키지 <code>s3save()</code> 함수로 인메모리 S3객체를 <code>.Rdata</code> 파일로 S3 버킷에 저장시킨다.
+<ul>
+<li>상기 과정을 <code>save_s3_from_parquet</code> 함수로 만들어 활용한 사례가 아래 나와 있다.</li>
+</ul></li>
+<li>마지막으로 <code>aws.s3</code> 팩키지 <code>s3load()</code> 함수를 통해 EC2 컴퓨터에서 불러와서 R로 후속 작업을 이어간다.</li>
+</ol>
+<p><img src="fig/aws-s3-dataframe-sync.png" alt="AWS EC2 스파크 S3 연결" width="57%" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">save_s3_from_parquet &lt;-<span class="st"> </span>function(spark_df, parquet_file, frac) {
+  tmp_df &lt;-<span class="st"> </span><span class="kw">spark_read_parquet</span>(sc, <span class="kw">paste0</span>(<span class="st">&quot;df_&quot;</span>, spark_df), parquet_file)
+  tmp_df_smpl &lt;-<span class="st"> </span><span class="kw">sdf_sample</span>(tmp_df, <span class="dt">fraction =</span> frac, <span class="dt">replacement =</span> <span class="ot">FALSE</span>, <span class="dt">seed =</span> <span class="ot">NULL</span>)
+  tmp_df_smpl_df &lt;-<span class="st"> </span><span class="kw">collect</span>(tmp_df_smpl)
+  <span class="kw">s3save</span>(tmp_df_smpl_df, <span class="dt">bucket =</span> <span class="st">&quot;S3버킷명/경로명&quot;</span>, <span class="dt">object =</span> <span class="kw">paste0</span>(spark_df, <span class="st">&quot;_smpl_df.Rdata&quot;</span>))
+}
+
+<span class="kw">save_s3_from_parquet</span>(<span class="st">&quot;df_0325&quot;</span>, <span class="st">&quot;s3://버킷명/2017/03/action_20170326.parquet&quot;</span>, <span class="fl">0.01</span>)</code></pre></div>
 <div class="footnotes">
 <hr />
 <ol>
