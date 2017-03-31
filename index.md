@@ -24,11 +24,13 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [데이터를 통한 문제풀이 과정](03-process.html)
     1. [기계학습 알고리즘](04-algorithm.html)
         1. [활용도 높은 기계학습 알고리즘 -- 분류, 예측, 군집화](ml-basic-dc.html)
-1. **기계학습 환경설정**
+1. **[기계학습 환경설정-스파크](ml-aws-spark.html)**
     1. [AWS RStudio 서버](ds-aws-rstudio-server.html)
     1. [PC에서 바라본 AWS](ml-aws-from-pc.html)
     1. [스파크 EC2 클러스터 - 부싯돌(flintrock)](ml-aws-ec2-flintrock.html)
     1. [스파크 EC2 클러스터 - 데이터과학 툴체인(R, sparklyr)](ml-aws-ec2-flintrock-sparklyr.html)
+    1. [S3 데이터와 EC2, 스파크 EC2 클러스터](ml-ec2-s3.html)
+    1. [EMR 스파크 클러스터 - wadal](ml-emr-wadal.html)
 1. 기계학습 적용
     1. [테스트 주도 기계학습](31-ml-tdd.html)
     1. [알고리즘 성능평가](ml-assessment.html)
