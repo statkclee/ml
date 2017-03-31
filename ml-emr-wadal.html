@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">기계학습</h1></a>
+          <h2 class="subtitle">EMR 스파크 클러스터 - wadal</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습-목표"><span class="glyphicon glyphicon-certificate"></span>학습 목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>단속적으로 필요시 대량 EMR 클러스터를 구축하여 S3 데이터를 분석한다.</li>
+<li>AWS EMR 스파크 클러스터를 설치한다.</li>
+</ul>
+</div>
+</section>
+<h2 id="aws-emr-서비스">AWS EMR 서비스</h2>
+<p>AWS EC2 인스턴스를 활용하여 스파크 클러스터를 구축하는 것은 데이터를 분석하거나 기계학습 알고리즘을 개발하는 개발자입장에서 어려운 것은 아니지만, 상당한 시간과 노력을 들여야 하고 항시 하둡을 비롯한 스파크 등 컴퓨팅, 네트워크 환경이 바뀜에 따라 꾸준히 학습해가는 과정이 필요하다.</p>
+<p>따라서, 데이터 분석과 기계학습 알고리즘에 전념을 하고자 한다면 대용량 데이터를 손쉽게 처리할 수 있는 AWS EMR 서비스가 가능한 해법으로 크게 두가지 방식이 존재한다.</p>
+<ul>
+<li>AWS EMR GUI <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></li>
+<li>AWS EMR CLI: <a href="https://github.com/haje01/wadal">와달(wadal)</a></li>
+</ul>
+<p>AWS EMR GUI를 활용하여 스파크 클러스터를 구축하는 방식은 <a href="http://spark.rstudio.com/examples-emr.html">Using sparklyr with an Apache Spark cluster</a> 메뉴얼을 참조한다.</p>
+<h2 id="와달wadal"><a href="https://github.com/haje01/wadal">와달(wadal)</a></h2>
+<p>와달은 매번 AWS EMR GUI를 통해 매번 스파크 EMR 클러스터를 생성하는 것을 자동화하고자 웹젠 기술이사로 계신 김정주 TD님이 오픈소스 프로젝트로 진행하고 있다. 스파크 EC2 클러스터를 구축하고자 하는 경우 기존 spark-ec2를 계승한 <a href="https://github.com/nchammas/flintrock">부싯돌(flintrock)</a> 프로젝트와 유사할 수 있으나, 두가지 점에서 차이가 나는데 하나는 AWS EMR에 초점을 두고 있고, 상시 스파크 클러스터를 운영하는 것이 아니라 단속적으로 필요시마다 껐다 켰다를 할 수 있다는 점이다.</p>
+<p>즉, 대용량 데이터를 한번에 일시적으로 처리할 경우 적절한 방식이라고 볼 수 있다.</p>
+<h3 id="와달-설치">와달 설치</h3>
+<p>와달 설치는 <a href="https://github.com/haje01/wadal">GitHub wadal</a> 저장소를 클론하여 가져온다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">$<span class="st"> </span>git clone git@github.com:haje01/wadal.git</code></pre></div>
+<h3 id="사전-준비ec2-pair-s3-버킷">사전 준비(EC2 Pair, S3 버킷)</h3>
+<p><strong>EC2 Pair</strong>를 준비하고 EMR 관련 설정을 올릴 수 있는 애셋을 S3 버킷에 준비한다. EMR 클러스터가 준비되면 분석코드와 중간 데이터를 저장할 수 있는 S3 버킷도 함께 준비한다.</p>
+<h3 id="emr-프로파일-설정">EMR 프로파일 설정</h3>
+<p>다음으로 AWS EMR 프로파일을 텍스트 편집기를 활용하여 작성한다. 와달을 설치하면 wadal 디렉토리 내부에 <code>profile.template</code>이 있어 이를 열고 필요한 설정을 한다. 처음 AWS EMR 클러스터를 와달을 이용하여 생성하는 경우, 당혹스러울 수도 있으니 먼저 AWS EMR GUI 방식으로 먼저 설치해보고 와달 CLI 방식을 진행하는 것을 추천한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">export PLATFORM=YOUR-PLATFORM ex<span class="er">)</span> py or r
+export CLUSTER_NAME=<span class="st">&quot;YOUR-CLUSTER-NAME&quot;</span>
+export AWS_REGION=YOUR-AWS-REGION
+export AWS_EMR_LABEL=EMR-LABEL ex<span class="er">)</span>emr<span class="fl">-5.0.0</span>
+export AWS_EMR_SUBNET=EMR-VPC-SUBNET ex<span class="er">)</span>subnet-a55xxxxx
+export NUM_TASK_INSTANCE=<span class="dv">3</span>
+export TASK_SPOT_BID_PRICE=TASK-SPOT-INSTANCE-BID-PRICE ex<span class="er">)</span><span class="fl">0.06</span>
+export EC2_TYPE=EC2-INSTANCE-TYPE ex<span class="er">)</span>m3.xlarge
+export EC2_KEY_PAIR_NAME=EC2-KEY-PAIR-NAME
+export EC2_KEY_PAIR_PATH=<span class="st">&quot;EC2-KEY-PAIR-PATH(include .pem)&quot;</span>
+export AWS_S3_ACCESS_KEY=AWS-S3-ACCESS-KEY-FOR-NOTEBOOK-SYNC
+export AWS_S3_SECRET_KEY=AWS-S3-SECRET-KEY-FOR-NOTEBOOK-SYNC
+export INIT_ASSET_DIR_S3=S3-URL-FOR-INIT-ASSET
+export NOTEBOOK_S3_BUCKET=YOUR-S3-BUCKET-TO-STORE-NOTEBOOKS</code></pre></div>
+<h3 id="와달-기동">와달 기동</h3>
+<p>모든 준비가 완료되었다면, 와달 명령어를 통해 AWS EMR 스파크 클러스터를 생성시킬 수 있다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">$<span class="st"> </span>cp profile.template profiles/mypro <span class="co"># 프로파일 템프릿을 `profiles` 폴더로 이동 후 프로파일을 작성한다.</span>
+$<span class="st"> </span>bin/upload_assets mypro            <span class="co"># 작성한 프로파일을 S3 버킷으로 올린다. 최소 1회만 수행하면 된다.</span>
+$<span class="st"> </span>bin/create_cluster mypro           <span class="co"># mypro 라는 AWS EMR 클러스터를 생성시킨다.</span>
+$<span class="st"> </span>bin/state mypro                    <span class="co"># mypro 클러스터 생성과정을 살펴본다.</span>
+$<span class="st"> </span>bin/terminate mypro                <span class="co"># mypro 클러스터 제거</span></code></pre></div>
+<p>R 을 분석언어로 실행할 경우 약 15분 정도 시간이 소요된다. R, RStudio 서버, <code>sparklyr</code> 설치에 시간이 많이 소요된다. AWS EMR 스파크 클러스터를 생성시킨 후에 분석작업이 완료되면 <code>mypro</code> 클러스터를 <code>terminate</code> 명령어로 종료시킨다.</p>
+<p>네트워크 등 여러 사정상 전달이 되지 않는 경우가 있는지 AWS EMR 콘솔 화면에서 정확히 클러스터가 삭제되었는지 확인한다.</p>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="http://spark.rstudio.com/examples-emr.html">Using sparklyr with an Apache Spark cluster</a><a href="#fnref1">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>
