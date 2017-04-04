@@ -117,13 +117,33 @@ $ flintrock destroy bigdata-cluster  # `bigdata-cluster` 제거 명령어
 
 ### EC2 스파크 클러스터 접속
 
-EC2 스파크 클러스터가 생성되면 생성된 클러스터에 접속하여 추가적인 작업을 수행한다. 이에 해당되는 명령어는 다음과 같다.
+EC2 스파크 클러스터가 생성되면 생성된 클러스터에 접속하여 추가적인 작업을 수행한다. 
+이에 해당되는 명령어는 두가지 방법이 있다. 
 
-EC2 스파크 클러스터가 생성되어 있으면 `ssh` 명령어를 `.pem` 파일을 사용해서 접속한다.
+- `flintrock login` 명령어 사용
+- `ssh -i` 명령어 사용
+
+flintrock의 저자 `Nicholas Chammas`가 추천하는 `flintrock login bigdata-cluster` 명령어를 사용하는 방법은 다음과 같다.
+
+
+~~~{.r}
+$ flintrock login mu-legend-nick
+Warning: Permanently added '52.79.XX5.2X0' (ECDSA) to the list of known hosts.
+Last login: Tue Apr  4 00:34:16 2017 from 221.140.11.233
+
+       __|  __|_  )
+       _|  (     /   Amazon Linux AMI
+      ___|\___|___|
+
+https://aws.amazon.com/amazon-linux-ami/2016.09-release-notes/
+12 package(s) needed for security, out of 23 available
+Run "sudo yum update" to apply all updates.
+~~~
+
+혹은 `ssh` 명령어를 `.pem` 파일을 사용해서 접속한다.
 
 
 ~~~{.r}
 $ ssh -i "sohn-jp.pem" ec2-user@ec2-54-250-192-181.ap-northeast-1.compute.amazonaws.com
 ~~~
-
 

@@ -109,8 +109,24 @@ $<span class="st"> </span>flintrock stop bigdata-cluster     <span class="co"># 
 $<span class="st"> </span>flintrock start bigdata-cluster    <span class="co"># `bigdata-cluster` 시작 명령어</span>
 $<span class="st"> </span>flintrock destroy bigdata-cluster  <span class="co"># `bigdata-cluster` 제거 명령어</span></code></pre></div>
 <h3 id="ec2-스파크-클러스터-접속">EC2 스파크 클러스터 접속</h3>
-<p>EC2 스파크 클러스터가 생성되면 생성된 클러스터에 접속하여 추가적인 작업을 수행한다. 이에 해당되는 명령어는 다음과 같다.</p>
-<p>EC2 스파크 클러스터가 생성되어 있으면 <code>ssh</code> 명령어를 <code>.pem</code> 파일을 사용해서 접속한다.</p>
+<p>EC2 스파크 클러스터가 생성되면 생성된 클러스터에 접속하여 추가적인 작업을 수행한다. 이에 해당되는 명령어는 두가지 방법이 있다.</p>
+<ul>
+<li><code>flintrock login</code> 명령어 사용</li>
+<li><code>ssh -i</code> 명령어 사용</li>
+</ul>
+<p>flintrock의 저자 <code>Nicholas Chammas</code>가 추천하는 <code>flintrock login bigdata-cluster</code> 명령어를 사용하는 방법은 다음과 같다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">$<span class="st"> </span>flintrock login mu-legend-nick
+Warning:<span class="st"> </span>Permanently added <span class="st">&#39;52.79.XX5.2X0&#39;</span> (ECDSA) to the list of known hosts.
+Last login:<span class="st"> </span>Tue Apr  <span class="dv">4</span> <span class="dv">00</span>:<span class="dv">34</span>:<span class="dv">16</span> <span class="dv">2017</span> from <span class="fl">221.140.11.233</span>
+
+       __|<span class="st">  </span>__|_  <span class="er">)</span>
+       _|<span class="st">  </span>(     /<span class="st">   </span>Amazon Linux AMI
+      ___|\___|___|
+
+https:<span class="er">//</span>aws.amazon.com/amazon-linux-ami/<span class="fl">2016.09</span>-release-notes/
+<span class="dv">12</span> <span class="kw">package</span>(s) needed for security, out of <span class="dv">23</span> available
+Run <span class="st">&quot;sudo yum update&quot;</span> to apply all updates.</code></pre></div>
+<p>혹은 <code>ssh</code> 명령어를 <code>.pem</code> 파일을 사용해서 접속한다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">$<span class="st"> </span>ssh -i <span class="st">&quot;sohn-jp.pem&quot;</span> ec2-user@ec2<span class="dv">-54-250-192</span><span class="fl">-181.</span>ap-northeast<span class="fl">-1.</span>compute.amazonaws.com</code></pre></div>
 <div class="footnotes">
 <hr />
