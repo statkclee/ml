@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">이상점 검출 - 마할라노비스(mahalanobis) 거리</h2>
+          <h2 id="마할라노비스-거리-outlier-mahalanobis-distance-outlier-mahalanobis">마할라노비스 거리 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></h2>
+<p>다차원 공간에서 이상점을 찾아내는 간단한 방법이 <a href="https://en.wikipedia.org/wiki/Mahalanobis_distance">마할라노비스 거리</a>를 활용하는 것이다. 유클리디안 거리를 다차원 공간으로 확장한 것으로 생각하면 쉽게 이해할 수 있다.</p>
+<p>평균 <span class="math inline">\(\vec{\mu} = ( \mu_1, \mu_2, \mu_3, \dots , \mu_N )^T\)</span>와 공분산 <span class="math inline">\(S\)</span>를 갖는 벡터 <span class="math inline">\(\vec{x} = ( x_1, x_2, x_3, \dots, x_N )^T\)</span>에 대한<br />
+마할라노비스 거리에 대한 수학적 정의는 다음과 같다.</p>
+<p><span class="math inline">\(D_M(\vec{x}) = \sqrt{(\vec{x} - \vec{\mu})^T S^{-1} (\vec{x}-\vec{\mu})}\)</span></p>
+<h3 id="신장과-체중">신장과 체중</h3>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 신장과 체중 데이터 </span>
+df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">height_cm=</span><span class="kw">c</span>(<span class="dv">164</span>, <span class="dv">167</span>, <span class="dv">168</span>, <span class="dv">169</span>, <span class="dv">169</span>, <span class="dv">170</span>, <span class="dv">170</span>, <span class="dv">170</span>, <span class="dv">171</span>, <span class="dv">172</span>, <span class="dv">172</span>, <span class="dv">173</span>, <span class="dv">173</span>, <span class="dv">175</span>, <span class="dv">176</span>, <span class="dv">178</span>),
+                 <span class="dt">weight_kg=</span><span class="kw">c</span>( <span class="dv">54</span>,  <span class="dv">57</span>,  <span class="dv">58</span>,  <span class="dv">60</span>,  <span class="dv">61</span>,  <span class="dv">60</span>,  <span class="dv">61</span>,  <span class="dv">62</span>,  <span class="dv">62</span>,  <span class="dv">64</span>,  <span class="dv">62</span>,  <span class="dv">62</span>,  <span class="dv">64</span>,  <span class="dv">56</span>,  <span class="dv">66</span>,  <span class="dv">70</span>))
+
+
+<span class="co"># 신장과 체중 분포에 대한 마할라노비스 거리 계산</span>
+m_dist &lt;-<span class="st"> </span><span class="kw">mahalanobis</span>(df[, <span class="dv">1</span>:<span class="dv">2</span>], <span class="kw">colMeans</span>(df[, <span class="dv">1</span>:<span class="dv">2</span>]), <span class="kw">cov</span>(df[, <span class="dv">1</span>:<span class="dv">2</span>]))
+df$m_dist &lt;-<span class="st"> </span><span class="kw">round</span>(m_dist, <span class="dv">2</span>)
+
+<span class="co"># 마할라노비스 이상점 - 임계점을 12로 설정</span>
+df$outlier_maha &lt;-<span class="st"> &quot;No&quot;</span>
+df$outlier_maha[df$m_dist &gt;<span class="st"> </span><span class="dv">12</span>] &lt;-<span class="st"> &quot;Yes&quot;</span>
+
+<span class="co"># 시각화</span>
+<span class="kw">ggplot</span>(df, <span class="kw">aes</span>(<span class="dt">x =</span> weight_kg, <span class="dt">y =</span> height_cm, <span class="dt">color =</span> outlier_maha)) +
+<span class="st">    </span><span class="kw">geom_point</span>(<span class="dt">size =</span> <span class="dv">5</span>, <span class="dt">alpha =</span> <span class="fl">0.6</span>) +
+<span class="st">    </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;신장과 체중&quot;</span>,
+         <span class="dt">subtitle =</span> <span class="st">&quot;마할라노비스 거리를 활용하여 신장과 체중 이상점 검출&quot;</span>,
+         <span class="dt">caption =</span> <span class="st">&quot;Source: https://www.steffenruefer.com/2016/12/outlier-detection-with-mahalanobis-distance/ </span><span class="ch">\n</span>
+<span class="st">                            https://eurekastatistics.com/using-mahalanobis-distance-to-find-outliers/&quot;</span>) +
+<span class="st">    </span><span class="kw">ylab</span>(<span class="st">&quot;신장(cm)&quot;</span>) +<span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;체중(kg)&quot;</span>) +
+<span class="st">    </span><span class="kw">scale_y_continuous</span>(<span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="dv">160</span>, <span class="dv">200</span>, <span class="dv">5</span>)) +
+<span class="st">    </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="dv">35</span>, <span class="dv">80</span>, <span class="dv">5</span>)) +
+<span class="st">    </span><span class="kw">theme_minimal</span>(<span class="dt">base_family =</span> <span class="st">&quot;NanumGothic&quot;</span>)</code></pre></div>
+<p><img src="fig/mahalanobis-ex-1.png" title="plot of chunk mahalanobis-ex" alt="plot of chunk mahalanobis-ex" style="display: block; margin: auto;" /></p>
+<h3 id="마할라노비스-거리-적용시-주의점">마할라노비스 거리 적용시 주의점</h3>
+<p>마할라노비스 거리를 활용하여 이상점을 추출할 수 있으나 선형적인 관계가 존재할 때 유용하고 비선형인 경우 이상점을 잘못 검출할 수 있다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 주의점 ------------------------------------------------------------------</span>
+
+caveats_df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x=</span><span class="kw">c</span>(<span class="dv">4</span>,  <span class="dv">8</span>, <span class="dv">10</span>, <span class="dv">16</span>, <span class="dv">17</span>, <span class="dv">22</span>, <span class="dv">27</span>, <span class="dv">33</span>, <span class="dv">38</span>, <span class="dv">40</span>, <span class="dv">47</span>, <span class="dv">48</span>, <span class="dv">53</span>, <span class="dv">55</span>, <span class="dv">63</span>, <span class="dv">71</span>, <span class="dv">76</span>, <span class="dv">85</span>, <span class="dv">85</span>, <span class="dv">92</span>, <span class="dv">96</span>),
+                         <span class="dt">y=</span><span class="kw">c</span>(<span class="dv">6</span>, <span class="dv">22</span>, <span class="dv">32</span>, <span class="dv">34</span>, <span class="dv">42</span>, <span class="dv">51</span>, <span class="dv">59</span>, <span class="dv">63</span>, <span class="dv">64</span>, <span class="dv">69</span>, <span class="dv">70</span>, <span class="dv">20</span>, <span class="dv">70</span>, <span class="dv">63</span>, <span class="dv">63</span>, <span class="dv">55</span>, <span class="dv">46</span>, <span class="dv">41</span>, <span class="dv">33</span>, <span class="dv">19</span>,  <span class="dv">6</span>))
+
+caveats_dist &lt;-<span class="st"> </span><span class="kw">mahalanobis</span>(caveats_df[, <span class="dv">1</span>:<span class="dv">2</span>], <span class="kw">colMeans</span>(caveats_df[, <span class="dv">1</span>:<span class="dv">2</span>]), <span class="kw">cov</span>(caveats_df[, <span class="dv">1</span>:<span class="dv">2</span>]))
+caveats_df$m_dist &lt;-<span class="st"> </span><span class="kw">round</span>(caveats_dist, <span class="dv">2</span>)
+
+<span class="co"># Mahalanobis Outliers - Threshold set to 12</span>
+caveats_df$outlier_maha &lt;-<span class="st"> &quot;No&quot;</span>
+caveats_df$outlier_maha[caveats_df$m_dist &gt;<span class="st"> </span><span class="dv">5</span>] &lt;-<span class="st"> &quot;Yes&quot;</span>
+
+<span class="kw">ggplot</span>(caveats_df, <span class="kw">aes</span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y, <span class="dt">color =</span> outlier_maha)) +
+<span class="st">    </span><span class="kw">geom_point</span>(<span class="dt">size =</span> <span class="dv">5</span>, <span class="dt">alpha =</span> <span class="fl">0.6</span>) +
+<span class="st">    </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;마할라노비스 거리 사용시 주의점&quot;</span>,
+         <span class="dt">subtitle =</span> <span class="st">&quot;비선형 관계일 경우 주의 요망 !!!&quot;</span>,
+         <span class="dt">caption =</span> <span class="st">&quot;Source: https://eurekastatistics.com/using-mahalanobis-distance-to-find-outliers/&quot;</span>) +
+<span class="st">    </span><span class="kw">ylab</span>(<span class="st">&quot;신장(cm)&quot;</span>) +<span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;체중(kg)&quot;</span>) +
+<span class="st">    </span><span class="kw">theme_minimal</span>(<span class="dt">base_family =</span> <span class="st">&quot;NanumGothic&quot;</span>)</code></pre></div>
+<p><img src="fig/mahalanobis-caveats-1.png" title="plot of chunk mahalanobis-caveats" alt="plot of chunk mahalanobis-caveats" style="display: block; margin: auto;" /></p>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://www.steffenruefer.com/2016/12/outlier-detection-with-mahalanobis-distance/">Outlier Detection with Mahalanobis Distance</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="https://eurekastatistics.com/using-mahalanobis-distance-to-find-outliers/">Using Mahalanobis Distance to Find Outliers</a><a href="#fnref2">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>
