@@ -31,6 +31,8 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [스파크 EC2 클러스터 - 데이터과학 툴체인(R, sparklyr)](ml-aws-ec2-flintrock-sparklyr.html)
     1. [EMR 스파크 클러스터 - wadal](ml-emr-wadal.html)
     1. [S3 데이터와 EC2, 스파크 EC2 클러스터](ml-ec2-s3.html)
+1. [기계학습 운영 및 자동화 - 파이프라인](ml-production.html)
+    1. [R기반 빅데이터 개발/운영환경](ml-r-bigdata-workflow.html)
 1. 기계학습 적용
     1. [테스트 주도 기계학습](31-ml-tdd.html)
     1. [알고리즘 성능평가](ml-assessment.html)
@@ -84,7 +86,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
     1. [랜딩클럽 - 채무불이행 예측모형](ml-css-lendingclub.html)        
     1. [예측모형 활용분야](ml-pm-applications.html)
     1. [마케팅 반응 예측모형](ml-pm-discrete.html)  
-1. [기계학습 운영 및 자동화 - 파이프라인](ml-production.html)
+
 
 
 ## 기계학습 관련 정보 [^David-Julian-2016]
