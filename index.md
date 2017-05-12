@@ -70,12 +70,15 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [네트워크 유형](ml-network-type.html)
         1. [네트워크 커뮤니티 탐지](ml-network-communities.html)
     1. **[텍스트 데이터](ml-text.html)**
-        1. [텍스트 단어구름(Word Cloud)](ml-wordcloud.html)    
-        1. [텍스트 데이터 수집 -- 트위터](ml-text-twitter.html)
-        1. [단어문서행렬 -- 단어 빈도](ml-text-tdm.html)
-        1. [소설 텍스트 데이터 분석 -- 소나기](ml-text-basic.html)
-        1. [저녁이 있는 삶 -- 손학규](ml-book.html)
-        1. [연설문 판별 - 오바마 vs. 롬니](http://statkclee.github.io/politics/text-classify-speeches.html)
+        1. **텍스트 데이터 다루기**
+            1. [숫자를 문자로 표현](ml-number-to-text.html)
+        1. **텍스트 마이닝(text mining)**
+            1. [텍스트 단어구름(Word Cloud)](ml-wordcloud.html)    
+            1. [텍스트 데이터 수집 -- 트위터](ml-text-twitter.html)
+            1. [단어문서행렬 -- 단어 빈도](ml-text-tdm.html)
+            1. [소설 텍스트 데이터 분석 -- 소나기](ml-text-basic.html)
+            1. [저녁이 있는 삶 -- 손학규](ml-book.html)
+            1. [연설문 판별 - 오바마 vs. 롬니](http://statkclee.github.io/politics/text-classify-speeches.html)
     1. **[장바구니 데이터 분석](ml-market-basket.html)**    
 1. **기계학습 상용화**
     1. [신용평점모형 개발](ml-credit-scoring-overview.html)
