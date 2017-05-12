@@ -70,10 +70,11 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [네트워크 분석 사용자 안내서](ml-network-user-guide.html)
         1. [네트워크 유형](ml-network-type.html)
         1. [네트워크 커뮤니티 탐지](ml-network-communities.html)
-    1. **[텍스트 데이터](ml-text.html)**
+    1. **[텍스트 데이터와 저작](https://statkclee.github.io/ds-authoring/)**
         1. **텍스트 데이터 다루기**
             1. [숫자를 문자로 표현](ml-number-to-text.html)
-        1. **텍스트 마이닝(text mining)**
+            1. [stringr을 통해 문자열/텍스트 다루기](ml-stringr.html)
+        1. **[텍스트 마이닝(text mining)](ml-text.html)**
             1. [텍스트 단어구름(Word Cloud)](ml-wordcloud.html)    
             1. [텍스트 데이터 수집 -- 트위터](ml-text-twitter.html)
             1. [단어문서행렬 -- 단어 빈도](ml-text-tdm.html)
