@@ -74,6 +74,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. **텍스트 데이터 다루기**
             1. [숫자를 문자로 표현](ml-number-to-text.html)
             1. [stringr을 통해 문자열/텍스트 다루기](ml-stringr.html)
+            1. [국내영화, 해외연극 등장인물 출현횟수](ml-movie-play.html)
         1. **[텍스트 마이닝(text mining)](ml-text.html)**
             1. [텍스트 단어구름(Word Cloud)](ml-wordcloud.html)    
             1. [텍스트 데이터 수집 -- 트위터](ml-text-twitter.html)
