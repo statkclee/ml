@@ -1,13 +1,13 @@
 ----------------------------------------------------------------
-Sun May 21 23:25:51 KST 2017:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.10.1.1 - (1458268): instance a816c00e-015c-2b66-6c50-00002e704058 
-on database directory memory:D:\docs\ml\databaseName=metastore_db with class loader org.apache.spark.sql.hive.client.IsolatedClientLoader$$anon$1@88f61c4 
-Loaded from file:/C:/spark-1.6.2-bin-hadoop2.6/lib/spark-assembly-1.6.2-hadoop2.6.0.jar
+Sun May 21 23:32:08 KST 2017:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.10.1.1 - (1458268): instance a816c00e-015c-2b6c-2b01-00002e929d58 
+on database directory memory:/Users/statkclee/swc/ml/databaseName=metastore_db with class loader org.apache.spark.sql.hive.client.IsolatedClientLoader$$anon$1@73310338 
+Loaded from file:/Users/statkclee/Library/Caches/spark/spark-1.6.2-bin-hadoop2.6/lib/spark-assembly-1.6.2-hadoop2.6.0.jar
 java.vendor=Oracle Corporation
-java.runtime.version=1.8.0_131-b11
-user.dir=D:\docs\ml
-os.name=Windows 10
-os.arch=amd64
-os.version=10.0
+java.runtime.version=1.8.0_111-b14
+user.dir=/Users/statkclee/swc/ml
+os.name=Mac OS X
+os.arch=x86_64
+os.version=10.12.4
 derby.system.home=null
 Database Class Loader started - derby.database.classpath=''

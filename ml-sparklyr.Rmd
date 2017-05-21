@@ -81,7 +81,7 @@ spark_disconnect(sc=sc)
 ``` {r spark-copy, eval=TRUE, message=FALSE, warning=FALSE}
 glimpse(iris)
 
-Sys.setenv(SPARK_HOME="C:/spark-1.6.2-bin-hadoop2.6")
+# Sys.setenv(SPARK_HOME="C:/spark-1.6.2-bin-hadoop2.6")
 
 sc <-spark_connect(master="local")
 
