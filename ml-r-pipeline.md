@@ -1,27 +1,6 @@
----
-layout: page
-title: xwMOOC 기계학습
-subtitle: R 모형개발 자동화
-output:
-  html_document: 
-    toc: yes
-    keep_md: yes
-  pdf_document:
-    latex_engine: xelatex
-mainfont: NanumGothic
----
+# xwMOOC 기계학습
  
-``` {r, include=FALSE}
-source("tools/chunk-options.R")
-knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
 
-library(rebus)
-library(stringr)
-library(stringi)
-library(tidyverse)
-library(sparklyr)
-options(encoding="UTF-8")
-```
 
 <img src="fig/pipeline-twidlr.png" alt="모형개발 자동화" width="77%" />
 
@@ -48,7 +27,8 @@ options(encoding="UTF-8")
 예측모형(`lm`)에 데이터프레임을 넣고, 모형을 넣게 되면 예측모형이 생성되지만 이를 후속공정에서 
 받아 사용하기에는 적절치 않다.
 
-``` {r twidlr-setup}
+
+~~~{.r}
 # 0. 환경설정 -----------------------------------------------------------
 # devtools::install_github("drsimonj/twidlr")
 library(tidyverse)
@@ -57,10 +37,48 @@ library(broom)
 
 # 1. twidlr 헬로월드 ----------------------------------------------------
 lm(mtcars, hp ~ .)
+~~~
 
+
+
+~~~{.output}
+
+Call:
+stats::lm(formula = formula, data = data)
+
+Coefficients:
+(Intercept)          mpg          cyl         disp         drat  
+     79.048       -2.063        8.204        0.439       -4.619  
+         wt         qsec           vs           am         gear  
+    -27.660       -1.784       25.813        9.486        7.216  
+       carb  
+     18.749  
+
+~~~
+
+
+
+~~~{.r}
 # 2. 예측 모형 파이프라인 -----------------------------------------------
 mtcars %>% lm(hp ~ .)
-```
+~~~
+
+
+
+~~~{.output}
+
+Call:
+stats::lm(formula = formula, data = data)
+
+Coefficients:
+(Intercept)          mpg          cyl         disp         drat  
+     79.048       -2.063        8.204        0.439       -4.619  
+         wt         qsec           vs           am         gear  
+    -27.660       -1.784       25.813        9.486        7.216  
+       carb  
+     18.749  
+
+~~~
 
 ### 2.2. `twidlr` + `broom` 파이프라인
 
@@ -68,12 +86,49 @@ mtcars %>% lm(hp ~ .)
 특히 `->` 연산자까지 조합하면 원본 데이터프레임이 입력값으로 들어가서 예측모형을 생성하고 나서 
 결과값까지 깔끔하게 데이터프레임을 최종 결과값으로 받게 된다.
 
-``` {r twidlr-broom}
+
+~~~{.r}
 # 3. 예측 모형 결과 내보내기 --------------------------------------------
 
 mtcars %>% lm(hp ~ .) %>% glance
+~~~
 
+
+
+~~~{.output}
+  r.squared adj.r.squared    sigma statistic     p.value df    logLik
+1 0.9027993     0.8565132 25.97138  19.50477 1.89833e-08 11 -142.8905
+       AIC      BIC deviance df.residual
+1 309.7809 327.3697 14164.76          21
+
+~~~
+
+
+
+~~~{.r}
 mtcars %>% lm(hp ~ .) %>% tidy
+~~~
 
+
+
+~~~{.output}
+          term    estimate   std.error  statistic     p.value
+1  (Intercept)  79.0483879 184.5040756  0.4284371 0.672695339
+2          mpg  -2.0630545   2.0905650 -0.9868407 0.334955314
+3          cyl   8.2037204  10.0861425  0.8133655 0.425134929
+4         disp   0.4390024   0.1492007  2.9423609 0.007779725
+5         drat  -4.6185488  16.0829171 -0.2871711 0.776795845
+6           wt -27.6600472  19.2703681 -1.4353668 0.165910518
+7         qsec  -1.7843654   7.3639133 -0.2423121 0.810889101
+8           vs  25.8128774  19.8512410  1.3003156 0.207583411
+9           am   9.4862914  20.7599371  0.4569518 0.652397317
+10        gear   7.2164047  14.6160152  0.4937327 0.626619355
+11        carb  18.7486691   7.0287674  2.6674192 0.014412403
+
+~~~
+
+
+
+~~~{.r}
 mtcars %>% lm(hp ~ .) %>% augment -> result
-```
+~~~
