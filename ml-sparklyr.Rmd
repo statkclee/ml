@@ -4,7 +4,7 @@ title: xwMOOC 기계학습
 subtitle: dplyr을 Spark 위에 올린 sparklyr
 output:
   html_document: 
-    doc: yes
+    toc: yes
     keep_md: yes
   pdf_document:
     latex_engine: xelatex
