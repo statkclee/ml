@@ -122,12 +122,208 @@ $(document).ready(function () {
 
 <div id="TOC">
 <ul>
-<li><a href="#---">1. 콘솔에서 텍스트를 활용한 시각화</a></li>
+<li><a href="#-----">1. 탐색적 데이터분석 - 요약 통계량</a><ul>
+<li><a>1.1. 동기</a></li>
+<li><a>1.2. 요약통계량</a></li>
+</ul></li>
+<li><a href="#---">2. 콘솔에서 텍스트를 활용한 시각화</a></li>
 </ul>
 </div>
 
+<div id="-----" class="section level2">
+<h2>1. 탐색적 데이터분석 - 요약 통계량</h2>
+<div class="section level3">
+<h3>1.1. 동기</h3>
+<p>R에서 다양한 탐색적 데이터분석을 위한 팩키지와 함수가 다수 제공되고 있지만, 데이터과학자에게 딱 이거다하는 도구를 찾기는 힘들다. 특히 요약통계량을 통해 탐색적 데이터분석을 시작할 때 더욱 그렇다.</p>
+<p>탐색적 데이터 분석에서 가장 먼저 구조를 살펴보는 것으로 작업을 시작한다. <code>str</code>, <code>summary</code> 함수가 큰 역할을 수행한다. <code>str</code>, <code>summary</code> 함수가 제공하는 기능을 tidyverse 팩키지 <code>glimpse</code> 함수가 대신하기도 한다.</p>
+<p>한걸음 더 들어가면 숫자형에 대해서는 나름 충분한 정보가 명령어 하나로 제공되지만, 범주형 변수가 섞여 있거나 숫자형 변수에 대해 세밀히 살펴보려면 <code>mosaic::favstats()</code> 함수를 사용해야 하는 번거러음도 존재한다.</p>
+<pre class="r"><code># 2. 텍스트 기반 데이터분석 동기 ---------------------------------------
+# https://rawgit.com/ropenscilabs/skimr/master/blog.html
+## 2.1 구조분석
+str(mtcars)</code></pre>
+<pre class="output"><code>'data.frame':   32 obs. of  11 variables:
+ $ mpg : num  21 21 22.8 21.4 18.7 18.1 14.3 24.4 22.8 19.2 ...
+ $ cyl : num  6 6 4 6 8 6 8 4 4 6 ...
+ $ disp: num  160 160 108 258 360 ...
+ $ hp  : num  110 110 93 110 175 105 245 62 95 123 ...
+ $ drat: num  3.9 3.9 3.85 3.08 3.15 2.76 3.21 3.69 3.92 3.92 ...
+ $ wt  : num  2.62 2.88 2.32 3.21 3.44 ...
+ $ qsec: num  16.5 17 18.6 19.4 17 ...
+ $ vs  : num  0 0 1 1 0 1 0 1 1 1 ...
+ $ am  : num  1 1 1 0 0 0 0 0 0 0 ...
+ $ gear: num  4 4 4 3 3 3 3 4 4 4 ...
+ $ carb: num  4 4 1 1 2 1 4 2 2 4 ...
+</code></pre>
+<pre class="r"><code>summary(mtcars)</code></pre>
+<pre class="output"><code>      mpg             cyl             disp             hp       
+ Min.   :10.40   Min.   :4.000   Min.   : 71.1   Min.   : 52.0  
+ 1st Qu.:15.43   1st Qu.:4.000   1st Qu.:120.8   1st Qu.: 96.5  
+ Median :19.20   Median :6.000   Median :196.3   Median :123.0  
+ Mean   :20.09   Mean   :6.188   Mean   :230.7   Mean   :146.7  
+ 3rd Qu.:22.80   3rd Qu.:8.000   3rd Qu.:326.0   3rd Qu.:180.0  
+ Max.   :33.90   Max.   :8.000   Max.   :472.0   Max.   :335.0  
+      drat             wt             qsec             vs        
+ Min.   :2.760   Min.   :1.513   Min.   :14.50   Min.   :0.0000  
+ 1st Qu.:3.080   1st Qu.:2.581   1st Qu.:16.89   1st Qu.:0.0000  
+ Median :3.695   Median :3.325   Median :17.71   Median :0.0000  
+ Mean   :3.597   Mean   :3.217   Mean   :17.85   Mean   :0.4375  
+ 3rd Qu.:3.920   3rd Qu.:3.610   3rd Qu.:18.90   3rd Qu.:1.0000  
+ Max.   :4.930   Max.   :5.424   Max.   :22.90   Max.   :1.0000  
+       am              gear            carb      
+ Min.   :0.0000   Min.   :3.000   Min.   :1.000  
+ 1st Qu.:0.0000   1st Qu.:3.000   1st Qu.:2.000  
+ Median :0.0000   Median :4.000   Median :2.000  
+ Mean   :0.4062   Mean   :3.688   Mean   :2.812  
+ 3rd Qu.:1.0000   3rd Qu.:4.000   3rd Qu.:4.000  
+ Max.   :1.0000   Max.   :5.000   Max.   :8.000  
+</code></pre>
+<pre class="r"><code>## 2.2 숫자형과 범주형 변수 요약 통계량 한계 ---------------------------
+
+summary(mtcars$mpg) # 숫자형 좋아요</code></pre>
+<pre class="output"><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  10.40   15.43   19.20   20.09   22.80   33.90 
+</code></pre>
+<pre class="r"><code>summary(mtcars$cyl) # 범주형 이건 뭐죠???</code></pre>
+<pre class="output"><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  4.000   4.000   6.000   6.188   8.000   8.000 
+</code></pre>
+<pre class="r"><code>### 범주형에 대한 충분한 설명이 부족
+mosaic::tally(~cyl, data=mtcars) </code></pre>
+<pre class="output"><code>cyl
+ 4  6  8 
+11  7 14 
+</code></pre>
+<pre class="r"><code>table(mtcars$cyl, mtcars$vs) ## 범주에 대한 라벨도 없음</code></pre>
+<pre class="output"><code>   
+     0  1
+  4  1 10
+  6  3  4
+  8 14  0
+</code></pre>
+<pre class="r"><code>### 그래서 다음과 같은 팩키지에 함수가 지원되지만, 뭔가 엉뚱한 곳에 가있는 듯한 느낌
+mosaic::favstats(~mpg, data=mtcars) </code></pre>
+<pre class="output"><code>  min     Q1 median   Q3  max     mean       sd  n missing
+ 10.4 15.425   19.2 22.8 33.9 20.09062 6.026948 32       0
+</code></pre>
+</div>
+<div class="section level3">
+<h3>1.2. 요약통계량</h3>
+<p><code>skimr</code> 팩키지가 이런 갈증을 해소시킬 수 있을 것으로 보인다.</p>
+<ul>
+<li><code>skim(chickwts)</code>: 숫자형과 범주형 변수를 구분하고 각 변수 유형에 맞춰 의미있는 요약통계량을 한눈에 제공한다.</li>
+<li><code>skimr::skim(chickwts) %&gt;% dplyr::filter(stat == &quot;hist&quot;)</code>: 데이터프레임으로 저장되어 이를 다시 뽑아 사용하기도 유용하다.</li>
+<li><code>skim(babynames)</code>: 문자형에도 잘 동작한다.</li>
+</ul>
+<pre class="r"><code># 2. 치킨 무게 데이터 --------------------------------------
+skim(chickwts)</code></pre>
+<pre class="output"><code>Numeric Variables
+# A tibble: 1 x 13
+     var    type missing complete     n     mean      sd   min
+   &lt;chr&gt;   &lt;chr&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;
+1 weight numeric       0       71    71 261.3099 78.0737   108
+# ... with 5 more variables: `25% quantile` &lt;dbl&gt;, median &lt;dbl&gt;, `75%
+#   quantile` &lt;dbl&gt;, max &lt;dbl&gt;, hist &lt;chr&gt;
+
+Factor Variables
+# A tibble: 1 x 7
+    var   type complete missing     n n_unique
+  &lt;chr&gt;  &lt;chr&gt;    &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;
+1  feed factor       71       0    71        6
+# ... with 1 more variables: stat &lt;chr&gt;
+</code></pre>
+<pre class="r"><code>skimr::skim(chickwts) %&gt;%
+    dplyr::filter(stat == &quot;hist&quot;)</code></pre>
+<pre class="output"><code># A tibble: 1 x 5
+     var    type  stat      level value
+   &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;      &lt;chr&gt; &lt;dbl&gt;
+1 weight numeric  hist ▂▇▂▇▇▃▇▆▂▂     0
+</code></pre>
+<pre class="r"><code># 3. 자동차 데이터 --------------------------------------
+skim(mtcars) %&gt;% dplyr::filter(stat==&quot;hist&quot;) %&gt;% 
+    as_tibble() %&gt;% 
+    print.listof(locale = locale(encoding = &quot;UTF-8&quot;)) %&gt;% 
+    do.call(cbind, .)</code></pre>
+<pre class="output"><code>var :
+ [1] &quot;mpg&quot;  &quot;cyl&quot;  &quot;disp&quot; &quot;hp&quot;   &quot;drat&quot; &quot;wt&quot;   &quot;qsec&quot; &quot;vs&quot;   &quot;am&quot;   &quot;gear&quot;
+[11] &quot;carb&quot;
+
+type :
+ [1] &quot;numeric&quot; &quot;numeric&quot; &quot;numeric&quot; &quot;numeric&quot; &quot;numeric&quot; &quot;numeric&quot; &quot;numeric&quot;
+ [8] &quot;numeric&quot; &quot;numeric&quot; &quot;numeric&quot; &quot;numeric&quot;
+
+stat :
+ [1] &quot;hist&quot; &quot;hist&quot; &quot;hist&quot; &quot;hist&quot; &quot;hist&quot; &quot;hist&quot; &quot;hist&quot; &quot;hist&quot; &quot;hist&quot; &quot;hist&quot;
+[11] &quot;hist&quot;
+
+level :
+ [1] &quot;▂▅▇▇▇▃▁▁▂▂&quot; &quot;▆▁▁▁▃▁▁▁▁▇&quot; &quot;▇▇▅▁▁▇▃▂▁▃&quot; &quot;▆▆▇▂▇▂▃▁▁▁&quot; &quot;▃▇▂▂▃▆▅▁▁▁&quot;
+ [6] &quot;▂▂▂▂▇▆▁▁▁▂&quot; &quot;▂▃▇▇▇▅▅▁▁▁&quot; &quot;▇▁▁▁▁▁▁▁▁▆&quot; &quot;▇▁▁▁▁▁▁▁▁▆&quot; &quot;▇▁▁▁▆▁▁▁▁▂&quot;
+[11] &quot;▆▇▂▁▇▁▁▁▁▁&quot;
+
+value :
+ [1] 0 0 0 0 0 0 0 0 0 0 0
+</code></pre>
+<pre class="output"><code>      var    type      stat   level        value
+ [1,] &quot;mpg&quot;  &quot;numeric&quot; &quot;hist&quot; &quot;▂▅▇▇▇▃▁▁▂▂&quot; &quot;0&quot;  
+ [2,] &quot;cyl&quot;  &quot;numeric&quot; &quot;hist&quot; &quot;▆▁▁▁▃▁▁▁▁▇&quot; &quot;0&quot;  
+ [3,] &quot;disp&quot; &quot;numeric&quot; &quot;hist&quot; &quot;▇▇▅▁▁▇▃▂▁▃&quot; &quot;0&quot;  
+ [4,] &quot;hp&quot;   &quot;numeric&quot; &quot;hist&quot; &quot;▆▆▇▂▇▂▃▁▁▁&quot; &quot;0&quot;  
+ [5,] &quot;drat&quot; &quot;numeric&quot; &quot;hist&quot; &quot;▃▇▂▂▃▆▅▁▁▁&quot; &quot;0&quot;  
+ [6,] &quot;wt&quot;   &quot;numeric&quot; &quot;hist&quot; &quot;▂▂▂▂▇▆▁▁▁▂&quot; &quot;0&quot;  
+ [7,] &quot;qsec&quot; &quot;numeric&quot; &quot;hist&quot; &quot;▂▃▇▇▇▅▅▁▁▁&quot; &quot;0&quot;  
+ [8,] &quot;vs&quot;   &quot;numeric&quot; &quot;hist&quot; &quot;▇▁▁▁▁▁▁▁▁▆&quot; &quot;0&quot;  
+ [9,] &quot;am&quot;   &quot;numeric&quot; &quot;hist&quot; &quot;▇▁▁▁▁▁▁▁▁▆&quot; &quot;0&quot;  
+[10,] &quot;gear&quot; &quot;numeric&quot; &quot;hist&quot; &quot;▇▁▁▁▆▁▁▁▁▂&quot; &quot;0&quot;  
+[11,] &quot;carb&quot; &quot;numeric&quot; &quot;hist&quot; &quot;▆▇▂▁▇▁▁▁▁▁&quot; &quot;0&quot;  
+</code></pre>
+<pre class="r"><code># 4. 붓꽃 데이터 ------------------------------------------
+skim(iris)</code></pre>
+<pre class="output"><code>Numeric Variables
+# A tibble: 4 x 13
+           var    type missing complete     n     mean        sd   min
+         &lt;chr&gt;   &lt;chr&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt;
+1 Petal.Length numeric       0      150   150 3.758000 1.7652982   1.0
+2  Petal.Width numeric       0      150   150 1.199333 0.7622377   0.1
+3 Sepal.Length numeric       0      150   150 5.843333 0.8280661   4.3
+4  Sepal.Width numeric       0      150   150 3.057333 0.4358663   2.0
+# ... with 5 more variables: `25% quantile` &lt;dbl&gt;, median &lt;dbl&gt;, `75%
+#   quantile` &lt;dbl&gt;, max &lt;dbl&gt;, hist &lt;chr&gt;
+
+Factor Variables
+# A tibble: 1 x 7
+      var   type complete missing     n n_unique
+    &lt;chr&gt;  &lt;chr&gt;    &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;
+1 Species factor      150       0   150        3
+# ... with 1 more variables: stat &lt;chr&gt;
+</code></pre>
+<pre class="r"><code># 4. 아기 이름 데이터 --------------------------------------
+library(babynames)
+skim(babynames)</code></pre>
+<pre class="output"><code>Numeric Variables
+# A tibble: 3 x 13
+    var    type missing complete       n         mean           sd
+  &lt;chr&gt;   &lt;chr&gt;   &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt;
+1     n integer       0  1858689 1858689 1.833830e+02 1555.3570871
+2  prop numeric       0  1858689 1858689 1.391443e-04    0.0011702
+3  year numeric       0  1858689 1858689 1.973376e+03   33.6978783
+# ... with 6 more variables: min &lt;dbl&gt;, `25% quantile` &lt;dbl&gt;,
+#   median &lt;dbl&gt;, `75% quantile` &lt;dbl&gt;, max &lt;dbl&gt;, hist &lt;chr&gt;
+
+Character Variables
+# A tibble: 2 x 9
+    var      type complete missing empty       n   min   max n_unique
+* &lt;chr&gt;     &lt;chr&gt;    &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;
+1  name character  1858689       0     0 1858689     2    15    95025
+2   sex character  1858689       0     0 1858689     1     1        2
+</code></pre>
+<blockquote>
+<h3 id="--spark-histogram--" class="callout">윈도우 스파크 히스토드램(spark histogram) 표시 문제</h3>
+<p>“▂▅▇” 기호가 “<code>&lt;U+2582&gt;&lt;U+2585&gt;&lt;U+2587&gt;</code>”으로 표기되는 문제가 있다. 고질적인 문제로 윈도우 환경에서는 아직까지 해결책은 없다. 다만, <code>Sys.setlocale( locale='Chinese' )</code> 명령어를 실행한 후에 <code>View</code> 명령어로 확인하는 방법과, <code>print.listof(locale = locale(encoding = &quot;UTF-8&quot;))</code> 명령어를 사용하는 방법이 편법으로 존재한다. <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></p>
+</blockquote>
+</div>
+</div>
 <div id="---" class="section level2">
-<h2>1. 콘솔에서 텍스트를 활용한 시각화</h2>
+<h2>2. 콘솔에서 텍스트를 활용한 시각화</h2>
 <p>GUI가 일반화되기 이전에 데이터를 분석한 경험이 있는 분은 아마도 콘솔에서 그래프를 그려본 향수가 느껴질 수도 있다. 탐색적 데이터분석을 콘솔에서 가볍게 실행해 보는 방법을 살펴보자. 활용될 팩키지는 다음과 같다.</p>
 <ul>
 <li><a href="https://github.com/ropenscilabs/skimr">skimr</a>: 텍스트 기반 요약 통계량</li>
@@ -199,67 +395,67 @@ Legend: 1=기호1번, 2=기호2번, 3=기호3번
 </code></pre>
 <pre class="r"><code>## 2.3. 상자그림 그래프 --------------------------------------
 txtboxplot(rnorm(1000,0,0.5), rnorm(100, 1))</code></pre>
-<pre class="output"><code>      -1          0          1          2           3       
- |-----+----------+----------+----------+-----------+------|
-               +--+---+                                     
-1   -----------|  |   |----------                           
-               +--+---+                                     
-                     +-------+-----+                        
-2    ----------------|       |     |--------------------    
-                     +-------+-----+                        
+<pre class="output"><code>        -1          0           1          2           3    
+ |-------+----------+-----------+----------+-----------+---|
+                +---+---+                                   
+1   ------------|   |   |------------                       
+                +---+---+                                   
+                         +------+------+                    
+2   ---------------------|      |      |----------------    
+                         +------+------+                    
 Legend: 1=rnorm(1000, 0, 0.5), 2=rnorm(100, 1)
 </code></pre>
 <pre class="r"><code>## 2.4. 분포 그래프 ------------------------------------------
 txtdensity(rnorm(500), pch = &quot;+&quot;)</code></pre>
-<pre class="output"><code>0.4 +---+-------+-------+-------+-------+-------+-------+--+
-    |                       ++++++++                       |
-    |                      ++      +++                     |
-0.3 +                     ++         +++                   +
-    |                    ++            ++                  |
-    |                   ++              +                  |
-0.2 +                  ++                +                 +
-    |                +++                  ++               |
-    |               ++                     ++              |
-    |             +++                        ++            |
-0.1 +            ++                           +++          +
-    |          +++                              +++        |
-    | ++++++++++                                  +++++++  |
-  0 +---+-------+-------+-------+-------+-------+-------+--+
-       -3      -2      -1       0       1       2       3   
+<pre class="output"><code>    +--+--------+-------+--------+-------+--------+-------++
+    |                       ++++++++++                     |
+    |                     +++        +++                   |
+0.3 +                    ++            ++                  +
+    |                   ++              ++                 |
+    |                  ++                ++                |
+0.2 +                 ++                   ++              +
+    |                ++                     ++             |
+    |               ++                       +++           |
+0.1 +             +++                          ++          +
+    |           +++                              ++        |
+    |         +++                                 +++      |
+    | +++++++++                                     +++++  |
+  0 +--+--------+-------+--------+-------+--------+-------++
+      -3       -2      -1        0       1        2       3 
 </code></pre>
 <pre class="r"><code>## 2.5. 히스토그램 ------------------------------------------
 nos.hist(rnorm(500), freq=TRUE)</code></pre>
-<pre class="output"><code>     +-----------+--------------+--------------+-----------+
-     |                        o   o                        |
-  80 +                        o   o                        +
-F    |                    o   o   o   o                    |
-r    |                    o   o   o   o                    |
-e 60 +                 o  o   o   o   o                    +
-q    |                 o  o   o   o   o  o                 |
-u 40 +                 o  o   o   o   o  o                 +
-e    |                 o  o   o   o   o  o                 |
-n    |             o   o  o   o   o   o  o   o             |
-c 20 +             o   o  o   o   o   o  o   o             +
-y    |             o   o  o   o   o   o  o   o             |
-   0 + o   o   o   o   o  o   o   o   o  o   o   o   o  o  +
-     +-----------+--------------+--------------+-----------+
-                -2              0              2            
+<pre class="output"><code>      +-----------+-------------+--------------+-----------+
+  100 +                        o                           +
+      |                        o                           |
+F     |                        o  o                        |
+r  80 +                    o   o  o                        +
+e     |                    o   o  o   o                    |
+q  60 +                    o   o  o   o                    +
+u     |                o   o   o  o   o                    |
+e  40 +                o   o   o  o   o   o                +
+n     |                o   o   o  o   o   o  o             |
+c  20 +            o   o   o   o  o   o   o  o             +
+y     |            o   o   o   o  o   o   o  o   o         |
+    0 + o   o   o  o   o   o   o  o   o   o  o   o   o  o  +
+      +-----------+-------------+--------------+-----------+
+                 -2             0              2            
 </code></pre>
 <pre class="r"><code>## 2.6. 자기상관 그래프 ------------------------------------------
 txtacf(arima.sim(list(ar = 0.7), n = 100))</code></pre>
 <pre class="output"><code>    +-+------------+-----------+------------+-----------+--+
   1 + *                                                    +
     | *                                                    |
+0.8 + *                                                    +
     | *  *                                                 |
-    | *  *                                                 |
-0.5 + *  * *                                               +
+0.6 + *  *                                                 +
     | *  * *                                               |
     | *  * *  *                                            |
-    | *  * *  * *  *              * *                      |
+0.4 + *  * *  *                                            +
+    | *  * *  * *  *                                       |
+0.2 + *  * *  * *  * *  *                     *  *         +
+    | *  * *  * *  * *  * *  * *            * *  * *  * *  |
   0 + *  * *  * *  * *  * *  * *  * *  * *  * *  * *  * *  +
-    |                        *              * *  * *  * *  |
-    |                                            * *  * *  |
-    |                                            *    * *  |
     +-+------------+-----------+------------+-----------+--+
       0            5          10           15          20   
 </code></pre>
@@ -281,6 +477,12 @@ h   2 +           *            *  *                        +
                   5            6            7             8 
                           Sepal.Length                      
 </code></pre>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://stackoverflow.com/questions/44253848/skimr-cant-seem-to-produce-the-histograms">Skimr - cant seem to produce the histograms</a><a href="#fnref1">↩</a></p></li>
+</ol>
 </div>
 
 

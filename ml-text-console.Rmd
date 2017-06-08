@@ -25,7 +25,7 @@ library(NostalgiR)
 
 ## 1. 탐색적 데이터분석 - 요약 통계량 
 
-## 2.1. 동기
+### 1.1. 동기
 
 R에서 다양한 탐색적 데이터분석을 위한 팩키지와 함수가 다수 제공되고 있지만, 데이터과학자에게 딱 이거다하는 
 도구를 찾기는 힘들다. 특히 요약통계량을 통해 탐색적 데이터분석을 시작할 때 더욱 그렇다.
@@ -56,7 +56,7 @@ table(mtcars$cyl, mtcars$vs) ## 범주에 대한 라벨도 없음
 mosaic::favstats(~mpg, data=mtcars) 
 ```
 
-## 1.2. 요약통계량 
+### 1.2. 요약통계량 
 
 `skimr` 팩키지가 이런 갈증을 해소시킬 수 있을 것으로 보인다.
 
@@ -65,7 +65,7 @@ mosaic::favstats(~mpg, data=mtcars)
 - `skim(babynames)`: 문자형에도 잘 동작한다.
 
 
-``` {r eda-text-motivation}
+``` {r eda-text-skimr}
 # 2. 치킨 무게 데이터 --------------------------------------
 skim(chickwts)
 
@@ -76,7 +76,7 @@ skimr::skim(chickwts) %>%
 skim(mtcars) %>% dplyr::filter(stat=="hist") %>% 
     as_tibble() %>% 
     print.listof(locale = locale(encoding = "UTF-8")) %>% 
-    do.call(cbind, .) %>% dplyr::filter(stat=="hist")
+    do.call(cbind, .)
 
 # 4. 붓꽃 데이터 ------------------------------------------
 skim(iris)
@@ -88,7 +88,7 @@ skim(babynames)
 
 > ### 윈도우 스파크 히스토드램(spark histogram) 표시 문제 {.callout}
 > 
-> "&#9602;&#9605;&#9607;" 기호가 "<U+2582><U+2585><U+2587>"으로 표기되는 문제가 있다.
+> "&#9602;&#9605;&#9607;" 기호가 "`<U+2582><U+2585><U+2587>`"으로 표기되는 문제가 있다.
 > 고질적인 문제로 윈도우 환경에서는 아직까지 해결책은 없다.
 > 다만, `Sys.setlocale( locale='Chinese' )` 명령어를 실행한 후에 `View` 명령어로 확인하는 방법과,
 > `print.listof(locale = locale(encoding = "UTF-8"))` 명령어를 사용하는 방법이 편법으로 존재한다. [^skimr-windows]

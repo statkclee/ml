@@ -1,4 +1,15 @@
-# xwMOOC 기계학습
+---
+layout: page
+title: xwMOOC 기계학습
+subtitle: dplyr을 Spark 위에 올린 sparklyr
+output:
+  html_document: 
+    toc: yes
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
+---
  
 
 
@@ -146,6 +157,7 @@ print(iris_tbl, n=6, width = Inf)
 Source:   query [150 x 5]
 Database: spark connection master=local[8] app=sparklyr local=TRUE
 
+# A tibble: 150 x 5
   Sepal_Length Sepal_Width Petal_Length Petal_Width Species
          <dbl>       <dbl>        <dbl>       <dbl>   <chr>
 1          5.1         3.5          1.4         0.2  setosa
@@ -170,11 +182,13 @@ glimpse(iris_tbl)
 ~~~{.output}
 Observations: 150
 Variables: 5
-$ Sepal_Length <dbl> 5.1, 4.9, 4.7, 4.6, 5.0, 5.4, 4.6, 5.0, 4.4, 4.9,...
-$ Sepal_Width  <dbl> 3.5, 3.0, 3.2, 3.1, 3.6, 3.9, 3.4, 3.4, 2.9, 3.1,...
-$ Petal_Length <dbl> 1.4, 1.4, 1.3, 1.5, 1.4, 1.7, 1.4, 1.5, 1.4, 1.5,...
-$ Petal_Width  <dbl> 0.2, 0.2, 0.2, 0.2, 0.2, 0.4, 0.3, 0.2, 0.2, 0.1,...
-$ Species      <chr> "setosa", "setosa", "setosa", "setosa", "setosa",...
+
+~~~
+
+
+
+~~~{.output}
+Error in if (width[i] <= max_width[i]) next: TRUE/FALSE가 필요한 곳에 값이 없습니다
 
 ~~~
 
@@ -207,17 +221,18 @@ copy_to(sc, iris, overwrite = TRUE)
 Source:   query [150 x 5]
 Database: spark connection master=local[8] app=sparklyr local=TRUE
 
+# A tibble: 150 x 5
    Sepal_Length Sepal_Width Petal_Length Petal_Width Species
           <dbl>       <dbl>        <dbl>       <dbl>   <chr>
-1           5.1         3.5          1.4         0.2  setosa
-2           4.9         3.0          1.4         0.2  setosa
-3           4.7         3.2          1.3         0.2  setosa
-4           4.6         3.1          1.5         0.2  setosa
-5           5.0         3.6          1.4         0.2  setosa
-6           5.4         3.9          1.7         0.4  setosa
-7           4.6         3.4          1.4         0.3  setosa
-8           5.0         3.4          1.5         0.2  setosa
-9           4.4         2.9          1.4         0.2  setosa
+ 1          5.1         3.5          1.4         0.2  setosa
+ 2          4.9         3.0          1.4         0.2  setosa
+ 3          4.7         3.2          1.3         0.2  setosa
+ 4          4.6         3.1          1.5         0.2  setosa
+ 5          5.0         3.6          1.4         0.2  setosa
+ 6          5.4         3.9          1.7         0.4  setosa
+ 7          4.6         3.4          1.4         0.3  setosa
+ 8          5.0         3.4          1.5         0.2  setosa
+ 9          4.4         2.9          1.4         0.2  setosa
 10          4.9         3.1          1.5         0.1  setosa
 # ... with 140 more rows
 
@@ -235,11 +250,13 @@ glimpse(iris_sdf_tbl)
 ~~~{.output}
 Observations: 150
 Variables: 5
-$ Sepal_Length <dbl> 5.1, 4.9, 4.7, 4.6, 5.0, 5.4, 4.6, 5.0, 4.4, 4.9,...
-$ Sepal_Width  <dbl> 3.5, 3.0, 3.2, 3.1, 3.6, 3.9, 3.4, 3.4, 2.9, 3.1,...
-$ Petal_Length <dbl> 1.4, 1.4, 1.3, 1.5, 1.4, 1.7, 1.4, 1.5, 1.4, 1.5,...
-$ Petal_Width  <dbl> 0.2, 0.2, 0.2, 0.2, 0.2, 0.4, 0.3, 0.2, 0.2, 0.1,...
-$ Species      <chr> "setosa", "setosa", "setosa", "setosa", "setosa",...
+
+~~~
+
+
+
+~~~{.output}
+Error in if (width[i] <= max_width[i]) next: TRUE/FALSE가 필요한 곳에 값이 없습니다
 
 ~~~
 
@@ -257,17 +274,18 @@ iris_sdf_tbl %>% dplyr::select(Sepal_Length, Petal_Length, Species)
 Source:   query [150 x 3]
 Database: spark connection master=local[8] app=sparklyr local=TRUE
 
+# A tibble: 150 x 3
    Sepal_Length Petal_Length Species
           <dbl>        <dbl>   <chr>
-1           5.1          1.4  setosa
-2           4.9          1.4  setosa
-3           4.7          1.3  setosa
-4           4.6          1.5  setosa
-5           5.0          1.4  setosa
-6           5.4          1.7  setosa
-7           4.6          1.4  setosa
-8           5.0          1.5  setosa
-9           4.4          1.4  setosa
+ 1          5.1          1.4  setosa
+ 2          4.9          1.4  setosa
+ 3          4.7          1.3  setosa
+ 4          4.6          1.5  setosa
+ 5          5.0          1.4  setosa
+ 6          5.4          1.7  setosa
+ 7          4.6          1.4  setosa
+ 8          5.0          1.5  setosa
+ 9          4.4          1.4  setosa
 10          4.9          1.5  setosa
 # ... with 140 more rows
 
@@ -287,17 +305,18 @@ iris_sdf_tbl %>% dplyr::select(Sepal_Length, Petal_Length, Species) %>%
 Source:   query [42 x 3]
 Database: spark connection master=local[8] app=sparklyr local=TRUE
 
+# A tibble: 42 x 3
    Sepal_Length Petal_Length    Species
           <dbl>        <dbl>      <chr>
-1           6.0          5.1 versicolor
-2           6.3          6.0  virginica
-3           5.8          5.1  virginica
-4           7.1          5.9  virginica
-5           6.3          5.6  virginica
-6           6.5          5.8  virginica
-7           7.6          6.6  virginica
-8           7.3          6.3  virginica
-9           6.7          5.8  virginica
+ 1          6.0          5.1 versicolor
+ 2          6.3          6.0  virginica
+ 3          5.8          5.1  virginica
+ 4          7.1          5.9  virginica
+ 5          6.3          5.6  virginica
+ 6          6.5          5.8  virginica
+ 7          7.6          6.6  virginica
+ 8          7.3          6.3  virginica
+ 9          6.7          5.8  virginica
 10          7.2          6.1  virginica
 # ... with 32 more rows
 
@@ -318,17 +337,18 @@ iris_sdf_tbl %>% dplyr::select(Sepal_Length, Petal_Length, Species) %>%
 Source:   query [42 x 3]
 Database: spark connection master=local[8] app=sparklyr local=TRUE
 
+# A tibble: 42 x 3
    Sepal_Length Petal_Length    Species
           <dbl>        <dbl>      <chr>
-1           6.0          5.1 versicolor
-2           7.7          6.9  virginica
-3           7.7          6.7  virginica
-4           7.7          6.7  virginica
-5           7.6          6.6  virginica
-6           7.9          6.4  virginica
-7           7.3          6.3  virginica
-8           7.2          6.1  virginica
-9           7.4          6.1  virginica
+ 1          6.0          5.1 versicolor
+ 2          7.7          6.9  virginica
+ 3          7.7          6.7  virginica
+ 4          7.7          6.7  virginica
+ 5          7.6          6.6  virginica
+ 6          7.9          6.4  virginica
+ 7          7.3          6.3  virginica
+ 8          7.2          6.1  virginica
+ 9          7.4          6.1  virginica
 10          7.7          6.1  virginica
 # ... with 32 more rows
 
@@ -350,17 +370,18 @@ iris_sdf_tbl %>% dplyr::select(Sepal_Length, Petal_Length, Species) %>%
 Source:   query [42 x 4]
 Database: spark connection master=local[8] app=sparklyr local=TRUE
 
+# A tibble: 42 x 4
    Sepal_Length Petal_Length    Species log_Sepal_Length
           <dbl>        <dbl>      <chr>            <dbl>
-1           6.0          5.1 versicolor        0.5581106
-2           7.7          6.9  virginica        0.4899030
-3           7.7          6.7  virginica        0.4899030
-4           7.7          6.7  virginica        0.4899030
-5           7.6          6.6  virginica        0.4930606
-6           7.9          6.4  virginica        0.4838251
-7           7.3          6.3  virginica        0.5030499
-8           7.2          6.1  virginica        0.5065648
-9           7.4          6.1  virginica        0.4996303
+ 1          6.0          5.1 versicolor        0.5581106
+ 2          7.7          6.9  virginica        0.4899030
+ 3          7.7          6.7  virginica        0.4899030
+ 4          7.7          6.7  virginica        0.4899030
+ 5          7.6          6.6  virginica        0.4930606
+ 6          7.9          6.4  virginica        0.4838251
+ 7          7.3          6.3  virginica        0.5030499
+ 8          7.2          6.1  virginica        0.5065648
+ 9          7.4          6.1  virginica        0.4996303
 10          7.7          6.1  virginica        0.4899030
 # ... with 32 more rows
 
@@ -384,6 +405,7 @@ iris_sdf_tbl %>% dplyr::select(Sepal_Length, Petal_Length, Species) %>%
 Source:   query [1 x 2]
 Database: spark connection master=local[8] app=sparklyr local=TRUE
 
+# A tibble: 1 x 2
   mean_sepal_length max_petal_legnth
               <dbl>            <dbl>
 1          6.721429              6.9
@@ -417,17 +439,18 @@ iris_sdf_tbl %>% dplyr::select(starts_with("Sepal"), Species)
 Source:   query [150 x 3]
 Database: spark connection master=local[8] app=sparklyr local=TRUE
 
+# A tibble: 150 x 3
    Sepal_Length Sepal_Width Species
           <dbl>       <dbl>   <chr>
-1           5.1         3.5  setosa
-2           4.9         3.0  setosa
-3           4.7         3.2  setosa
-4           4.6         3.1  setosa
-5           5.0         3.6  setosa
-6           5.4         3.9  setosa
-7           4.6         3.4  setosa
-8           5.0         3.4  setosa
-9           4.4         2.9  setosa
+ 1          5.1         3.5  setosa
+ 2          4.9         3.0  setosa
+ 3          4.7         3.2  setosa
+ 4          4.6         3.1  setosa
+ 5          5.0         3.6  setosa
+ 6          5.4         3.9  setosa
+ 7          4.6         3.4  setosa
+ 8          5.0         3.4  setosa
+ 9          4.4         2.9  setosa
 10          4.9         3.1  setosa
 # ... with 140 more rows
 
@@ -446,6 +469,7 @@ iris_sdf_tbl %>% distinct(Species)
 Source:   query [3 x 1]
 Database: spark connection master=local[8] app=sparklyr local=TRUE
 
+# A tibble: 3 x 1
      Species
        <chr>
 1  virginica
@@ -477,6 +501,7 @@ iris_sdf_tbl %>% dplyr::select(Sepal_Length, Petal_Length, Species) %>%
 Source:   query [3 x 3]
 Database: spark connection master=local[8] app=sparklyr local=TRUE
 
+# A tibble: 3 x 3
      Species mean_sepal_length max_petal_legnth
        <chr>             <dbl>            <dbl>
 1     setosa          5.069231              1.9
@@ -693,7 +718,7 @@ ggplot(iris_sdf_df, aes(sepal_length_f)) +
   geom_bar()
 ~~~
 
-<img src="fig/spark-dataframe-factor-1.png" style="display: block; margin: auto;" />
+<img src="fig/spark-dataframe-factor-1.png" title="plot of chunk spark-dataframe-factor" alt="plot of chunk spark-dataframe-factor" style="display: block; margin: auto;" />
 
 ~~~{.r}
 ## 2.2. 연속형 변수를 범주형 변환 (I)
@@ -712,7 +737,7 @@ ggplot(iris_sdf_df, aes(sepal_length_f, Petal_Length)) +
   geom_boxplot()
 ~~~
 
-<img src="fig/spark-dataframe-factor-2.png" style="display: block; margin: auto;" />
+<img src="fig/spark-dataframe-factor-2.png" title="plot of chunk spark-dataframe-factor" alt="plot of chunk spark-dataframe-factor" style="display: block; margin: auto;" />
 
 ~~~{.r}
 ## 2.2. 연속형 변수를 범주형 변환 (II)
@@ -727,7 +752,7 @@ iris_sdf_tbl %>%
   geom_boxplot()
 ~~~
 
-<img src="fig/spark-dataframe-factor-3.png" style="display: block; margin: auto;" />
+<img src="fig/spark-dataframe-factor-3.png" title="plot of chunk spark-dataframe-factor" alt="plot of chunk spark-dataframe-factor" style="display: block; margin: auto;" />
 
 ### 6.3. 기계학습 예측 모형 
 
@@ -750,22 +775,22 @@ iris_sdf_tbl %>%
 
 
 ~~~{.output}
-Source:   query [22 x 5]
+Source:   query [10 x 5]
 Database: spark connection master=local[8] app=sparklyr local=TRUE
 
+# A tibble: 10 x 5
    Sepal_Length Sepal_Width Petal_Length Petal_Width    Species
           <dbl>       <dbl>        <dbl>       <dbl>      <chr>
-1           4.6         3.1          1.5         0.2     setosa
-2           5.4         3.9          1.7         0.4     setosa
-3           4.8         3.4          1.6         0.2     setosa
-4           5.0         3.0          1.6         0.2     setosa
-5           4.8         3.1          1.6         0.2     setosa
-6           5.1         3.8          1.9         0.4     setosa
-7           7.0         3.2          4.7         1.4 versicolor
-8           6.9         3.1          4.9         1.5 versicolor
-9           6.5         2.8          4.6         1.5 versicolor
-10          6.3         3.3          4.7         1.6 versicolor
-# ... with 12 more rows
+ 1          4.4         2.9          1.4         0.2     setosa
+ 2          5.7         4.4          1.5         0.4     setosa
+ 3          5.4         3.9          1.3         0.4     setosa
+ 4          5.0         3.2          1.2         0.2     setosa
+ 5          5.9         3.0          4.2         1.5 versicolor
+ 6          6.4         3.2          5.3         2.3  virginica
+ 7          6.9         3.2          5.7         2.3  virginica
+ 8          5.6         2.8          4.9         2.0  virginica
+ 9          7.2         3.2          6.0         1.8  virginica
+10          7.4         2.8          6.1         1.9  virginica
 
 ~~~
 
@@ -793,13 +818,15 @@ glimpse(iris_10_pcnt_tbl)
 
 
 ~~~{.output}
-Observations: 22
+Observations: 10
 Variables: 5
-$ Sepal_Length <dbl> 4.6, 5.4, 4.8, 5.0, 4.8, 5.1, 7.0, 6.9, 6.5, 6.3,...
-$ Sepal_Width  <dbl> 3.1, 3.9, 3.4, 3.0, 3.1, 3.8, 3.2, 3.1, 2.8, 3.3,...
-$ Petal_Length <dbl> 1.5, 1.7, 1.6, 1.6, 1.6, 1.9, 4.7, 4.9, 4.6, 4.7,...
-$ Petal_Width  <dbl> 0.2, 0.4, 0.2, 0.2, 0.2, 0.4, 1.4, 1.5, 1.5, 1.6,...
-$ Species      <chr> "setosa", "setosa", "setosa", "setosa", "setosa",...
+
+~~~
+
+
+
+~~~{.output}
+Error in if (width[i] <= max_width[i]) next: TRUE/FALSE가 필요한 곳에 값이 없습니다
 
 ~~~
 
@@ -819,9 +846,10 @@ iris_split_tbl$training %>% count
 Source:   query [1 x 1]
 Database: spark connection master=local[8] app=sparklyr local=TRUE
 
+# A tibble: 1 x 1
       n
   <dbl>
-1   107
+1   113
 
 ~~~
 
@@ -837,9 +865,10 @@ iris_split_tbl$testing %>% count
 Source:   query [1 x 1]
 Database: spark connection master=local[8] app=sparklyr local=TRUE
 
+# A tibble: 1 x 1
       n
   <dbl>
-1    43
+1    37
 
 ~~~
 
@@ -873,9 +902,9 @@ table(iris_responses)
 ~~~{.output}
             predicted_species
 Species      setosa versicolor virginica
-  setosa         12          2         0
-  versicolor      2         11         3
-  virginica       0          3        10
+  setosa         10          2         0
+  versicolor      1          6         2
+  virginica       0          3        13
 
 ~~~
 
@@ -887,4 +916,4 @@ ggplot(iris_responses, aes(Species, predicted_species)) +
   geom_abline(intercept=0, slope=1)
 ~~~
 
-<img src="fig/spark-dataframe-ml-1.png" style="display: block; margin: auto;" />
+<img src="fig/spark-dataframe-ml-1.png" title="plot of chunk spark-dataframe-ml" alt="plot of chunk spark-dataframe-ml" style="display: block; margin: auto;" />
