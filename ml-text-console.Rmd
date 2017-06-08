@@ -23,7 +23,80 @@ library(NostalgiR)
 
 ```
 
-## 1. 콘솔에서 텍스트를 활용한 시각화
+## 1. 탐색적 데이터분석 - 요약 통계량 
+
+## 2.1. 동기
+
+R에서 다양한 탐색적 데이터분석을 위한 팩키지와 함수가 다수 제공되고 있지만, 데이터과학자에게 딱 이거다하는 
+도구를 찾기는 힘들다. 특히 요약통계량을 통해 탐색적 데이터분석을 시작할 때 더욱 그렇다.
+
+탐색적 데이터 분석에서 가장 먼저 구조를 살펴보는 것으로 작업을 시작한다.
+`str`, `summary` 함수가 큰 역할을 수행한다. `str`, `summary` 함수가 제공하는 기능을 tidyverse 팩키지 `glimpse` 함수가 대신하기도 한다.
+
+한걸음 더 들어가면 숫자형에 대해서는 나름 충분한 정보가 명령어 하나로 제공되지만, 범주형 변수가 섞여 있거나 
+숫자형 변수에 대해 세밀히 살펴보려면 `mosaic::favstats()` 함수를 사용해야 하는 번거러음도 존재한다. 
+
+``` {r eda-text-motivation}
+# 2. 텍스트 기반 데이터분석 동기 ---------------------------------------
+# https://rawgit.com/ropenscilabs/skimr/master/blog.html
+## 2.1 구조분석
+str(mtcars)
+summary(mtcars)
+
+## 2.2 숫자형과 범주형 변수 요약 통계량 한계 ---------------------------
+
+summary(mtcars$mpg) # 숫자형 좋아요
+summary(mtcars$cyl) # 범주형 이건 뭐죠???
+
+### 범주형에 대한 충분한 설명이 부족
+mosaic::tally(~cyl, data=mtcars) 
+table(mtcars$cyl, mtcars$vs) ## 범주에 대한 라벨도 없음
+
+### 그래서 다음과 같은 팩키지에 함수가 지원되지만, 뭔가 엉뚱한 곳에 가있는 듯한 느낌
+mosaic::favstats(~mpg, data=mtcars) 
+```
+
+## 1.2. 요약통계량 
+
+`skimr` 팩키지가 이런 갈증을 해소시킬 수 있을 것으로 보인다.
+
+- `skim(chickwts)`: 숫자형과 범주형 변수를 구분하고 각 변수 유형에 맞춰 의미있는 요약통계량을 한눈에 제공한다.
+- `skimr::skim(chickwts) %>% dplyr::filter(stat == "hist")`: 데이터프레임으로 저장되어 이를 다시 뽑아 사용하기도 유용하다.
+- `skim(babynames)`: 문자형에도 잘 동작한다.
+
+
+``` {r eda-text-motivation}
+# 2. 치킨 무게 데이터 --------------------------------------
+skim(chickwts)
+
+skimr::skim(chickwts) %>%
+    dplyr::filter(stat == "hist")
+
+# 3. 자동차 데이터 --------------------------------------
+skim(mtcars) %>% dplyr::filter(stat=="hist") %>% 
+    as_tibble() %>% 
+    print.listof(locale = locale(encoding = "UTF-8")) %>% 
+    do.call(cbind, .) %>% dplyr::filter(stat=="hist")
+
+# 4. 붓꽃 데이터 ------------------------------------------
+skim(iris)
+    
+# 4. 아기 이름 데이터 --------------------------------------
+library(babynames)
+skim(babynames)
+```
+
+> ### 윈도우 스파크 히스토드램(spark histogram) 표시 문제 {.callout}
+> 
+> "&#9602;&#9605;&#9607;" 기호가 "<U+2582><U+2585><U+2587>"으로 표기되는 문제가 있다.
+> 고질적인 문제로 윈도우 환경에서는 아직까지 해결책은 없다.
+> 다만, `Sys.setlocale( locale='Chinese' )` 명령어를 실행한 후에 `View` 명령어로 확인하는 방법과,
+> `print.listof(locale = locale(encoding = "UTF-8"))` 명령어를 사용하는 방법이 편법으로 존재한다. [^skimr-windows]
+
+[^skimr-windows]: [Skimr - cant seem to produce the histograms](https://stackoverflow.com/questions/44253848/skimr-cant-seem-to-produce-the-histograms)
+
+
+## 2. 콘솔에서 텍스트를 활용한 시각화
 
 GUI가 일반화되기 이전에 데이터를 분석한 경험이 있는 분은 아마도 콘솔에서 그래프를 그려본 향수가 느껴질 수도 있다.
 탐색적 데이터분석을 콘솔에서 가볍게 실행해 보는 방법을 살펴보자. 활용될 팩키지는 다음과 같다.
@@ -36,6 +109,7 @@ GUI가 일반화되기 이전에 데이터를 분석한 경험이 있는 분은 
 범주형 변수 시각화를 위한 막대그래프, 연속형 단변량 변수 시각화를 위한 분포(density), 
 히스토그램(histogram), 상자그림(boxplot)이 우선 떠오르고, 시계열 데이터를 위한 자기상관 그래프, 
 변수간 관계를 일별할 수 있는 산점도가 있다.
+
 
 ``` {r eda-text-txtplot}
 # 0. 환경설정 -------------------------------------------------
