@@ -51,7 +51,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
     1. [데이터에 무게를 둔 예측모형](ml-modeling.html)
         1. **인간 중심 기계학습 모형**
             1. [선형대수와 함께하는 회귀분석 이해](ml-linear-algebra-reg.html)    
-            1. [통계적 모형개발 기초](ml-modeling-basic.html)
+            1. [통계적 모형개발 기초](ml-modeling-basic.html)            
             1. [전통방식 모형개발 -타이타닉 생존데이터](ml-modeling-titanic.html)  
         1. **인간과 기계가 함께하는 기계학습 예측모형**  
             1. [기계학습 예측모형 준비](ml-predictive-modeling-basic.html)
@@ -61,7 +61,9 @@ subtitle: 데이터 과학자가 바라본 기계학습
             1. [사례 - 콘크리트 강도](ml-pm-continuous-concrete.html)
             1. [사례 - 카드발급](ml-credit-greene.html)
             1. [비지도 학습 - 포켓몬](ml-pokemon-unsupervised.html)
-        1. **기계 중심 기계학습**              
+        1. **기계 중심 기계학습**
+    1. **예측모형 개발 자동화**
+        - [예측모형 파이프 - 예측모형 요리법(recipe)](ml-modeling-pipe.html)
 1. **데이터 유형별 기계학습 모형**
     1. **[네트워크 데이터 들어가며 -- 색상과 글꼴](ml-network-overview.html)**        
         1. [네트워크 데이터](ml-network-data.html)
