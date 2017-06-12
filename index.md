@@ -64,6 +64,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. **기계 중심 기계학습**
     1. **예측모형 개발 자동화**
         - [R 모형설계행렬(Recipe)](ml-r-design-matrix.html)
+        - [로직스틱 예측 모형](ml-logistic.html)
 1. **데이터 유형별 기계학습 모형**
     1. **[네트워크 데이터 들어가며 -- 색상과 글꼴](ml-network-overview.html)**        
         1. [네트워크 데이터](ml-network-data.html)

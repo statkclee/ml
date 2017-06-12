@@ -1,0 +1,31 @@
+---
+layout: page
+title: xwMOOC 기계학습
+subtitle: 로직스틱 예측 모형
+output:
+  html_document: 
+    toc: yes
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
+---
+ 
+``` {r, include=FALSE}
+source("tools/chunk-options.R")
+
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE,
+                      comment="", digits = 3, tidy = FALSE, prompt = TRUE, fig.align = 'center')
+
+options(width = 90)
+library(knitr)
+library(ggplot2)
+library(caret)
+library(recipes)
+library(lattice)
+theme_set(theme_bw() + theme(legend.position = "top"))
+```
+
+## 예측모형 작업흐름
+
+<img src="fig/recipe-workflow.png" alt="예측모형 작업흐름" width="77%" />
