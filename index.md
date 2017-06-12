@@ -36,7 +36,6 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [dplyr을 Spark 위에 올린 sparklyr](ml-sparklyr.html)
     - [R기반 빅데이터 개발/운영환경](ml-r-bigdata-workflow.html)
     - [R 모형개발 자동화](ml-r-pipeline.html)
-    - [R 모형설계행렬(Recipe)](ml-r-pipeline.html)
 1. 기계학습 적용
     1. [테스트 주도 기계학습](31-ml-tdd.html)
     1. [알고리즘 성능평가](ml-assessment.html)
@@ -64,7 +63,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
             1. [비지도 학습 - 포켓몬](ml-pokemon-unsupervised.html)
         1. **기계 중심 기계학습**
     1. **예측모형 개발 자동화**
-        - [예측모형 파이프 - 예측모형 요리법(recipe)](ml-modeling-pipe.html)
+        - [R 모형설계행렬(Recipe)](ml-r-design-matrix.html)
 1. **데이터 유형별 기계학습 모형**
     1. **[네트워크 데이터 들어가며 -- 색상과 글꼴](ml-network-overview.html)**        
         1. [네트워크 데이터](ml-network-data.html)
