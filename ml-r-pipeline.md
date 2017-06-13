@@ -15,7 +15,7 @@
 
 그리고 나면, 예측모형 결과를 배포할 수 있는 `OpenCPU` 같은 제품화 단계의 배포 팩키지도 마지막으로 필요하게 된다.
 
-<img src="fig/recipe-workflow.png" alt="모형개발 자동화" width="77%" />
+<img src="fig/recipe-workflow.png" alt="모형개발 자동화" width="97%" />
 
 
 
@@ -241,7 +241,7 @@ glm_perf_plot(credit_glm_pred_resp, glm_cutoff)
 <img src="fig/recipe-credit-model-eval-1.png" style="display: block; margin: auto;" />
 
 ~~~{.output}
-[1] 0.8213985
+[1] 0.7933026
 
 ~~~
 
@@ -262,41 +262,41 @@ NULL
 
 Deviance Residuals: 
     Min       1Q   Median       3Q      Max  
--3.2478  -0.5797   0.3849   0.6837   2.7803  
+-3.2733  -0.5442   0.3604   0.6572   2.6346  
 
 Coefficients:
                   Estimate Std. Error z value             Pr(>|z|)    
-(Intercept)        0.80159    0.80216   0.999               0.3177    
-Seniority          0.73107    0.07370   9.919 < 0.0000000000000002 ***
-Time               0.02119    0.06068   0.349               0.7269    
-Age               -0.15717    0.06625  -2.372               0.0177 *  
-Expenses          -0.30499    0.06136  -4.971       0.000000667612 ***
-Income             0.60905    0.06873   8.861 < 0.0000000000000002 ***
-Assets             0.26679    0.08715   3.061               0.0022 ** 
-Debt              -0.22853    0.05363  -4.261       0.000020349665 ***
-Amount            -0.94981    0.09550  -9.946 < 0.0000000000000002 ***
-Price              0.59108    0.09230   6.404       0.000000000152 ***
-Home_other         0.39119    0.67868   0.576               0.5643    
-Home_owner         1.36558    0.66219   2.062               0.0392 *  
-Home_parents       1.19998    0.67251   1.784               0.0744 .  
-Home_priv          0.40004    0.68304   0.586               0.5581    
-Home_rent          0.73089    0.66589   1.098               0.2724    
-Marital_married    0.32000    0.51056   0.627               0.5308    
-Marital_separated -1.08221    0.55819  -1.939               0.0525 .  
-Marital_single    -0.24700    0.51597  -0.479               0.6322    
-Marital_widow     -0.30344    0.62416  -0.486               0.6268    
-Records_yes       -1.87329    0.12269 -15.269 < 0.0000000000000002 ***
-Job_freelance     -0.65040    0.12402  -5.244       0.000000156856 ***
-Job_others        -0.61864    0.24034  -2.574               0.0101 *  
-Job_partime       -1.38929    0.14933  -9.304 < 0.0000000000000002 ***
+(Intercept)        0.06785    0.79061   0.086              0.93161    
+Seniority          0.68111    0.07496   9.086 < 0.0000000000000002 ***
+Time              -0.04330    0.06193  -0.699              0.48448    
+Age               -0.14873    0.06807  -2.185              0.02889 *  
+Expenses          -0.32125    0.06173  -5.204     0.00000019474986 ***
+Income             0.63735    0.06934   9.192 < 0.0000000000000002 ***
+Assets             0.41612    0.10374   4.011     0.00006045142711 ***
+Debt              -0.22994    0.05411  -4.249     0.00002143426114 ***
+Amount            -0.93951    0.09953  -9.439 < 0.0000000000000002 ***
+Price              0.59653    0.09867   6.046     0.00000000148573 ***
+Home_other         0.68372    0.67529   1.012              0.31131    
+Home_owner         1.73317    0.65762   2.636              0.00840 ** 
+Home_parents       1.58070    0.66784   2.367              0.01794 *  
+Home_priv          1.05053    0.68161   1.541              0.12325    
+Home_rent          1.02506    0.66130   1.550              0.12112    
+Marital_married    0.82793    0.50417   1.642              0.10056    
+Marital_separated -0.66523    0.55984  -1.188              0.23474    
+Marital_single     0.22537    0.51040   0.442              0.65881    
+Marital_widow      0.64793    0.65369   0.991              0.32159    
+Records_yes       -1.98865    0.12480 -15.934 < 0.0000000000000002 ***
+Job_freelance     -0.88513    0.12455  -7.107     0.00000000000119 ***
+Job_others        -0.74113    0.24539  -3.020              0.00253 ** 
+Job_partime       -1.40796    0.15469  -9.102 < 0.0000000000000002 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 (Dispersion parameter for binomial family taken to be 1)
 
     Null deviance: 3707.0  on 3117  degrees of freedom
-Residual deviance: 2709.3  on 3095  degrees of freedom
-AIC: 2755.3
+Residual deviance: 2621.1  on 3095  degrees of freedom
+AIC: 2667.1
 
 Number of Fisher Scoring iterations: 5
 
@@ -317,28 +317,28 @@ Confusion Matrix and Statistics
 
           Reference
 Prediction bad good
-      bad  260  213
-      good 116  747
-                                          
-               Accuracy : 0.7537          
-                 95% CI : (0.7297, 0.7766)
-    No Information Rate : 0.7186          
-    P-Value [Acc > NIR] : 0.002102        
-                                          
-                  Kappa : 0.4354          
- Mcnemar's Test P-Value : 0.0000001206    
-                                          
-            Sensitivity : 0.7781          
-            Specificity : 0.6915          
-         Pos Pred Value : 0.8656          
-         Neg Pred Value : 0.5497          
-             Prevalence : 0.7186          
-         Detection Rate : 0.5591          
-   Detection Prevalence : 0.6460          
-      Balanced Accuracy : 0.7348          
-                                          
-       'Positive' Class : good            
-                                          
+      bad  274  268
+      good 102  692
+                                             
+               Accuracy : 0.7231             
+                 95% CI : (0.6982, 0.7469)   
+    No Information Rate : 0.7186             
+    P-Value [Acc > NIR] : 0.3705             
+                                             
+                  Kappa : 0.3963             
+ Mcnemar's Test P-Value : <0.0000000000000002
+                                             
+            Sensitivity : 0.7208             
+            Specificity : 0.7287             
+         Pos Pred Value : 0.8715             
+         Neg Pred Value : 0.5055             
+             Prevalence : 0.7186             
+         Detection Rate : 0.5180             
+   Detection Prevalence : 0.5943             
+      Balanced Accuracy : 0.7248             
+                                             
+       'Positive' Class : good               
+                                             
 
 ~~~
 

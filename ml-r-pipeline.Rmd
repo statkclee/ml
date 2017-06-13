@@ -40,7 +40,7 @@ options(dplyr.print_max = 1e9)
 
 그리고 나면, 예측모형 결과를 배포할 수 있는 `OpenCPU` 같은 제품화 단계의 배포 팩키지도 마지막으로 필요하게 된다.
 
-<img src="fig/recipe-workflow.png" alt="모형개발 자동화" width="77%" />
+<img src="fig/recipe-workflow.png" alt="모형개발 자동화" width="97%" />
 
 
 
