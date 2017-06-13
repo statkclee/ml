@@ -218,10 +218,9 @@ mosaic::favstats(~mpg, data=mtcars) </code></pre>
 skim(chickwts)</code></pre>
 <pre class="output"><code>Numeric Variables
 # A tibble: 1 x 13
-     var    type missing complete     n     mean      sd   min `25% quantile` median `75% quantile`   max
-   &lt;chr&gt;   &lt;chr&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;          &lt;dbl&gt;  &lt;dbl&gt;          &lt;dbl&gt; &lt;dbl&gt;
-1 weight numeric       0       71    71 261.3099 78.0737   108          204.5    258          323.5   423
-# ... with 1 more variables: hist &lt;chr&gt;
+     var    type missing complete     n     mean      sd   min `25% quantile` median `75% quantile`   max       hist
+   &lt;chr&gt;   &lt;chr&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;          &lt;dbl&gt;  &lt;dbl&gt;          &lt;dbl&gt; &lt;dbl&gt;      &lt;chr&gt;
+1 weight numeric       0       71    71 261.3099 78.0737   108          204.5    258          323.5   423 ▂▇▂▇▇▃▇▆▂▂
 
 Factor Variables
 # A tibble: 1 x 7
@@ -232,9 +231,9 @@ Factor Variables
 <pre class="r"><code>skimr::skim(chickwts) %&gt;%
     dplyr::filter(stat == &quot;hist&quot;)</code></pre>
 <pre class="output"><code># A tibble: 1 x 5
-     var    type  stat                                                                            level value
-   &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;                                                                            &lt;chr&gt; &lt;dbl&gt;
-1 weight numeric  hist &lt;U+2582&gt;&lt;U+2587&gt;&lt;U+2582&gt;&lt;U+2587&gt;&lt;U+2587&gt;&lt;U+2583&gt;&lt;U+2587&gt;&lt;U+2586&gt;&lt;U+2582&gt;&lt;U+2582&gt;     0
+     var    type  stat      level value
+   &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;      &lt;chr&gt; &lt;dbl&gt;
+1 weight numeric  hist ▂▇▂▇▇▃▇▆▂▂     0
 </code></pre>
 <pre class="r"><code># 3. 자동차 데이터 --------------------------------------
 skim(mtcars) %&gt;% dplyr::filter(stat==&quot;hist&quot;) %&gt;% 
@@ -254,37 +253,36 @@ stat :
 [11] &quot;hist&quot;
 
 level :
- [1] &quot;&lt;U+2582&gt;&lt;U+2585&gt;&lt;U+2587&gt;&lt;U+2587&gt;&lt;U+2587&gt;&lt;U+2583&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2582&gt;&lt;U+2582&gt;&quot; &quot;&lt;U+2586&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2583&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2587&gt;&quot; &quot;&lt;U+2587&gt;&lt;U+2587&gt;&lt;U+2585&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2587&gt;&lt;U+2583&gt;&lt;U+2582&gt;&lt;U+2581&gt;&lt;U+2583&gt;&quot; &quot;&lt;U+2586&gt;&lt;U+2586&gt;&lt;U+2587&gt;&lt;U+2582&gt;&lt;U+2587&gt;&lt;U+2582&gt;&lt;U+2583&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&quot; &quot;&lt;U+2583&gt;&lt;U+2587&gt;&lt;U+2582&gt;&lt;U+2582&gt;&lt;U+2583&gt;&lt;U+2586&gt;&lt;U+2585&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&quot;
- [6] &quot;&lt;U+2582&gt;&lt;U+2582&gt;&lt;U+2582&gt;&lt;U+2582&gt;&lt;U+2587&gt;&lt;U+2586&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2582&gt;&quot; &quot;&lt;U+2582&gt;&lt;U+2583&gt;&lt;U+2587&gt;&lt;U+2587&gt;&lt;U+2587&gt;&lt;U+2585&gt;&lt;U+2585&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&quot; &quot;&lt;U+2587&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2586&gt;&quot; &quot;&lt;U+2587&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2586&gt;&quot; &quot;&lt;U+2587&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2586&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2582&gt;&quot;
-[11] &quot;&lt;U+2586&gt;&lt;U+2587&gt;&lt;U+2582&gt;&lt;U+2581&gt;&lt;U+2587&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&quot;
+ [1] &quot;▂▅▇▇▇▃▁▁▂▂&quot; &quot;▆▁▁▁▃▁▁▁▁▇&quot; &quot;▇▇▅▁▁▇▃▂▁▃&quot; &quot;▆▆▇▂▇▂▃▁▁▁&quot; &quot;▃▇▂▂▃▆▅▁▁▁&quot;
+ [6] &quot;▂▂▂▂▇▆▁▁▁▂&quot; &quot;▂▃▇▇▇▅▅▁▁▁&quot; &quot;▇▁▁▁▁▁▁▁▁▆&quot; &quot;▇▁▁▁▁▁▁▁▁▆&quot; &quot;▇▁▁▁▆▁▁▁▁▂&quot;
+[11] &quot;▆▇▂▁▇▁▁▁▁▁&quot;
 
 value :
  [1] 0 0 0 0 0 0 0 0 0 0 0
 </code></pre>
 <pre class="output"><code>      var    type      stat   level        value
- [1,] &quot;mpg&quot;  &quot;numeric&quot; &quot;hist&quot; &quot;&lt;U+2582&gt;&lt;U+2585&gt;&lt;U+2587&gt;&lt;U+2587&gt;&lt;U+2587&gt;&lt;U+2583&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2582&gt;&lt;U+2582&gt;&quot; &quot;0&quot;  
- [2,] &quot;cyl&quot;  &quot;numeric&quot; &quot;hist&quot; &quot;&lt;U+2586&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2583&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2587&gt;&quot; &quot;0&quot;  
- [3,] &quot;disp&quot; &quot;numeric&quot; &quot;hist&quot; &quot;&lt;U+2587&gt;&lt;U+2587&gt;&lt;U+2585&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2587&gt;&lt;U+2583&gt;&lt;U+2582&gt;&lt;U+2581&gt;&lt;U+2583&gt;&quot; &quot;0&quot;  
- [4,] &quot;hp&quot;   &quot;numeric&quot; &quot;hist&quot; &quot;&lt;U+2586&gt;&lt;U+2586&gt;&lt;U+2587&gt;&lt;U+2582&gt;&lt;U+2587&gt;&lt;U+2582&gt;&lt;U+2583&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&quot; &quot;0&quot;  
- [5,] &quot;drat&quot; &quot;numeric&quot; &quot;hist&quot; &quot;&lt;U+2583&gt;&lt;U+2587&gt;&lt;U+2582&gt;&lt;U+2582&gt;&lt;U+2583&gt;&lt;U+2586&gt;&lt;U+2585&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&quot; &quot;0&quot;  
- [6,] &quot;wt&quot;   &quot;numeric&quot; &quot;hist&quot; &quot;&lt;U+2582&gt;&lt;U+2582&gt;&lt;U+2582&gt;&lt;U+2582&gt;&lt;U+2587&gt;&lt;U+2586&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2582&gt;&quot; &quot;0&quot;  
- [7,] &quot;qsec&quot; &quot;numeric&quot; &quot;hist&quot; &quot;&lt;U+2582&gt;&lt;U+2583&gt;&lt;U+2587&gt;&lt;U+2587&gt;&lt;U+2587&gt;&lt;U+2585&gt;&lt;U+2585&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&quot; &quot;0&quot;  
- [8,] &quot;vs&quot;   &quot;numeric&quot; &quot;hist&quot; &quot;&lt;U+2587&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2586&gt;&quot; &quot;0&quot;  
- [9,] &quot;am&quot;   &quot;numeric&quot; &quot;hist&quot; &quot;&lt;U+2587&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2586&gt;&quot; &quot;0&quot;  
-[10,] &quot;gear&quot; &quot;numeric&quot; &quot;hist&quot; &quot;&lt;U+2587&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2586&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2582&gt;&quot; &quot;0&quot;  
-[11,] &quot;carb&quot; &quot;numeric&quot; &quot;hist&quot; &quot;&lt;U+2586&gt;&lt;U+2587&gt;&lt;U+2582&gt;&lt;U+2581&gt;&lt;U+2587&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&lt;U+2581&gt;&quot; &quot;0&quot;  
+ [1,] &quot;mpg&quot;  &quot;numeric&quot; &quot;hist&quot; &quot;▂▅▇▇▇▃▁▁▂▂&quot; &quot;0&quot;  
+ [2,] &quot;cyl&quot;  &quot;numeric&quot; &quot;hist&quot; &quot;▆▁▁▁▃▁▁▁▁▇&quot; &quot;0&quot;  
+ [3,] &quot;disp&quot; &quot;numeric&quot; &quot;hist&quot; &quot;▇▇▅▁▁▇▃▂▁▃&quot; &quot;0&quot;  
+ [4,] &quot;hp&quot;   &quot;numeric&quot; &quot;hist&quot; &quot;▆▆▇▂▇▂▃▁▁▁&quot; &quot;0&quot;  
+ [5,] &quot;drat&quot; &quot;numeric&quot; &quot;hist&quot; &quot;▃▇▂▂▃▆▅▁▁▁&quot; &quot;0&quot;  
+ [6,] &quot;wt&quot;   &quot;numeric&quot; &quot;hist&quot; &quot;▂▂▂▂▇▆▁▁▁▂&quot; &quot;0&quot;  
+ [7,] &quot;qsec&quot; &quot;numeric&quot; &quot;hist&quot; &quot;▂▃▇▇▇▅▅▁▁▁&quot; &quot;0&quot;  
+ [8,] &quot;vs&quot;   &quot;numeric&quot; &quot;hist&quot; &quot;▇▁▁▁▁▁▁▁▁▆&quot; &quot;0&quot;  
+ [9,] &quot;am&quot;   &quot;numeric&quot; &quot;hist&quot; &quot;▇▁▁▁▁▁▁▁▁▆&quot; &quot;0&quot;  
+[10,] &quot;gear&quot; &quot;numeric&quot; &quot;hist&quot; &quot;▇▁▁▁▆▁▁▁▁▂&quot; &quot;0&quot;  
+[11,] &quot;carb&quot; &quot;numeric&quot; &quot;hist&quot; &quot;▆▇▂▁▇▁▁▁▁▁&quot; &quot;0&quot;  
 </code></pre>
 <pre class="r"><code># 4. 붓꽃 데이터 ------------------------------------------
 skim(iris)</code></pre>
 <pre class="output"><code>Numeric Variables
 # A tibble: 4 x 13
-           var    type missing complete     n     mean        sd   min `25% quantile` median `75% quantile`   max
-         &lt;chr&gt;   &lt;chr&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt;          &lt;dbl&gt;  &lt;dbl&gt;          &lt;dbl&gt; &lt;dbl&gt;
-1 Petal.Length numeric       0      150   150 3.758000 1.7652982   1.0            1.6   4.35            5.1   6.9
-2  Petal.Width numeric       0      150   150 1.199333 0.7622377   0.1            0.3   1.30            1.8   2.5
-3 Sepal.Length numeric       0      150   150 5.843333 0.8280661   4.3            5.1   5.80            6.4   7.9
-4  Sepal.Width numeric       0      150   150 3.057333 0.4358663   2.0            2.8   3.00            3.3   4.4
-# ... with 1 more variables: hist &lt;chr&gt;
+           var    type missing complete     n     mean        sd   min `25% quantile` median `75% quantile`   max       hist
+         &lt;chr&gt;   &lt;chr&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt;          &lt;dbl&gt;  &lt;dbl&gt;          &lt;dbl&gt; &lt;dbl&gt;      &lt;chr&gt;
+1 Petal.Length numeric       0      150   150 3.758000 1.7652982   1.0            1.6   4.35            5.1   6.9 ▇▃▁▁▂▆▆▃▂▁
+2  Petal.Width numeric       0      150   150 1.199333 0.7622377   0.1            0.3   1.30            1.8   2.5 ▇▂▁▂▅▃▁▅▂▃
+3 Sepal.Length numeric       0      150   150 5.843333 0.8280661   4.3            5.1   5.80            6.4   7.9 ▂▇▅▇▆▆▅▂▂▂
+4  Sepal.Width numeric       0      150   150 3.057333 0.4358663   2.0            2.8   3.00            3.3   4.4 ▁▁▃▃▇▃▂▂▁▁
 
 Factor Variables
 # A tibble: 1 x 7
@@ -297,12 +295,11 @@ library(babynames)
 skim(babynames)</code></pre>
 <pre class="output"><code>Numeric Variables
 # A tibble: 3 x 13
-    var    type missing complete       n         mean           sd          min `25% quantile`       median `75% quantile`         max
-  &lt;chr&gt;   &lt;chr&gt;   &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt;          &lt;dbl&gt;       &lt;dbl&gt;
-1     n integer       0  1858689 1858689 1.833830e+02 1555.3570871 5.000000e+00   7.000000e+00 1.200000e+01   3.200000e+01 9.96800e+04
-2  prop numeric       0  1858689 1858689 1.391443e-04    0.0011702 2.259872e-06   3.900959e-06 7.348183e-06   2.324258e-05 8.15463e-02
-3  year numeric       0  1858689 1858689 1.973376e+03   33.6978783 1.880000e+03   1.950000e+03 1.983000e+03   2.002000e+03 2.01500e+03
-# ... with 1 more variables: hist &lt;chr&gt;
+    var    type missing complete       n         mean           sd          min `25% quantile`       median `75% quantile`         max       hist
+  &lt;chr&gt;   &lt;chr&gt;   &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt;          &lt;dbl&gt;       &lt;dbl&gt;      &lt;chr&gt;
+1     n integer       0  1858689 1858689 1.833830e+02 1555.3570871 5.000000e+00   7.000000e+00 1.200000e+01   3.200000e+01 9.96800e+04 ▇▁▁▁▁▁▁▁▁▁
+2  prop numeric       0  1858689 1858689 1.391443e-04    0.0011702 2.259872e-06   3.900959e-06 7.348183e-06   2.324258e-05 8.15463e-02 ▇▁▁▁▁▁▁▁▁▁
+3  year numeric       0  1858689 1858689 1.973376e+03   33.6978783 1.880000e+03   1.950000e+03 1.983000e+03   2.002000e+03 2.01500e+03 ▁▁▂▂▂▂▃▅▆▇
 
 Character Variables
 # A tibble: 2 x 9
@@ -393,70 +390,70 @@ Legend: 1=기호1번, 2=기호2번, 3=기호3번
 </code></pre>
 <pre class="r"><code>## 2.3. 상자그림 그래프 --------------------------------------
 txtboxplot(rnorm(1000,0,0.5), rnorm(100, 1))</code></pre>
-<pre class="output"><code>       -1           0           1           2           3       
- |------+-----------+-----------+-----------+-----------+------|
-                +---+---+                                       
-1   ------------|   |   |------------                           
-                +---+---+                                       
-                       +---------+------+                       
-2   -------------------|         |      |------------------     
-                       +---------+------+                       
+<pre class="output"><code>      -1          0          1           2          3           
+ |-----+----------+----------+-----------+----------+----------|
+               +--+---+                                         
+1   -----------|  |   |------------                             
+               +--+---+                                         
+                       +------+--------+                        
+2    ------------------|      |        |-------------------     
+                       +------+--------+                        
 Legend: 1=rnorm(1000, 0, 0.5), 2=rnorm(100, 1)
 </code></pre>
 <pre class="r"><code>## 2.4. 분포 그래프 ------------------------------------------
 txtdensity(rnorm(500), pch = &quot;+&quot;)</code></pre>
-<pre class="output"><code>    ++--------+--------+--------+--------+---------+--------+--+
-0.4 +                        ++++++++                          +
-    |                      ++       ++                         |
-    |                     ++         ++                        |
-0.3 +                    ++           ++                       +
-    |                   ++             ++                      |
-    |                  ++               ++                     |
-0.2 +                 ++                 +++                   +
-    |               +++                    +++                 |
+<pre class="output"><code>    +--------+---------+--------+---------+---------+--------+-+
+    |                         +++++                            |
+0.4 +                        ++   ++                           +
+    |                       ++     ++                          |
+    |                     ++        +++                        |
+0.3 +                    ++           ++++                     +
+    |                  +++               ++                    |
+    |                +++                  ++                   |
+0.2 +               ++                     +++                 +
     |              ++                        +++               |
-0.1 +             ++                           +++             +
-    |          ++++                              ++++          |
-    |     ++++++                                    ++++       |
-    |  ++++                                            ++++++  |
-  0 ++--------+--------+--------+--------+---------+--------+--+
-    -3       -2       -1        0        1         2        3   
+    |             ++                           +++             |
+0.1 +           ++                               +++           +
+    |    ++++++++                                  ++++        |
+    |  +++                                            +++++++  |
+  0 +--------+---------+--------+---------+---------+--------+-+
+            -2        -1        0         1         2        3  
 </code></pre>
 <pre class="r"><code>## 2.5. 히스토그램 ------------------------------------------
 nos.hist(rnorm(500), freq=TRUE)</code></pre>
-<pre class="output"><code>  100 +---------+--------+--------+---------+--------+---------+
-      |                              o                         |
-      |                         o    o                         |
-F  80 +                    o    o    o   o                     +
-r     |                    o    o    o   o                     |
-e  60 +                    o    o    o   o                     +
-q     |                    o    o    o   o    o                |
-u     |                    o    o    o   o    o                |
-e  40 +                o   o    o    o   o    o                +
-n     |                o   o    o    o   o    o                |
-c     |                o   o    o    o   o    o    o           |
-y  20 +           o    o   o    o    o   o    o    o           +
-      |      o    o    o   o    o    o   o    o    o    o      |
-    0 +  o   o    o    o   o    o    o   o    o    o    o   o  +
-      +---------+--------+--------+---------+--------+---------+
-     -3        -2       -1        0         1        2         3
+<pre class="output"><code>      +---------+----------+---------+---------+----------+----+
+  100 +                                 o                      +
+      |                           o     o                      |
+F  80 +                           o     o                      +
+r     |                      o    o     o                      |
+e     |                      o    o     o    o                 |
+q  60 +                      o    o     o    o                 +
+u     |                 o    o    o     o    o    o            |
+e  40 +                 o    o    o     o    o    o            +
+n     |                 o    o    o     o    o    o            |
+c     |                 o    o    o     o    o    o    o       |
+y  20 +            o    o    o    o     o    o    o    o       +
+      |            o    o    o    o     o    o    o    o    o  |
+    0 +  o    o    o    o    o    o     o    o    o    o    o  +
+      +---------+----------+---------+---------+----------+----+
+     -3        -2         -1         0         1          2     
 </code></pre>
 <pre class="r"><code>## 2.6. 자기상관 그래프 ------------------------------------------
 txtacf(arima.sim(list(ar = 0.7), n = 100))</code></pre>
 <pre class="output"><code>    +--+------------+------------+-------------+------------+--+
   1 +  *                                                       +
     |  *                                                       |
-0.8 +  *                                                       +
     |  *                                                       |
     |  * *                                                     |
-0.6 +  * *                                                     +
     |  * *                                                     |
-0.4 +  * *  *                                                  +
+0.5 +  * *  *                                                  +
     |  * *  *                                                  |
-    |  * *  *            *                          *          |
-0.2 +  * *  *  *         *  *  * *                  *  *       +
-    |  * *  *  *    *  * *  *  * *  *  * *       *  *  *  * *  |
+    |  * *  *  *                                               |
+    |  * *  *  * *                             * *  *  *  *    |
+    |  * *  *  * *  *                       *  * *  *  *  * *  |
   0 +  * *  *  * *  *  * *  *  * *  *  * *  *  * *  *  *  * *  +
+    |                    *  *  * *  *  *                       |
+    |                    *  *  * *  *                          |
     +--+------------+------------+-------------+------------+--+
        0            5           10            15           20   
 </code></pre>
