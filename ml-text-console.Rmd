@@ -20,7 +20,8 @@ library(skimr)
 library(tidyverse)
 library(txtplot)
 library(NostalgiR)
-
+options(dplyr.width = 160)
+options(width = 80)
 ```
 
 ## 1. 탐색적 데이터분석 - 요약 통계량 
