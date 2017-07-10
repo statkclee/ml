@@ -88,6 +88,9 @@ subtitle: 데이터 과학자가 바라본 기계학습
             1. [소설 텍스트 데이터 분석 -- 소나기](ml-text-basic.html)
             1. [저녁이 있는 삶 -- 손학규](ml-book.html)
             1. [연설문 판별 - 오바마 vs. 롬니](http://statkclee.github.io/politics/text-classify-speeches.html)
+        1. **평점 텍스트 데이터**
+            1. [영화 데이터 가져오기(OMDB API)](ml-omdb-api.html)
+            1. [텍스트 분류(Text Classification)](ml-text-classification.html)
     1. **[장바구니 데이터 분석](ml-market-basket.html)**    
 1. **기계학습 상용화**
     1. [신용평점모형 개발](ml-credit-scoring-overview.html)
