@@ -23,6 +23,7 @@ loadfonts()
 library(ggthemes)
 library(doMC)
 registerDoMC(cores=4)
+library(e1071)
 
 
 options(scipen = 999)
@@ -213,3 +214,61 @@ sms_nb_prob %>%
 
 ```
 
+## 4. 유방암 발병 예측 [^navie-bayes-breast-cancer]
+
+[^navie-bayes-breast-cancer]: [Naive Bayes Classification in R (Part 2)](https://sw23993.wordpress.com/2017/02/17/naive-bayes-classification-in-r-part-2/)
+
+슬로베니아 (구, 유고슬라비아) Matjaz Zwitter, Milan Soklic가 공개한 
+[유방암(Breast Cancer Data Set) 데이터셋](https://archive.ics.uci.edu/ml/datasets/Breast+Cancer)은 현재 
+UCI에 담당자에게 전자우편을 전달하면 2--3일 후 전달받을 수 있다.
+나이브 베이즈를 활용하여 유방암 발병예측하는데 좋은 데이터셋으로 전체 변수가 모두 범주형으로 되어 있다.
+
+### 4.1. 데이터 설명 
+
+- class: 유방암 발병 여부
+- age: 연령대 20-29 ~ 70-79
+- menopause: 진단시 환자가 폐경인지 폐경이 아닌지 여부 
+- tumor.size: 최대 절제 암 크기 직경(mm)
+- inv.nodes: 림프노드 갯수(number of axillary lymph nodes)
+- node.caps: 림프 노드 캡술에 전싱성 암이 포함되었는지 여부
+- deg.malign: 암에 대한 조직학적 등급 분류 (1--3, 3 = 매우 비정상 세포)
+- breast: 암이 왼쪽 오른쪽 어느 유방에 위치했나 
+- breast.quad: 유방암이 발병한 지역 (유두를 중심으로 4분면)
+- irradiat: 환자가 방사선 치료를 받았는지 여부 
+
+### 4.1. 사전 준비 
+
+UCI 담당자에게서 전달받은 데이터를 불러와서, 
+데이터분석을 위해 변수명을 부여하고 문자형 데이터를 요인형 데이터로 변환시켜 `naiveBayes` 모형 적합시킬 준비를 한다.
+
+``` {r nb-breast-cancer}
+# 0. 환경설정 -----------------------
+# library(tidyverse)
+# library(e1071)
+
+# 1. 데이터 가져오기 -----------------------
+breast_cancer <- read_csv("data/breast-cancer/breast-cancer.data", col_names = FALSE)
+
+# 2. 데이터 전처리 -----------------------
+names(breast_cancer) <- c("class", "age", "menopause", "tumor.size", "inv.nodes", "node.caps","deg.malign","breast","breast.quad","irradia")
+
+breast_cancer <- breast_cancer %>% 
+    mutate_all(funs(as.factor(.)))
+
+# glimpse(breast_cancer)    
+```
+
+### 4.2. 나이브 베이즈 모형 적합
+
+`e1071` 팩키지에 포함된 `naiveBayes` 모형을 활용하여 예측 모형을 생성한다.
+그리고, 오차행렬을 통해 전체 데이터에 대한 예측 정확도를 평가한다.
+
+``` {r nb-breast-cancer-fit}
+# 3. 나이브 베이즈 모형 -----------------------
+model <- naiveBayes(class ~ ., data = breast_cancer)
+summary(model)
+
+# 4. 모형 성능평가 -----------------------
+preds <- predict(model, newdata = breast_cancer)
+(conf_matrix <- table(preds, breast_cancer$class))
+```
