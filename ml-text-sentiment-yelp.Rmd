@@ -1,0 +1,239 @@
+---
+layout: page
+title: xwMOOC 기계학습
+subtitle: 고객 방문후기 평점 감성분석 - 옐프(Yelp)
+output:
+  html_document: 
+    toc: yes
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
+---
+ 
+``` {r, include=FALSE}
+source("tools/chunk-options.R")
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
+
+library(tidyverse)
+library(extrafont)
+loadfonts()
+library(ggthemes)
+library(stringr)
+library(jsonlite)
+library(tidytext)
+library(widyr)
+library(igraph)
+library(ggraph)
+
+
+options(scipen = 999)
+# options(dplyr.width = 120)
+# options(dplyr.print_max = 1e9)
+```
+
+## 1. 고객 방문후기 데이터 
+
+고객이 식당을 방문하고 후기를 남기게 되면 그 자체로 재앙이다. 
+데이터 분석하는 입장에서 남긴 후기 텍스트 데이터와 숫자형 평점 데이터(별점 1개 ... 별점 5개)가 결합된 형식의 데이터라 
+어떻게 분석을 하게 되면 가장 많은 정보를 추출하여 유용하게 사용할 수 있을 것인가 !!!
+
+## 2. 옐프 고객 후기 평점 데이터 [^variance-explianed-yelp] [^juliasilge-tidytext]
+
+[^variance-explianed-yelp]: [Does sentiment analysis work? A tidy analysis of Yelp reviews](http://varianceexplained.org/r/yelp-sentiment/)
+
+[^juliasilge-tidytext]: [THE LIFE-CHANGING MAGIC OF TIDYING TEXT](https://juliasilge.com/blog/life-changing-magic/)
+
+### 2.1. 옐프 고객 후기 데이터
+
+[Yelp Dataset Challenge](https://www.yelp.com/dataset_challenge)에서 데이터를 다운로드 받아 보게 되면 크게 두가지를 사실을 파악하게 된다.
+고객후기 데이터가 정말 많다. 그리고, 고객후기 데이터의 전형적인 패턴을 볼 수 있다.
+
+옐프 고객후기 데이터가 JSON으로 되어 있어 `read_lines()` 함수로 읽어온 후 `fromJSON`으로 읽기 위해 전처리작업을 수행하고 나서 데이터프레임으로 변환시킨다.
+
+``` {r yelp-dataset, fig.width=12}
+# 0. 환경설정 -------------------------------------
+# library(tidyverse)
+# library(extrafont)
+# loadfonts()
+# library(ggthemes)
+# library(stringr)
+# library(jsonlite)
+# library(tidytext)
+# library(widyr)
+# library(igraph)
+# library(ggraph)
+
+# 1. 데이터 가져오기 -------------------------------------
+review_lines <- read_lines("data/yelp_academic_dataset_review.json", n_max=100000, progress=TRUE)
+
+reviews_combined <- str_c("[", str_c(review_lines, collapse = ", "), "]")
+
+review_df <- fromJSON(reviews_combined) %>%
+    flatten() %>%
+    tbl_df()
+
+rm(reviews_combined, review_lines)
+
+review_df %>% 
+    sample_n(3) %>% 
+    DT::datatable()
+```
+
+### 2.2. 고객평점과 긍부정 단어 연관성
+
+가장 먼저 평정과 고객 방문후기에 적힌 텍스트에 감정이 녹아있는지 확인해보자.
+이를 위해 고객이 남긴 방문후기를 `tidytext`로 변환을 시킨 후에 감성사전을 병합한다.
+그리고 나서 고객평점 별로 긍부정 점수를 상자그림을 활용하여 시각화한다.
+
+`tidytext` 팩키지에는 3가지 감성사전이 적용되어 있어 즉석에서 감성분석이 가능한데 
+감성사전 3가지 모두 특성이 다르다. 
+
+``` {r yelp-dataset-ratings, fig.width=12}
+# 2. 텍스트와 감성분석 데이터 -----------------------------------
+## 2.1. 깔끔한 텍스트 ----------------------------------
+review_words <- review_df %>%
+    select(review_id, business_id, stars, text) %>%
+    unnest_tokens(word, text) %>%
+    filter(!word %in% stop_words$word,
+           str_detect(word, "^[a-z']+$"))
+
+review_words
+
+## 2.2. 감성사전 ----------------------------------
+AFINN <- sentiments %>%
+    filter(lexicon == "AFINN") %>%
+    select(word, afinn_score = score)
+
+AFINN
+
+bing <- sentiments %>%
+    filter(lexicon == "bing") %>%
+    select(word, bing_score = sentiment)
+
+bing
+
+nrc <- sentiments %>%
+    filter(lexicon == "nrc") %>%
+    select(word, nrc_score = sentiment)
+
+nrc
+
+# 3. 텍스트 감성분석 -----------------------------------
+## 3.1. 평점과 감성분석 연관성
+reviews_sentiment <- review_words %>%
+    inner_join(AFINN, by = "word") %>%
+    group_by(review_id, stars) %>%
+    summarize(sentiment = mean(afinn_score))
+
+reviews_sentiment
+
+ggplot(reviews_sentiment, aes(stars, sentiment, group = stars)) +
+    geom_boxplot() +
+    theme_tufte(base_family="NanumGothic") +
+    labs(y="평균 감성 점수",x="별점 (1~5)", title="옐프 별점과 감성점수")
+```
+
+예상한 바와 같이 별점이 높아질수록 평균감성 점수도 함께 올라간다. 하지만, 이상점도 함께 증가하는 것이 파악되어 
+추가 작업은 필요해 보인다.
+
+### 2.3. 긍정/부정이 높은 단어
+
+고객방문 후기에 담긴 텍스트를 통해 긍정/부정이 높은 단어는 어떤 것이 있는지 확인해본다.
+식당(`business_id`)에서 고객(`review_id`)이 남긴 평점(stars)별로 남긴 단어 출현횟수를 센다.
+이를 바탕으로 단어를 중심으로 사업장별(`businesses`), 방문후기별(`reviews`), 총 사용빈도별로(`uses`), 
+평점을 평균(`average_stars`)내서 데이터프레임으로 준비한다.
+
+고객 방문후기가 최소 200, 사업장은 10 회 이상되는 곳만 지정하여 평점을 높이는데 기여한 단어와
+반대의 경우를 뽑아보고 시각화한다.
+
+``` {r yelp-dataset-word-contribution, fig.width=12}
+## 3.2. 긍정/부정과 연관된 평점
+review_words_counted <- review_words %>%
+    count(review_id, business_id, stars, word) %>%
+    ungroup()
+
+review_words_counted
+
+word_summaries <- review_words_counted %>%
+    group_by(word) %>%
+    summarize(businesses = n_distinct(business_id),
+              reviews = n(),
+              uses = sum(n),
+              average_stars = mean(stars)) %>%
+    ungroup()
+
+word_summaries
+
+word_summaries_filtered <- word_summaries %>%
+    filter(reviews >= 2000, businesses >= 100)
+
+
+# 평점이 높은 단어
+word_summaries_filtered %>%
+    arrange(desc(average_stars))
+
+# 평점이 낮은 단어
+word_summaries_filtered %>%
+    arrange(average_stars)
+
+# 4. 시각화 --------------------------------------------------
+## 4.1. 고객리뷰와 평균평점 시각화 ---------------------------
+ggplot(word_summaries_filtered, aes(reviews, average_stars)) +
+    geom_point() +
+    geom_text(aes(label = word), check_overlap = TRUE, vjust = 1, hjust = 1) +
+    scale_x_log10() +
+    theme_tufte(base_family="NanumGothic") +
+    geom_hline(yintercept = mean(review_df$stars), color = "red", lty = 2) +
+    labs(x="고객 리뷰건수", y="평균 평점", title="고객 리뷰 평점과 연관된 단어")
+```
+
+### 2.4. 고객 방문후기 연관단어
+
+고객 방문후기에 동시에 출현하는 단어를 뽑아내고 이를 그래프를 통해 시각화한다.
+
+
+``` {r yelp-dataset-word-association, fig.width=12}
+## 4.2. 연관단어 ---------------------------
+
+word_cooccurences <- review_words %>% 
+    mutate(review_key = str_c(review_id, business_id, "_")) %>% 
+    pairwise_count(word, review_key, sort = TRUE) %>% 
+    filter(n >= 2000)
+
+word_cooccurences %>% 
+    graph_from_data_frame() %>%
+    ggraph(layout = "fr") +
+    geom_edge_link(aes(edge_alpha = n, edge_width = n)) +
+    geom_node_point(color = "plum4", size = 5) +
+    geom_node_text(aes(label = name), color="red", vjust = 1.8) +
+    ggtitle(expression(paste("식당 고객리뷰", 
+                             italic(": 옐프")))) +
+    theme_void()
+```
+
+### 2.5. 긍부정어 고객후기반영 감성 시각화
+
+긍부정어를 `AFINN` 감성사전을 활용하여 색상을 넣어 시각화한다.
+
+``` {r yelp-dataset-word-polarity-viz, fig.width=12}
+## 4.3. 평점과 연계된 긍부정 단어 ---------------------------
+word_summaries_filtered %>%
+    inner_join(AFINN, by = "word") %>%
+    ggplot(aes(reviews, average_stars, color = afinn_score)) +
+    geom_point() +
+    geom_text(aes(label = word), check_overlap = TRUE, vjust = 1, hjust = 3) +
+    scale_x_log10() +
+    theme_tufte(base_family="NanumGothic") +
+    geom_hline(yintercept = mean(review_df$stars), color = "blue", lty = 2) +
+    scale_color_gradient2(low = "red", high = "green", midpoint = 0, mid = "gray") +
+    labs(x="고객 리뷰건수", y="평균 평점", 
+         title="고객 리뷰 평점과 연관된 단어",
+         color="AFINN 점수")
+```
+
+
+
+
+
+
