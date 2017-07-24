@@ -89,7 +89,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
             1. [저녁이 있는 삶 -- 손학규](ml-book.html)
             1. [연설문 판별 - 오바마 vs. 롬니](http://statkclee.github.io/politics/text-classify-speeches.html)
         1. **평점 텍스트 데이터**
-            1. [텍스트 분류(Text Classification)](ml-text-classification.html)
+            1. [텍스트 분류(Text Classification) - 나이브 베이즈(naive bayes)](ml-text-classification.html)
             1. [고객 방문후기 평점 감성분석 - 옐프(Yelp)](ml-text-sentiment-yelp.html)
             1. [영화 평점 - 무비렌즈(MovieLens)](ml-text-movielens.html)
     1. **[장바구니 데이터 분석](ml-market-basket.html)**    

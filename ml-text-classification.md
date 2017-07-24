@@ -77,6 +77,14 @@ Tiago A. Almeida, José Maria Gómez Hidalgo 분들이 생성한 `SMS Spam Colle
 # library(ggthemes)
 # library(doMC)
 # registerDoMC(cores=4)
+# library(forcats)
+# library(randomForest)
+# library(extrafont)
+# library(knitr)
+# library(gridExtra)
+# library(FactoMineR)
+# library(ggmosaic)
+
 
 # 1. 데이터 가져오기 -------------------------------------
 
@@ -146,8 +154,8 @@ sms_train %>% tbl_df %>%
     DT::datatable()
 ~~~
 
-<!--html_preserve--><div id="htmlwidget-74da4f7d32795df0ecaa" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-74da4f7d32795df0ecaa">{"x":{"filter":"none","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100"],["Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Present","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent"],["Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Present","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent"],["Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Present","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent"],["Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent"],["Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Present","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent"],["Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent"],["Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent"],["Absent","Present","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Present","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Present","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent"],["Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Present","Absent","Absent","Absent","Absent","Absent","Absent","Absent"],["Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>available<\/th>\n      <th>bugis<\/th>\n      <th>cine<\/th>\n      <th>crazy<\/th>\n      <th>got<\/th>\n      <th>great<\/th>\n      <th>point<\/th>\n      <th>wat<\/th>\n      <th>world<\/th>\n      <th>lar<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"crosstalkOptions":{"key":null,"group":null},"order":[],"autoWidth":false,"orderClasses":false,"columnDefs":[{"orderable":false,"targets":0}]},"selection":{"mode":"multiple","selected":null,"target":"row"}},"evals":[],"jsHooks":[]}</script><!--/html_preserve-->
+<!--html_preserve--><div id="htmlwidget-9b2ce78131eb88acac00" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-9b2ce78131eb88acac00">{"x":{"filter":"none","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100"],["Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent"],["Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent"],["Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Present","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent"],["Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent"],["Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent"],["Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent"],["Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent"],["Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Present","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Present","Present","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Present","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Present","Absent","Absent","Absent","Absent","Absent"],["Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent"],["Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Present","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent","Absent"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>available<\/th>\n      <th>cine<\/th>\n      <th>crazy<\/th>\n      <th>got<\/th>\n      <th>great<\/th>\n      <th>point<\/th>\n      <th>wat<\/th>\n      <th>world<\/th>\n      <th>lar<\/th>\n      <th>wif<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"crosstalkOptions":{"key":null,"group":null},"order":[],"autoWidth":false,"orderClasses":false,"columnDefs":[{"orderable":false,"targets":0}]},"selection":{"mode":"multiple","selected":null,"target":"row"}},"evals":[],"jsHooks":[]}</script><!--/html_preserve-->
 
 ### 3.3. 나이브 베이즈 모형
 
@@ -173,7 +181,7 @@ sms_nb_mod <- train(sms_train, sms_raw_train$type,
 
 ~~~{.output}
    user  system elapsed 
-  36.85    0.40   37.39 
+  39.66    0.39   40.47 
 
 ~~~
 
@@ -189,7 +197,7 @@ sms_nb_mod
 Naive Bayes 
 
 3629 samples
-1270 predictors
+1245 predictors
    2 classes: 'ham', 'spam' 
 
 No pre-processing
@@ -198,7 +206,7 @@ Summary of sample sizes: 3267, 3266, 3266, 3266, 3266, 3266, ...
 Resampling results:
 
   Accuracy   Kappa    
-  0.9767303  0.8915933
+  0.9779538  0.8975798
 
 Tuning parameter 'fL' was held constant at a value of 1
 Tuning
@@ -225,25 +233,25 @@ Confusion Matrix and Statistics
 
           Reference
 Prediction ham spam
-      ham  944  136
-      spam 105   23
+      ham  959  105
+      spam  90   54
                                           
-               Accuracy : 0.8005          
-                 95% CI : (0.7768, 0.8227)
+               Accuracy : 0.8386          
+                 95% CI : (0.8166, 0.8589)
     No Information Rate : 0.8684          
-    P-Value [Acc > NIR] : 1.0000          
+    P-Value [Acc > NIR] : 0.9988          
                                           
-                  Kappa : 0.0486          
- Mcnemar's Test P-Value : 0.0533          
+                  Kappa : 0.2644          
+ Mcnemar's Test P-Value : 0.3161          
                                           
-            Sensitivity : 0.14465         
-            Specificity : 0.89990         
-         Pos Pred Value : 0.17969         
-         Neg Pred Value : 0.87407         
-             Prevalence : 0.13162         
-         Detection Rate : 0.01904         
-   Detection Prevalence : 0.10596         
-      Balanced Accuracy : 0.52228         
+            Sensitivity : 0.3396          
+            Specificity : 0.9142          
+         Pos Pred Value : 0.3750          
+         Neg Pred Value : 0.9013          
+             Prevalence : 0.1316          
+         Detection Rate : 0.0447          
+   Detection Prevalence : 0.1192          
+      Balanced Accuracy : 0.6269          
                                           
        'Positive' Class : spam            
                                           
@@ -310,9 +318,183 @@ breast_cancer <- read_csv("data/breast-cancer/breast-cancer.data", col_names = F
 names(breast_cancer) <- c("class", "age", "menopause", "tumor.size", "inv.nodes", "node.caps","deg.malign","breast","breast.quad","irradia")
 
 breast_cancer <- breast_cancer %>% 
-    mutate_all(funs(as.factor(.)))
+    mutate_all(funs(as.factor(.))) %>% 
+    mutate(inv.nodes = fct_relevel(inv.nodes, "0-2","3-5","6-8", "9-11", "12-14", "15-17", "24-26")) %>% 
+    mutate(tumor.size = fct_relevel(tumor.size, "0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54")) %>% 
+    mutate(class = fct_relevel(class, "recurrence-events", "no-recurrence-events"))
 
 # glimpse(breast_cancer)    
+~~~
+
+### 4.3. 유방암 발병 탐색적 데이터 분석
+
+유방암 발병과 관련하여 `breast_cancer` 데이터프레임에는 총 10개의 변수가 있고,
+결국 `class` 종속변수(유방암 발병 여부)를 나머지 범주형 9개 변수를 통해 예측하는 것이다.
+종속변수와 연관이 있는 변수를 사전에 탐색적 데이터 과정을 통해 살펴보는 것도 향후 예측모형 개발과 연관되어 
+중요하다. 다변량 대응분석(Multivariate Correspondance Analysis, MCA)을 통해 `class` 변수와 연관된 범주형 데이터에 대한 
+대응분석을 실시한다.
+
+
+
+~~~{.r}
+# 3. 탐색적 데이터 분석 -----------------------
+bc_df <- breast_cancer %>% 
+    group_by(class,age, menopause, tumor.size, inv.nodes, node.caps, deg.malign, breast.quad, irradia) %>% 
+    summarise(cnt = n())
+
+## 3.1. MCA
+bc_mca <- MCA(breast_cancer, quali.sup = 1, graph=FALSE)
+
+par(mfrow=c(1,3))
+plot(bc_mca, axes=c(1,2), choix="var", autoLab="n", invisible = c( "ind"),  shadow=TRUE, hab="quali")
+plot(bc_mca, axes=c(1,3), choix="var", autoLab="n", invisible = c( "ind"),  shadow=TRUE, hab="quali")
+plot(bc_mca, axes=c(2,3), choix="var", autoLab="n", invisible = c( "ind"),  shadow=TRUE, hab="quali")
+~~~
+
+<img src="fig/nb-breast-cancer-ca-1.png" style="display: block; margin: auto;" />
+
+대응분석으로 `class` 종속변수와 관련성 높은 설명변수를 일부 추려 모자이크 그래프를 통해 시각화한다.
+
+
+
+~~~{.r}
+## 3.2. ggplot 시각화
+class_by_nodes_gg <- ggplot(bc_df) +
+    geom_mosaic(aes(weight=cnt, x=product(age), fill=class) ,na.rm=TRUE) +
+    facet_grid(inv.nodes~.) +
+    labs(x="연령", title='연령별, 림프노드 갯수별 유방암 발병') + 
+    theme_bw(base_family="NanumGothic") +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1),
+          legend.position='top', legend.direction='horizontal') +
+    scale_fill_brewer(palette="Set2") +
+    guides(fill=guide_legend(title = "유방암 발병", reverse = TRUE))
+
+class_by_quad_gg <- ggplot(bc_df) +
+    geom_mosaic(aes(weight=cnt, x=product(age), fill=class) ,na.rm=TRUE) +
+    facet_grid(breast.quad~.) +
+    labs(x="연령", title='연령별, 유방암이 발병한 지역별 유방암 발병') + 
+    theme_bw(base_family="NanumGothic") +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1),
+          legend.position='top', legend.direction='horizontal') +
+    scale_fill_brewer(palette="Set2") +
+    guides(fill=guide_legend(title = "유방암 발병", reverse = TRUE))
+
+grid.arrange(class_by_nodes_gg, class_by_quad_gg, ncol=2)
+~~~
+
+<img src="fig/nb-breast-cancer-ggplot-1.png" style="display: block; margin: auto;" />
+
+범주형 데이터를 시각화하는 것과 함께 `dplyr` 깔끔한(tidy) 데이터를 바탕으로 
+표로 표현하는 것도 가능하다.
+
+
+~~~{.r}
+# breast_cancer %>% 
+#     ungroup() %>% 
+#     count(class, age, breast.quad) %>% 
+#     group_by(age,breast.quad) %>% 
+#     mutate(pcnt = scales::percent(n/sum(n))) %>% 
+#     select(-pcnt) %>% 
+#     spread(age, n, fill=0) %>% 
+#     kable()
+
+breast_cancer %>% 
+    count(class, age, breast.quad) %>% 
+    group_by(age, breast.quad) %>% 
+    mutate(pcnt = scales::percent(n/sum(n))) %>% 
+    # select(-n) %>%
+    spread(age, pcnt, fill=0) %>% 
+    kable()
+~~~
+
+
+
+class                  breast.quad     n  20-29   30-39   40-49   50-59    60-69   70-79 
+---------------------  ------------  ---  ------  ------  ------  -------  ------  ------
+recurrence-events      ?               1  0       0       0       100%     0       0     
+recurrence-events      central         1  0       20%     0       12.5%    0       0     
+recurrence-events      central         2  0       0       0       0        50%     0     
+recurrence-events      left_low        1  0       0       0       0        0       100%  
+recurrence-events      left_low        6  0       0       0       0        25%     0     
+recurrence-events      left_low        7  0       50%     0       0        0       0     
+recurrence-events      left_low        9  0       0       0       23.7%    0       0     
+recurrence-events      left_low       12  0       0       36.4%   0        0       0     
+recurrence-events      left_up         5  0       0       0       0        22.7%   0     
+recurrence-events      left_up         6  0       60%     0       18.8%    0       0     
+recurrence-events      left_up         9  0       0       29%     0        0       0     
+recurrence-events      right_low       1  0       25%     9.1%    0        50%     0     
+recurrence-events      right_low       3  0       0       0       50%      0       0     
+recurrence-events      right_up        3  0       0       0       0        60%     0     
+recurrence-events      right_up        5  0       0       41.7%   45.45%   0       0     
+no-recurrence-events   central         1  0       0       0       0        0       100%  
+no-recurrence-events   central         2  0       0       0       0        50%     0     
+no-recurrence-events   central         3  0       0       100%    0        0       0     
+no-recurrence-events   central         4  0       80%     0       0        0       0     
+no-recurrence-events   central         7  0       0       0       87.5%    0       0     
+no-recurrence-events   left_low        7  0       50%     0       0        0       0     
+no-recurrence-events   left_low       18  0       0       0       0        75%     0     
+no-recurrence-events   left_low       21  0       0       63.6%   0        0       0     
+no-recurrence-events   left_low       29  0       0       0       76.3%    0       0     
+no-recurrence-events   left_up         2  0       0       0       0        0       100%  
+no-recurrence-events   left_up         4  0       40%     0       0        0       0     
+no-recurrence-events   left_up        17  0       0       0       0        77.3%   0     
+no-recurrence-events   left_up        22  0       0       71%     0        0       0     
+no-recurrence-events   left_up        26  0       0       0       81.2%    0       0     
+no-recurrence-events   right_low       1  0       0       0       0        50%     100%  
+no-recurrence-events   right_low       3  0       75%     0       50%      0       0     
+no-recurrence-events   right_low      10  0       0       90.9%   0        0       0     
+no-recurrence-events   right_up        1  100%    0       0       0        0       100%  
+no-recurrence-events   right_up        2  0       0       0       0        40%     0     
+no-recurrence-events   right_up        3  0       100%    0       0        0       0     
+no-recurrence-events   right_up        6  0       0       0       54.55%   0       0     
+no-recurrence-events   right_up        7  0       0       58.3%   0        0       0     
+
+`tumor.size`도 고려하여 모자이크 그래프를 통해 시각화한다.
+
+
+~~~{.r}
+ggplot(bc_df) +
+    geom_mosaic(aes(weight=cnt, x=product(age), fill=class) ,na.rm=TRUE) +
+    facet_grid(tumor.size~.)  +
+    labs(x="연령", title='연령별, 최대 절제 암 크기 직경별 유방암 발병') + 
+    theme_bw(base_family="NanumGothic") +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1),
+          legend.position='right', legend.direction='vertical') +
+    scale_fill_brewer(palette="Set2") +
+    guides(fill=guide_legend(title = "유방암 발병", reverse = TRUE))
+~~~
+
+<img src="fig/nb-breast-cancer-ggplot2-1.png" style="display: block; margin: auto;" />
+
+`Random Forest` 팩키지를 활용하여 예측에 중요하게 사용되는 변수도 추출해 본다.
+
+
+~~~{.r}
+# 4. randomForest -----------------------
+bc_fit <- randomForest(class ~ .,
+                    data=breast_cancer, 
+                    importance=TRUE, 
+                    ntree=1000)
+
+par(family = "NanumGothic")
+varImpPlot(bc_fit, main="유방암 예측 변수 중요도")
+~~~
+
+<img src="fig/nb-breast-cancer-rf-1.png" style="display: block; margin: auto;" />
+
+~~~{.r}
+bc_pred <- predict(bc_fit, breast_cancer, type="response")
+(conf_matrix <- table(bc_pred, breast_cancer$class))
+~~~
+
+
+
+~~~{.output}
+                      
+bc_pred                recurrence-events no-recurrence-events
+  recurrence-events                   71                    1
+  no-recurrence-events                14                  200
+
 ~~~
 
 ### 4.2. 나이브 베이즈 모형 적합
@@ -350,8 +532,8 @@ preds <- predict(model, newdata = breast_cancer)
 
 ~~~{.output}
                       
-preds                  no-recurrence-events recurrence-events
-  no-recurrence-events                  169                38
-  recurrence-events                      32                47
+preds                  recurrence-events no-recurrence-events
+  recurrence-events                   47                   32
+  no-recurrence-events                38                  169
 
 ~~~

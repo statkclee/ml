@@ -1,7 +1,7 @@
 ---
 layout: page
 title: xwMOOC 기계학습
-subtitle: 텍스트 분류(Text Classification)
+subtitle: 텍스트 분류(Text Classification) - 나이브 베이즈(naive bayes
 output:
   html_document: 
     toc: yes
@@ -24,7 +24,13 @@ library(ggthemes)
 library(doMC)
 registerDoMC(cores=4)
 library(e1071)
-
+library(forcats)
+library(randomForest)
+library(extrafont)
+library(knitr)
+library(gridExtra)
+library(FactoMineR)
+library(ggmosaic)
 
 options(scipen = 999)
 options(dplyr.width = 120)
@@ -105,6 +111,14 @@ Tiago A. Almeida, José Maria Gómez Hidalgo 분들이 생성한 `SMS Spam Colle
 # library(ggthemes)
 # library(doMC)
 # registerDoMC(cores=4)
+# library(forcats)
+# library(randomForest)
+# library(extrafont)
+# library(knitr)
+# library(gridExtra)
+# library(FactoMineR)
+# library(ggmosaic)
+
 
 # 1. 데이터 가져오기 -------------------------------------
 
@@ -253,9 +267,116 @@ breast_cancer <- read_csv("data/breast-cancer/breast-cancer.data", col_names = F
 names(breast_cancer) <- c("class", "age", "menopause", "tumor.size", "inv.nodes", "node.caps","deg.malign","breast","breast.quad","irradia")
 
 breast_cancer <- breast_cancer %>% 
-    mutate_all(funs(as.factor(.)))
+    mutate_all(funs(as.factor(.))) %>% 
+    mutate(inv.nodes = fct_relevel(inv.nodes, "0-2","3-5","6-8", "9-11", "12-14", "15-17", "24-26")) %>% 
+    mutate(tumor.size = fct_relevel(tumor.size, "0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54")) %>% 
+    mutate(class = fct_relevel(class, "recurrence-events", "no-recurrence-events"))
 
 # glimpse(breast_cancer)    
+```
+
+### 4.3. 유방암 발병 탐색적 데이터 분석
+
+유방암 발병과 관련하여 `breast_cancer` 데이터프레임에는 총 10개의 변수가 있고,
+결국 `class` 종속변수(유방암 발병 여부)를 나머지 범주형 9개 변수를 통해 예측하는 것이다.
+종속변수와 연관이 있는 변수를 사전에 탐색적 데이터 과정을 통해 살펴보는 것도 향후 예측모형 개발과 연관되어 
+중요하다. 다변량 대응분석(Multivariate Correspondance Analysis, MCA)을 통해 `class` 변수와 연관된 범주형 데이터에 대한 
+대응분석을 실시한다.
+
+
+``` {r nb-breast-cancer-ca}
+# 3. 탐색적 데이터 분석 -----------------------
+bc_df <- breast_cancer %>% 
+    group_by(class,age, menopause, tumor.size, inv.nodes, node.caps, deg.malign, breast.quad, irradia) %>% 
+    summarise(cnt = n())
+
+## 3.1. MCA
+bc_mca <- MCA(breast_cancer, quali.sup = 1, graph=FALSE)
+
+par(mfrow=c(1,3))
+plot(bc_mca, axes=c(1,2), choix="var", autoLab="n", invisible = c( "ind"),  shadow=TRUE, hab="quali")
+plot(bc_mca, axes=c(1,3), choix="var", autoLab="n", invisible = c( "ind"),  shadow=TRUE, hab="quali")
+plot(bc_mca, axes=c(2,3), choix="var", autoLab="n", invisible = c( "ind"),  shadow=TRUE, hab="quali")
+```
+
+대응분석으로 `class` 종속변수와 관련성 높은 설명변수를 일부 추려 모자이크 그래프를 통해 시각화한다.
+
+
+``` {r nb-breast-cancer-ggplot}
+## 3.2. ggplot 시각화
+class_by_nodes_gg <- ggplot(bc_df) +
+    geom_mosaic(aes(weight=cnt, x=product(age), fill=class) ,na.rm=TRUE) +
+    facet_grid(inv.nodes~.) +
+    labs(x="연령", title='연령별, 림프노드 갯수별 유방암 발병') + 
+    theme_bw(base_family="NanumGothic") +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1),
+          legend.position='top', legend.direction='horizontal') +
+    scale_fill_brewer(palette="Set2") +
+    guides(fill=guide_legend(title = "유방암 발병", reverse = TRUE))
+
+class_by_quad_gg <- ggplot(bc_df) +
+    geom_mosaic(aes(weight=cnt, x=product(age), fill=class) ,na.rm=TRUE) +
+    facet_grid(breast.quad~.) +
+    labs(x="연령", title='연령별, 유방암이 발병한 지역별 유방암 발병') + 
+    theme_bw(base_family="NanumGothic") +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1),
+          legend.position='top', legend.direction='horizontal') +
+    scale_fill_brewer(palette="Set2") +
+    guides(fill=guide_legend(title = "유방암 발병", reverse = TRUE))
+
+grid.arrange(class_by_nodes_gg, class_by_quad_gg, ncol=2)
+```
+
+범주형 데이터를 시각화하는 것과 함께 `dplyr` 깔끔한(tidy) 데이터를 바탕으로 
+표로 표현하는 것도 가능하다.
+
+``` {r nb-breast-cancer-table}
+# breast_cancer %>% 
+#     ungroup() %>% 
+#     count(class, age, breast.quad) %>% 
+#     group_by(age,breast.quad) %>% 
+#     mutate(pcnt = scales::percent(n/sum(n))) %>% 
+#     select(-pcnt) %>% 
+#     spread(age, n, fill=0) %>% 
+#     kable()
+
+breast_cancer %>% 
+    count(class, age, breast.quad) %>% 
+    group_by(age, breast.quad) %>% 
+    mutate(pcnt = scales::percent(n/sum(n))) %>% 
+    # select(-n) %>%
+    spread(age, pcnt, fill=0) %>% 
+    kable()
+```
+
+`tumor.size`도 고려하여 모자이크 그래프를 통해 시각화한다.
+
+``` {r nb-breast-cancer-ggplot2}
+ggplot(bc_df) +
+    geom_mosaic(aes(weight=cnt, x=product(age), fill=class) ,na.rm=TRUE) +
+    facet_grid(tumor.size~.)  +
+    labs(x="연령", title='연령별, 최대 절제 암 크기 직경별 유방암 발병') + 
+    theme_bw(base_family="NanumGothic") +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1),
+          legend.position='right', legend.direction='vertical') +
+    scale_fill_brewer(palette="Set2") +
+    guides(fill=guide_legend(title = "유방암 발병", reverse = TRUE))
+```
+
+`Random Forest` 팩키지를 활용하여 예측에 중요하게 사용되는 변수도 추출해 본다.
+
+``` {r nb-breast-cancer-rf}
+# 4. randomForest -----------------------
+bc_fit <- randomForest(class ~ .,
+                    data=breast_cancer, 
+                    importance=TRUE, 
+                    ntree=1000)
+
+par(family = "NanumGothic")
+varImpPlot(bc_fit, main="유방암 예측 변수 중요도")
+
+bc_pred <- predict(bc_fit, breast_cancer, type="response")
+(conf_matrix <- table(bc_pred, breast_cancer$class))
 ```
 
 ### 4.2. 나이브 베이즈 모형 적합
