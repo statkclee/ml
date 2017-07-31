@@ -259,7 +259,7 @@ bwplot(tuc.comp,  layout = c(2, 1),scales = list(relation = "free"),
 - xgboost: `xgboost` 모형
 - recipes: 모형설계행렬 구축 
 
-### 4.1. 데이터 전처리
+### 4.1. 데이터 전처리 {#preprocessing}
 
 도요타 중고차 데이터를 불러와서 연속형과 범주형으로 나누고 범주형 데이터는 요인으로 정의하고 각 요인 내부 수준을 설정한다.
 
@@ -283,7 +283,7 @@ datatable(tuc_df) %>%
     formatRound(c(1,3,8,10), digits=0)
 ```
 
-### 4.2. 모형 공식 및 선형 회귀 모형 적합
+### 4.2. 모형 공식 및 선형 회귀 모형 적합 {#linear-regression}
 
 데이터가 준비되면 모형공식에 따라 예측변수와 설명변수를 공식으로 지정하고 기본 선형예측 모형을 적합해본다.
 
@@ -314,7 +314,7 @@ ggplot(tuc_df, aes(x = pred, y = Price)) +
     scale_x_continuous(labels=scales::comma)
 ```
 
-### 4.3. `Y` 중고차 가격 변수 변환
+### 4.3. `Y` 중고차 가격 변수 변환 {#log-transformation}
 
 예측값과 실제 중고차 가격이 값이 커질수록 오차가 커지는 것과 함께, 
 원래 중고차 가격 데이터가 정규분포와 차이가 나서 로그 변환을 하여 예측모형을 개발해본다.
@@ -388,7 +388,7 @@ tuc_df %>% gather(key=reg_model, value=reg_pred, pred, pred_log) %>%
         scale_x_continuous(labels=scales::comma)
 ```
 
-### 4.3. `X` 변수 변환
+### 4.3. `X` 변수 변환 {#gam}
 
 `Y` 중고차 가격을 변환해서 일정부분 성능을 높였다면 중고차 가격 `Y`와 연속형 설명변수들 간의 관계가 비선형인 것을 식별하여
 GAM 모형을 통해 이를 잡아낸다.
@@ -430,7 +430,7 @@ tuc_df %>% gather(key=reg_model, value=reg_pred, pred, pred_log, pred_gam) %>%
     facet_wrap(~reg_model)
 ```
 
-### 4.4. Random Forest 모형
+### 4.4. Random Forest 모형 {#random-forest}
 
 xgboost가 캐글 대회를 휩쓸기 전까지 SVM과 함께 한 세대를 풍미한 `Random Forest` 모형을 적합시켜 성능이 얼마나 개선될 수 있는지 살펴보자.
 
@@ -471,7 +471,7 @@ tuc_df %>% gather(key=reg_model, value=reg_pred, pred, pred_log, pred_gam, pred_
     guides(fill = guide_legend(nrow = 1))
 ```
 
-### 4.4. Random Forest 모형
+### 4.5. XGBoost 모형 {#xgboost}
 
 [캐글(Kaggle)](https://www.kaggle.com/) 대회를 통해 `xgboost`가 두각을 나타내면서 
 [xgboost: Extreme Gradient Boosting](https://cran.r-project.org/web/packages/xgboost/) 팩키지도 많이 사용되고 있다.
