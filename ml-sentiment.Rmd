@@ -1,0 +1,44 @@
+---
+layout: page
+title: xwMOOC 기계학습
+subtitle: 감성분석(Sentiment Analysis) - 깔끔한 텍스트 방식(tidytext)
+output:
+  html_document: 
+    toc: yes
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
+---
+ 
+``` {r, include=FALSE}
+source("tools/chunk-options.R")
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
+
+```
+
+## 1. 깔끔한 텍스트 데이터 분석 방식 {#tidytext}
+
+깔끔한(tidy) 데이터 분석 방법론이 정립되어 다양한 분야에 적용되고 있고,
+텍스트 데이터(tidyverse)라고 예외는 아니다. 
+사실 텍스트 데이터는 다양한 형태로 넘쳐자고 있지만 이에 대한 대응은 
+특히, 한국어를 R언어로 활용한 사례는 많지 않다. 
+
+텍스트 데이터를 분석하기 좋은 웹사이트가 여러분의 손을 기다리고 있습니다. 
+단, 텍스트 데이터는 모두 영어로 되어 있습니다.
+
+- [전자책, 구텐베르그(Gutenberg)](https://www.gutenberg.org/)
+- [트위터](http://www.rdatamining.com/docs/twitter-analysis-with-r)
+- [영문 팝송 가사(50 Years of Pop Music)](https://github.com/walkerkq/musiclyrics)
+- [영문 TV 뉴스](http://television.gdeltproject.org/cgi-bin/iatv_ftxtsearch/iatv_ftxtsearch)
+
+텍스트 데이터를 분석하는 다양한 방식이 존재한다. 텍스트 데이터 분석방법으로 
+무료 전자책 [Text Mining with R](http://tidytextmining.com/)에 내용을 중심으로 살펴보자.
+
+
+<img src="fig/tidy_text_workflow.png" alt="깔끔한 텍스트 작업흐름" width="77%" />
+
+원본 텍스트 데이터가 있다면 이를 `unnest_tokens()` 함수를 통해 텍스트를 깔끔한 형태로 정제를 한후 
+`dplyr`를 활용하여 데이터를 가공한 후에 요약하고 나서 이를 `ggplot`에 담아 시각화한다.
+
+ 
