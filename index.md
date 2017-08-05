@@ -62,6 +62,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
             1. [사례 - 도요타 중고차 가격 예측](ml-pm-continuous.html)
             1. [사례 - 콘크리트 강도](ml-pm-continuous-concrete.html)
             1. [사례 - 카드발급](ml-credit-greene.html)
+            1. [사례 - 기계고장 빈도수 예측](ml-machine-failures.html)
             1. [비지도 학습 - 포켓몬](ml-pokemon-unsupervised.html)
         1. **기계 중심 기계학습**
 1. **데이터 유형별 기계학습 모형**
