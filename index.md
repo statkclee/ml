@@ -27,7 +27,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
 1. [기계학습 운영 및 자동화 - 파이프라인](ml-production.html)
     - **[기계학습 빅데이터 분석환경-AWS스파크](ml-aws-spark.html)**
         1. [AWS RStudio 서버](ds-aws-rstudio-server.html)
-        1. [PC에서 바라본 AWS](ml-aws-from-pc.html)
+        1. [시나리오별 클라우드(AWS) 컴퓨팅 자원을 데이터 과학에 활용](ml-aws-from-pc.html)
         1. [스파크 EC2 클러스터 - 부싯돌(flintrock)](ml-aws-ec2-flintrock.html)
             1. [스파크 EC2 클러스터 - 데이터과학 툴체인(R, sparklyr)](ml-aws-ec2-flintrock-sparklyr.html)
         1. [EMR 스파크 클러스터 - wadal](ml-emr-wadal.html)
