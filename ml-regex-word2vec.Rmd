@@ -67,21 +67,21 @@ library(stringr)
 
 ``` {r president-speech-data}
 
-guess_encoding("data/문재인_대통령.txt", n_max=100)
-guess_encoding("data/박근혜_대통령.txt", n_max=100)
-guess_encoding("data/이명박_대통령.txt", n_max=100)
-guess_encoding("data/노무현_대통령.txt", n_max=100)
+guess_encoding("data/president/문재인_대통령.txt", n_max=100)
+guess_encoding("data/president/박근혜_대통령.txt", n_max=100)
+guess_encoding("data/president/이명박_대통령.txt", n_max=100)
+guess_encoding("data/president/노무현_대통령.txt", n_max=100)
 
-moon_19_txt <- readLines("data/문재인_대통령.txt", encoding = "UTF-8")
+moon_19_txt <- readLines("data/president/문재인_대통령.txt", encoding = "UTF-8")
 moon_19_txt <- moon_19_txt[which(moon_19_txt != "")]
 
-park_18_txt <- readLines("data/박근혜_대통령.txt", encoding = "UTF-8")
+park_18_txt <- readLines("data/president/박근혜_대통령.txt", encoding = "UTF-8")
 park_18_txt <- park_18_txt[which(park_18_txt != "")]
 
-lee_17_txt <- readLines("data/이명박_대통령.txt", encoding = "UTF-8")
+lee_17_txt <- readLines("data/president/이명박_대통령.txt", encoding = "UTF-8")
 lee_17_txt <- lee_17_txt[which(lee_17_txt != "")]
 
-roh_16_txt <- readLines("data/노무현_대통령.txt", encoding = "UTF-8")
+roh_16_txt <- readLines("data/president/노무현_대통령.txt", encoding = "UTF-8")
 roh_16_txt <- roh_16_txt[which(roh_16_txt != "")]
 ```
 
@@ -108,24 +108,25 @@ roh_16_token  <- tokenize_words(roh_16_txt)
 ``` {r president-word2vec}
 # 3. Word2Vec  ----------------------------------------
 
-prep_word2vec(origin="data", destination="data/president_speech.txt", lowercase=TRUE, bundle_ngrams=2)
+prep_word2vec(origin="data/president", destination="data/president/president_speech.txt", lowercase=TRUE, bundle_ngrams=2)
 
 word2vec_model <- wordVectors::train_word2vec(
-    train_file = "data/president_speech.txt", output_file = "model/president_speech_20.bin",
+    train_file = "data/president/president_speech.txt", output_file = "model/president_speech_20.bin",
     vectors = 20, window = 10, threads = 2,  min_count = 3)
 
 word2vec_model
 
-word2vec_model[["\xec슦由\xac"]]
+word2vec_model[["국민"]]
 
 word2vec_model %>% 
-   wordVectors::nearest_to(vector = word2vec_model[["\xec슦由\xac"]], n = 10)
+   wordVectors::nearest_to(vector = word2vec_model[["국민"]], n = 10)
 
 word2vec_model %>% 
-    wordVectors::nearest_to(vector = word2vec_model[[c("\xec슦由\xac", "\xec뿭\xec궗瑜\xbc")]], n = 10)
+    wordVectors::nearest_to(vector = word2vec_model[[c("민주", "국민")]], n = 10)
 
 wordVectors::plot(
     x = word2vec_model,
-    y = word2vec_model[[c("\xec슦由\xac", "\xec뿭\xec궗瑜\xbc")]]
+    y = word2vec_model[[c("국민", "민주")]]
 )
+
 ```
