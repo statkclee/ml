@@ -94,6 +94,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
             1. [고객 방문후기 평점 감성분석 - 옐프(Yelp)](ml-text-sentiment-yelp.html)
             1. [영화 평점 - 무비렌즈(MovieLens)](ml-text-movielens.html)
         1. **[감성분석(Sentiment Analysis) - 깔끔한 텍스트 방식(tidytext)](ml-sentiment.html)**
+        1. [정규표현식에서 워드2벡(Word2Vec)]](ml-regex-word2vec.html)**
     1. **[장바구니 데이터 분석](ml-market-basket.html)**    
 1. **기계학습 상용화**
     1. [신용평점모형 개발](ml-credit-scoring-overview.html)
