@@ -38,26 +38,36 @@
       <div class="row">
         <div class="col-md-10 col-md-offset-1">
                     <a href="index.html"><h1 class="title">기계학습</h1></a>
-          <h2 class="subtitle">PC에서 바라본 AWS</h2>
+          <h2 class="subtitle">시나리오별 클라우드(AWS) 컴퓨팅 자원을 데이터 과학에 활용</h2>
           <section class="objectives panel panel-warning">
 <div class="panel-heading">
 <h2 id="학습-목표"><span class="glyphicon glyphicon-certificate"></span>학습 목표</h2>
 </div>
 <div class="panel-body">
 <ul>
-<li>PC에서 AWS S3 접속 환경을 설정한다.</li>
-<li>PC에 S3 데이터 분석과 기계학습 알고리즘 개발 환경을 구축한다.</li>
+<li>AWS 컴퓨팅 자원을 시나리오별로 활용하는 방법을 살펴본다.</li>
+<li>PC에서 AWS S3 자원만 활용하는 사례를 실습한다.</li>
+<li>클라우드 S3 데이터를 끌어내어 PC에 분석과 기계학습 알고리즘 개발 환경을 구축한다.</li>
 </ul>
 </div>
 </section>
-<h2 id="데이터-분석을-위한-aws-시나리오">데이터 분석을 위한 AWS 시나리오</h2>
+<h2 id="aws를-활용하는-세가지-시나리오">1. AWS를 활용하는 세가지 시나리오</h2>
+<p>데이터분석을 위해 AWS 활용하는 시나리오는 세가지 방법이 크게 존재한다.</p>
+<ul>
+<li>시나리오 1. : AWS 클라우드의 저장소 기능(S3)만 활용</li>
+<li>시나리오 2. : AWS 클라우드의 연산기능(EC2)만 활용</li>
+<li>시나리오 3. : AWS 클라우드의 저장소 기능(S3)과 연산기능(EC2) 모두 활용</li>
+</ul>
+<p>각 시나리오별 장단점과 필요성은 각자 직면한 환경에 따라 차이가 나기 때문에 우열을 가리는 것은 무의미하다.</p>
+<p><img src="fig/aws-three-scenarios.png" alt="AWS 활용 세가지 시나리오" width="77%" /></p>
+<h2 id="첫번째-시나리오---aws-s3만-활용한-시나리오">2. 첫번째 시나리오 - AWS S3만 활용한 시나리오</h2>
 <p>데이터 분석을 위한 AWS 시나리오는 여러가지가 존재한다. 가장 먼저 떠오르는 작업 방식은</p>
 <ul>
 <li>AWS S3 데이터를 가져와서 로컬 PC에서 분석하는 시나리오</li>
 </ul>
-<p>탐색적 데이터 분석에 적합한 방식으로 S3 적재된 데이터를 CLI나 GUI를 활용하여 꺼내와서 로컬 PC에서 분석한다.</p>
+<p>탐색적 데이터 분석에 적합한 방식으로 S3 적재된 데이터를 CLI나 GUI를 활용하여 꺼내와서 로컬 PC에서 분석한다. 이와 유사하게 개인용으로 드롭박스나 구글 드라이브를 사용하는 경우가 이와 유사하다고 볼 수 있다.</p>
 <p><img src="fig/aws-s3-pc.png" alt="AWS S3 데이터 가져오기" width="77%" /></p>
-<h3 id="환경설정">환경설정</h3>
+<h3 id="환경설정">2.1. 환경설정</h3>
 <p><code>AWS Commmand Line Interface</code> (AWS CLI)를 운영체제에 설치를 하고 파이썬을 설치한다. 중요한 것은 <code>aws --version</code> 명령어를 쳤을 때 환경저보가 출력되어야 한다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">C:\Windows\System32&gt;<span class="st"> </span>aws --version
 aws-cli/<span class="fl">1.11.64</span> Python/<span class="fl">3.4.3</span> Windows/<span class="dv">7</span> botocore/<span class="fl">1.5.27</span></code></pre></div>
@@ -73,7 +83,7 @@ aws-cli/<span class="fl">1.11.64</span> Python/<span class="fl">3.4.3</span> Win
 <li>윈도우 단축키 <font face=Wingdings>ÿ</font> + R 단축키를 누르고 나서 <code>cmd</code> 명령어를 쳤을 때 <code>aws --version</code> 명령어가 실행되려면, 환경변수로 <strong>경로(Path)</strong>가 파이썬 AWS CLI 모두 추가되어야 한다.</li>
 </ul></li>
 </ul>
-<h3 id="s3-접근-설정">S3 접근 설정</h3>
+<h3 id="s3-접근-설정">2.2. S3 접근 설정</h3>
 <p>S3 버킷에 접근하기 위해서는 AWS에서 발급한 토큰이 필요하다. 통상 AWS Access Key와 AWS Secret Access Key 즉 접근키와 접근비번으로 구성된다.</p>
 <p><code>ap-northeast-2</code> 지역명(Region Name)은 <a href="http://docs.aws.amazon.com/general/latest/gr/rande.html">AWS Regions and Endpoints</a>에서 확인이 가능하다. 데이터센터가 위치한 지역과 동일하게 생각하는 것도 한 방법이다. 즉, 데이터센터가 위치한 지역에 있는 특정 컴퓨터에 S3 형태로 데이터가 저장되어 있다.</p>
 <ul>
@@ -83,11 +93,12 @@ aws-cli/<span class="fl">1.11.64</span> Python/<span class="fl">3.4.3</span> Win
 <li>Default output format [None]:</li>
 </ul>
 <p>상기 정보를 CLI의 경우 <code>asw configure</code> 명령어를 실행하고 채워넣거나, S3 브라우저 GUI를 사용하는 경우 메뉴를 찾아 입력시키면 S3에 접속할 수 있다.</p>
-<h3 id="데이터-분석-환경">데이터 분석 환경</h3>
+<h3 id="데이터-분석-환경">2.3. 데이터 분석 환경</h3>
 <p>AWS S3 버킷 인증키와 S3버킷에서 데이터를 로컬 PC로 가져올 준비가 완료되면 다음으로 데이터를 분석할 환경을 갖춰야 한다. 가장 많이 사용되는 데이터 분석 언어는 R과 파이썬이다. 물론 이 언어를 데이터 분석 엔진으로 사용을 하지만 개발환경을 갖추어 사용하는 것이 대부분이다. R의 경우 RStudio, 파이썬의 경우 쥬피터가 데이터 분석(과학) 통합개발환경이 된다.</p>
 <p><img src="fig/aws-s3-pc-data-analysis.png" alt="AWS S3 데이터 PC 분석환경" width="77%" /></p>
 <p>기계학습과 연관된 과학컴퓨팅을 목적으로 파이썬을 사용하는 경우 <a href="https://www.continuum.io/Downloads">아나콘다(ANACONDA)</a>를 설치하면 편하다. 파이썬 외에도 기계학습, 데이터 과학을 위해서 분석해야 되는 경우 다수 팩키지를 설치해야 하는데 충돌이나 설치가 되지 않는 문제를 개발사에서 해결하여 제공하기 때문에 성가신 문제는 넘어가고 데이터 분석과 알고리즘 개발에 전념할 수 있다.</p>
-<h3 id="통합개발환경ide-설치">통합개발환경(IDE) 설치</h3>
+<p>결국 클라우드 S3 저장된 데이터 <code>.csv</code>, <code>.json</code>, <code>.parquet</code> 파일을 CLI, GUI 인터페이스를 통해 로컬 컴퓨터로 가져와서 R이나 파이썬 모두 데이터프레임 형태로 데이터를 가공하여 분석이나 모형개발 작업을 추진한다.</p>
+<h3 id="통합개발환경ide-설치">2.4. 통합개발환경(IDE) 설치</h3>
 <p>파이썬의 경우 CLI 상에서 <code>pip install Jupyter</code> 명령어를 실행하면 간단히 쥬피터가 설치된다. 쥬피터 설치가 완료되면 <code>jupyter notebook</code> 명령어를 실행시키면 웹브라우져가 실행되고 데이터를 분석할 수 있는 준비가 모두 완료된다.</p>
 <aside class="callout panel panel-info">
 <div class="panel-heading">
@@ -101,13 +112,18 @@ aws-cli/<span class="fl">1.11.64</span> Python/<span class="fl">3.4.3</span> Win
 </div>
 </aside>
 <p>R을 데이터분석환경을 사용하는 경우 <a href="https://www.rstudio.com/">RStudio</a>를 다운로드 받아 설치한다.</p>
-<h3 id="s3와-통합개발환경-rstudio-쥬피터-데이터-동기화">S3와 통합개발환경 RStudio, 쥬피터 데이터 동기화</h3>
+<h3 id="s3와-통합개발환경-rstudio-쥬피터-데이터-동기화">2.5. S3와 통합개발환경 RStudio, 쥬피터 데이터 동기화</h3>
 <p>PC에서 S3 데이터를 다운로드 받아 RStudio 혹은 아나콘다 쥬피터 노트북으로 통해 데이터를 분석하거나 알고리즘을 개발하는 경우 특정 디렉토리를 작업 폴더로 지정하는 것이 프로젝트로 관리 측면에서 편리성이 있다.</p>
 <p><img src="fig/aws-s3-sync-pc.png" alt="AWS S3 데이터 동기화" width="57%" /></p>
 <ul>
 <li>S3와 PC 디렉토리 동기화: <code>aws s3 sync . s3://버킷명</code> 명령어를 통해 현재 작업디렉토리와 S3 버킷을 동기화한다.</li>
 <li>PC 디렉토리와 RStudio, 쥬피터 노트북 동기화: RStudio의 경우 프로젝트를 생성하여 특정 디렉토리를 동기화한다. 쥬피터 노트북의 경우 작업 디렉토리로 이동하여 <code>jupyter notebook</code> 실행 명령어를 사용하던가, 쥬피터 노트북 실행 아이콘을 우클릭하여 시작 경로를 설정한다.</li>
 </ul>
+<h2 id="두번째-시나리오---ec2-분석-컴퓨터에서-데이터-분석">3. 두번째 시나리오 - EC2 분석 컴퓨터에서 데이터 분석</h2>
+<p>두번째 시나리오는 로컬 컴퓨터나 노트북이 너무 구형이라 속도가 늦거나 데이터분석으로 인하여 불필요한 소프트웨어를 너무 많이 깔아 더럽히지 않고자 할 때 AWS 클라우드에 분석용 EC2 컴퓨터를 별도로 갖추고 분석작업을 진행하는 경우다.</p>
+<p><img src="fig/aws-scenario-filezilla-ftp.png" alt="FTP 데이터 이동을 통한 데이터 분석작업" width="27%" /></p>
+<h2 id="세번째-시나리오---aws-클라우드의-저장소-기능s3과-연산기능ec2-모두-활용">4. 세번째 시나리오 - AWS 클라우드의 저장소 기능(S3)과 연산기능(EC2) 모두 활용</h2>
+<p>세번째 시나리오는 데이터도 보안이나 용량문제 등 다양한 사유로 S3에 저장되어 있고, 로컬 컴퓨터나 노트북으로 데이터 분석 작업을 진행하기 곤란한 경우 AWS 클라우드 연산기능(EC2)을 활용하여 데이터 분석 및 모형개발 작업을 수행한다.</p>
         </div>
       </div>
       </article>
