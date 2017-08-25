@@ -176,6 +176,58 @@ FTP 프로그램이 설치되어 로컬 컴퓨터에서 EC2 컴퓨터에 sFTP �
 
 <img src="fig/aws-ec2-connect-filezilla.png" alt="FileZilla 접속" width="77%" />
 
+> ### 루트(`root`) 계정 로그인 {.callout}
+>
+> 금지된 `root` 계정 로그인을 하는 방법은 다음과 같다.
+> 
+> 1. `root` 권한으로 로그인 할 수 있도록 권한을 수정
+>     - `sudo nano /etc/ssh/sshd_config` 파일을 열고, `PermitRootLogin prohibit-password` &rarr; `PermitRootLogin yes` 로 수정
+> 1. `root` 비밀번호 설정
+>     - `sudo passwd` 명령어로 `ubuntu` 유저 비밀번호 설정
+>     - `su root` 비밀번호를 입력하여 `root` 계정으로 바꿈 
+> 1. `authorized_keys` 파일 복사
+>     - `root` 계정 `~/.ssh/authorized_keys` 파일을 `~/.ssh/authorized_keys_bak`로 이동
+>         1. `su root`
+>         1. `cd ~/.ssh/`
+>         1. `mv authorized_keys authorized_keys_bak`
+>     - `ubuntu` 계정 `/home/ubuntu/.ssh/authorized_keys` 파일 복사
+>         1. `cp /home/ubuntu/.ssh/authorized_keys /home/root/.ssh/`        
+>              - EC2 컴퓨터 생성시 생성한 `.pem` 파일을 그대로 사용해서 FileZilla `root` 계정으로 로그인하기 위함.
+> 1. 서비스 재시작
+>     - `service sshd restart`
+>     - `ubuntu` 계정 대신 `root` 계정으로 로그인 가능하게 됨.
+> 
+> ``` {r root-login, eval=FALSE}
+> $ ssh -i "vxxxxxxxxx.pem" root@ec2-1xx-xx-22-xxx.ap-northeast-2.compute.amazonaws.com
+> Welcome to Ubuntu 16.04.3 LTS (GNU/Linux 4.4.0-92-generic x86_64)
+> 
+>  * Documentation:  https://help.ubuntu.com
+>  * Management:     https://landscape.canonical.com
+>  * Support:        https://ubuntu.com/advantage
+> 
+>   Get cloud support with Ubuntu Advantage Cloud Guest:
+>     http://www.ubuntu.com/business/services/cloud
+> 
+> 0 packages can be updated.
+> 0 updates are security updates.
+> 
+> root@ip-1xx-xx-22-xxx:~#
+> ```
+
+`rstudio` 계정에 `root` 권한을 부여할 경우 보안에는 다소 문제가 있을 수 있으나 데이터 과학 작업을 수행하는데 
+나름 편리한 점은 있다. [^ask-ubuntu-root-privileges]
+
+[^ask-ubuntu-root-privileges]: [How do I grant sudo privileges to an existing user?](https://askubuntu.com/questions/168280/how-do-i-grant-sudo-privileges-to-an-existing-user)
+
+> ### `rstudio` 계정에 루트(`root`) 권한 부여 {.callout}
+>
+> `rstudio` 뿐만 아니라 특정 계정에 `root` 권한을 부여하는 명령어는 다음과 같다. 
+> 
+> ``` {r permit-root-privileges, eval=FALSE}
+> 
+> root@ip-172-31-22-122:~$ sudo usermod -a -G sudo rstudio
+> ```
+
 ### 3.3. RStudio 8787 접속
 
 데이터분석 환경과 데이터를 모두 전달했다면 EC2 컴퓨터에서 데이터분석을 위한 모든 준비가 되었다.
