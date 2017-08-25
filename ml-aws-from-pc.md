@@ -1,14 +1,4 @@
----
-layout: page
-title: 기계학습
-subtitle: 시나리오별 클라우드(AWS) 컴퓨팅 자원을 데이터 과학에 활용
-output:
-  html_document: 
-    keep_md: yes
-  pdf_document:
-    latex_engine: xelatex
-mainfont: NanumGothic
----
+# 기계학습
 
 
 > ## 학습 목표 {.objectives}
@@ -17,10 +7,7 @@ mainfont: NanumGothic
 > * PC에서 AWS S3 자원만 활용하는 사례를 실습한다.
 > * 클라우드 S3 데이터를 끌어내어 PC에 분석과 기계학습 알고리즘 개발 환경을 구축한다.
 
-``` {r, include=FALSE}
-source("tools/chunk-options.R")
-knitr::opts_chunk$set(error = TRUE)
-```
+
 
 ## 1. AWS를 활용하는 세가지 시나리오
 
@@ -50,10 +37,11 @@ knitr::opts_chunk$set(error = TRUE)
 `AWS Commmand Line Interface` (AWS CLI)를 운영체제에 설치를 하고 파이썬을 설치한다. 
 중요한 것은 `aws --version` 명령어를 쳤을 때 환경저보가 출력되어야 한다. 
 
-``` {r aws-pc-install, eval=FALSE}
+
+~~~{.r}
 C:\Windows\System32> aws --version
 aws-cli/1.11.64 Python/3.4.3 Windows/7 botocore/1.5.27
-```
+~~~
 
 - AWS CLI 툴체인 설치 
     - [AWS CLI 윈도우즈 설치](http://docs.aws.amazon.com/cli/latest/userguide/awscli-install-windows.html)
@@ -158,9 +146,10 @@ AWS에서 제공하는 EC2 컴퓨터는 기본적인 운영체제(리눅스)가 
 
 EC2 컴퓨터에 FTP가 설치되지 않는 경우 먼저 이를 설치해야 된다.
 
-``` {r install-sftp, eval=FALSE}
+
+~~~{.r}
 $ sudo apt-get install vsftpd
-```
+~~~
 
 FTP 프로그램이 설치되어 로컬 컴퓨터에서 EC2 컴퓨터에 sFTP 로 붙을 준비가 되었다.
 파일질라(FileZilla)의 sFTP를 사용하는데 주로 전송시 암호화시켜서 전송하여 보안이 높아진다.
