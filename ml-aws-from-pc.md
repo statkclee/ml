@@ -1,4 +1,14 @@
-# 기계학습
+---
+layout: page
+title: 기계학습
+subtitle: 시나리오별 클라우드(AWS) 컴퓨팅 자원을 데이터 과학에 활용
+output:
+  html_document: 
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
+---
 
 
 > ## 학습 목표 {.objectives}
@@ -156,6 +166,7 @@ FTP 프로그램이 설치되어 로컬 컴퓨터에서 EC2 컴퓨터에 sFTP �
 그리고 EC2 컴퓨터 SSH와 동일한 22번 포트를 열어 파일을 주고 받는다.
 
 좌측 상단에 `Site Manager`를 클릭해서 필요한 설정을 한다.
+
 - 호스트(Host): EC2 컴퓨터 IP주소 입력
 - 포트(Port): SSH와 동일한 22
 - 프로토콜(Protocol): SFTP - SSH File Transfer Protocol 선택
