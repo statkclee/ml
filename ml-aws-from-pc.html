@@ -216,6 +216,15 @@ root@ip-1xx-xx<span class="dv">-22</span>-xxx:<span class="er">~</span><span cla
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">root@ip<span class="dv">-172-31-22-122</span>:<span class="er">~$</span><span class="st"> </span>sudo usermod -a -G sudo rstudio</code></pre></div>
 </div>
 </aside>
+<aside class="callout panel panel-info">
+<div class="panel-heading">
+<h3 id="rstudio-권한-아래-디렉토리-관리"><span class="glyphicon glyphicon-pushpin"></span><code>rstudio</code> 권한 아래 디렉토리 관리</h3>
+</div>
+<div class="panel-body">
+<p><code>root</code>, <code>ubuntu</code>, <code>rstudio</code> 등 여러 계정이 혼재된 경우 <code>rstudio</code> 계정으로 디렉토리 관리를 일원화 하고자 하는 경우 다음 명령어를 사용한다. <code>/home/rstudio/network_data/</code> 디렉토리를 <code>rstudio</code> 관할로 변경시킴.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">root@ip<span class="dv">-172-31-22-122</span>:<span class="er">~$</span><span class="st"> </span>sudo chown -R rstudio ./network_data/</code></pre></div>
+</div>
+</aside>
 <h3 id="rstudio-8787-접속">3.3. RStudio 8787 접속</h3>
 <p>데이터분석 환경과 데이터를 모두 전달했다면 EC2 컴퓨터에서 데이터분석을 위한 모든 준비가 되었다. EC2 컴퓨터 IP주소 입력를 포트번호 <code>8787</code>을 붙여 접속하게 되면 친숙한 RStudio 개발환경이 나타난다. 로그인을 해야 되기 때문에 rstudio/rstudio 계정으로 로그인하면 된다.</p>
 <h2 id="세번째-시나리오---aws-클라우드의-저장소-기능s3과-연산기능ec2-모두-활용">4. 세번째 시나리오 - AWS 클라우드의 저장소 기능(S3)과 연산기능(EC2) 모두 활용</h2>

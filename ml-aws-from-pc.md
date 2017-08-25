@@ -229,6 +229,17 @@ FTP 프로그램이 설치되어 로컬 컴퓨터에서 EC2 컴퓨터에 sFTP �
 > root@ip-172-31-22-122:~$ sudo usermod -a -G sudo rstudio
 > ~~~
 
+> ### `rstudio` 권한 아래 디렉토리 관리 {.callout}
+>
+> `root`, `ubuntu`, `rstudio` 등 여러 계정이 혼재된 경우 `rstudio` 계정으로 디렉토리 관리를 일원화 하고자 하는 경우 다음 
+> 명령어를 사용한다. `/home/rstudio/network_data/` 디렉토리를 `rstudio` 관할로 변경시킴.
+> 
+> 
+> ~~~{.r}
+> root@ip-172-31-22-122:~$ sudo chown -R rstudio ./network_data/
+> ~~~
+
+
 ### 3.3. RStudio 8787 접속
 
 데이터분석 환경과 데이터를 모두 전달했다면 EC2 컴퓨터에서 데이터분석을 위한 모든 준비가 되었다.
