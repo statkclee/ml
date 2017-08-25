@@ -152,6 +152,70 @@ aws-cli/<span class="fl">1.11.64</span> Python/<span class="fl">3.4.3</span> Win
 <li>키 파일(Key File): 인스턴스 생성 시 다운로드한 <code>.pem</code>파일로 설정</li>
 </ul>
 <p><img src="fig/aws-ec2-connect-filezilla.png" alt="FileZilla 접속" width="77%" /></p>
+<aside class="callout panel panel-info">
+<div class="panel-heading">
+<h3 id="루트root-계정-로그인"><span class="glyphicon glyphicon-pushpin"></span>루트(<code>root</code>) 계정 로그인</h3>
+</div>
+<div class="panel-body">
+<p>금지된 <code>root</code> 계정 로그인을 하는 방법은 다음과 같다.</p>
+<ol style="list-style-type: decimal">
+<li><code>root</code> 권한으로 로그인 할 수 있도록 권한을 수정
+<ul>
+<li><code>sudo nano /etc/ssh/sshd_config</code> 파일을 열고, <code>PermitRootLogin prohibit-password</code> → <code>PermitRootLogin yes</code> 로 수정</li>
+</ul></li>
+<li><code>root</code> 비밀번호 설정
+<ul>
+<li><code>sudo passwd</code> 명령어로 <code>ubuntu</code> 유저 비밀번호 설정</li>
+<li><code>su root</code> 비밀번호를 입력하여 <code>root</code> 계정으로 바꿈</li>
+</ul></li>
+<li><code>authorized_keys</code> 파일 복사
+<ul>
+<li><code>root</code> 계정 <code>~/.ssh/authorized_keys</code> 파일을 <code>~/.ssh/authorized_keys_bak</code>로 이동
+<ol style="list-style-type: decimal">
+<li><code>su root</code></li>
+<li><code>cd ~/.ssh/</code></li>
+<li><code>mv authorized_keys authorized_keys_bak</code></li>
+</ol></li>
+<li><code>ubuntu</code> 계정 <code>/home/ubuntu/.ssh/authorized_keys</code> 파일 복사
+<ol style="list-style-type: decimal">
+<li><code>cp /home/ubuntu/.ssh/authorized_keys /home/root/.ssh/</code>
+<ul>
+<li>EC2 컴퓨터 생성시 생성한 <code>.pem</code> 파일을 그대로 사용해서 FileZilla <code>root</code> 계정으로 로그인하기 위함.</li>
+</ul></li>
+</ol></li>
+</ul></li>
+<li>서비스 재시작
+<ul>
+<li><code>service sshd restart</code></li>
+<li><code>ubuntu</code> 계정 대신 <code>root</code> 계정으로 로그인 가능하게 됨.</li>
+</ul></li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">$<span class="st"> </span>ssh -i <span class="st">&quot;vxxxxxxxxx.pem&quot;</span> root@ec2-1xx-xx<span class="dv">-22</span>-xxx.ap-northeast<span class="fl">-2.</span>compute.amazonaws.com
+Welcome to Ubuntu <span class="fl">16.04.3</span> <span class="kw">LTS</span> (GNU/Linux <span class="fl">4.4.0</span><span class="dv">-92</span>-generic x86_64)
+
+ *<span class="st"> </span>Documentation:<span class="st">  </span>https:<span class="er">//</span>help.ubuntu.com
+ *<span class="st"> </span>Management:<span class="st">     </span>https:<span class="er">//</span>landscape.canonical.com
+ *<span class="st"> </span>Support:<span class="st">        </span>https:<span class="er">//</span>ubuntu.com/advantage
+
+  Get cloud support with Ubuntu Advantage Cloud Guest:
+<span class="st">    </span>http:<span class="er">//</span>www.ubuntu.com/business/services/cloud
+
+<span class="dv">0</span> packages can be updated.
+<span class="dv">0</span> updates are security updates.
+
+root@ip-1xx-xx<span class="dv">-22</span>-xxx:<span class="er">~</span><span class="co">#</span></code></pre></div>
+</div>
+</aside>
+<p><code>rstudio</code> 계정에 <code>root</code> 권한을 부여할 경우 보안에는 다소 문제가 있을 수 있으나 데이터 과학 작업을 수행하는데 나름 편리한 점은 있다. <a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a></p>
+<aside class="callout panel panel-info">
+<div class="panel-heading">
+<h3 id="rstudio-계정에-루트root-권한-부여"><span class="glyphicon glyphicon-pushpin"></span><code>rstudio</code> 계정에 루트(<code>root</code>) 권한 부여</h3>
+</div>
+<div class="panel-body">
+<p><code>rstudio</code> 뿐만 아니라 특정 계정에 <code>root</code> 권한을 부여하는 명령어는 다음과 같다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">root@ip<span class="dv">-172-31-22-122</span>:<span class="er">~$</span><span class="st"> </span>sudo usermod -a -G sudo rstudio</code></pre></div>
+</div>
+</aside>
 <h3 id="rstudio-8787-접속">3.3. RStudio 8787 접속</h3>
 <p>데이터분석 환경과 데이터를 모두 전달했다면 EC2 컴퓨터에서 데이터분석을 위한 모든 준비가 되었다. EC2 컴퓨터 IP주소 입력를 포트번호 <code>8787</code>을 붙여 접속하게 되면 친숙한 RStudio 개발환경이 나타난다. 로그인을 해야 되기 때문에 rstudio/rstudio 계정으로 로그인하면 된다.</p>
 <h2 id="세번째-시나리오---aws-클라우드의-저장소-기능s3과-연산기능ec2-모두-활용">4. 세번째 시나리오 - AWS 클라우드의 저장소 기능(S3)과 연산기능(EC2) 모두 활용</h2>
@@ -161,6 +225,7 @@ aws-cli/<span class="fl">1.11.64</span> Python/<span class="fl">3.4.3</span> Win
 <ol>
 <li id="fn1"><p><a href="http://ithub.tistory.com/48">AWS - EC2 인스턴스 FileZilla(sftp)로 접속하기, Fall in IT</a><a href="#fnref1">↩</a></p></li>
 <li id="fn2"><p><a href="http://angus.readthedocs.io/en/2014/amazon/transfer-files-between-instance.html">Transferring Files between your laptop and Amazon instance</a><a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p><a href="https://askubuntu.com/questions/168280/how-do-i-grant-sudo-privileges-to-an-existing-user">How do I grant sudo privileges to an existing user?</a><a href="#fnref3">↩</a></p></li>
 </ol>
 </div>
         </div>
