@@ -22,26 +22,9 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [(사업) 문제의 정의](01-problem.html)
         1. [데이터(Data)](02-data.html)
         1. [데이터를 통한 문제풀이 과정](03-process.html)
-    1. [기계학습 알고리즘](04-algorithm.html)
-        1. [활용도 높은 기계학습 알고리즘 -- 분류, 예측, 군집화](ml-basic-dc.html)
-1. [기계학습 운영 및 자동화 - 파이프라인](ml-production.html)
-    - **[기계학습 빅데이터 분석환경-AWS스파크](ml-aws-spark.html)**
-        1. [AWS RStudio 서버](ds-aws-rstudio-server.html)
-        1. [시나리오별 클라우드(AWS) 컴퓨팅 자원을 데이터 과학에 활용](ml-aws-from-pc.html)
-        1. [스파크 EC2 클러스터 - 부싯돌(flintrock)](ml-aws-ec2-flintrock.html)
-            1. [스파크 EC2 클러스터 - 데이터과학 툴체인(R, sparklyr)](ml-aws-ec2-flintrock-sparklyr.html)
-        1. [EMR 스파크 클러스터 - wadal](ml-emr-wadal.html)
-        1. [S3 데이터와 EC2, 스파크 EC2 클러스터](ml-ec2-s3.html)
-        1. [R기반 빅데이터 개발/운영환경](ml-r-bigdata-workflow.html)
-        1. [dplyr을 Spark 위에 올린 sparklyr](ml-sparklyr.html)
-    - **예측모형 개발 자동화**
-        - [R 모형설계행렬(Recipe)](ml-r-design-matrix.html)
-        - [R기반 빅데이터 개발/운영환경](ml-r-bigdata-workflow.html)
-        - [R 모형개발 자동화(recipe, caret, twidlr)](ml-r-pipeline.html)
-    1. 기계학습 적용
     1. [테스트 주도 기계학습](31-ml-tdd.html)
     1. [알고리즘 성능평가](ml-assessment.html)
-    1. 데이터 전처리        
+    1. 데이터 전처리
         1. [예측모형 적용을 위한 전처리](ml-preprocessing.html)
         1. [데이터 전처리 및 정제(파이썬)](14-ml-data-munging.html)
     1. [탐색적 데이터 분석(EDA)](ml-eda.html)
@@ -50,6 +33,21 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [텍스트 콘솔기반 탐색적 데이터 분석(EDA)](ml-text-console.html)        
         1. [이상점(Outlier) 검출](ml-detect-outliers.html)        
         1. [이상점 검출 - mahalanobis](ml-detect-outliers-mahalanobis.html)
+    1. [기계학습 알고리즘](04-algorithm.html)
+        1. [활용도 높은 기계학습 알고리즘 -- 분류, 예측, 군집화](ml-basic-dc.html)
+1. [기계학습 운영 및 자동화 - 파이프라인](ml-production.html)
+    - **[기계학습 클라우드(AWS) 개발배포 환경](ml-aws-spark.html)**
+        1. [AWS RStudio 서버](ds-aws-rstudio-server.html)
+        1. [시나리오별 클라우드(AWS) 컴퓨팅 자원을 데이터 과학에 활용](ml-aws-from-pc.html)
+        1. [스파크 EC2 클러스터 - 부싯돌(flintrock)](ml-aws-ec2-flintrock.html)
+            1. [스파크 EC2 클러스터 - 데이터과학 툴체인(R, sparklyr)](ml-aws-ec2-flintrock-sparklyr.html)
+        1. [EMR 스파크 클러스터 - wadal](ml-emr-wadal.html)
+        1. [S3 데이터와 EC2, 스파크 EC2 클러스터](ml-ec2-s3.html)
+        1. [dplyr을 Spark 위에 올린 sparklyr](ml-sparklyr.html)
+    - **예측모형 개발 자동화**
+        - [R 모형설계행렬(Recipe)](ml-r-design-matrix.html)
+        - [R기반 빅데이터 개발/운영환경](ml-r-bigdata-workflow.html)
+        - [R 모형개발 자동화(recipe, caret, twidlr)](ml-r-pipeline.html)
     1. [데이터에 무게를 둔 예측모형](ml-modeling.html)
         1. **인간 중심 기계학습 모형**
             1. [선형대수와 함께하는 회귀분석 이해](ml-linear-algebra-reg.html)    
