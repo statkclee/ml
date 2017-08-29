@@ -1,14 +1,4 @@
----
-layout: page
-title: 데이터 과학
-subtitle: AWS RStudio 서버
-output:
-  html_document: 
-    keep_md: yes
-  pdf_document:
-    latex_engine: xelatex
-mainfont: NanumGothic
----
+# 기계학습
 
 
 > ## 학습 목표 {.objectives}
@@ -20,12 +10,12 @@ mainfont: NanumGothic
 
 
 
-## 0. AWS 클라우드 플랫폼 기반 데이터 과학 환경
+## 0. AWS 클라우드 플랫폼 기반 데이터 과학 환경 {#epilog}
 
 컴퓨터를 한대만 사용한다면 굳이 클라우드를 사용할 이유는 없다. 
 하지만, 클라우드를 활용하여 데이터 과학 작업을 수행하는 경우 몇가지 기본적인 개념 정립이 필요하다.
 
-<img src="fig/ds-aws-architecture.png" alt="AWS 클라우드 데이터과학 아키텍처" width="77%" />
+<img src="fig/ds-aws-architecture.png" alt="AWS 클라우드 데이터과학 아키텍처" width="57%" />
 
 다른 클라우드 서비스와 동일하게 아마존에서 AWS를 통해 컴퓨터를 빌려사용한다는 개념으로 다른 사람이 부당하게 혹은 부정하게 사용하면 되지 않기 때문에
 컴퓨팅 자원을 사용하는 만큼 이용대금을 지불해야 되기에 우선 보안설정을 통해 본인 인증을 확실히 한다.
@@ -49,7 +39,7 @@ Git/Github에 대한 자세한 사항은 [소프트웨어 카펜트리 교재](h
 [s3fs-fuse](https://github.com/s3fs-fuse/s3fs-fuse)를 연결할 경우 마치 로컬 디스크처럼 마운트하여 올려서 활용이 가능하다.
 
 
-## 1. AWS 클라우드 데이터 과학 서버 [^aws-rstudio-part-1] [^aws-rstudio-part-2]
+## 1. AWS 클라우드 데이터 과학 서버 [^aws-rstudio-part-1] [^aws-rstudio-part-2] {#why-data-science-server}
 
 [^aws-rstudio-part-1]: [RStudio in the Cloud I - Amazon Web Services](http://strimas.com/r/rstudio-cloud-1/)
 [^aws-rstudio-part-2]: [RStudio in the Cloud II - Syncing Code & Data with AWS](http://strimas.com/r/rstudio-cloud-2/)
@@ -61,7 +51,7 @@ Git/Github에 대한 자세한 사항은 [소프트웨어 카펜트리 교재](h
 꼭 필요한 부분을 정확히 이해하지 않고 AWS 클라우드 서비스를 사용하는 경우 낭패를 볼 수도 있으니, 사전에 면밀히 혹은 충분한 사전 학습을 하고서
 활용하는 것을 권장한다. 
 
-### 1.1. 왜 AWS 클라우드 환경을 사용해야 하나.
+### 1.1. 왜 AWS 클라우드 환경을 사용해야 하나. {#aws-cloud}
 
 AWS 혹은 IBM 소프트레이어, MS 애져 클라우드 서비스, 구글 클라우드를 사용해서도 대동소이하다. 즉, 클라우드에 RStudio를 올려 사용할 경우 다음과 같은 
 좋은 점을 기대해도 좋다.
@@ -74,7 +64,7 @@ AWS 혹은 IBM 소프트레이어, MS 애져 클라우드 서비스, 구글 클�
 상당한 매력이다. 경우에 따라서는 빅데이터를 빠르게 병렬, 분산처리를 수행하는 경우 다른 유형의 컴퓨터 필요할 수 있다. 따라서 필요에 따라 작업성격에 맞추어 
 컴퓨팅 자원을 잘 활용할 수 있다는 점이 클라우드에 RStudio를 올려 사용하는 매력이다.
 
-## 2. EC2 인스턴스(가상 컴퓨터) 설치
+## 2. EC2 인스턴스(가상 컴퓨터) 설치 {#ec2-instance}
 
 AWS 클라우드에 EC2 가상컴퓨터를 생성하는 과정은 다음과 같이 3단계로 구분된다.
 
@@ -83,18 +73,18 @@ AWS 클라우드에 EC2 가상컴퓨터를 생성하는 과정은 다음과 같�
 - EC2 가상컴퓨터 사양선정: 가상컴퓨터 하드웨어 사양 선정, 운영체제와 데이터과학 소프트웨어는 AMI RStudio 이미지로 대체.
 - 컴퓨터 접속: 직접 `ssh` 로그인 혹은 웹브라우져 RStudio 서버 접속.
 
-<img src="fig/aws-ec2-rstudio-ami-creation.png" alt="AWS EC2 생성과정" width="77%" />
+<img src="fig/aws-ec2-rstudio-ami-creation.png" alt="AWS EC2 생성과정" width="57%" />
 
-### 2.1. 지역(Region) 선택.
+### 2.1. 지역(Region) 선택. {#ec2-region}
 
 [AWS 콘솔](http://console.aws.amazon.com)에서 로그인한 후에 **Compute** 아래 **EC2** 아이콘을 클릭한다.
 가상컴퓨터를 설치할 지역(Region)을 선정한다. 지역은 아마존 실제 컴퓨터 클러스터가 위치한 지역으로 
 어느 지역이나 가능하지만 물리적인 한계를 고려하여 실제 가상컴퓨터를 실행시킬 수 있는 지역을 선정한다.
 한국에서는 **Asia Pacific (Seoul)**을 선정한다.
 
-<img src="fig/aws-region-dropdown.png" alt="AWS 지역 설정" width="57%" />
+<img src="fig/aws-region-dropdown.png" alt="AWS 지역 설정" width="37%" />
 
-### 2.2. 보안 그룹(Security Group) 설정
+### 2.2. 보안 그룹(Security Group) 설정 {#ec2-security}
 
 [보안 그룹(Security Group)](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html)은 
 **가상 방화벽(Virtual Firewalls)** 역할을 하여 AWS 인스턴스(가상컴퓨터)에 대한 원격제어를 수행한다.
@@ -108,20 +98,20 @@ AWS 클라우드에 EC2 가상컴퓨터를 생성하는 과정은 다음과 같�
 
 <img src="fig/aws-security-group.png" alt="AWS 보안그룹 설정" width="77%" />
 
-### 2.3. SSH 인증키
+### 2.3. SSH 인증키 {#ec2-ssh}
 
 AWS 가상컴퓨터에 접속하는데 비밀번호 대신에 [인증키(Key pair)](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html?console_help=true)를 
 사용해서 로그인해야만 된다. **인증키(Key pair)**는 공개키(public key)와 비밀키(private key)로 구성되는데 공개키로 가상컴퓨터를 걸어잠구고,
 비밀키를 통해 가상컴퓨터를 풀어 로그인하는 구조를 갖게 된다. 따라서, 비밀키를 잃어버리게 되는 경우 가상컴퓨터에 로그인을 할 수 없게 되고,
 비밀키를 다른 누군가 갖게 되면 비밀키를 갖는 누구나 가상컴퓨터에 접속할 수 있는 권한을 갖게 된다.
 
-<img src="fig/aws-key-pair.png" alt="AWS 인증키" width="57%" />
+<img src="fig/aws-key-pair.png" alt="AWS 인증키" width="37%" />
 
 EC2 가상컴퓨터에 대한 인증키를 생성시키려면, 좌측 패널에 **Key Pairs**를 선택하고 나서, **Create key Pair** 버튼을 생성한다.
 `.pem` 확장자를 갖는 파일을 다운로드하게 되는데 이것이 가상컴퓨터에 걸린 자물쇠(공개키)를 풀 수 있는 열쇠(개인키)가 된다. 
 따라서 이 개인키를 안전한 곳에 잘 보관해야만 된다.
 
-### 2.4. 가상컴퓨터(인스턴스) 생성 
+### 2.4. 가상컴퓨터(인스턴스) 생성 {#ec2-virtual-instance-creation} 
 
 EC2 가상컴퓨터를 생성하려면, 좌측 패널에 **Instance** 버튼을 클릭하고 나서, **Launch Instance** 버튼을 클릭한다.
 용산이나 인터넷 쇼핑몰에서 컴퓨터를 주문할 경우 하드웨어 사양과 더불어 운영체제, 오피스 등 소프트웨어를 선정해야 한다.
@@ -168,18 +158,18 @@ EC2 가상컴퓨터를 생성하려면, 좌측 패널에 **Instance** 버튼을 
 
 마지막으로 가상컴퓨터에 로그인하는데 필요한 보안키를 설정하라는 안내가 나오면 앞서 생성한 인증키를 선택한다.
 
-<img src="fig/aws-kp-select.png" alt="AWS 로그인 보안키 적용" width="57%" />
+<img src="fig/aws-kp-select.png" alt="AWS 로그인 보안키 적용" width="37%" />
 
 
-### 2.5. 가상컴퓨터 생성 확인
+### 2.5. 가상컴퓨터 생성 확인 {#ec2-check}
 
 AWS가 사용자가 주문한 모든 주문사항을 확인하고 이상이 없으면 가상컴퓨터를 생성시키는 작업을 수행한다.
 몇분정도 소요가 되고 나면 **EC2 Console** &rarr; **Instances** 화면에 가상컴퓨터(인스턴스)가 녹색불로 바뀌어 **running**으로 표시된 것이 확인이 될 것이다.
 가상 컴퓨터 **Public DNS**를 확인하고 이 정보를 활용하여 SSH 로그인 혹은 HTTP를 통해 RStudio 서버로 접속한다.
 
-## 3. EC2 가상컴퓨터 로그인 
+## 3. EC2 가상컴퓨터 로그인 {#login-ec2}
 
-### 3.1. SSH 로그인
+### 3.1. SSH 로그인 {#login-ec2-ssh}
 
 **Public DNS** 주소를 바탕으로, 앞서 다운로드받은 `.pem` 비밀키를 사용하여 가상컴퓨터에 로그인한다.
 
@@ -203,7 +193,7 @@ Load key "aws.pem": bad permissions
 Permission denied (publickey).
 ~~~
 
-### 3.2. RStudio 로그인
+### 3.2. RStudio 로그인 {#ec2-rstudio-login}
 
 앞서 설치된 AWS AMI에는 [RStudio](https://www.rstudio.com/products/rstudio/)가 내장되어 있다. 또한 RStudio 서버 사용자로 `rstudio`가 
 생성되어 있어서 비밀번호만 변경하면 된다. 혹은 RStudio 서버 IDE가 열리면 `RStudioAMI::passwd()` 명령어로 비밀번호를 변경한다.
@@ -216,14 +206,14 @@ sudo passwd rstudio
 **Public DNS** 주소를 웹브라우져에 입력하고 엔터를 치면 로그인 인증화면이 나오는데 기본설정으로 사용자명: `rstudio`, 비밀번호: `rstudio`가 
 설정되어 있고, **Public DNS** 주소를 통해 접속이 되지 않는 경우 포트번호를 `:8787`을 붙여 RStudio 서버에 접속한다.
 
-<img src="fig/aws-sign-in.png" alt="AWS RStudio 로그인" width="57%" />
+<img src="fig/aws-sign-in.png" alt="AWS RStudio 로그인" width="37%" />
 
 
-## 4. S3 버킷 EC2 인스턴스 연결
+## 4. S3 버킷 EC2 인스턴스 연결 {#connect-ec2-s3}
 
 데이터가 저장된 S3 버킷과 EC2 인스턴스를 연결하는데 몇가지 설정 작업이 선행되어야 한다.
 
-### 4.1. AWS CLI 설치
+### 4.1. AWS CLI 설치 {#install-aws-cli}
 
 아마존 리눅스를 사용해서 EC2 인스턴스를 생성하게 되는 경우 기본으로 `aws cli`가 설치되어 있지만, 
 우분투가 설치된 RStudio AMI 이미지의 경우 `python-pip` 팩키지를 통해 `aws cli`를 설치한다.
@@ -235,7 +225,7 @@ $ sudo apt-get install -y python-pip
 $ sudo pip install awscli
 ~~~
 
-### 4.2. `s3fs-fuse` 설치 [^s3fs-fuse]
+### 4.2. `s3fs-fuse` 설치 [^s3fs-fuse] {#install-s3fs-fuse}
 
 [^s3fs-fuse]: [FUSE-based file system backed by Amazon S3](https://github.com/s3fs-fuse/s3fs-fuse)
 
@@ -255,7 +245,7 @@ make
 sudo make install
 ~~~
 
-### 4.3. RStudio 서버 설치된 EC2 인스턴스 동기화 [^rstudio-ec2-s3fs]
+### 4.3. RStudio 서버 설치된 EC2 인스턴스 동기화 [^rstudio-ec2-s3fs] {#s3fs-sync}
 
 [^rstudio-ec2-s3fs]: [s3fsを使ってEC2からS3をマウントしたときにうまくいかなくて調べた事まとめ](http://dev.classmethod.jp/cloud/aws/s3fs-ec2-mount-s3/) 
 
@@ -305,7 +295,7 @@ chmod 600 ~/.passwd-s3fs
 mkdir ~/works
 ~~~
 
-### 4.4. `rstudio` 사용자 설정
+### 4.4. `rstudio` 사용자 설정 {#rstudio-user}
 
 AWS S3 버킷에서 사용자명도 함께 검사를 하기 때문에 `uid=`, `gid=`를 확인한다.
 `rstudio` 사용자 `uid=`, `gid=`는 **1001** 이라 이를 설정에 반영한다.
@@ -327,9 +317,9 @@ $ pwd
 $ s3fs s3-bucket-name works -o rw, allow_other, uid=1001, gid=1001
 ~~~
 
-<img src="fig/ds-aws-s3fs-sync.png" alt="AWS S3 버킷 동기화" width="67%" />
+<img src="fig/ds-aws-s3fs-sync.png" alt="AWS S3 버킷 동기화" width="77%" />
 
-### 4.5. 기타
+### 4.5. 기타 {#s3fs-etc}
 
 S3 버킷과 연결된 디렉토리를 해제할 경우 `sudo fusermount -u` 명령어를 사용한다.
 

@@ -37,12 +37,12 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [활용도 높은 기계학습 알고리즘 -- 분류, 예측, 군집화](ml-basic-dc.html)
 1. [기계학습 운영 및 자동화 - 파이프라인](ml-production.html)
     - **[기계학습 클라우드(AWS) 개발배포 환경](ml-aws-spark.html)**
-        1. [AWS RStudio 서버](ds-aws-rstudio-server.html)
         1. [시나리오별 클라우드(AWS) 컴퓨팅 자원을 데이터 과학에 활용](ml-aws-from-pc.html)
+        1. [AWS 우분투 EC2 + S3 버킷 + RStudio 서버](ds-aws-rstudio-server.html)
         1. [스파크 EC2 클러스터 - 부싯돌(flintrock)](ml-aws-ec2-flintrock.html)
             1. [스파크 EC2 클러스터 - 데이터과학 툴체인(R, sparklyr)](ml-aws-ec2-flintrock-sparklyr.html)
         1. [EMR 스파크 클러스터 - wadal](ml-emr-wadal.html)
-        1. [S3 데이터와 EC2, 스파크 EC2 클러스터](ml-ec2-s3.html)
+        1. [EC2, 스파크 EC2 클러스터 RStudio에서 S3 데이터 접근](ml-ec2-s3.html)
         1. [dplyr을 Spark 위에 올린 sparklyr](ml-sparklyr.html)
     - **예측모형 개발 자동화**
         - [R 모형설계행렬(Recipe)](ml-r-design-matrix.html)
