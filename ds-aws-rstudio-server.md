@@ -1,4 +1,15 @@
-# 기계학습
+---
+layout: page
+title: 기계학습
+subtitle: AWS 우분투 EC2 + S3 버킷 + RStudio 서버
+output:
+  html_document: 
+    toc: yes
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
+---
 
 
 > ## 학습 목표 {.objectives}
@@ -310,14 +321,34 @@ AWS S3 버킷으로 생성한 `s3-bucket-name`의 모든 하위 디렉토리와 
 EC2 인스턴스 `works` 디텍토리를 `s3fs` 명령어를 통해 동기화시키고, 
 `-o rw, allow_other` 인자값을 넘겨 읽기쓰기와 더불어 rstudio 사용자에게도 권한을 부여한다.
 
+> ### `allow_other` 설정 적용  [^allow-other] {.callout}
+>
+> `rstudio` 계정으로 s3fs-fuse를 통해 S3 버킷에 접근하기 위해서는 
+> `allow_other` 설정을 인자로 넘겨야 하는데 이 경우에
+> `/etc/fuse.conf` 파일을 `nano` 편집기로 열어서, **user_allow_other** 주석을 없애서 활성화 시키면 된다.
+
+[^allow-other]: [Allowing permission using S3FS bucket directory for other users](https://stackoverflow.com/questions/17544139/allowing-permission-using-s3fs-bucket-directory-for-other-users)
+
 
 ~~~{.r}
 $ pwd
 /home/rstudio/
 $ s3fs s3-bucket-name works -o rw, allow_other, uid=1001, gid=1001
 ~~~
-
 <img src="fig/ds-aws-s3fs-sync.png" alt="AWS S3 버킷 동기화" width="77%" />
+
+> ### `uid=1001` 오류가 나고 디렉토리 접근이 되지 않는 경우  [^allow-other] {.callout}
+>
+> `s3fs` 명령어를 통해 버킷과 rstudio 계정 작업 디렉토리를 연결시켰으나, 
+> 
+> `d---------. 1 root root 0 Jan 8 2017 works` 처럼
+> 
+> RStudio 서버에서 디렉토리에 읽거나 쓸 수 없는 경우 `-oumask=0022` 인자를 넣어준다.
+>  
+> 
+> ~~~{.r}
+> $ s3fs s3-bucket-name ~/works -o allow_other -oumask=0022
+> ~~~
 
 ### 4.5. 기타 {#s3fs-etc}
 

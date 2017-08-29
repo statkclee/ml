@@ -333,11 +333,13 @@ $ s3fs s3-bucket-name works -o rw, allow_other, uid=1001, gid=1001
 > ### `uid=1001` 오류가 나고 디렉토리 접근이 되지 않는 경우  [^allow-other] {.callout}
 >
 > `s3fs` 명령어를 통해 버킷과 rstudio 계정 작업 디렉토리를 연결시켰으나, 
+> 
 > `d---------. 1 root root 0 Jan 8 2017 works` 처럼
+> 
 > RStudio 서버에서 디렉토리에 읽거나 쓸 수 없는 경우 `-oumask=0022` 인자를 넣어준다.
 >  
 > ``` {r s3fs-fuse-oumask, eval=FALSE}
-> $ s3fs victor-seoul ~/works -o allow_other -oumask=0022
+> $ s3fs s3-bucket-name ~/works -o allow_other -oumask=0022
 > ```
 
 ### 4.5. 기타 {#s3fs-etc}
