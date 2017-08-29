@@ -240,16 +240,50 @@ FTP 프로그램이 설치되어 로컬 컴퓨터에서 EC2 컴퓨터에 sFTP �
 > ```
 
 
-### 3.3. RStudio 8787 접속
+### 3.3. RStudio 8787 접속 {#rstudio-connect}
 
 데이터분석 환경과 데이터를 모두 전달했다면 EC2 컴퓨터에서 데이터분석을 위한 모든 준비가 되었다.
 EC2 컴퓨터 IP주소 입력를 포트번호 `8787`을 붙여 접속하게 되면 친숙한 RStudio 개발환경이 나타난다.
 로그인을 해야 되기 때문에 rstudio/rstudio 계정으로 로그인하면 된다.
 
-## 4. 세번째 시나리오 - AWS 클라우드의 저장소 기능(S3)과 연산기능(EC2) 모두 활용
+## 4. 세번째 시나리오 - AWS 클라우드의 저장소 기능(S3)과 연산기능(EC2) 모두 활용 {#ec2-s3-s3fs-fuse}
 
 세번째 시나리오는 데이터도 보안이나 용량문제 등 다양한 사유로 S3에 저장되어 있고,
 로컬 컴퓨터나 노트북으로 데이터 분석 작업을 진행하기 곤란한 경우 AWS 클라우드 연산기능(EC2)을 활용하여 
 데이터 분석 및 모형개발 작업을 수행한다.
 
+<img src="fig/aws-ec2-s3fs-fuse.png" alt="EC2 S3 연결" width="37%" />
 
+데이버 분석 연산을 담당하는 EC2 컴퓨터와 데이터가 저장된 저장소는 S3로 이 둘을 연결해 주는 도구는 
+[`s3fs-fuse`](https://github.com/s3fs-fuse/s3fs-fuse)로 속도는 많이 느리지만 오랜동안 검증되어 왔고,
+다양한 설치방법이 존재하기 때문에 처음 시작하기 딱 좋다. [^s3fs-korean-tutorial]
+이에 대한 대안으로 [goofys를 이용해 AWS S3 mount 해서 사용하기](http://bluese05.tistory.com/23)도 있으니 참조한다.
+
+[^s3fs-korean-tutorial]: [s3fs를 이용해 AWS S3 mount 해서 사용하기](http://bluese05.tistory.com/22)
+
+1. S3 만 이용하기 위한 사용자를 생성시킨다. 향후 유출이 되더라도 피해를 최소화할 수 있다.
+    - aws_access_key_id = Axxxxxxxxxxxxxxxxxxxxxxxxxxx
+    - aws_secret_access_key = Yfaxxxxxxxxxxxxxxxxxxxxxxxx
+2. S3 만 전용으로 접속하여 활용되기 때문에 **AmazonS3FullAccess** 정책(policy)을 적용시킨다.
+3. S3 서비스트 내부에 EC2 인스턴스와 동기화시킬 버킷(bucket)을 하나 생성시킨다.
+4. S3 와 EC2 인스턴스를 연결해주는 `s3fs-fuse`를 설치한다. `s3fs-fuse` 설치에 필요한 연관 소프트웨어를 우선 설치한다.
+
+``` {r s3fs-fuse, eval=FALSE}
+$ sudo apt-get install build-essential git libfuse-dev libcurl4-openssl-dev libxml2-dev mime-support automake libtool 
+$ sudo apt-get install pkg-config libssl-dev 
+$ git clone https://github.com/s3fs-fuse/s3fs-fuse
+$ cd s3fs-fuse/
+$ ./autogen.sh
+$ ./configure --prefix=/usr --with-openssl
+$ make
+$ sudo make install
+```
+
+5. aws_access_key_id/aws_secret_access_key를 EC2 컴퓨터에 반영시킨다.
+6. s3fs 명령어를 실행하여 S3 버킷과 EC2 컴퓨터 디렉토리를 동기화시킨다.
+
+``` {r s3fs-fuse-sync, eval=FALSE}
+rstudio@ip-172-00-00-000:~$ mkdir -p works
+rstudio@ip-172-00-00-000:~$ cd works
+rstudio@ip-172-00-00-000:~/works$ s3fs victor-seoul ~/works -o allow_other -oumask=0022
+```
