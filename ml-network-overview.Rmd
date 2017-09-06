@@ -14,7 +14,12 @@ mainfont: NanumGothic
 source("tools/chunk-options.R")
 ```
 
-### 1. 네트워크 시각화 [^Katherine-Ognyanova]
+### 1. 네트워크 시각화 [^Katherine-Ognyanova] [^Katherine-Ognyanova-2017]
+
+[^Katherine-Ognyanova]: [Katherine Ognyanova, Network Analysis and Visualization with R and igraph, Sunbelt 2016 Workshop, Newport Beach, CA
+](http://kateto.net/networks-r-igraph) 
+
+[^Katherine-Ognyanova-2017]: [Network visualization with R - POLNET 2017 Workshop, Columbus, OH ](http://kateto.net/network-visualization)
 
 네트워크 시각화는 다양한 목표를 갖고 있다.
 
@@ -24,6 +29,8 @@ source("tools/chunk-options.R")
 * 커뮤니티 식별
 * 지도로 역할하는 네트워크
 * 확산 패턴(Diffusion Patterns)
+
+네트워크 지도, 통계 그래프, 원호 도표, 벌집 그림, 적외선 열지도 등 네트워크 데이터를 효과적으로 표현하는 시각적 수단의 일부 사례를 다음에서 살펴볼 수 있다.
 
 <img src="fig/network-viz-types.png" alt="네트워크 시각화 유형" width="70%" />
 
@@ -52,9 +59,8 @@ source("tools/chunk-options.R")
 > * [sna - Tools for Social Network Analysis](https://cran.r-project.org/web/packages/sna/)
 > * [network - Classes for Relational Data](https://cran.r-project.org/web/packages/network/)
 > * [ndtv - Network Dynamic Temporal Visualizations](https://cran.r-project.org/web/packages/ndtv/)
-
-[^Katherine-Ognyanova]: [Katherine Ognyanova, Network Analysis and Visualization with R and igraph, Sunbelt 2016 Workshop, Newport Beach, CA
-](http://kateto.net/networks-r-igraph) 
+> * [threejs - Three.js widgets for R and shiny](https://bwlewis.github.io/rthreejs/)
+> * [networkD3 - D3 JavaScript Network Graphs from R](https://christophergandrud.github.io/networkD3/)
 
 
 ### 2. 기본 색상
