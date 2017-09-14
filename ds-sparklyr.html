@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: 기계 학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">기계 학습</h1></a>
+          <h2 class="subtitle">단독형 스파크 설치 - PC/노트북, EC2 원격 컴퓨터</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습-목표"><span class="glyphicon glyphicon-certificate"></span>학습 목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>로컬 컴퓨터 윈도우, 리눅스, 맥 환경에서 <code>sparklyr</code> 팩키지를 설치한다.</li>
+<li>로컬 머신의 경우 RStudio 프리뷰 버젼을 설치에 적극활용한다.</li>
+<li>AWS 클라우드 EC2 인스턴스에 스파크를 설치한다.</li>
+</ul>
+</div>
+</section>
+<p><img src="fig/spark-standalone.png" alt="아파치 스파크 sparklyr 설치" width="77%" /></p>
+<h2 id="install-spark">1. 로컬 컴퓨터 스파크 설치</h2>
+<h3 id="install-spark-windows">1.1. <code>sparklyr</code> 설치 (윈도우) <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h3>
+<p><code>sparklyr</code>는 <code>dplyr</code>을 스파크 환경에서 사용할 수 있도록 구현된 팩키지다.</p>
+<aside class="callout panel panel-info">
+<div class="panel-heading">
+<h3 id="윈도우-사전-준비"><span class="glyphicon glyphicon-pushpin"></span>윈도우 사전 준비</h3>
+</div>
+<div class="panel-body">
+<p>윈도우 환경에서 <code>sparklyr</code>을 설치하려면 <a href="https://www.microsoft.com/en-us/download/details.aspx?id=13523">Microsoft Visual C++ 2010 SP1 Redistributable Package</a>을 다운로드받아 &gt; 설치한다.</p>
+</div>
+</aside>
+<ol style="list-style-type: decimal">
+<li><a href="http://spark.apache.org/downloads.html">Download Apache Spark</a> 사이트를 방문하여 스파크-하둡을 다운로드 한다.
+<ul>
+<li>스파크 버젼 1.6.2. : <code>spark-1.6.2-bin-hadoop2.6.tgz</code> 버전을 다운로드 받아 설치한다.</li>
+<li>스파크 버젼 2.0.0. : <code>spark-2.0.0-bin-hadoop2.7.tgz</code> 버전은 설치가 안되는 경우가 있다.</li>
+</ul></li>
+<li>다운로드 받은 파일의 압축을 풀게 되면 <code>spark-1.6.2-bin-hadoop2.6</code> 디렉토리가 생성된다.
+<ul>
+<li>작업하기 편한 장소로 압축 푼 스파크-하둡 디렉토리를 이동시킨다. 예를 들어, <code>C:/spark-1.6.2-bin-hadoop2.6</code></li>
+</ul></li>
+<li>RStudio에서 <code>sparklyr</code> 팩키지를 설치한다.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 0. 설정환경 확인</span>
+## JAVA 설정
+<span class="kw">Sys.getenv</span>(<span class="st">&quot;JAVA_HOME&quot;</span>)
+## HADOOP 설정
+<span class="kw">Sys.getenv</span>(<span class="st">&quot;HADOOP_HOME&quot;</span>)
+<span class="kw">Sys.setenv</span>(<span class="dt">HADOOP_HOME =</span> <span class="st">&quot;C:/Users/&lt;사용자명&gt;/AppData/Local/rstudio/spark/Cache/spark-2.1.0-bin-hadoop2.7&quot;</span>)
+## SPARK 설정
+<span class="kw">Sys.getenv</span>(<span class="st">&quot;SPARK_HOME&quot;</span>)
+<span class="kw">spark_home_dir</span>()
+
+## 설치된 SPARK 버젼확인 설정
+<span class="kw">spark_installed_versions</span>()
+<span class="co"># spark hadoop                       dir</span>
+<span class="co"># 1 2.1.0    2.7 spark-2.1.0-bin-hadoop2.7</span>
+
+<span class="co"># 1. sparklyr 설치</span>
+devtools::<span class="kw">install_github</span>(<span class="st">&quot;rstudio/sparklyr&quot;</span>)
+<span class="kw">library</span>(sparklyr)
+
+<span class="co"># 2. 스파크 클러스터 로컬에 설치 </span>
+<span class="co"># 가능한 설정 확인</span>
+<span class="kw">spark_available_versions</span>()
+sc &lt;-<span class="st"> </span><span class="kw">spark_connect</span>(<span class="dt">master=</span><span class="st">&quot;local&quot;</span>)
+
+<span class="co"># 3. iris 데이터셋 작업 준비 완료</span>
+<span class="kw">library</span>(dplyr)
+iris_tbl &lt;-<span class="st"> </span><span class="kw">copy_to</span>(sc, iris)
+<span class="co"># The following columns have been renamed:</span>
+<span class="co"># - &quot;Sepal.Length&quot; =&gt; &quot;Sepal_Length&quot; (#1)</span>
+<span class="co"># - &quot;Sepal.Width&quot;  =&gt; &quot;Sepal_Width&quot;  (#2)</span>
+<span class="co"># - &quot;Petal.Length&quot; =&gt; &quot;Petal_Length&quot; (#3)</span>
+<span class="co"># - &quot;Petal.Width&quot;  =&gt; &quot;Petal_Width&quot;  (#4)</span>
+<span class="kw">src_tbls</span>(sc)
+<span class="co"># [1] &quot;iris&quot;</span></code></pre></div>
+<h3 id="install-spark-unix">1.2. <code>sparklyr</code> 설치 유닉스 계열 <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> <a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a></h3>
+<p>유닉스 계열(맥, 리눅스)에서 <code>sparklyr</code> 설치는 더욱 쉽다. <a href="http://spark.rstudio.com/">sparklyr - R interface for Apache Spark</a> 안내지침에 따라 명령어를 타이핑하거나 복사하여 붙여 넣으면 된다.</p>
+<aside class="callout panel panel-info">
+<div class="panel-heading">
+<h3 id="맥-사전-준비"><span class="glyphicon glyphicon-pushpin"></span>맥 사전 준비</h3>
+</div>
+<div class="panel-body">
+<p>맥 환경에서 <code>sparklyr</code>을 설치하려면 자바를 설치해야 하고, <code>sparklyr</code>을 실행할 때 발생하는 자바 오류도 잡아줘야 된다.</p>
+</div>
+</aside>
+<ol style="list-style-type: decimal">
+<li>자바 JDK 설치는 <code>.dmg</code> 파일을 제공해 주기 때문에 <a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html?ssSourceSiteId=otnjp">오라클 자바 다운로드</a> 사이트에서 라이선스 동의를 하고 가장 최신 <a href="http://download.oracle.com/otn-pub/java/jdk/8u111-b14/jdk-8u111-macosx-x64.dmg">jdk-8u111-macosx-x64.dmg</a> 파일을 다운로드 받아 설치한다.</li>
+<li>터미널을 열고 <code>java -version</code> 명령어로 버젼을 확인힌다.</li>
+<li><code>cd /Library/Java/JavaVirtualMachines/</code> 명령어를 통해 JDK가 설치된 디렉토리를 확인한다.</li>
+<li><code>cd jdk1.8.0_111.jdk/Contents/Home/</code> 명령어로 자바 홈(JAVA_HOME)까지 들어가서 경로를 확인한다.
+<ul>
+<li>JAVA_HOME 경로를 확인하고 나면 환경변수로 설정을 할 수 있다.</li>
+<li><code>pwd</code> 명령어로 <code>/Library/Java/JavaVirtualMachines/jdk1.8.0_111.jdk/Contents/Home</code> 경로명을 확인한다.</li>
+</ul></li>
+<li><code>nano ~/.bash_profile</code> 명령어를 통해 나노 편집기에 <code>JAVA_HOME</code>, <code>JAVA_CPPFLAGS</code> 환경설정을 하단에 붙여 넣는다.
+<ul>
+<li><code>export JAVA_HOME=&quot;/Library/Java/JavaVirtualMachines/jdk1.8.0_111.jdk/Contents/Home&quot;</code></li>
+<li><code>export JAVA_CPPFLAGS=&quot;/Library/Java/JavaVirtualMachines/jdk1.8.0_111.jdk/include&quot;</code></li>
+</ul></li>
+<li><code>source ~/.bash_profile</code> 명령어를 통해 변경사항을 바로 적용시킨다.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">$<span class="st"> </span>java -version
+java version <span class="st">&quot;1.8.0_111&quot;</span>
+<span class="kw">Java</span>(TM) SE Runtime <span class="kw">Environment</span> (build <span class="fl">1.8</span>.0_111-b14)
+Java <span class="kw">HotSpot</span>(TM) <span class="dv">64</span>-Bit Server <span class="kw">VM</span> (build <span class="fl">25.111</span>-b14, mixed mode)
+$<span class="st"> </span>cd /Library/Java/JavaVirtualMachines/
+JavaVirtualMachines $<span class="st"> </span>ls
+jdk1<span class="fl">.8</span>.0_111.jdk
+JavaVirtualMachines $<span class="st"> </span>cd jdk1<span class="fl">.8</span>.0_111.jdk/Contents/Home/
+Home $<span class="st"> </span>pwd
+/Library/Java/JavaVirtualMachines/jdk1<span class="fl">.8</span>.0_111.jdk/Contents/Home
+Home $<span class="st"> </span>nano ~<span class="er">/</span>.bash_profile
+Home $<span class="st"> </span>source ~<span class="er">/</span>.bash_profile</code></pre></div>
+<p>R로 통계분석을 할 때 <code>JAVA_HOME</code>을 설정했지만, 오류가 생기는 경우가 있다. <a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a> 이런 경우 <code>/Library/Java/JavaVirtualMachines/jdk1.8.0_111.jdk/Contents</code> 디렉토리 <code>Info.plist</code> 파일의 내용을 다음과 같이 변경한다. 자세한 사항은 <a href="https://oliverdowling.com.au/2014/03/28/java-se-8-on-mac-os-x/">Java SE 8 on Mac OS X</a>을 참조한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Home $<span class="st"> </span>pwd
+/Library/Java/JavaVirtualMachines/jdk1<span class="fl">.8</span>.0_111.jdk/Contents
+Contents $<span class="st"> </span>nano Info.plist
+
+<span class="co"># 변경전 </span>
+&lt;key&gt;JVMCapabilities&lt;<span class="er">/</span>key&gt;
+<span class="er">&lt;</span>array&gt;
+<span class="st">    </span><span class="er">&lt;</span>string&gt;CommandLine&lt;<span class="er">/</span>string&gt;
+<span class="er">&lt;/</span>array&gt;
+-------------------------------
+<span class="co"># 변경후 </span>
+<span class="er">&lt;</span>key&gt;JVMCapabilities&lt;<span class="er">/</span>key&gt;
+<span class="er">&lt;</span>array&gt;
+<span class="st">    </span><span class="er">&lt;</span>string&gt;CommandLine&lt;<span class="er">/</span>string&gt;
+<span class="st">    </span><span class="er">&lt;</span>string&gt;JNI&lt;<span class="er">/</span>string&gt;
+<span class="st">    </span><span class="er">&lt;</span>string&gt;BundledApp&lt;<span class="er">/</span>string&gt;
+<span class="er">&lt;/</span>array&gt;</code></pre></div>
+<p><code>sparklyr</code> 팩키지 설치과정은 윈도우 설치과정과 대동소이하다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 1. sparklyr 팩키지 설치</span>
+<span class="kw">install.packages</span>(<span class="st">&quot;devtools&quot;</span>)
+devtools::<span class="kw">install_github</span>(<span class="st">&quot;rstudio/sparklyr&quot;</span>)
+
+<span class="co"># 2. 스파크가 설치되지 않는 경우 설치 (스파크 버젼 1.6.1)</span>
+<span class="kw">library</span>(sparklyr)
+<span class="kw">spark_install</span>(<span class="dt">version =</span> <span class="st">&quot;1.6.1&quot;</span>)
+
+<span class="co"># 3. 스파크 인스턴스 생성</span>
+<span class="kw">library</span>(sparklyr)
+sc &lt;-<span class="st"> </span><span class="kw">spark_connect</span>(<span class="dt">master =</span> <span class="st">&quot;local&quot;</span>)
+
+<span class="co"># 4. 예제 R 데이터프레임을 스파크에 복사</span>
+<span class="kw">library</span>(dplyr)
+iris_tbl &lt;-<span class="st"> </span><span class="kw">copy_to</span>(sc, iris)
+<span class="kw">install.packages</span>(<span class="st">&quot;nycflights13&quot;</span>)
+<span class="kw">install.packages</span>(<span class="st">&quot;Lahman&quot;</span>)
+flights_tbl &lt;-<span class="st"> </span><span class="kw">copy_to</span>(sc, nycflights13::flights, <span class="st">&quot;flights&quot;</span>)
+batting_tbl &lt;-<span class="st"> </span><span class="kw">copy_to</span>(sc, Lahman::Batting, <span class="st">&quot;batting&quot;</span>)
+
+<span class="co"># 5. 데이터 테이블 확인</span>
+<span class="kw">src_tbls</span>(sc)
+<span class="co"># [1] &quot;batting&quot; &quot;flights&quot; &quot;iris&quot;  </span></code></pre></div>
+<h3 id="sparklyr-rstudio">1.3. <code>sparklyr</code> RStudio 활용</h3>
+<p><code>sparklyr</code> RStudio 에서 편한게 사용할 수 있도록 다양한 기능을 제공하고 있다. 이를 위해서 <a href="https://www.rstudio.com/products/rstudio/download/preview/">RStudio v0.99.1273 Preview</a> 버젼을 다운로드해서 설치한다. <strong>Spark</strong> 탭이 별도로 생성되고 이를 통해 스파크에 대한 전반적인 상황을 확인할 수 있다.</p>
+<p><img src="fig/ds-sparklyr-rstudio.png" alt="RStudio Spark 인터페이스" width="77%" /></p>
+<h2 id="aws-ec2-spark">2. AWS 클라우드 스파크 설치 <a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a></h2>
+<h3 id="aws-ec2-java">2.1. 우분투 자바 설치 <a href="#fn6" class="footnoteRef" id="fnref6"><sup>6</sup></a></h3>
+<p>준비한 AWS EC2 인스턴스 <code>ssh</code>를 통해 <code>ubuntu</code> 계정으로 로그인한후 자바를 설치한다. <code>JDK</code>는 <code>JRE</code>를 포함하고 있어서 <code>sudo apt-get install default-jdk</code> 를 통해 함께 설치하는 것을 권장한다. 그런 경우는 없겠지만, 여러버젼의 자바가 설치된 경우 <code>sudo update-alternatives --config java</code> 명령어를 통해 다양한 자바 버젼을 관리한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">$<span class="st"> </span>sudo apt-get update
+$<span class="st"> </span><span class="co"># sudo apt-get install default-jre </span>
+<span class="er">$</span><span class="st"> </span>sudo apt-get install default-jdk <span class="co"># JDK는 JRE를 포함 </span></code></pre></div>
+<p>다음으로 <code>JAVA_HOME</code>을 설정하는데 <code>sudo update-alternatives --config java</code> 명령어로 나온 자바홈 경로를 복사해서 <code>sudo nano /etc/environment</code> 에 붙여넣는다. <code>JAVA_HOME=&quot;/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java&quot;</code> 마지막으로 <code>source /etc/environment</code> 명령어로 변경사항을 적용시킨다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">$<span class="st"> </span>sudo update-alternatives --config java
+There is only one alternative in link group <span class="kw">java</span> (providing /usr/bin/java):<span class="st"> </span><span class="er">/</span>usr/lib/jvm/java<span class="dv">-8</span>-openjdk-amd64/jre/bin/java
+Nothing to configure.
+$<span class="st"> </span>sudo nano /etc/environment
+$<span class="st"> </span>source /etc/environment
+$<span class="st"> </span>echo $JAVA_HOME
+/usr/lib/jvm/java<span class="dv">-8</span>-openjdk-amd64/jre/bin/java</code></pre></div>
+<h3 id="aws-ec2-spark-install">2.2. 스파크 설치</h3>
+<p><a href="https://spark.apache.org/downloads.html">Download Apache Spark™</a> 사이트를 방문하여 아파치 스파크를 다운로드 한다. 물론 스파크내부에 하둡도 같이 포함되어 있는 것을 다운로드 받으면 편리하다. <code>tar xvf</code> 명령어로 압축을 풀고 나서 스파크가 설치된 환경변수 디렉토리를 기억해 둔다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">$<span class="st"> </span>wget http:<span class="er">//</span>d3kbcqa49mib13.cloudfront.net/spark<span class="fl">-2.0.2</span>-bin-hadoop2<span class="fl">.7</span>.tgz
+$<span class="st"> </span>tar xvf spark<span class="fl">-2.0.2</span>-bin-hadoop2<span class="fl">.7</span>.tgz
+$<span class="st"> </span>cd spark<span class="fl">-2.0.2</span>-bin-hadoop2<span class="fl">.7</span>
+$<span class="st"> </span>pwd
+/home/rstudio/spark<span class="fl">-2.0.2</span>-bin-hadoop2<span class="fl">.7</span></code></pre></div>
+<h3 id="aws-ec2-sparklyr">2.3. RStudio 스파크 적용</h3>
+<p><code>SPARK_HOME =</code> 디렉토리 설정을 맞춰주면 스파크를 <code>sparklyr</code> 명령어를 통해 활용이 가능하다. <a href="https://aws.amazon.com/ko/ec2/pricing/on-demand/">EC2 인스턴스 사양</a>에 맞춰 스파크 클러스터 환경을 <code>spark_config()</code>에 맞춰 설정한다. 그리고 나서 데이터프레임을 스파크 클러스터에 던질 때 사용하는 <code>copy_to()</code> 명령어를 사용하여 스파크 분산 환경에서 데이터를 처리한다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 1. EC2 Startup code ===============================================</span>
+
+<span class="co"># install.packages(&quot;sparklyr&quot;)</span>
+<span class="kw">library</span>(sparklyr)
+
+<span class="kw">Sys.setenv</span>(<span class="dt">SPARK_HOME =</span> <span class="st">&#39;/home/rstudio/spark/spark-2.1.0-bin-hadoop2.7&#39;</span>)
+
+<span class="co"># Hardware Spec: https://aws.amazon.com/ko/ec2/pricing/on-demand/</span>
+config &lt;-<span class="st"> </span><span class="kw">spark_config</span>()
+config$spark.executor.cores &lt;-<span class="st"> </span><span class="dv">4</span>
+config$spark.executor.memory &lt;-<span class="st"> &quot;8G&quot;</span>
+sc &lt;-<span class="st"> </span><span class="kw">spark_connect</span>(<span class="dt">master =</span> <span class="st">&quot;local&quot;</span>, <span class="dt">config =</span> config, <span class="dt">version =</span> <span class="st">&#39;2.1.0&#39;</span>)
+
+<span class="co"># 4. 예제 R 데이터프레임을 스파크에 복사</span>
+<span class="kw">library</span>(dplyr)
+iris_tbl &lt;-<span class="st"> </span><span class="kw">copy_to</span>(sc, iris)
+<span class="co"># install.packages(&quot;nycflights13&quot;)</span>
+<span class="co"># install.packages(&quot;Lahman&quot;)</span>
+<span class="co"># flights_tbl &lt;- copy_to(sc, nycflights13::flights, &quot;flights&quot;)</span>
+batting_tbl &lt;-<span class="st"> </span><span class="kw">copy_to</span>(sc, Lahman::Batting, <span class="st">&quot;batting&quot;</span>)
+
+<span class="co"># 5. 데이터 테이블 확인</span>
+<span class="kw">src_tbls</span>(sc)
+df &lt;-<span class="st"> </span><span class="kw">collect</span>(iris)</code></pre></div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="http://yokekeong.com/running-apache-spark-with-sparklyr-and-r-in-windows/">Running Apache Spark with sparklyr and R in Windows</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="http://spark.rstudio.com/">sparklyr — R interface for Apache Spark</a><a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p><a href="http://ishappy.tistory.com/entry/MAC-OS-X-에-JDK-설치하는-방법">MAC OS X 에 JDK 설치하는 방법</a><a href="#fnref3">↩</a></p></li>
+<li id="fn4"><p><a href="http://freesearch.pe.kr/archives/3081">KoNLP에서 아래와 같은 에러가 나올 경우 대처 방법</a><a href="#fnref4">↩</a></p></li>
+<li id="fn5"><p><a href="https://spark.rstudio.com/example-s3.html">Using Spark Standalone Mode and S3</a><a href="#fnref5">↩</a></p></li>
+<li id="fn6"><p><a href="https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-get-on-ubuntu-16-04">How To Install Java with Apt-Get on Ubuntu 16.04</a><a href="#fnref6">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>
