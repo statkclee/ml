@@ -198,7 +198,7 @@ $ sudo apt-get install default-jdk # JDK는 JRE를 포함
 ```
 
 다음으로 `JAVA_HOME`을 설정하는데 `sudo update-alternatives --config java` 명령어로 나온 자바홈 경로를 복사해서 `sudo nano /etc/environment` 에 붙여넣는다.
-`JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java"` 마지막으로 `source /etc/environment` 명령어로 변경사항을 적용시킨다.
+`JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"` 마지막으로 `source /etc/environment` 명령어로 변경사항을 적용시킨다.
 
 ``` {r eval=FALSE}
 $ sudo update-alternatives --config java
@@ -210,49 +210,151 @@ $ echo $JAVA_HOME
 /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
 ```
 
+> ### JAVA_HOME 찾는 방법 [^java-home] {.callout}
+> 
+> > Error in get_java(throws = TRUE) : 
+> >  Java is required to connect to Spark. JAVA_HOME is set but does not point to a valid version. 
+> >  Please fix JAVA_HOME or reinstall from: https://www.java.com/en/
+> 
+> 상기와 같이 JAVA_HOME 관련 오류가 발생되는 경우 조치 방법은 다음과 같다.
+> 
+> 1. `find /usr/lib/jvm/java-1.x.x-openjdk`
+> 1. `sudo nano /etc/environment`
+> 1. JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64" 추가
+> 1. source /etc/environment
+
+[^java-home]: [How to set JAVA_HOME in Linux for all users](https://stackoverflow.com/questions/24641536/how-to-set-java-home-in-linux-for-all-users)
+
 ### 2.2. 스파크 설치 {#aws-ec2-spark-install}
 
 [Download Apache Spark™](https://spark.apache.org/downloads.html) 사이트를 방문하여 아파치 스파크를 다운로드 한다. 물론 스파크내부에 하둡도 같이 포함되어 있는 것을 다운로드 받으면 편리하다.
 `tar xvf` 명령어로 압축을 풀고 나서 스파크가 설치된 환경변수 디렉토리를 기억해 둔다. 
 
 ``` {r eval=FALSE}
-$ wget http://d3kbcqa49mib13.cloudfront.net/spark-2.0.2-bin-hadoop2.7.tgz
-$ tar xvf spark-2.0.2-bin-hadoop2.7.tgz
-$ cd spark-2.0.2-bin-hadoop2.7
+$ wget http://d3kbcqa49mib13.cloudfront.net/spark-2.1.0-bin-hadoop2.7.tgz
+$ tar xvf spark-2.1.0-bin-hadoop2.7.tgz
+$ cd spark-2.1.0-bin-hadoop2.7
 $ pwd
-/home/rstudio/spark-2.0.2-bin-hadoop2.7
+/home/rstudio/spark-2.1.0-bin-hadoop2.7
 ```
 
-### 2.3. RStudio 스파크 적용 {#aws-ec2-sparklyr}
+### 2.3. RStudio 스파크 환경설정 {#aws-ec2-sparklyr}
 
 `SPARK_HOME =` 디렉토리 설정을 맞춰주면 스파크를 `sparklyr` 명령어를 통해 활용이 가능하다.
 [EC2 인스턴스 사양](https://aws.amazon.com/ko/ec2/pricing/on-demand/)에 맞춰 스파크 클러스터 환경을 `spark_config()`에 맞춰 설정한다. 
-그리고 나서 데이터프레임을 스파크 클러스터에 던질 때 사용하는 `copy_to()` 명령어를 사용하여 스파크 분산 환경에서 데이터를 처리한다.
+
+- 하드웨어 사양: M4 Double Extra Large [^ec2-instance-info]
+    - m4.2xlarge  
+    - 메모리: 32.0 GiB
+    - CPU: 8 vCPUs 
+    - 가격(On Demand): $0.492 hourly   
+    - 가격(Reserved): $0.294 hourly
+
+[^ec2-instance-info]: [EC2Instances.info - Easy Amazon EC2 Instance Comparison](http://www.ec2instances.info/)
+
+- 환경설정 시 유용한 명령어
+    - spark_home_dir()
+    - spark_installed_versions()
+
+`org.apache.hadoop:hadoop-aws:2.7.3` 팩키지는 AWS S3 연결에 필요한 팩키지가 된다.
+`nycflights13`, `Lahman` 팩키지 R 데이터프레임을 스파크 클러스터에 넣어 스파크에서 데이터를 분석한다. 
+데이터프레임을 스파크 클러스터에 던질 때 사용하는 `copy_to()` 명령어를 사용하여 스파크 분산 환경에서 데이터를 처리한다.
+정반대로 스파크 클러스터에서 꺼내 데이터프레임에서 분석하는 것이 `collect()` 명령어를 사용하는 것이다.
 
 ``` {r install-sparklyr, eval=FALSE}
-# 1. EC2 Startup code ===============================================
-
-# install.packages("sparklyr")
+# 1. 환경설정 ------------------------------------
 library(sparklyr)
-
-Sys.setenv(SPARK_HOME = '/home/rstudio/spark/spark-2.1.0-bin-hadoop2.7')
-
-# Hardware Spec: https://aws.amazon.com/ko/ec2/pricing/on-demand/
-config <- spark_config()
-config$spark.executor.cores <- 4
-config$spark.executor.memory <- "8G"
-sc <- spark_connect(master = "local", config = config, version = '2.1.0')
-
-# 4. 예제 R 데이터프레임을 스파크에 복사
-library(dplyr)
-iris_tbl <- copy_to(sc, iris)
+library(tidyverse)
 # install.packages("nycflights13")
 # install.packages("Lahman")
-# flights_tbl <- copy_to(sc, nycflights13::flights, "flights")
+
+Sys.setenv(SPARK_HOME = '/home/rstudio/spark-2.1.0-bin-hadoop2.7')
+Sys.setenv(JAVA_HOME = '/usr/lib/jvm/java-8-openjdk-amd64')
+
+config <- spark_config()
+config$sparklyr.defaultPackages <- "org.apache.hadoop:hadoop-aws:2.7.3"
+config$sparklyr.cores.local <- 6
+config$spark.driver.memory <- "30G"
+
+sc <- spark_connect(master = "local", config = config, spark_home=spark_home_dir(version = "2.1.0"))
+
+# 2. 예제 R 데이터프레임을 스파크에 복사 ------------
+
+iris_tbl <- copy_to(sc, iris)
+flights_tbl <- copy_to(sc, nycflights13::flights, "flights")
 batting_tbl <- copy_to(sc, Lahman::Batting, "batting")
 
-# 5. 데이터 테이블 확인
+# 3. 데이터 테이블 확인 -----------------------------
 src_tbls(sc)
 df <- collect(iris)
 ```
+
+### 2.4. `.csv` 파일 스파크 분석 {#aws-csv-sparklyr}
+
+AWS S3 저장소에 데이터를 저장해서 활용하고, 스파크 클러스터를 별도 EC2 인스턴스로 묶어 
+데이터를 분석하는 것이 많이 활용되는 패턴 중 하다.
+특히 S3를 `s3fs`로 EC2와 동기화(sync)한 경우 마치 로컬 파일처럼 접근해서 데이터를 분석하는 것도 가능하다.
+
+<img src="fig/spark-s3fs-csv.png" alt="AWS CSV 파일" width="77%" />
+
+``` {r read-csv-with-sparklyr, eval=FALSE}
+# 4. 로컬 CSV 파일 불러오기 -------------------------
+
+flights <- spark_read_csv(sc, "flights_spark", 
+                          path =  "~/works/GF/spark/data/", 
+                          memory = TRUE, 
+                          columns = list(
+                            Year = "character",
+                            Month = "character",
+                            DayofMonth = "character",
+                            DayOfWeek = "character",
+                            DepTime = "character",
+                            CRSDepTime = "character",
+                            ArrTime = "character",
+                            CRSArrTime = "character",
+                            UniqueCarrier = "character",
+                            FlightNum = "character",
+                            TailNum = "character",
+                            ActualElapsedTime = "character",
+                            CRSElapsedTime = "character",
+                            AirTime = "character",
+                            ArrDelay = "character",
+                            DepDelay = "character",
+                            Origin = "character",
+                            Dest = "character",
+                            Distance = "character",
+                            TaxiIn = "character",
+                            TaxiOut = "character",
+                            Cancelled = "character",
+                            CancellationCode = "character",
+                            Diverted = "character",
+                            CarrierDelay = "character",
+                            WeatherDelay = "character",
+                            NASDelay = "character",
+                            SecurityDelay = "character",
+                            LateAircraftDelay = "character"), 
+                          infer_schema = FALSE)
+
+tidy_flights <- tbl(sc, "flights_spark") %>%
+  mutate(ArrDelay = as.integer(ArrDelay),
+         DepDelay = as.integer(DepDelay),
+         Distance = as.integer(Distance)) %>%
+  filter(!is.na(ArrDelay)) %>%
+  select(DepDelay, ArrDelay, Distance) %>%
+  sdf_register("tidy_spark")
+
+tbl_cache(sc, "tidy_spark")
+
+tbl(sc, "tidy_spark") %>% tally
+
+simple_model <- tidy_flights %>%
+  ml_linear_regression(DepDelay~.)
+
+summary(simple_model)
+
+spark_disconnect(sc)
+```
+
+
+
 
