@@ -1,4 +1,15 @@
-# 기계 학습
+---
+layout: page
+title: 기계 학습
+subtitle: 단독형 스파크 설치 - PC/노트북, EC2 원격 컴퓨터
+output:
+  html_document: 
+    toc: yes
+    keep_md: yes
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
+---
 
 
 
@@ -251,6 +262,9 @@ $ pwd
     - spark_installed_versions()
 
 `org.apache.hadoop:hadoop-aws:2.7.3` 팩키지는 AWS S3 연결에 필요한 팩키지가 된다.
+`nycflights13`, `Lahman` 팩키지 R 데이터프레임을 스파크 클러스터에 넣어 스파크에서 데이터를 분석한다. 
+데이터프레임을 스파크 클러스터에 던질 때 사용하는 `copy_to()` 명령어를 사용하여 스파크 분산 환경에서 데이터를 처리한다.
+정반대로 스파크 클러스터에서 꺼내 데이터프레임에서 분석하는 것이 `collect()` 명령어를 사용하는 것이다.
 
 
 ~~~{.r}
@@ -279,7 +293,18 @@ batting_tbl <- copy_to(sc, Lahman::Batting, "batting")
 # 3. 데이터 테이블 확인 -----------------------------
 src_tbls(sc)
 df <- collect(iris)
+~~~
 
+### 2.4. `.csv` 파일 스파크 분석 {#aws-csv-sparklyr}
+
+AWS S3 저장소에 데이터를 저장해서 활용하고, 스파크 클러스터를 별도 EC2 인스턴스로 묶어 
+데이터를 분석하는 것이 많이 활용되는 패턴 중 하다.
+특히 S3를 `s3fs`로 EC2와 동기화(sync)한 경우 마치 로컬 파일처럼 접근해서 데이터를 분석하는 것도 가능하다.
+
+<img src="fig/spark-s3fs-csv.png" alt="AWS CSV 파일" width="77%" />
+
+
+~~~{.r}
 # 4. 로컬 CSV 파일 불러오기 -------------------------
 
 flights <- spark_read_csv(sc, "flights_spark", 
@@ -337,30 +362,6 @@ summary(simple_model)
 spark_disconnect(sc)
 ~~~
 
-library(sparklyr)
-
-Sys.setenv(SPARK_HOME = '/home/rstudio/spark/spark-2.1.0-bin-hadoop2.7')
-
-# Hardware Spec: https://aws.amazon.com/ko/ec2/pricing/on-demand/
-config <- spark_config()
-config$spark.executor.cores <- 4
-config$spark.executor.memory <- "8G"
-sc <- spark_connect(master = "local", config = config, version = '2.1.0')
-
-# 4. 예제 R 데이터프레임을 스파크에 복사
-library(dplyr)
-iris_tbl <- copy_to(sc, iris)
-# install.packages("nycflights13")
-# install.packages("Lahman")
-# flights_tbl <- copy_to(sc, nycflights13::flights, "flights")
-batting_tbl <- copy_to(sc, Lahman::Batting, "batting")
-
-# 5. 데이터 테이블 확인
-src_tbls(sc)
-df <- collect(iris)
-```
 
 
 
-
-그리고 나서 데이터프레임을 스파크 클러스터에 던질 때 사용하는 `copy_to()` 명령어를 사용하여 스파크 분산 환경에서 데이터를 처리한다.
