@@ -39,6 +39,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
     - **[기계학습 클라우드(AWS) 개발배포 환경](ml-aws-spark.html)**
         1. [시나리오별 클라우드(AWS) 컴퓨팅 자원을 데이터 과학에 활용](ml-aws-from-pc.html)
         1. [AWS 우분투 EC2 + S3 버킷 + RStudio 서버](ds-aws-rstudio-server.html)
+        1. [단독형 스파크 설치 - PC/노트북, EC2 원격 컴퓨터](ds-sparklyr.html) 
         1. [스파크 EC2 클러스터 - 부싯돌(flintrock)](ml-aws-ec2-flintrock.html)
             1. [스파크 EC2 클러스터 - 데이터과학 툴체인(R, sparklyr)](ml-aws-ec2-flintrock-sparklyr.html)
         1. [EMR 스파크 클러스터 - wadal](ml-emr-wadal.html)
