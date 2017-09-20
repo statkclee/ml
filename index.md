@@ -43,7 +43,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [스파크 EC2 클러스터 - 부싯돌(flintrock)](ml-aws-ec2-flintrock.html)
             1. [스파크 EC2 클러스터 - 데이터과학 툴체인(R, sparklyr)](ml-aws-ec2-flintrock-sparklyr.html)
         1. [EMR 스파크 클러스터 - wadal](ml-emr-wadal.html)
-        1. [EC2, 스파크 EC2 클러스터 RStudio에서 S3 데이터 접근](ml-ec2-s3.html)
+        1. [분석할 데이터를 스파크에 적재하는 방법 - S3 포함](ml-ec2-s3.html)
         1. [dplyr을 Spark 위에 올린 sparklyr](ml-sparklyr.html)
     - **예측모형 개발 자동화**
         - [R 모형설계행렬(Recipe)](ml-r-design-matrix.html)
@@ -57,7 +57,8 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. **인간과 기계가 함께하는 기계학습 예측모형**  
             1. [기계학습 예측모형 준비](ml-predictive-modeling-basic.html)
             1. [기계학습 예측모형 실습](ml-predictive-modeling.html)
-            1. [모형식별 및 선택](ml-model-selection.html)            
+            1. [모형식별 및 선택](ml-model-selection.html)
+            1. [회귀모형 &rarr; caret &rarr; 스파크 &rarr; $H_2 O$](ml-from-reg-to-h2o.html)
             1. [사례 - 도요타 중고차 가격 예측](ml-pm-continuous.html)
             1. [사례 - 콘크리트 강도](ml-pm-continuous-concrete.html)
             1. [사례 - 카드발급](ml-credit-greene.html)

@@ -1,9 +1,10 @@
 ---
 layout: page
 title: 기계학습
-subtitle: S3 데이터와 EC2, 스파크 EC2 클러스터
+subtitle: 분석할 데이터를 스파크에 적재하는 방법 - S3 포함
 output:
   html_document: 
+    toc: yes
     keep_md: yes
   pdf_document:
     latex_engine: xelatex
@@ -13,13 +14,33 @@ mainfont: NanumGothic
 
 > ## 학습 목표 {.objectives}
 >
+> * 스파크 클러스터에 데이터를 적재하는 두가지 방법을 이해한다.
 > * AWS EC2에서 S3 버킷에 저장된 데이터를 데이터분석에 활용한다.
 > * AWS 스파크 EC2 클러스터에서 S3 버킷에 저장된 데이터를 데이터분석에 활용한다.
+
 
 ``` {r, include=FALSE}
 source("tools/chunk-options.R")
 knitr::opts_chunk$set(error = TRUE)
 ```
+
+## 1. 스파크에 데이터를 적재하는 두가지 방법 [^load-data-on-spark] {#load-data-on-spark}
+
+[^load-data-on-spark]: [RStudio Webinar - Understanding sparklyr deployment modes](https://www.rstudio.com/resources/webinars/understanding-sparklyr-deployment-modes/)
+
+가장 이상적으로 AWS S3, 하둡, RDBMS 등 데이터를 스파크 클러스터를 통해 가져오는 것이 이상적인 방법이다.
+즉, `sparkly` 팩키지를 활용하여 스파크 클러스터가 원천 데이터의 위치를 파악하고 이를 매핑하여 불러와서 분석작업을 수행시키는 방법으로,
+대용량 데이터 분석에 적합하지만, 모든 노드가 URL, 네트워크 경로 등을 맞춰야 하는 수고스러움도 있다.
+
+<img src="fig/spark-access-to-data-source.png" alt="스파크 데이터 접근" width="77%" />
+
+또 다른 방법은 원천 데이터를 R로 불러읽어온다. 그리고 나서 `copy_to()` 명령어를 활용하여 스파크에 데이터를 넘겨 빅데이터를 분석한다.
+상대적으로 데이터 크기가 적은 경우 유용한 방법이 될 수 있다.
+
+<img src="fig/spark-access-to-data-option.png" alt="스파크 데이터 접근 두번째 방법" width="77%" />
+
+
+
 
 ## AWS S3 데이터를 읽어오는 전략
 
