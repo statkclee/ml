@@ -1,7 +1,7 @@
 ---
 layout: page
 title: 기계 학습
-subtitle: 회귀모형에서 $H_2 O$까지
+subtitle: 회귀모형에서 $H_2 O$까지 - 1부
 output:
   html_document: 
     toc: yes
@@ -246,98 +246,120 @@ iris_tuned_rf_pred <- predict(iris_tuned_rf, method="class")
 table(iris_df$class, iris_tuned_rf_pred)
 ```
 
+### 3.3. caret {#iris-caret}
 
+`caret` 팩키지를 활용하면 다양한 예측 모형 아키텍처를 비교하고 예측성능이 가장 좋은 모형을 자동으로 추천한다.
+
+``` {r caret-iris}
 # 0. 환경설정 --------------------------------
 
 library(tidyverse)
 library(stringr)
-library(rpart)
-library(lattice)
-library(tree)
-library(rpart)
 library(caret)
+library(doSNOW)
 
-# https://ashokharnal.wordpress.com/tag/logistic-regression-in-marketing/
-# https://rstudio-pubs-static.s3.amazonaws.com/41074_62aa52bdc9ff48a2ba3fb0f468e19118.html
-  
-# 1. 데이터 가져오기 --------------------------------
-## 1.1. 데이터 다운로드 및 압축풀기 -----------------
-bank_data_url <- "https://archive.ics.uci.edu/ml/machine-learning-databases/00222/bank-additional.zip"
-download.file(url=bank_data_url, destfile = "data/bank.zip")
-unzip("data/bank.zip", exdir = "data/bank")
+# 1. 데이터 불러오기 --------------------------------
 
-## 1.2. 데이터 불러오기 -----------------------------
-bank_dat <- read_delim("data/bank/bank-additional/bank-additional-full.csv", delim=";", col_names = TRUE)
+iris_df <- iris
 
-# 2. 데이터 전처리 --------------------------------
-## 2.1. 숫자형 범주형 구분 ------------------------
+# 2. 데이터 정제 --------------------------------
 
-cat_var <- bank_dat %>% select_if(is.character) %>% names %>% dput
-num_var <- bank_dat %>% select_if(is.numeric) %>% names %>% dput
-
-bank_df <- bank_dat %>% mutate_if(is.character, as.factor)
-
-summary(bank_df)
-
-bank_df %>% select_if(is.factor) %>% sapply(levels)
-
-## 2.2. 결측변수 제거 ------------------------
-
-bank_df <- bank_df %>% select(-nr.employed)
-
-summary(bank_df)
+# glimpse(iris_df)
 
 # 3. 예측 모형 개발 --------------------------------
 ## 3.1. 훈련/검증 분할 -----------------------------
-train_index <- createDataPartition(bank_df$y, p=0.7, list=FALSE)
+train_index <- createDataPartition(iris_df$Species, times=1, p=0.7, list=FALSE)
 
-bank_train <-bank_df[ train_index,]
-bank_test <- bank_df[-train_index,]
+iris_train <-iris_df[ train_index,]
+iris_test <- iris_df[-train_index,]
 
 ## 3.2. 모형공식 -----------------------------------
 
-bank_x_var <- setdiff(colnames(bank_train),list('y'))
-bank_formula <- as.formula(paste('y', paste(bank_x_var, collapse=' + '), sep=' ~ '))
+iris_x_var <- setdiff(colnames(iris_train),list('Species'))
+iris_formula <- as.formula(paste('Species', paste(iris_x_var, collapse=' + '), sep=' ~ '))
 
-## 3.3. 로지스틱 회귀모형 적합 ---------------------
+## 3.3. 모형제어 -----------------------------
 
-bank_full_glm <- glm(bank_formula, data=bank_train, family="binomial")
-bank_null_glm <- glm(y ~1, data=bank_train, family="binomial")
+iris_ctrl <- trainControl(method = "repeatedcv",
+                        number = 10,
+                        repeats = 10,
+                        verboseIter = TRUE,
+                        search = "grid")
 
-## 3.4. 로지스틱 회귀모형 변수선택 -----------------
+# https://www.slideshare.net/odsc/owen-zhangopen-sourcetoolsanddscompetitions1
+xgboost_grid <- expand.grid(eta = c(0.05, 0.075, 0.1),
+                            nrounds = c(50, 75, 100),
+                            max_depth = 6:8,
+                            min_child_weight = c(2.0, 2.25, 2.5),
+                            colsample_bytree = c(0.3, 0.4, 0.5),
+                            gamma = 0,
+                            subsample = 1)
 
-bank_glm_aic <- step(bank_full_glm, 
-                    scope=list(lower=bank_null_glm, upper=bank_full_glm), 
-                    direction = "both",
-                    trace=0)
+## 3.4. xgboost 아키텍쳐 ------------------------
 
-## 3.5. 모형 평가 -----------------
-### 3.5.1 모형 비교
-bank_null_df <- broom::glance(bank_null_glm) %>% mutate(model="full model")
-bank_aic_df <- broom::glance(bank_glm_aic) %>% mutate(model="variable selected")
-bank_full_df <- broom::glance(bank_full_glm) %>% mutate(model="null model")
+if(.Platform$OS.type =="windows") {
+  library(doSNOW)
+  working_cores <- parallel::detectCores() -1
+  cl <- makeCluster(working_cores, type = "SOCK")
+  registerDoSNOW(cl)
+} else if(.Platform$OS.type =="unix"){
+  library(doMC)
+  working_cores <- parallel::detectCores() -1
+  registerDoMC(cores = working_cores)
+}
 
-glm_model_comp_df <- bind_rows(bank_null_df, bank_aic_df) %>% 
-  bind_rows(bank_full_df)
+iris_glm <- train(iris_formula,  data=iris_train, 
+                  method="glmnet", 
+                  trControl = iris_ctrl)
 
-DT::datatable(glm_model_comp_df) %>% 
-  DT::formatCurrency(c(1:7), "", digits=2, interval=3)
-
-### 3.5.2 모형 계수
-broom::tidy(bank_glm_aic) %>% 
-  mutate(odds_ratio = exp(estimate)) %>% 
-  select(term, odds_ratio, p.value) %>% 
-  DT::datatable() %>% 
-  DT::formatCurrency(c("odds_ratio", "p.value"), "", interval=3, digits=2)
-
-## 3.6. 모형 예측 -----------------
-
-bank_glm_prob <- predict.glm(bank_glm_aic, newdata=bank_test, type="response")
-
-cutoff_scalar <- bank_test %>% count(y) %>% mutate(pcnt=n/sum(n)) %>% pull(pcnt) %>% .[[2]]
-bank_glm_pred <- cut(bank_glm_prob, c(-Inf, cutoff_scalar, Inf), labels=c("no","yes"))
-
-table(bank_glm_pred, bank_test$y)
-
+library(gbm)
+iris_gbm <- train(iris_formula, data=iris_train, 
+                  method = "gbm", 
+                  trControl = iris_ctrl)
 
 
+iris_xgboost <- train(iris_formula,  data=iris_train, 
+                 method="xgbTree", 
+                 trControl = iris_ctrl,
+                 tuneGrid = xgboost_grid,
+                 num_class = 3)
+
+if(.Platform$OS.type =="windows") {
+  stopCluster(cl)
+} else {
+  next
+}
+
+# 4. 모형 평가 ---------------------------------------
+
+all_resample <- resamples(list("Logistic" = iris_glm,
+                               "GBM" = iris_gbm,
+                               "xgboost" = iris_xgboost))
+
+parallelplot(all_resample, metric = "Accuracy")
+
+confusionMatrix(iris_xgboost)
+
+iris_pred <- predict(iris_xgboost, newdata = iris_test)
+prop.table(table(iris_pred, iris_test$Species))
+
+iris_responses <- iris_test %>%
+  select(Species) %>%
+  mutate(
+    predicted_iris = predict(
+      iris_xgboost,
+      newdata=iris_test
+    )
+  )
+
+table(iris_responses)
+
+ggplot(iris_responses, aes(Species, predicted_iris)) +
+  geom_jitter(width = 0.15, height=0.15, aes(colour = Species), alpha=0.3) +
+  geom_abline(intercept=0, slope=1)
+
+
+# 5. 모형 배포 ---------------------------------------
+
+iris_pred <- predict(iris_xgboost, newdata = iris_test)
+```
