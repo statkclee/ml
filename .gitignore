@@ -12,3 +12,6 @@ _site
 twitterOAuth.R
 .httr-oauth
 *삶.txt
+derby.log
+h2ologs/
+log4j.spark.log
