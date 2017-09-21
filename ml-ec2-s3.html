@@ -38,18 +38,24 @@
       <div class="row">
         <div class="col-md-10 col-md-offset-1">
                     <a href="index.html"><h1 class="title">기계학습</h1></a>
-          <h2 class="subtitle">S3 데이터와 EC2, 스파크 EC2 클러스터</h2>
+          <h2 class="subtitle">분석할 데이터를 스파크에 적재하는 방법 - S3 포함</h2>
           <section class="objectives panel panel-warning">
 <div class="panel-heading">
 <h2 id="학습-목표"><span class="glyphicon glyphicon-certificate"></span>학습 목표</h2>
 </div>
 <div class="panel-body">
 <ul>
+<li>스파크 클러스터에 데이터를 적재하는 두가지 방법을 이해한다.</li>
 <li>AWS EC2에서 S3 버킷에 저장된 데이터를 데이터분석에 활용한다.</li>
 <li>AWS 스파크 EC2 클러스터에서 S3 버킷에 저장된 데이터를 데이터분석에 활용한다.</li>
 </ul>
 </div>
 </section>
+<h2 id="load-data-on-spark">1. 스파크에 데이터를 적재하는 두가지 방법 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h2>
+<p>가장 이상적으로 AWS S3, 하둡, RDBMS 등 데이터를 스파크 클러스터를 통해 가져오는 것이 이상적인 방법이다. 즉, <code>sparkly</code> 팩키지를 활용하여 스파크 클러스터가 원천 데이터의 위치를 파악하고 이를 매핑하여 불러와서 분석작업을 수행시키는 방법으로, 대용량 데이터 분석에 적합하지만, 모든 노드가 URL, 네트워크 경로 등을 맞춰야 하는 수고스러움도 있다.</p>
+<p><img src="fig/spark-access-to-data-source.png" alt="스파크 데이터 접근" width="77%" /></p>
+<p>또 다른 방법은 원천 데이터를 R로 불러읽어온다. 그리고 나서 <code>copy_to()</code> 명령어를 활용하여 스파크에 데이터를 넘겨 빅데이터를 분석한다. 상대적으로 데이터 크기가 적은 경우 유용한 방법이 될 수 있다.</p>
+<p><img src="fig/spark-access-to-data-option.png" alt="스파크 데이터 접근 두번째 방법" width="77%" /></p>
 <h2 id="aws-s3-데이터를-읽어오는-전략">AWS S3 데이터를 읽어오는 전략</h2>
 <p>AWS S3에 저장된 대용량 데이터를 읽어오는 전략은 다음과 크게 4가지 방식이 존재한다.</p>
 <ul>
@@ -60,7 +66,7 @@
 </ul>
 <p>첫번째 방식은 많이 활용되는 방식으로 아래 매뉴얼을 활용하여 따라가면 문제가 없고, AWS EMR 방식도 AWS에서 EMR 스파크 클러스터를 생성시킬 때 설정을 잘 맞춰놔서 필요한 일부 설정만으로도 S3 저장소에 접근할 수 있다. EC2에 스파크 클러스터를 직접 설치하는 경우 S3 저장소에 설정을 잘 맞춰놓는 것이 그렇게 쉽지만은 않다.</p>
 <p><img src="fig/aws-ec2-spark-s3-link.png" alt="AWS EC2 스파크 S3 연결" width="57%" /></p>
-<h2 id="aws-s3-데이터를-ec2-rstudio에서-읽어오기-aws-s3-read-write-cloudyr-aws-s3">AWS S3 데이터를 EC2 RStudio에서 읽어오기 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></h2>
+<h2 id="aws-s3-데이터를-ec2-rstudio에서-읽어오기-aws-s3-read-write-cloudyr-aws-s3">AWS S3 데이터를 EC2 RStudio에서 읽어오기 <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> <a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a></h2>
 <p>EC2에 RStudio 서버가 설치되면 AWS S3 저장소의 데이터를 불러와서 작업을 해야한다.</p>
 <p><img src="fig/aws-ec2-s3-link.png" alt="AWS EC2 S3 연결" width="67%" /></p>
 <h3 id="환경설정">환경설정</h3>
@@ -114,8 +120,9 @@ iris_df</code></pre></div>
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p><a href="http://datascience.ibm.com/blog/read-and-write-data-to-and-from-amazon-s3-buckets-in-rstudio/">Read and Write Data To and From Amazon S3 Buckets in Rstudio</a><a href="#fnref1">↩</a></p></li>
-<li id="fn2"><p><a href="https://github.com/cloudyr/aws.s3">Amazon Simple Storage Service (S3) API Client</a><a href="#fnref2">↩</a></p></li>
+<li id="fn1"><p><a href="https://www.rstudio.com/resources/webinars/understanding-sparklyr-deployment-modes/">RStudio Webinar - Understanding sparklyr deployment modes</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="http://datascience.ibm.com/blog/read-and-write-data-to-and-from-amazon-s3-buckets-in-rstudio/">Read and Write Data To and From Amazon S3 Buckets in Rstudio</a><a href="#fnref2">↩</a></p></li>
+<li id="fn3"><p><a href="https://github.com/cloudyr/aws.s3">Amazon Simple Storage Service (S3) API Client</a><a href="#fnref3">↩</a></p></li>
 </ol>
 </div>
         </div>
