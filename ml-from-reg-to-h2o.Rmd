@@ -14,6 +14,8 @@ mainfont: NanumGothic
 ```{r, include=FALSE}
 source("tools/chunk-options.R")
 
+knitr::opts_knit$set(verbose = FALSE, message=FALSE, warning=FALSE)
+
 library(tidyverse)
 library(stringr)
 library(rpart)
@@ -22,6 +24,7 @@ library(tree)
 library(rpart)
 library(rattle)
 library(randomForest)
+library(doSNOW)
 
 ```
 
@@ -246,15 +249,39 @@ iris_tuned_rf_pred <- predict(iris_tuned_rf, method="class")
 table(iris_df$class, iris_tuned_rf_pred)
 ```
 
-### 3.3. caret {#iris-caret}
+### 3.3. caret [^xgboost-iris] {#iris-caret}
+
+[^xgboost-iris]: [Owen Zhang(2015), Open Source Tools & Data Science Competitions](https://www.slideshare.net/odsc/owen-zhangopen-sourcetoolsanddscompetitions1)
 
 `caret` 팩키지를 활용하면 다양한 예측 모형 아키텍처를 비교하고 예측성능이 가장 좋은 모형을 자동으로 추천한다.
+과거 범주형 데이터, (GBM + glmnet)/2, 훈련/검증 기법이 사용되었다면,
+최근에서는 xgboost를 넘어 stacking, keras 딥러닝 기법을 활용하여 예측모형을 적용시켜 활용하고 있다.
+
+xgboost 모수 미세조정은 [Owen Zhang(2015) 발표자료](https://www.slideshare.net/odsc/owen-zhangopen-sourcetoolsanddscompetitions1)를 참조한다.
+
+> ### 윈도우와 맥에서 별도 운영체제 설정 
+> 
+> `.Platform$OS.type` 명령어로 운영체제를 파악하고 나서 병렬처리를 위한 
+> 클러스터 설정을 한다.
+>
+> ``` {r platform-branch, eval=FALSE}
+> if(.Platform$OS.type =="windows") {
+>   library(doSNOW)
+>   working_cores <- parallel::detectCores() -1
+>   cl <- makeCluster(working_cores, type = "SOCK")
+>   registerDoSNOW(cl)
+> } else if(.Platform$OS.type =="unix"){
+>   library(doMC)
+>   working_cores <- parallel::detectCores() -1
+>   registerDoMC(cores = working_cores)
+> }
+> ```
+
+
 
 ``` {r caret-iris}
 # 0. 환경설정 --------------------------------
 
-library(tidyverse)
-library(stringr)
 library(caret)
 library(doSNOW)
 
@@ -281,12 +308,11 @@ iris_formula <- as.formula(paste('Species', paste(iris_x_var, collapse=' + '), s
 ## 3.3. 모형제어 -----------------------------
 
 iris_ctrl <- trainControl(method = "repeatedcv",
-                        number = 10,
-                        repeats = 10,
-                        verboseIter = TRUE,
-                        search = "grid")
+                          number = 5,
+                          repeats = 1,
+                          verboseIter = TRUE,
+                          search = "grid")
 
-# https://www.slideshare.net/odsc/owen-zhangopen-sourcetoolsanddscompetitions1
 xgboost_grid <- expand.grid(eta = c(0.05, 0.075, 0.1),
                             nrounds = c(50, 75, 100),
                             max_depth = 6:8,

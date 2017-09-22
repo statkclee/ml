@@ -65,8 +65,8 @@ iris_df <- iris_df %>% rename(sepal_length = X1,
 DT::datatable(iris_df)
 ~~~
 
-<!--html_preserve--><div id="htmlwidget-118e8ee7a6242bcaa274" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-118e8ee7a6242bcaa274">{"x":{"filter":"none","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100","101","102","103","104","105","106","107","108","109","110","111","112","113","114","115","116","117","118","119","120","121","122","123","124","125","126","127","128","129","130","131","132","133","134","135","136","137","138","139","140","141","142","143","144","145","146","147","148","149","150"],[5.1,4.9,4.7,4.6,5,5.4,4.6,5,4.4,4.9,5.4,4.8,4.8,4.3,5.8,5.7,5.4,5.1,5.7,5.1,5.4,5.1,4.6,5.1,4.8,5,5,5.2,5.2,4.7,4.8,5.4,5.2,5.5,4.9,5,5.5,4.9,4.4,5.1,5,4.5,4.4,5,5.1,4.8,5.1,4.6,5.3,5,7,6.4,6.9,5.5,6.5,5.7,6.3,4.9,6.6,5.2,5,5.9,6,6.1,5.6,6.7,5.6,5.8,6.2,5.6,5.9,6.1,6.3,6.1,6.4,6.6,6.8,6.7,6,5.7,5.5,5.5,5.8,6,5.4,6,6.7,6.3,5.6,5.5,5.5,6.1,5.8,5,5.6,5.7,5.7,6.2,5.1,5.7,6.3,5.8,7.1,6.3,6.5,7.6,4.9,7.3,6.7,7.2,6.5,6.4,6.8,5.7,5.8,6.4,6.5,7.7,7.7,6,6.9,5.6,7.7,6.3,6.7,7.2,6.2,6.1,6.4,7.2,7.4,7.9,6.4,6.3,6.1,7.7,6.3,6.4,6,6.9,6.7,6.9,5.8,6.8,6.7,6.7,6.3,6.5,6.2,5.9],[3.5,3,3.2,3.1,3.6,3.9,3.4,3.4,2.9,3.1,3.7,3.4,3,3,4,4.4,3.9,3.5,3.8,3.8,3.4,3.7,3.6,3.3,3.4,3,3.4,3.5,3.4,3.2,3.1,3.4,4.1,4.2,3.1,3.2,3.5,3.1,3,3.4,3.5,2.3,3.2,3.5,3.8,3,3.8,3.2,3.7,3.3,3.2,3.2,3.1,2.3,2.8,2.8,3.3,2.4,2.9,2.7,2,3,2.2,2.9,2.9,3.1,3,2.7,2.2,2.5,3.2,2.8,2.5,2.8,2.9,3,2.8,3,2.9,2.6,2.4,2.4,2.7,2.7,3,3.4,3.1,2.3,3,2.5,2.6,3,2.6,2.3,2.7,3,2.9,2.9,2.5,2.8,3.3,2.7,3,2.9,3,3,2.5,2.9,2.5,3.6,3.2,2.7,3,2.5,2.8,3.2,3,3.8,2.6,2.2,3.2,2.8,2.8,2.7,3.3,3.2,2.8,3,2.8,3,2.8,3.8,2.8,2.8,2.6,3,3.4,3.1,3,3.1,3.1,3.1,2.7,3.2,3.3,3,2.5,3,3.4,3],[1.4,1.4,1.3,1.5,1.4,1.7,1.4,1.5,1.4,1.5,1.5,1.6,1.4,1.1,1.2,1.5,1.3,1.4,1.7,1.5,1.7,1.5,1,1.7,1.9,1.6,1.6,1.5,1.4,1.6,1.6,1.5,1.5,1.4,1.5,1.2,1.3,1.5,1.3,1.5,1.3,1.3,1.3,1.6,1.9,1.4,1.6,1.4,1.5,1.4,4.7,4.5,4.9,4,4.6,4.5,4.7,3.3,4.6,3.9,3.5,4.2,4,4.7,3.6,4.4,4.5,4.1,4.5,3.9,4.8,4,4.9,4.7,4.3,4.4,4.8,5,4.5,3.5,3.8,3.7,3.9,5.1,4.5,4.5,4.7,4.4,4.1,4,4.4,4.6,4,3.3,4.2,4.2,4.2,4.3,3,4.1,6,5.1,5.9,5.6,5.8,6.6,4.5,6.3,5.8,6.1,5.1,5.3,5.5,5,5.1,5.3,5.5,6.7,6.9,5,5.7,4.9,6.7,4.9,5.7,6,4.8,4.9,5.6,5.8,6.1,6.4,5.6,5.1,5.6,6.1,5.6,5.5,4.8,5.4,5.6,5.1,5.1,5.9,5.7,5.2,5,5.2,5.4,5.1],[0.2,0.2,0.2,0.2,0.2,0.4,0.3,0.2,0.2,0.1,0.2,0.2,0.1,0.1,0.2,0.4,0.4,0.3,0.3,0.3,0.2,0.4,0.2,0.5,0.2,0.2,0.4,0.2,0.2,0.2,0.2,0.4,0.1,0.2,0.1,0.2,0.2,0.1,0.2,0.2,0.3,0.3,0.2,0.6,0.4,0.3,0.2,0.2,0.2,0.2,1.4,1.5,1.5,1.3,1.5,1.3,1.6,1,1.3,1.4,1,1.5,1,1.4,1.3,1.4,1.5,1,1.5,1.1,1.8,1.3,1.5,1.2,1.3,1.4,1.4,1.7,1.5,1,1.1,1,1.2,1.6,1.5,1.6,1.5,1.3,1.3,1.3,1.2,1.4,1.2,1,1.3,1.2,1.3,1.3,1.1,1.3,2.5,1.9,2.1,1.8,2.2,2.1,1.7,1.8,1.8,2.5,2,1.9,2.1,2,2.4,2.3,1.8,2.2,2.3,1.5,2.3,2,2,1.8,2.1,1.8,1.8,1.8,2.1,1.6,1.9,2,2.2,1.5,1.4,2.3,2.4,1.8,1.8,2.1,2.4,2.3,1.9,2.3,2.5,2.3,1.9,2,2.3,1.8],["setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>sepal_length<\/th>\n      <th>sepal_width<\/th>\n      <th>petal_length<\/th>\n      <th>petal_width<\/th>\n      <th>class<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[1,2,3,4]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script><!--/html_preserve-->
+<!--html_preserve--><div id="htmlwidget-5a721d6e9704512a05ae" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-5a721d6e9704512a05ae">{"x":{"filter":"none","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100","101","102","103","104","105","106","107","108","109","110","111","112","113","114","115","116","117","118","119","120","121","122","123","124","125","126","127","128","129","130","131","132","133","134","135","136","137","138","139","140","141","142","143","144","145","146","147","148","149","150"],[5.1,4.9,4.7,4.6,5,5.4,4.6,5,4.4,4.9,5.4,4.8,4.8,4.3,5.8,5.7,5.4,5.1,5.7,5.1,5.4,5.1,4.6,5.1,4.8,5,5,5.2,5.2,4.7,4.8,5.4,5.2,5.5,4.9,5,5.5,4.9,4.4,5.1,5,4.5,4.4,5,5.1,4.8,5.1,4.6,5.3,5,7,6.4,6.9,5.5,6.5,5.7,6.3,4.9,6.6,5.2,5,5.9,6,6.1,5.6,6.7,5.6,5.8,6.2,5.6,5.9,6.1,6.3,6.1,6.4,6.6,6.8,6.7,6,5.7,5.5,5.5,5.8,6,5.4,6,6.7,6.3,5.6,5.5,5.5,6.1,5.8,5,5.6,5.7,5.7,6.2,5.1,5.7,6.3,5.8,7.1,6.3,6.5,7.6,4.9,7.3,6.7,7.2,6.5,6.4,6.8,5.7,5.8,6.4,6.5,7.7,7.7,6,6.9,5.6,7.7,6.3,6.7,7.2,6.2,6.1,6.4,7.2,7.4,7.9,6.4,6.3,6.1,7.7,6.3,6.4,6,6.9,6.7,6.9,5.8,6.8,6.7,6.7,6.3,6.5,6.2,5.9],[3.5,3,3.2,3.1,3.6,3.9,3.4,3.4,2.9,3.1,3.7,3.4,3,3,4,4.4,3.9,3.5,3.8,3.8,3.4,3.7,3.6,3.3,3.4,3,3.4,3.5,3.4,3.2,3.1,3.4,4.1,4.2,3.1,3.2,3.5,3.1,3,3.4,3.5,2.3,3.2,3.5,3.8,3,3.8,3.2,3.7,3.3,3.2,3.2,3.1,2.3,2.8,2.8,3.3,2.4,2.9,2.7,2,3,2.2,2.9,2.9,3.1,3,2.7,2.2,2.5,3.2,2.8,2.5,2.8,2.9,3,2.8,3,2.9,2.6,2.4,2.4,2.7,2.7,3,3.4,3.1,2.3,3,2.5,2.6,3,2.6,2.3,2.7,3,2.9,2.9,2.5,2.8,3.3,2.7,3,2.9,3,3,2.5,2.9,2.5,3.6,3.2,2.7,3,2.5,2.8,3.2,3,3.8,2.6,2.2,3.2,2.8,2.8,2.7,3.3,3.2,2.8,3,2.8,3,2.8,3.8,2.8,2.8,2.6,3,3.4,3.1,3,3.1,3.1,3.1,2.7,3.2,3.3,3,2.5,3,3.4,3],[1.4,1.4,1.3,1.5,1.4,1.7,1.4,1.5,1.4,1.5,1.5,1.6,1.4,1.1,1.2,1.5,1.3,1.4,1.7,1.5,1.7,1.5,1,1.7,1.9,1.6,1.6,1.5,1.4,1.6,1.6,1.5,1.5,1.4,1.5,1.2,1.3,1.5,1.3,1.5,1.3,1.3,1.3,1.6,1.9,1.4,1.6,1.4,1.5,1.4,4.7,4.5,4.9,4,4.6,4.5,4.7,3.3,4.6,3.9,3.5,4.2,4,4.7,3.6,4.4,4.5,4.1,4.5,3.9,4.8,4,4.9,4.7,4.3,4.4,4.8,5,4.5,3.5,3.8,3.7,3.9,5.1,4.5,4.5,4.7,4.4,4.1,4,4.4,4.6,4,3.3,4.2,4.2,4.2,4.3,3,4.1,6,5.1,5.9,5.6,5.8,6.6,4.5,6.3,5.8,6.1,5.1,5.3,5.5,5,5.1,5.3,5.5,6.7,6.9,5,5.7,4.9,6.7,4.9,5.7,6,4.8,4.9,5.6,5.8,6.1,6.4,5.6,5.1,5.6,6.1,5.6,5.5,4.8,5.4,5.6,5.1,5.1,5.9,5.7,5.2,5,5.2,5.4,5.1],[0.2,0.2,0.2,0.2,0.2,0.4,0.3,0.2,0.2,0.1,0.2,0.2,0.1,0.1,0.2,0.4,0.4,0.3,0.3,0.3,0.2,0.4,0.2,0.5,0.2,0.2,0.4,0.2,0.2,0.2,0.2,0.4,0.1,0.2,0.1,0.2,0.2,0.1,0.2,0.2,0.3,0.3,0.2,0.6,0.4,0.3,0.2,0.2,0.2,0.2,1.4,1.5,1.5,1.3,1.5,1.3,1.6,1,1.3,1.4,1,1.5,1,1.4,1.3,1.4,1.5,1,1.5,1.1,1.8,1.3,1.5,1.2,1.3,1.4,1.4,1.7,1.5,1,1.1,1,1.2,1.6,1.5,1.6,1.5,1.3,1.3,1.3,1.2,1.4,1.2,1,1.3,1.2,1.3,1.3,1.1,1.3,2.5,1.9,2.1,1.8,2.2,2.1,1.7,1.8,1.8,2.5,2,1.9,2.1,2,2.4,2.3,1.8,2.2,2.3,1.5,2.3,2,2,1.8,2.1,1.8,1.8,1.8,2.1,1.6,1.9,2,2.2,1.5,1.4,2.3,2.4,1.8,1.8,2.1,2.4,2.3,1.9,2.3,2.5,2.3,1.9,2,2.3,1.8],["setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","setosa","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","versicolor","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica","virginica"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>sepal_length<\/th>\n      <th>sepal_width<\/th>\n      <th>petal_length<\/th>\n      <th>petal_width<\/th>\n      <th>class<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[1,2,3,4]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script><!--/html_preserve-->
 
 ~~~{.r}
 # 3. 데이터프레임 저장 --------------------------------
@@ -202,9 +202,9 @@ rpart(formula = class ~ ., data = iris_df, method = "class")
   n= 150 
 
     CP nsplit rel error xerror       xstd
-1 0.50      0      1.00   1.12 0.05326662
+1 0.50      0      1.00   1.13 0.05279520
 2 0.44      1      0.50   0.67 0.06088788
-3 0.01      2      0.06   0.10 0.03055050
+3 0.01      2      0.06   0.09 0.02908608
 
 Variable importance
  petal_width petal_length sepal_length  sepal_width 
@@ -316,9 +316,9 @@ n= 1309
          CP nsplit rel error xerror     xstd
 1 0.4240000      0     1.000  1.000 0.035158
 2 0.0210000      1     0.576  0.576 0.029976
-3 0.0150000      3     0.534  0.568 0.029825
-4 0.0113333      5     0.504  0.556 0.029595
-5 0.0025714      9     0.458  0.512 0.028701
+3 0.0150000      3     0.534  0.548 0.029438
+4 0.0113333      5     0.504  0.534 0.029157
+5 0.0025714      9     0.458  0.508 0.028616
 6 0.0020000     16     0.440  0.528 0.029035
 7 0.0001000     18     0.436  0.524 0.028952
 
@@ -422,42 +422,42 @@ for(mtry in c(2,3,4)){
 
 
 ~~~{.output}
-mtry: 2  | ntree:  10  | node_size 3   | accuracy: 0.9395973 
-mtry: 2  | ntree:  10  | node_size 5   | accuracy: 0.9533333 
-mtry: 2  | ntree:  10  | node_size 10   | accuracy: 0.9455782 
-mtry: 2  | ntree:  50  | node_size 3   | accuracy: 0.9533333 
+mtry: 2  | ntree:  10  | node_size 3   | accuracy: 0.9315068 
+mtry: 2  | ntree:  10  | node_size 5   | accuracy: 0.9183673 
+mtry: 2  | ntree:  10  | node_size 10   | accuracy: 0.9527027 
+mtry: 2  | ntree:  50  | node_size 3   | accuracy: 0.94 
 mtry: 2  | ntree:  50  | node_size 5   | accuracy: 0.9466667 
 mtry: 2  | ntree:  50  | node_size 10   | accuracy: 0.9533333 
 mtry: 2  | ntree:  100  | node_size 3   | accuracy: 0.9533333 
-mtry: 2  | ntree:  100  | node_size 5   | accuracy: 0.96 
-mtry: 2  | ntree:  100  | node_size 10   | accuracy: 0.96 
+mtry: 2  | ntree:  100  | node_size 5   | accuracy: 0.9533333 
+mtry: 2  | ntree:  100  | node_size 10   | accuracy: 0.9466667 
 mtry: 2  | ntree:  150  | node_size 3   | accuracy: 0.9533333 
 mtry: 2  | ntree:  150  | node_size 5   | accuracy: 0.9533333 
 mtry: 2  | ntree:  150  | node_size 10   | accuracy: 0.9533333 
-mtry: 3  | ntree:  10  | node_size 3   | accuracy: 0.94 
-mtry: 3  | ntree:  10  | node_size 5   | accuracy: 0.9597315 
-mtry: 3  | ntree:  10  | node_size 10   | accuracy: 0.9328859 
+mtry: 3  | ntree:  10  | node_size 3   | accuracy: 0.9597315 
+mtry: 3  | ntree:  10  | node_size 5   | accuracy: 0.9530201 
+mtry: 3  | ntree:  10  | node_size 10   | accuracy: 0.9591837 
 mtry: 3  | ntree:  50  | node_size 3   | accuracy: 0.9533333 
 mtry: 3  | ntree:  50  | node_size 5   | accuracy: 0.9533333 
 mtry: 3  | ntree:  50  | node_size 10   | accuracy: 0.9533333 
 mtry: 3  | ntree:  100  | node_size 3   | accuracy: 0.9533333 
-mtry: 3  | ntree:  100  | node_size 5   | accuracy: 0.96 
-mtry: 3  | ntree:  100  | node_size 10   | accuracy: 0.9533333 
-mtry: 3  | ntree:  150  | node_size 3   | accuracy: 0.9666667 
-mtry: 3  | ntree:  150  | node_size 5   | accuracy: 0.96 
-mtry: 3  | ntree:  150  | node_size 10   | accuracy: 0.9533333 
-mtry: 4  | ntree:  10  | node_size 3   | accuracy: 0.9662162 
-mtry: 4  | ntree:  10  | node_size 5   | accuracy: 0.952381 
-mtry: 4  | ntree:  10  | node_size 10   | accuracy: 0.9798658 
-mtry: 4  | ntree:  50  | node_size 3   | accuracy: 0.9466667 
-mtry: 4  | ntree:  50  | node_size 5   | accuracy: 0.9466667 
-mtry: 4  | ntree:  50  | node_size 10   | accuracy: 0.9533333 
+mtry: 3  | ntree:  100  | node_size 5   | accuracy: 0.9533333 
+mtry: 3  | ntree:  100  | node_size 10   | accuracy: 0.9466667 
+mtry: 3  | ntree:  150  | node_size 3   | accuracy: 0.96 
+mtry: 3  | ntree:  150  | node_size 5   | accuracy: 0.9533333 
+mtry: 3  | ntree:  150  | node_size 10   | accuracy: 0.96 
+mtry: 4  | ntree:  10  | node_size 3   | accuracy: 0.952381 
+mtry: 4  | ntree:  10  | node_size 5   | accuracy: 0.9466667 
+mtry: 4  | ntree:  10  | node_size 10   | accuracy: 0.9726027 
+mtry: 4  | ntree:  50  | node_size 3   | accuracy: 0.9533333 
+mtry: 4  | ntree:  50  | node_size 5   | accuracy: 0.9533333 
+mtry: 4  | ntree:  50  | node_size 10   | accuracy: 0.96 
 mtry: 4  | ntree:  100  | node_size 3   | accuracy: 0.96 
 mtry: 4  | ntree:  100  | node_size 5   | accuracy: 0.96 
 mtry: 4  | ntree:  100  | node_size 10   | accuracy: 0.9533333 
-mtry: 4  | ntree:  150  | node_size 3   | accuracy: 0.9533333 
+mtry: 4  | ntree:  150  | node_size 3   | accuracy: 0.96 
 mtry: 4  | ntree:  150  | node_size 5   | accuracy: 0.96 
-mtry: 4  | ntree:  150  | node_size 10   | accuracy: 0.9533333 
+mtry: 4  | ntree:  150  | node_size 10   | accuracy: 0.96 
 
 ~~~
 
@@ -484,15 +484,15 @@ importance(iris_tuned_rf)
 
 ~~~{.output}
                setosa versicolor virginica MeanDecreaseAccuracy
-sepal_length 0.000000   1.054093 -1.534487            0.4557631
-sepal_width  0.000000  -1.054093  2.018790            1.0591472
-petal_length 3.065033   7.581090  6.930530            6.8699744
-petal_width  3.095416   5.413208  4.526766            4.5855810
+sepal_length 0.000000  -1.054093 -1.054093            -1.579834
+sepal_width  0.000000  -1.054093  2.868963             2.393436
+petal_length 3.066885   4.073225  3.369511             3.633379
+petal_width  3.123322   6.901647  4.000719             4.838549
              MeanDecreaseGini
-sepal_length         1.253786
-sepal_width          1.255451
-petal_length        56.124215
-petal_width         40.591882
+sepal_length         1.703953
+sepal_width          1.914524
+petal_length        48.726765
+petal_width         47.154758
 
 ~~~
 
@@ -516,8 +516,362 @@ table(iris_df$class, iris_tuned_rf_pred)
 ~~~{.output}
             iris_tuned_rf_pred
              setosa versicolor virginica
-  setosa         48          0         0
-  versicolor      0         47         2
+  setosa         50          0         0
+  versicolor      0         46         4
   virginica       0          4        46
 
+~~~
+
+### 3.3. caret [^xgboost-iris] {#iris-caret}
+
+[^xgboost-iris]: [Owen Zhang(2015), Open Source Tools & Data Science Competitions](https://www.slideshare.net/odsc/owen-zhangopen-sourcetoolsanddscompetitions1)
+
+`caret` 팩키지를 활용하면 다양한 예측 모형 아키텍처를 비교하고 예측성능이 가장 좋은 모형을 자동으로 추천한다.
+과거 범주형 데이터, (GBM + glmnet)/2, 훈련/검증 기법이 사용되었다면,
+최근에서는 xgboost를 넘어 stacking, keras 딥러닝 기법을 활용하여 예측모형을 적용시켜 활용하고 있다.
+
+xgboost 모수 미세조정은 [Owen Zhang(2015) 발표자료](https://www.slideshare.net/odsc/owen-zhangopen-sourcetoolsanddscompetitions1)를 참조한다.
+
+> ### 윈도우와 맥에서 별도 운영체제 설정 
+> 
+> `.Platform$OS.type` 명령어로 운영체제를 파악하고 나서 병렬처리를 위한 
+> 클러스터 설정을 한다.
+>
+> 
+> ~~~{.r}
+> if(.Platform$OS.type =="windows") {
+>   library(doSNOW)
+>   working_cores <- parallel::detectCores() -1
+>   cl <- makeCluster(working_cores, type = "SOCK")
+>   registerDoSNOW(cl)
+> } else if(.Platform$OS.type =="unix"){
+>   library(doMC)
+>   working_cores <- parallel::detectCores() -1
+>   registerDoMC(cores = working_cores)
+> }
+> ~~~
+
+
+
+
+~~~{.r}
+# 0. 환경설정 --------------------------------
+
+library(caret)
+~~~
+
+
+
+~~~{.output}
+
+Attaching package: 'caret'
+
+~~~
+
+
+
+~~~{.output}
+The following object is masked from 'package:purrr':
+
+    lift
+
+~~~
+
+
+
+~~~{.r}
+library(doSNOW)
+
+# 1. 데이터 불러오기 --------------------------------
+
+iris_df <- iris
+
+# 2. 데이터 정제 --------------------------------
+
+# glimpse(iris_df)
+
+# 3. 예측 모형 개발 --------------------------------
+## 3.1. 훈련/검증 분할 -----------------------------
+train_index <- createDataPartition(iris_df$Species, times=1, p=0.7, list=FALSE)
+
+iris_train <-iris_df[ train_index,]
+iris_test <- iris_df[-train_index,]
+
+## 3.2. 모형공식 -----------------------------------
+
+iris_x_var <- setdiff(colnames(iris_train),list('Species'))
+iris_formula <- as.formula(paste('Species', paste(iris_x_var, collapse=' + '), sep=' ~ '))
+
+## 3.3. 모형제어 -----------------------------
+
+iris_ctrl <- trainControl(method = "repeatedcv",
+                          number = 5,
+                          repeats = 1,
+                          verboseIter = TRUE,
+                          search = "grid")
+
+xgboost_grid <- expand.grid(eta = c(0.05, 0.075, 0.1),
+                            nrounds = c(50, 75, 100),
+                            max_depth = 6:8,
+                            min_child_weight = c(2.0, 2.25, 2.5),
+                            colsample_bytree = c(0.3, 0.4, 0.5),
+                            gamma = 0,
+                            subsample = 1)
+
+## 3.4. xgboost 아키텍쳐 ------------------------
+
+if(.Platform$OS.type =="windows") {
+  library(doSNOW)
+  working_cores <- parallel::detectCores() -1
+  cl <- makeCluster(working_cores, type = "SOCK")
+  registerDoSNOW(cl)
+} else if(.Platform$OS.type =="unix"){
+  library(doMC)
+  working_cores <- parallel::detectCores() -1
+  registerDoMC(cores = working_cores)
+}
+
+iris_glm <- train(iris_formula,  data=iris_train, 
+                  method="glmnet", 
+                  trControl = iris_ctrl)
+~~~
+
+
+
+~~~{.output}
+Aggregating results
+Selecting tuning parameters
+Fitting alpha = 0.1, lambda = 0.000865 on full training set
+
+~~~
+
+
+
+~~~{.r}
+library(gbm)
+~~~
+
+
+
+~~~{.output}
+Loading required package: survival
+
+~~~
+
+
+
+~~~{.output}
+
+Attaching package: 'survival'
+
+~~~
+
+
+
+~~~{.output}
+The following object is masked from 'package:caret':
+
+    cluster
+
+~~~
+
+
+
+~~~{.output}
+Loading required package: splines
+
+~~~
+
+
+
+~~~{.output}
+Loading required package: parallel
+
+~~~
+
+
+
+~~~{.output}
+
+Attaching package: 'parallel'
+
+~~~
+
+
+
+~~~{.output}
+The following objects are masked from 'package:snow':
+
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    clusterExport, clusterMap, clusterSplit, makeCluster,
+    parApply, parCapply, parLapply, parRapply, parSapply,
+    splitIndices, stopCluster
+
+~~~
+
+
+
+~~~{.output}
+Loaded gbm 2.1.3
+
+~~~
+
+
+
+~~~{.r}
+iris_gbm <- train(iris_formula, data=iris_train, 
+                  method = "gbm", 
+                  trControl = iris_ctrl)
+~~~
+
+
+
+~~~{.output}
+Aggregating results
+Selecting tuning parameters
+Fitting n.trees = 50, interaction.depth = 3, shrinkage = 0.1, n.minobsinnode = 10 on full training set
+Iter   TrainDeviance   ValidDeviance   StepSize   Improve
+     1        1.0986             nan     0.1000    0.3053
+     2        0.8841             nan     0.1000    0.2575
+     3        0.7082             nan     0.1000    0.2071
+     4        0.5712             nan     0.1000    0.1332
+     5        0.4778             nan     0.1000    0.1209
+     6        0.4006             nan     0.1000    0.0923
+     7        0.3408             nan     0.1000    0.0736
+     8        0.2914             nan     0.1000    0.0482
+     9        0.2570             nan     0.1000    0.0397
+    10        0.2246             nan     0.1000    0.0315
+    20        0.0980             nan     0.1000   -0.0032
+    40        0.0440             nan     0.1000   -0.0105
+    50        0.0288             nan     0.1000   -0.0041
+
+~~~
+
+
+
+~~~{.r}
+iris_xgboost <- train(iris_formula,  data=iris_train, 
+                 method="xgbTree", 
+                 trControl = iris_ctrl,
+                 tuneGrid = xgboost_grid,
+                 num_class = 3)
+~~~
+
+
+
+~~~{.output}
+Aggregating results
+Selecting tuning parameters
+Fitting nrounds = 75, max_depth = 6, eta = 0.1, gamma = 0, colsample_bytree = 0.3, min_child_weight = 2, subsample = 1 on full training set
+
+~~~
+
+
+
+~~~{.output}
+Warning in check.booster.params(params, ...): The following parameters were provided multiple times:
+	num_class
+  Only the last value for each of them will be used.
+
+~~~
+
+
+
+~~~{.r}
+if(.Platform$OS.type =="windows") {
+  stopCluster(cl)
+} else {
+  next
+}
+
+# 4. 모형 평가 ---------------------------------------
+
+all_resample <- resamples(list("Logistic" = iris_glm,
+                               "GBM" = iris_gbm,
+                               "xgboost" = iris_xgboost))
+
+parallelplot(all_resample, metric = "Accuracy")
+~~~
+
+<img src="fig/caret-iris-1.png" style="display: block; margin: auto;" />
+
+~~~{.r}
+confusionMatrix(iris_xgboost)
+~~~
+
+
+
+~~~{.output}
+Cross-Validated (5 fold, repeated 1 times) Confusion Matrix 
+
+(entries are percentual average cell counts across resamples)
+ 
+            Reference
+Prediction   setosa versicolor virginica
+  setosa       33.3        0.0       0.0
+  versicolor    0.0       29.5       3.8
+  virginica     0.0        3.8      29.5
+                            
+ Accuracy (average) : 0.9238
+
+~~~
+
+
+
+~~~{.r}
+iris_pred <- predict(iris_xgboost, newdata = iris_test)
+prop.table(table(iris_pred, iris_test$Species))
+~~~
+
+
+
+~~~{.output}
+            
+iris_pred       setosa versicolor virginica
+  setosa     0.3333333  0.0000000 0.0000000
+  versicolor 0.0000000  0.3333333 0.0000000
+  virginica  0.0000000  0.0000000 0.3333333
+
+~~~
+
+
+
+~~~{.r}
+iris_responses <- iris_test %>%
+  select(Species) %>%
+  mutate(
+    predicted_iris = predict(
+      iris_xgboost,
+      newdata=iris_test
+    )
+  )
+
+table(iris_responses)
+~~~
+
+
+
+~~~{.output}
+            predicted_iris
+Species      setosa versicolor virginica
+  setosa         15          0         0
+  versicolor      0         15         0
+  virginica       0          0        15
+
+~~~
+
+
+
+~~~{.r}
+ggplot(iris_responses, aes(Species, predicted_iris)) +
+  geom_jitter(width = 0.15, height=0.15, aes(colour = Species), alpha=0.3) +
+  geom_abline(intercept=0, slope=1)
+~~~
+
+<img src="fig/caret-iris-2.png" style="display: block; margin: auto;" />
+
+~~~{.r}
+# 5. 모형 배포 ---------------------------------------
+
+iris_pred <- predict(iris_xgboost, newdata = iris_test)
 ~~~
