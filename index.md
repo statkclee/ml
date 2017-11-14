@@ -98,6 +98,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [정규표현식에서 워드2벡(Word2Vec)](ml-regex-word2vec.html)**
     1. **[장바구니 데이터 분석](ml-market-basket.html)**    
 1. **기계학습 상용화**
+    1. [기계학습 - 기술부채(Technical Debt)](ml-technical-debt.html)
     1. [신용평점모형 개발](ml-credit-scoring-overview.html)
         1. [신용평점모형 탐색적 데이터 분석, 전처리](ml-credit-scoring-eda.html)
         1. [신용평점모형 - 로지스틱 회귀모형과 의사결정나무](ml-credit-scoring-model.html)

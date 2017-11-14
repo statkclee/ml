@@ -1,0 +1,188 @@
+# 기계 학습
+
+
+
+## 1. 기계학습과 복잡성 높은 시스템 [^ml-technical-debt] {#machine-learning-complex-system}
+
+[^ml-technical-debt]: [D. Sculley, Gary Holt, Daniel Golovin, Eugene Davydov, Todd Phillips, Dietmar Ebner, Vinay Chaudhary, Michael Young(2014), Machine Learning: The High Interest Credit Card of Technical Debt, SE4ML: Software Engineering for Machine Learning (NIPS 2014 Workshop)](https://research.google.com/pubs/pub43146.html)
+
+기술부채(technial debt)는 1992년 위키를 만들어서 유명한 Ward Cunningham이 제시한 개념으로 실행속도와 엔지니어링 품질사이의 딜레마를 지칭한다.
+모든 부채가 나쁘지는 않지만, 부채는 복리가 되어 엄청난 속도로 쌓이게 되어서 적절히 관리하지 않는다면
+유지보수 비용의 가파른 상승, 깨지기 쉬운 시스템 등으로 인해 혁신의 속도를 상당부분 늦추는 역할을 하게 된다.
+
+전통적인 방식으로 기술 부채를 관리하는 기법에는 다음이 있다.
+
+- 리팩토링(Refactoring): 결과의 변경 없이 코드의 구조를 재조정함
+- 단위 테스트 범위 확대
+- 더이상 사용되지 않는 코드 삭제
+- 의존성 감소
+- 엄격한 API 관리
+- 체계적인 문서화
+
+이와 같이 기술부채를 줄이기 위한 체계적인 노력에도 불구하고 기계학습 시스템은 숨은 부채를 자체적으로 내재하고 있다.
+최근 기계학습이 상당 부분 새로운 기능을 구현하는 부분에 바쳐지고 있는 것은 사실이지만,
+기계학습 시스템에 내재된 기술부채를 적절히 관리하지 않는다면 기계학습과 인공지능이 애초 약속했던 기대에서 멀어질 위험성이 다분히 있다.
+
+## 2. 기계학습 시스템 기술부채 원인 {#ml-techncial-debt-causes}
+
+전통적인 소프트웨어 공학에서 **캡슐화(encapsulation)**와 **모듈설계(Module Design)**를 통해서 **엄격한 추상화 경계(Strict Abstraction Boundary)**를 
+만들어서 격리된 환경을 구축해서 유지보수가 가능한 코드를 만들어서 성공적으로 복잡성이 큰 소프트웨어 시스템을 만들어 냈고, 운영해내고 있다.
+
+**엄격한 추상화 경계(Strict Abstraction Boundary)**를 통해서 해당 컴포넌트의 입력값과 출력값에 대한 
+**논리적 일관성(logical consistency)**과 **불변성(invariants)**을 구현하는데 큰 도움이 되었다.
+
+하지만, 기계학습 시스템에는 엄격한 추상화 경계를 기대할 수 없다. 이유는 
+애초에 소프트웨어 로직으로 구현이 불가능해서 외부 데이터의 도움으로 이를 구현해야 되기 때문이다.
+
+> the desired behavior cannot be effectively implemented in software logic without dependency on external data.
+
+따라서, 엄격한 추상화 경계가 외부 데이터를 통해 무너지면서 어마어마한 기술부채가 쌓이게 된다.
+
+### 2.1. 얽힘(entanglement) {#ml-technical-debt-entanglement}
+
+추상화 수준을 높여보면 기계학습 시스템은 유용한 기능(예측, 분류, 시각화 등)을 수행하도록 다양한 데이터를 뒤섞어 놓은 도구로 볼 수 있다.
+즉, 기계학습 모형은 얽힘을 생산해 내는 시스템으로 격리를 통한 점진적인 개선이 불가능하다. 
+
+**CACE 원칙**에 따르면 어떤 것을 바꾸게 되면 모든 것이 바뀌게 된다(Changing Anything Changes Everything). 예를 들어,
+$x_1, x_2, \cdots, \x_n$ 변수로 구성된 기계학습 모형에서 특정 변수($x_i$)를 넣고, 빼고, 변환하게 되면 전반적으로 시스템이 흔들리게 된다.
+변수만 해당되는 것이 아니라, 마찬가지로 정규화(regularization) 과정에서 학습율, 표집율, 수렴 경계치 등 초모수(Hyperparameter)를 변경시켜도 
+동일한 영향력이 시스템에 미치게 된다.
+
+이러한 본질적인 문제에 대해서 기계학습모형을 격리하고 앙상블을 활용하는 방법이 있다. 
+문제를 하부문제로 쪼갤 수 있고 모듈운영방식이 개별적으로 운영할 때보다 효과가 클 경우 유익하다. 
+이에 대한 자세한 내용은 "Detecting adversarial advertisements" [^isolation-ensemble] 논문을 참조한다.
+
+[^isolation-ensemble]: D. Sculley, M. E. Otey, M. Pohl, B. Spitznagel, J. Hainsworth, and Y. Zhou. Detecting adversarial
+advertisements in the wild. In Proceedings of the 17th ACM SIGKDD International
+Conference on Knowledge Discovery and Data Mining, San Diego, CA, USA, August 21-24, 2011, 2011.
+
+두번째 방식은 고차원 시각화 도구를 사용해서 다차원 공간에서 효과를 슬라이싱등으로 빠르게 찾아내는 것이다. [^visualization-slicing]
+
+[^visualization-slicing]: H. B. McMahan, G. Holt, D. Sculley, M. Young, D. Ebner, J. Grady, L. Nie, T. Phillips,
+E. Davydov, D. Golovin, S. Chikkerur, D. Liu, M. Wattenberg, A. M. Hrafnkelsson, T. Boulos,
+and J. Kubica. Ad click prediction: a view from the trenches. In The 19th ACM SIGKDD
+International Conference on Knowledge Discovery and Data Mining, KDD 2013, Chicago, IL, USA, August 11-14, 2013, 2013.
+
+세번째 방식은 더 정교한 정규화 방법론을 사용하는 것이 있다. [^advanced-regularization]
+
+[^advanced-regularization]: A. Lavoie, M. E. Otey, N. Ratliff, and D. Sculley. History dependent domain adaptation. In
+Domain Adaptation Workshop at NIPS ’11, 2011.
+
+하지만, 얽힘문제는 기계학습 시스템에 항상 내재되어 있다. 현장에서 첫번째 기계학습 시스템을 개발하여 적용하기는 쉽지만,
+후속 개선 작업을 수행하기는 예상밖으로 어렵다. 
+
+### 2.2. 숨겨진 피드백 루프 {#ml-hidden-feedback-loop}
+
+현실 세계를 학습한 기계학습 시스템은 피드백 루프의 일부분이다. 예를 들어 광고 클릭율(CTR)을 예측하는 시스템은 
+사용자의 광고 클릭에 의존하는데 이 또한 이전 기계학습 예측모형에 기반하게 된다.
+
+### 2.3. 미신고 고객 {#ml-undeclared-consumers}
+
+종종 기계학습 시스템에서 나온 예측값이 실시간 혹은 로그 파일에 기록되어 다른 시스템에서 사용될 수 있다.
+이런 경우 전통적인 소프트웨어 공학에서는 **가시성 부채(visibility debt)**로 일컬어진다.
+시스템을 사용하는 고객 중 일부는 미신고 고객이 되어 또다른 시스템의 입력값으로 예측모형의 출력값을 소비하는 경우가 된다.
+
+클릭율(CTR)시스템이 광고시스템 중 글꼴크기와 연결되어 있는 경우 숨은 피드백 루프에 따라 
+예를 들어, 클릭율을 높이는 기계학습 시스템은 글꼴크기를 지속적으로 커지게 한다. 
+
+## 3. 데이터 의존성이 코드 의존성보다 비용이 더 든다 {#data-dependancy-is-more-expensive}
+
+전통적인 소프트웨어 공학에서 **의존성 부채(dependency debt)**가 코드 복잡성의 상당부분을 차지한다.
+기계학습 시스템에서 **데이터 의존성(data dependency)**이 기술부채에 대해 상응하는 역할을 수행한다.
+코드 의존성은 정적분석(static analysis), 연결그래프(linkage graph) 등을 통해 상대적으로 쉽게 
+탐지하고 오랜동안 경험이 축적되어 왔다. 하지만, 데이터 의존성을 탐지하고 방법론에 대한 연구는 최근에 이뤄지고 있다.
+
+### 3.1. 불안정한 데이터 의존성 {#unstable-data-dependency}
+
+기계학습 시스템에서 사용하는 다양한 변수(feature)는 여러 시스템에서 입력을 받아 사용하고 있다. 
+따라서, 여러 시스템의작은 변화도 기계학습 시스템에 영향을 미치게 된다.
+이러한 영향에서 벗어나는 시도로 **데이터 버젼**을 관리하는 방식이 도입되고 있지만, 데이터 버젼관리 
+자체로 비용이 되고 동일한 데이터가 버젼으로 관리되어 기술부채 부메랑으로 되돌아 온다.
+
+### 3.2. 활용도가 낮은 데이터 의존성 {#underutilized-data-dependency}
+
+활용도가 낮은 데이터 의존성을 갖는다는 것은 불필요하게 시스템 변화에 대해 취약성을 노출시키게 된다.
+활용도가 낮은 데이터 의존성이 기계학습 시스템에 몇가지 방식으로 잠입하게 된다.
+
+- 유산 변수(lagacy feature): 기계학습 초기 시스템에 예측변수로 포함이 되었으나, 시간이 지나면서 중요도가 떨어지고 필요없게 된 변수.
+- 번들 변수(bundled feature): 다수 변수가 기술적인, 사업적인 이유로 인해서 한꺼번에 포함되어 녹여진 경우.
+- $\epsilon-$ 변수($\epsilon-$ feature): 예측력을 무리하게 높이기 위해서 매우 적은 기여를 하는 변수를 다수 포함시킨 경우.
+
+이런 경우 정기적으로 기계학습 예측 시스템의 활용도, 기여도가 낮은 변수를 찾아내서 제거하고 강건한 모형을 지속적으로 유지보수하는 것이다.
+
+### 3.3. 데이터 의존성 정적분석 {#data-dependency-static-analysis}
+
+소프트웨어 코드 정적분석은 상대적으로 다양한 도구와 경험이 축적되어 있어 나름대로 기술부채를 관리할 수 있지만,
+데이터 의존성에 대한 정적분석에 대해서는 도구와 경험이 상대적으로 부족하다.
+**데이터 사전(Data Dictionary)**을 구축해서 주기적으로 관리하는 것도 방법이고, 
+자동화된 변수(feature) 관리 시스템을 활용하는 방법도 제시되고 있다. [^data-dependency-static-tool]
+
+[^data-dependency-static-tool]: H. B. McMahan, G. Holt, D. Sculley, M. Young, D. Ebner, J. Grady, L. Nie, T. Phillips,
+E. Davydov, D. Golovin, S. Chikkerur, D. Liu, M. Wattenberg, A. M. Hrafnkelsson, T. Boulos,
+and J. Kubica. Ad click prediction: a view from the trenches. In The 19th ACM SIGKDD
+International Conference on Knowledge Discovery and Data Mining, KDD 2013, Chicago, IL,
+USA, August 11-14, 2013, 2013.
+
+### 3.4. 지속적인 보정(Correction cascade) {#correction-cascades}
+
+특정 문제 $A$에 대해 $a$ 기계학습 모형이 존재하고, 조금 다른 $A\prime$ 문제가 있는 경우가 있다. 약간 보정해서 $a\prime (a)$ 모형을 만들고자 하는 유혹에 쉽게 빠진다.
+하지만, 이렇게 하게 되면 $a$에 대한 의존성으로 말미암아 향후 모형을 개선하거나 유지보수가 어렵게 된다. 
+결국 정석대로 기존 $a$ 모형에 참조된 변수에 더해서 추가로 풀려고 하는 문제에 필요한 변수를 추가해서 기계학습 모형을 개발하면 지속적인 보정을 통해 개발된 기계학습 시스템보다 다소 공수가 더 들 수 있지만, 기술부채는 줄일 수 있다.
+
+## 4. 스파케티 코드 {#spaghetti-code}
+
+기계학습 시스템이 불행하게도 고부채 디자인 패턴을 갖게 되는 것은 흔히 목도된다. 일반적으로 흔한 디자인 패턴을 살펴보자.
+
+### 4.1. 접착제 코드(Glue code) {#glue-code}
+
+[mloss.org](http://mloss.org/software/) 같은 웹사이트를 통하면 오픈소스 범용 기계학습 시스템이 널려있다. 이러한 오픈소스 범용 기계학습 팩키지를 사용하게 되면 일반적으로 **접착제 코드 시스템 디자인 패턴(glue code system design pattern)**으로 귀결된다.
+당장은 문제가 없지만, 장기적으로 기술부채문제를 야기할 수 있는데 이유는 특정 팩키지, 시스템에 종속되는 결과를 낳게 되기 때문이다. 특히, 범용 기계학습 시스템은 많은 문제를 해결하는데 특정 하나의 기계학습 시스템만 최적화 되어 있는 반면에 실무에 적용되는 시스템은 한 문제에 대해 확장성이 크게 개발되는 경향이 있다. 
+
+이에 대한 해법으로 R, Matlab, 파이썬으로 개발된 기계학습 코드를 C++ 혹은 자바 코드로 자동코드 생성시키거나 다시 재구현하는 것이 권장된다. 이렇게 하면 접착제 코드를 상당량 줄일 수 있게 되고 테스트 및 유지보수도 쉽게 된다. 특히 기계학습 코드를 열어보면 많아야 5%정도 기계학습 코드가 들어있고, 나머지 95%는 접착제코드로 채워진다.
+
+### 4.2. 파이프라인 정글(Pipeline Jungle) {#pipeline-jungle}
+
+기계학습 접착제 코드의 특수한 경우로 **파이프라인 정글(Pipeline Jungle)**이 데이터 전처리과정에서 흔히 목도된다. 전처리 과정에 대해 특별한 관심을 갖게 되지 않는 경우, 데이터 긁어오는 과정(scraping), 병합(join), 표집(sampling), 그리고 중간 처리 과정에 나타나는 중간 파일들로 난잡하게 된다. 
+
+이렇게 데이터파이프라인을 구축하게 되면 오류를 탐지하기도 어렵고, 장애 발생시에 복구도 훨씬 더 어렵고 힘들게 된다. 특히, 끝점과 끝점을 연결하는 통합테스트(End-to-end integration test)는 끔찍할 수도 있다.
+
+파이프라인 정글은 한걸음 물러서서 전체를 조망하면서 데이터 수집과 변수추출(feature extraction), 전처리과정을 찬찬히 설계하고 구현하면 피할 수 있는 문제다. 특히, 연구개발조직과 엔지니어링 역할이 구분되지 않고 하나의 팀에서 접근하면 수월하게 접착제 코드와 파이프라인 정글도 헤쳐나갈 수 있다.
+
+
+### 4.3. 방치된 실험 경로 {#dead-experimental-codepath}
+
+실제 운영중인 코드에 추가로 코드 브랜치(branch)를 만들어서 다양한 실험을 통해서 기존 기계학습 모형 성능을 높이고자 많은 노력을 한다. 브랜치 가지를 하나 만들어서 작업을 하는 것은 대단하지 않지만, 수많은 사람들이 다양한 아이디어를 갖고 기계학습 모형에 실험을 수행하게 되면 시간이 상당기간 지나게 되면 어마어마한 기술부채를 만들어낸다.
+
+Knight Capital 시스템이 45분간  $465 백만불을 잃은 사건은 유명한 사례가 되었다. 전통적인 소프트웨어 공학에서 **dead flag**가 이런 경우에 해당되는데 정기적으로 사용하지 않거나 용도가 다된 코드 브랜치를 정리하는 작업이 반듯이 필요하다.
+
+### 4.4. 형상관리 부채 {#configuration-debt}
+
+많은 소프트웨어 데이터 엔지니어가 추상화와 단위테스트에 상당한 노력을 기울이는 반면에 형상관리에 대해서는 그다지 신경을 쓰지 않고 있다. 특히, 형상관리 테스트와 검증과정은 기계가 알아서 하는 것으로 대단히 여기지 않고 있다. 현실세계의 복잡성과 난잡성이 기계학습 시스템에 이런 경로를 통해 침투하게 된다.
+
+일반적으로 적은 수정사항이 발생한 경우 복사해서 붙여넣기를 많이 하는데 `diff` 명령어를 통해 변경사항을 쉽게 확인할 수 있고, `assertion`를 통해 실수를 미연에 방지할 수 있다. 코드 변경 만큼이나 형상관리도 동일한 수준의 중요성을 갖고 접근해야만 된다.
+
+
+## 5. 외부세계 변화를 담아내는 방법 {#dealing-with-changes}
+
+### 5.1. 임계치 설정 {#fixed-threshold}
+
+기계학습 시스템에서 동작을 일으키도록 **의사결정 임계값** 설정이 스팸전자우편이냐 아니냐, 대출을 해줄 것이냐 말것이냐 등 문제에 적용되었을 때 필요하다. 일반적으로 수작업으로 설정되어 있으나 이를 자동화하는 방식을 검토하여 적용하는 것도 필요하다.
+
+### 5.2. 상관관계가 더이상 유요하지 않을 때 {#no-more-correlation}
+
+기계학습 시스템은 상관관계가 있는 변수의 영향도를 식별하는데 어려움이 있다. 경우에 따라서는 상관관계가 있는 두 변수중 하나만 인과관계로 엮인 경우 큰 문제가 아닐 수도 있다. 하지만, 갑자기 이런 변수의 예측력이 실종되는 경우, 적절한 조치를 취해야 하는데, 이러한 인과관계가 없는 상관관계가 또다른 숨겨진 기술부채가 될 수 있다.
+
+### 5.3. 모니터링과 테스팅 {#monitoring-testing}
+
+소프트웨어 시스템으로 단위테스트와 통합테스트를 하는 것도 필요하지만, 기계학습 시스템은 이에 더하여 예측력과 함께 기계학습 시스템이 취하게 되는 동작에 대해서도 제어가 필요하다. 기계학습 시스템이 의도한 대로 움직이게 되면 **예측 편향(Prediction Bias)**이 관리범위내에 있다는 것이 확인된다. 예측 편향이 큰 경우 원인을 파악해서 조속시 원상복귀시켜야 됨과 동시에 이러한 원치 않는 상황이 발생할 경우 **동작반경(Action Limit)**을 잘 설계해서 자동으로 경고를 알리게 해서 수작업 모드로 전환해서 원인을 신속히 파악하도록 조치를 취해야 한다.
+
+
+ 
+
+
+
+
+
+
+
+
