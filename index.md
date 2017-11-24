@@ -107,6 +107,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
     1. [랜딩클럽 - 채무불이행 예측모형](ml-css-lendingclub.html)        
     1. [예측모형 활용분야](ml-pm-applications.html)
     1. [마케팅 반응 예측모형](ml-pm-discrete.html)  
+    1. [고객 이탈(churn) 모형](ml-pm-churn.html)  
 
 
 
