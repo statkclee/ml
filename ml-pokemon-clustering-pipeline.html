@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">군집분석(Clustering) - 포켓몬</h2>
+          <section class="objectives panel panel-warning">
+<div class="panel-heading">
+<h2 id="학습목표"><span class="glyphicon glyphicon-certificate"></span>학습목표</h2>
+</div>
+<div class="panel-body">
+<ul>
+<li>초딩에게 인기가 많은 포켓몬 캐릭터를 군집으로 묶어낸다.</li>
+<li>주성분 분석을 통해 전처리하고 나서 계층적 군집화 및 k-평균 군집화 통계분석을 수행한다.</li>
+<li>계층적 군집화와 평균 군집화 결과를 비교한다.</li>
+</ul>
+</div>
+</section>
+<h2 id="pokemon-data-unsupervised">1. 포켓몬 데이터 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h2>
+<p><a href="https://www.kaggle.com/abcsds/pokemon">캐글 포켓몬</a> 데이터가 공개되어 721종류 포켓몬에 대한 데이터와 포켓몬 유형에 대한 정보가 담겨있다.</p>
+<p>각 포켓몬에 대한 데이터 원본은 <a href="http://pokemondb.net/pokedex" class="uri">http://pokemondb.net/pokedex</a>에서 확인한다.</p>
+<h3 id="import-pokemon-data">1.1 포켓몬 데이터 불러오기</h3>
+<p>포켓몬 데이터를 캐글에서 다운로드 받아 불러온다. “Shuckle” 포켓몬은 이상점에 해당되니 대상에서 제거하고, 주성분분석과 군집분석을 위해 필요한 칼럼만 뽑아낸다.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 0. 환경설정 --------------------------------------------</span>
+<span class="co">#library(tidyverse)</span>
+
+<span class="co">#1. 포켓몬 데이터 ---------------------------------------</span>
+pkmon_dat &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;data/Pokemon.csv&quot;</span>) %&gt;%<span class="st"> </span>dplyr::<span class="kw">filter</span>(Name !=<span class="st"> &quot;Shuckle&quot;</span>)</code></pre></div>
+<pre class="output"><code>Parsed with column specification:
+cols(
+  `#` = col_integer(),
+  Name = col_character(),
+  `Type 1` = col_character(),
+  `Type 2` = col_character(),
+  Total = col_integer(),
+  HP = col_integer(),
+  Attack = col_integer(),
+  Defense = col_integer(),
+  `Sp. Atk` = col_integer(),
+  `Sp. Def` = col_integer(),
+  Speed = col_integer(),
+  Generation = col_integer(),
+  Legendary = col_character()
+)
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pkmon_dat &lt;-<span class="st"> </span><span class="kw">column_to_rownames</span>(pkmon_dat, <span class="st">&#39;Name&#39;</span>)
+
+pkmon_df &lt;-<span class="st"> </span>pkmon_dat %&gt;%<span class="st">  </span>
+<span class="st">    </span>dplyr::<span class="kw">select</span>(<span class="dt">attack =</span> Attack, <span class="dt">defense =</span> Defense, <span class="dt">sp_attack =</span> <span class="st">`</span><span class="dt">Sp. Atk</span><span class="st">`</span>, <span class="dt">sp_defense =</span><span class="st">`</span><span class="dt">Sp. Def</span><span class="st">`</span>, <span class="dt">speed =</span> Speed) 
+
+pkmon_legend &lt;-<span class="st"> </span><span class="kw">ifelse</span>(pkmon_dat$Legendary ==<span class="st">&quot;True&quot;</span>, <span class="ot">TRUE</span>, <span class="ot">FALSE</span>)</code></pre></div>
+<p><img src="fig/pokemon-eda-clustering.png" alt="포켓몬 캐릭터 군집분석" width="77%" /></p>
+<p><img src="fig/pokemon-clustering-pipeline.png" alt="포켓몬 군집분석 파이프라인" width="77%" /></p>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://www.amazon.com/Practical-Guide-Cluster-Analysis-Unsupervised-ebook/dp/B077KQBXTN/ref=la_B076JDHZC8_1_1?s=books&amp;ie=UTF8&amp;qid=1511857119&amp;sr=1-1">Mr Alboukadel Kassambara (2017), Practical Guide to Cluster Analysis in R: Unsupervised Machine Learning, Amazon Digital Services LLC</a><a href="#fnref1">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>

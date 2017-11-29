@@ -19,14 +19,15 @@ mainfont: NanumGothic
 
 
 
-## 포켓몬 데이터
+## 1. 포켓몬 데이터 [^prcatical-guide-to-cluster-analaysis-in-r] {#pokemon-data-unsupervised}
 
-[캐글 포켓몬](https://www.kaggle.com/abcsds/pokemon) 데이터가 공개되어 
-721종류 포켓몬에 대한 데이터와 포켓몬 유형에 대한 정보가 담겨있다.
+[^prcatical-guide-to-cluster-analaysis-in-r]: [Mr Alboukadel Kassambara (2017), Practical Guide to Cluster Analysis in R: Unsupervised Machine Learning, Amazon Digital Services LLC](https://www.amazon.com/Practical-Guide-Cluster-Analysis-Unsupervised-ebook/dp/B077KQBXTN/ref=la_B076JDHZC8_1_1?s=books&ie=UTF8&qid=1511857119&sr=1-1)
+
+[캐글 포켓몬](https://www.kaggle.com/abcsds/pokemon) 데이터가 공개되어 721종류 포켓몬에 대한 데이터와 포켓몬 유형에 대한 정보가 담겨있다.
 
 각 포켓몬에 대한 데이터 원본은 [http://pokemondb.net/pokedex](http://pokemondb.net/pokedex)에서 확인한다.
 
-### 포켓몬 데이터 불러오기
+### 1.1 포켓몬 데이터 불러오기 {#import-pokemon-data}
 
 포켓몬 데이터를 캐글에서 다운로드 받아 불러온다. 
 "Shuckle" 포켓몬은 이상점에 해당되니 대상에서 제거하고, 주성분분석과 군집분석을 위해 필요한 칼럼만 뽑아낸다.
@@ -73,7 +74,7 @@ pkmon_df <- pkmon_dat %>%
 pkmon_legend <- ifelse(pkmon_dat$Legendary =="True", TRUE, FALSE)
 ~~~
 
-### 데이터 전처리
+### 1.2. 데이터 전처리 {#preprocess-pokemon-data}
 
 군집분석 및 주성분분석을 위해 가장 먼저 척도조정이 필수적이다.
 척도조정이 이루어지지 않는 경우 특정변수에 왜곡이 발생할 우려가 있다.
@@ -143,7 +144,7 @@ apply(pkmon_scaled_df, 2, sd)
 
 ~~~
 
-### 차원축소 주성분 분석
+### 1.3. 차원축소 주성분 분석 {#pokemon-pca}
 
 군집분석을 위해 활용될 수 있는 변수가 많은 경우 차원을 축소할 필요가 있다.
 이런 목적으로 `prcomp` 주성분 분석을 수행한다. 물론 `scale=TRUE`, `center=TRUE` 인자를 넣어
@@ -178,7 +179,7 @@ plot(cumsum(pca_exp_var), xlab = "주성분(Principal Component)",
 showtext.end()
 ~~~
 
-### 차원축소 주성분 분석 시각화
+### 1.4. 차원축소 주성분 분석 시각화 {#pokemon-pca-viz}
 
 `biplot` 함수를 통해 주성분분석 결과를 통해 변수들간에 연관성이 큰 변수를 이해하고 관측점들 관계도 동시에 시각화한다.
 
@@ -206,7 +207,7 @@ plot(pkmon_pca$x[, c(1, 3)], col = (pkmon_legend + 1),
 
 <img src="fig/pokemon-pca-biplot-3.png" title="plot of chunk pokemon-pca-biplot" alt="plot of chunk pokemon-pca-biplot" style="display: block; margin: auto;" />
 
-## 비지도 학습 - 계층적 군집(Hierachical Clustering)
+## 2. 비지도 학습 - 계층적 군집(Hierachical Clustering) {#pokemon-unsupervised}
 
 비지도 학습의 대표적인 알고리즘이 계층적 군집(Hierachical Clustering) 알고리즘과 
  k-평균(k-means) 알고리즘이다. 계층적 군집(Hierachical Clustering) 알고리즘은
@@ -255,7 +256,7 @@ pkmon_hclust_cut
 
 ~~~
 
-## 비지도 학습 - k-평균(k-means) 
+## 3. 비지도 학습 - k-평균(k-means) {#pokemon-unsupervised-kmeans} 
 
 비지도 학습 k-평균법은 전체 군내 제곱합(total within cluster sum of squares)를 
 최소화하는 방식이 선택되는데 이를 위해서 x축에는 군집갯수, y축에는 전체 군내 제곱합(WSS)를 쭉 시각화해서
@@ -272,7 +273,6 @@ par(mfrow = c(2, 3))
 for(i in 1:6) {
     pkmon_km_out <- kmeans(pkmon_scaled_df, 3, nstart=1, iter.max = 50)
     
-    # Plot clusters
     plot(pkmon_scaled_df, col = pkmon_km_out$cluster, 
          main = paste0("Total Within SS: ", round(pkmon_km_out$tot.withinss, 0)), 
          xlab = "", ylab = "")
@@ -321,7 +321,7 @@ plot(pkmon_scaled_df[, c("defense", "speed")],
 showtext.end()
 ~~~
 
-## 비지도 학습 - k-평균(k-means) 
+## 4. 군집분석 성능 비교 {#pokemon-unsupervised-comparison} 
 
 주성분분석을 위해 차원축소를 한 후에 계층적 군집분석과 k-평균 군집분석을 수행하고 
 이를 `table` 함수를 통해 성능을 비교한다.
@@ -349,9 +349,9 @@ table(pkmon_km$cluster, pkmon_hclust_clusters)
 ~~~{.output}
    pkmon_hclust_clusters
       1   2   3
-  1 353   0   0
-  2 104  34  70
-  3  57 181   0
+  1  57 181   0
+  2 353   0   0
+  3 104  34  70
 
 ~~~
 

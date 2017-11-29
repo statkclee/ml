@@ -51,10 +51,10 @@
 </ul>
 </div>
 </section>
-<h2 id="포켓몬-데이터">포켓몬 데이터</h2>
+<h2 id="pokemon-data-unsupervised">1. 포켓몬 데이터 <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></h2>
 <p><a href="https://www.kaggle.com/abcsds/pokemon">캐글 포켓몬</a> 데이터가 공개되어 721종류 포켓몬에 대한 데이터와 포켓몬 유형에 대한 정보가 담겨있다.</p>
 <p>각 포켓몬에 대한 데이터 원본은 <a href="http://pokemondb.net/pokedex" class="uri">http://pokemondb.net/pokedex</a>에서 확인한다.</p>
-<h3 id="포켓몬-데이터-불러오기">포켓몬 데이터 불러오기</h3>
+<h3 id="import-pokemon-data">1.1 포켓몬 데이터 불러오기</h3>
 <p>포켓몬 데이터를 캐글에서 다운로드 받아 불러온다. “Shuckle” 포켓몬은 이상점에 해당되니 대상에서 제거하고, 주성분분석과 군집분석을 위해 필요한 칼럼만 뽑아낸다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 0. 환경설정 --------------------------------------------</span>
 <span class="co">#library(tidyverse)</span>
@@ -84,7 +84,7 @@ pkmon_df &lt;-<span class="st"> </span>pkmon_dat %&gt;%<span class="st">  </span
 <span class="st">    </span>dplyr::<span class="kw">select</span>(<span class="dt">attack =</span> Attack, <span class="dt">defense =</span> Defense, <span class="dt">sp_attack =</span> <span class="st">`</span><span class="dt">Sp. Atk</span><span class="st">`</span>, <span class="dt">sp_defense =</span><span class="st">`</span><span class="dt">Sp. Def</span><span class="st">`</span>, <span class="dt">speed =</span> Speed) 
 
 pkmon_legend &lt;-<span class="st"> </span><span class="kw">ifelse</span>(pkmon_dat$Legendary ==<span class="st">&quot;True&quot;</span>, <span class="ot">TRUE</span>, <span class="ot">FALSE</span>)</code></pre></div>
-<h3 id="데이터-전처리">데이터 전처리</h3>
+<h3 id="preprocess-pokemon-data">1.2. 데이터 전처리</h3>
 <p>군집분석 및 주성분분석을 위해 가장 먼저 척도조정이 필수적이다. 척도조정이 이루어지지 않는 경우 특정변수에 왜곡이 발생할 우려가 있다.</p>
 <p>이런 왜곡을 잡아내는데 <code>scale</code> 함수를 활용한다. <code>colMeans</code>, <code>apply</code> 함수에 <code>sd</code> 값을 통해 척도조정이 잘 이루어졌는지 확인한다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 2. 데이터 전처리 ---------------------------------------</span>
@@ -110,7 +110,7 @@ pkmon_scaled_df &lt;-<span class="st"> </span><span class="kw">scale</span>(pkmo
 <pre class="output"><code>    attack    defense  sp_attack sp_defense      speed 
          1          1          1          1          1 
 </code></pre>
-<h3 id="차원축소-주성분-분석">차원축소 주성분 분석</h3>
+<h3 id="pokemon-pca">1.3. 차원축소 주성분 분석</h3>
 <p>군집분석을 위해 활용될 수 있는 변수가 많은 경우 차원을 축소할 필요가 있다. 이런 목적으로 <code>prcomp</code> 주성분 분석을 수행한다. 물론 <code>scale=TRUE</code>, <code>center=TRUE</code> 인자를 넣어 척도를 조정한다.</p>
 <p>주성분을 몇개까지 선택할 것인지에 대해서 설명되는 분산량을 누적한 누적 설명되는 분산량을 기준으로 80%, 90% 등 선정을 한다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## 2.2. PCA 주성분분석 ----------------------------------------
@@ -132,7 +132,7 @@ pca_exp_var &lt;-<span class="st"> </span>pca_var /<span class="st"> </span><spa
      <span class="dt">ylim =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="dt">type =</span> <span class="st">&quot;b&quot;</span>)</code></pre></div>
 <p><img src="fig/pokemon-pca-1.png" title="plot of chunk pokemon-pca" alt="plot of chunk pokemon-pca" style="display: block; margin: auto;" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">showtext.end</span>()</code></pre></div>
-<h3 id="차원축소-주성분-분석-시각화">차원축소 주성분 분석 시각화</h3>
+<h3 id="pokemon-pca-viz">1.4. 차원축소 주성분 분석 시각화</h3>
 <p><code>biplot</code> 함수를 통해 주성분분석 결과를 통해 변수들간에 연관성이 큰 변수를 이해하고 관측점들 관계도 동시에 시각화한다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>))
 <span class="kw">biplot</span>(pkmon_pca)</code></pre></div>
@@ -145,7 +145,7 @@ pca_exp_var &lt;-<span class="st"> </span>pca_var /<span class="st"> </span><spa
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(pkmon_pca$x[, <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">3</span>)], <span class="dt">col =</span> (pkmon_legend +<span class="st"> </span><span class="dv">1</span>), 
      <span class="dt">xlab =</span> <span class="st">&quot;PC1&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;PC3&quot;</span>)</code></pre></div>
 <p><img src="fig/pokemon-pca-biplot-3.png" title="plot of chunk pokemon-pca-biplot" alt="plot of chunk pokemon-pca-biplot" style="display: block; margin: auto;" /></p>
-<h2 id="비지도-학습---계층적-군집hierachical-clustering">비지도 학습 - 계층적 군집(Hierachical Clustering)</h2>
+<h2 id="pokemon-unsupervised">2. 비지도 학습 - 계층적 군집(Hierachical Clustering)</h2>
 <p>비지도 학습의 대표적인 알고리즘이 계층적 군집(Hierachical Clustering) 알고리즘과 k-평균(k-means) 알고리즘이다. 계층적 군집(Hierachical Clustering) 알고리즘은 <code>dist()</code> 함수로 변수간 거리를 미리 계산하고 나서 <code>hclust</code> 함수에 넣어 수목도(dendrogram)을 통해 적절한 군집갯수를 확정한다.</p>
 <p>높이를 기준으로 7.5를 자를 경우 군집을 3개까지 확보가 가능하다. 물론 <code>cutree</code> 함수를 통해 군집 갯수를 지정해 놓으면 자동으로 특정 갯수(예를 들어, 5개)만큼 선정한다.</p>
 <p>계층적 군집법은 다양한 연결방법(linkage)을 제시하고 있어 상황에 맞춰 적절한 연결방식을 선택한다. <code>centroid</code>는 역전 현상이 나타나 권장되고 있지 않다.</p>
@@ -173,7 +173,7 @@ pkmon_hclust_cut &lt;-<span class="st"> </span><span class="kw">cutree</span>(pk
   1   2   3 
 305 359 135 
 </code></pre>
-<h2 id="비지도-학습---k-평균k-means">비지도 학습 - k-평균(k-means)</h2>
+<h2 id="pokemon-unsupervised-kmeans">3. 비지도 학습 - k-평균(k-means)</h2>
 <p>비지도 학습 k-평균법은 전체 군내 제곱합(total within cluster sum of squares)를 최소화하는 방식이 선택되는데 이를 위해서 x축에는 군집갯수, y축에는 전체 군내 제곱합(WSS)를 쭉 시각화해서 팔꿈치처럼 전체 군내 제곱합이 변곡점을 지나 감소하는 지점을 최적 군집갯수로 선정한다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 3. 비지도 학습 : k-평균(k-means) -----------------------------------------</span>
 
@@ -183,7 +183,6 @@ pkmon_hclust_cut &lt;-<span class="st"> </span><span class="kw">cutree</span>(pk
 for(i in <span class="dv">1</span>:<span class="dv">6</span>) {
     pkmon_km_out &lt;-<span class="st"> </span><span class="kw">kmeans</span>(pkmon_scaled_df, <span class="dv">3</span>, <span class="dt">nstart=</span><span class="dv">1</span>, <span class="dt">iter.max =</span> <span class="dv">50</span>)
     
-    <span class="co"># Plot clusters</span>
     <span class="kw">plot</span>(pkmon_scaled_df, <span class="dt">col =</span> pkmon_km_out$cluster, 
          <span class="dt">main =</span> <span class="kw">paste0</span>(<span class="st">&quot;Total Within SS: &quot;</span>, <span class="kw">round</span>(pkmon_km_out$tot.withinss, <span class="dv">0</span>)), 
          <span class="dt">xlab =</span> <span class="st">&quot;&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;&quot;</span>)
@@ -222,7 +221,7 @@ pkmon_km_out &lt;-<span class="st"> </span><span class="kw">kmeans</span>(pkmon_
      <span class="dt">xlab =</span> <span class="st">&quot;방어력&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;속도&quot;</span>)</code></pre></div>
 <p><img src="fig/pokemon-kmeans-2.png" title="plot of chunk pokemon-kmeans" alt="plot of chunk pokemon-kmeans" style="display: block; margin: auto;" /></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">showtext.end</span>()</code></pre></div>
-<h2 id="비지도-학습---k-평균k-means-1">비지도 학습 - k-평균(k-means)</h2>
+<h2 id="pokemon-unsupervised-comparison">4. 군집분석 성능 비교</h2>
 <p>주성분분석을 위해 차원축소를 한 후에 계층적 군집분석과 k-평균 군집분석을 수행하고 이를 <code>table</code> 함수를 통해 성능을 비교한다.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 4. 군집분석 성능비교 ------------------------------</span>
 pkmon_pca_df &lt;-<span class="st"> </span>pkmon_pca$x[,<span class="kw">c</span>(<span class="dv">1</span>:<span class="dv">4</span>)]
@@ -240,10 +239,16 @@ pkmon_hclust_clusters &lt;-<span class="st"> </span><span class="kw">cutree</spa
 <span class="kw">table</span>(pkmon_km$cluster, pkmon_hclust_clusters)</code></pre></div>
 <pre class="output"><code>   pkmon_hclust_clusters
       1   2   3
-  1 353   0   0
-  2 104  34  70
-  3  57 181   0
+  1  57 181   0
+  2 353   0   0
+  3 104  34  70
 </code></pre>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://www.amazon.com/Practical-Guide-Cluster-Analysis-Unsupervised-ebook/dp/B077KQBXTN/ref=la_B076JDHZC8_1_1?s=books&amp;ie=UTF8&amp;qid=1511857119&amp;sr=1-1">Mr Alboukadel Kassambara (2017), Practical Guide to Cluster Analysis in R: Unsupervised Machine Learning, Amazon Digital Services LLC</a><a href="#fnref1">↩</a></p></li>
+</ol>
+</div>
         </div>
       </div>
       </article>
