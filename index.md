@@ -23,7 +23,8 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [데이터(Data)](02-data.html)
         1. [데이터를 통한 문제풀이 과정](03-process.html)
     1. [테스트 주도 기계학습](31-ml-tdd.html)
-    1. [알고리즘 성능평가](ml-assessment.html)
+    1. [기계학습 알고리즘](04-algorithm.html)
+        1. [활용도 높은 기계학습 알고리즘 -- 분류, 예측, 군집화](ml-basic-dc.html)
     1. 데이터 전처리
         1. [예측모형 적용을 위한 전처리](ml-preprocessing.html)
         1. [데이터 전처리 및 정제(파이썬)](14-ml-data-munging.html)
@@ -33,8 +34,9 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [텍스트 콘솔기반 탐색적 데이터 분석(EDA)](ml-text-console.html)        
         1. [이상점(Outlier) 검출](ml-detect-outliers.html)        
         1. [이상점 검출 - mahalanobis](ml-detect-outliers-mahalanobis.html)
-    1. [기계학습 알고리즘](04-algorithm.html)
-        1. [활용도 높은 기계학습 알고리즘 -- 분류, 예측, 군집화](ml-basic-dc.html)
+        1. [비지도 학습 - 포켓몬](ml-pokemon-unsupervised.html)
+        1. [군집분석(Clustering) - 포켓몬](ml-pokemon-clustering-pipeline.html)
+    1. [알고리즘 성능평가](ml-assessment.html)
 1. [기계학습 운영 및 자동화 - 파이프라인](ml-production.html)
     - **[기계학습 클라우드(AWS) 개발배포 환경](ml-aws-spark.html)**
         1. [시나리오별 클라우드(AWS) 컴퓨팅 자원을 데이터 과학에 활용](ml-aws-from-pc.html)
@@ -63,8 +65,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
             1. [사례 - 도요타 중고차 가격 예측](ml-pm-continuous.html)
             1. [사례 - 콘크리트 강도](ml-pm-continuous-concrete.html)
             1. [사례 - 카드발급](ml-credit-greene.html)
-            1. [사례 - 기계고장 빈도수 예측](ml-machine-failures.html)
-            1. [비지도 학습 - 포켓몬](ml-pokemon-unsupervised.html)
+            1. [사례 - 기계고장 빈도수 예측](ml-machine-failures.html)            
         1. **기계 중심 기계학습**
 1. **데이터 유형별 기계학습 모형**
     1. **[네트워크 데이터 들어가며 -- 색상과 글꼴](ml-network-overview.html)**        
