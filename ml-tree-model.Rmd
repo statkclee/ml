@@ -5,6 +5,7 @@ subtitle: 나무기반 기계학습모형
 output:
   html_document: 
     toc: yes
+    hightlight: tango 
   pdf_document:
     latex_engine: xelatex
 mainfont: NanumGothic
@@ -65,33 +66,23 @@ UCI 기계학습 저장소에서 신용승인 데이터 [Credit Approval Data Se
 # library(rpart)      # 재귀분할 나무모형
 # library(caret)      # 예측모형 플랫폼
 # library(Metrics)    # 예측모형 성능평가
+# library(ipred)      # 배깅(Bagging)
 
 # 1. 데이터 가져오기 ----------
 
-credit_df <- read_csv("http://archive.ics.uci.edu/ml/machine-learning-databases/credit-screening/crx.data", col_names = FALSE)
-
-credit_df <- credit_df %>% 
-  rename(response=X16) %>% 
-  mutate(response = factor(ifelse(response == "+", "yes", "no"), levels=c("no", "yes"))) %>% 
-  mutate(X2 = as.numeric(X2),
-         X3 = as.numeric(X3),
-         X8 = as.numeric(X8),
-         X11 = as.numeric(X11),
-         X14 = as.numeric(X14),
-         X15 = as.numeric(X15))
-
-skim(credit_df)
+data("GermanCredit") # caret 팩키지 내장
 
 # 2. 모형데이터 준비 ----------
 
-train_index <- createDataPartition(credit_df$response, p=0.7, list=FALSE)
+split_index <- sample(1:3, size=nrow(GermanCredit), prob=c(0.7, 0.15, 0.15), replace = TRUE)
 
-cc_train <-credit_df[ train_index,]
-cc_test <- credit_df[-train_index,]
+cc_train <- GermanCredit[split_index ==1,]
+cc_valid <- GermanCredit[split_index ==2,]
+cc_test  <- GermanCredit[split_index ==3,]
 
 # 3. 재귀분할 나무모형 ----------
 
-cc_rpart <- rpart(formula = response ~ ., 
+cc_rpart <- rpart(formula = Class ~ ., 
                       data = cc_train, 
                       method = "class",
                       parms = list(split = "gini"))
@@ -103,7 +94,7 @@ cc_rpart_pred <- predict(object = cc_rpart,
                  type = "class")
 
 ## 4.2. 예측평가
-ce(actual = cc_test$response, 
+ce(actual = cc_test$Class, 
    predicted = cc_rpart_pred)
 
 ## 4.3. 재귀분할 나무모형 시각화
@@ -130,10 +121,89 @@ cc_rpart_opt_pred <- predict(object = cc_rpart_opt,
                          newdata = cc_test,
                          type = "class")
 
-ce(actual = cc_test$response, 
+ce(actual = cc_test$Class, 
    predicted = cc_rpart_opt_pred)
 
 ## 5.4. 최적 재귀분할 나무모형 시각화
-rpart.plot::rpart.plot(x = cc_rpart_opt, yesno = 2, type = 0, extra = 0)
+# rpart.plot::rpart.plot(x = cc_rpart_opt, yesno = 2, type = 0, extra = 0)
+rattle::fancyRpartPlot(cc_rpart_opt)
 ```
 
+### 2.1. 초모수 격자 검색(Hyper Parameter Grid Search) {#tree-based-model-grid-search}
+
+재귀분할 의사결정 나무 모형에서 탐색할 초모수(hyper parameter)를 선정하고 이를 `expand.grid` 함수로 정의한다.
+
+``` {r tree-based-grid-search-setup}
+# 2. 격자 검색 ----------
+## 2.1. 모수 설정
+
+split_criterion <- c("gini", "information")
+min_split <- seq(1, 4, 1)
+max_depth <- seq(1, 6, 1)
+
+hyper_grid <- expand.grid(min_split = min_split, 
+                          max_depth = max_depth,
+                          split_criterion = split_criterion)
+```
+
+### 2.2. 격자 검색 초모수 적합 {#tree-based-model-grid-search-fit}
+
+두번째 단계로 각 초모수 조합 각각에 대해서 재귀분할 의사결정모형에 적합을 시킨다.
+
+``` {r tree-based-grid-search-fit}
+## 2.2. 모수 설정 적합
+rpart_hyper_models <- list()
+
+for (i in 1:nrow(hyper_grid)) {
+  
+  split_criterion <- hyper_grid$split_criterion[i]
+  min_split       <- hyper_grid$min_split[i]
+  max_depth       <- hyper_grid$max_depth[i]
+  
+  rpart_hyper_models[[i]] <- rpart(formula = Class ~ ., 
+                             data = cc_train, 
+                             method = "class",
+                             minsplit = min_split,
+                             maxdepth = max_depth,
+                             parms = list(split = split_criterion))
+}
+```
+
+### 2.3. 격자 검색 초모수 선정 {#tree-based-model-grid-search-optimal}
+
+두번째 단계에서 적합된 모형 결과에서 정합성(accuracy)만을 뽑아 벡터로 저장해서 최적의 모형을 선정한다.
+
+``` {r tree-based-grid-search-optimal}
+
+# 3. 격자 검색 모형 평가 ----------
+
+acc_values <- vector("numeric", length(rpart_hyper_models))
+
+for(i in 1:length(rpart_hyper_models)) {
+
+  pred <- predict(object = rpart_hyper_models[[i]],
+                  newdata = cc_valid, type="class")
+  
+  acc_values[i] <- Metrics::ce(actual = cc_valid$Class, 
+                               predicted = pred)
+}
+
+rpart_best_model <- rpart_hyper_models[[which.min(acc_values)]]
+
+rpart_best_model$control
+```
+
+### 2.4. 최종 양산모형 {#tree-based-model-grid-search-in-production}
+
+최적 모수 조합을 최종 모형으로 선정하고 이를 양산에 반영한다.
+
+``` {r tree-based-grid-search-in-production}
+# 4. 최종 양산 모형 ----------
+best_pred <- predict(object = rpart_best_model,
+                newdata = cc_test, type="class")
+
+Metrics::ce(actual = cc_test$Class, 
+            predicted = best_pred)
+
+rpart.plot::rpart.plot(x = rpart_best_model, yesno = 2, type = 0, extra = 0)
+```
