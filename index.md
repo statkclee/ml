@@ -24,7 +24,8 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [데이터를 통한 문제풀이 과정](03-process.html)
     1. [테스트 주도 기계학습](31-ml-tdd.html)
     1. [기계학습 알고리즘](04-algorithm.html)
-        1. [활용도 높은 기계학습 알고리즘 -- 분류, 예측, 군집화](ml-basic-dc.html)
+        1. [나무기반 기계학습모형](ml-tree-model.html)
+        1. [기계학습 예측모형 준비](ml-predictive-modeling-basic.html)        
     1. 데이터 전처리
         1. [예측모형 적용을 위한 전처리](ml-preprocessing.html)
         1. [데이터 전처리 및 정제(파이썬)](14-ml-data-munging.html)
@@ -57,7 +58,6 @@ subtitle: 데이터 과학자가 바라본 기계학습
             1. [통계적 모형개발 기초](ml-modeling-basic.html)            
             1. [전통방식 모형개발 -타이타닉 생존데이터](ml-modeling-titanic.html)  
         1. **인간과 기계가 함께하는 기계학습 예측모형**  
-            1. [기계학습 예측모형 준비](ml-predictive-modeling-basic.html)
             1. [기계학습 예측모형 실습](ml-predictive-modeling.html)
             1. [모형식별 및 선택](ml-model-selection.html)
             1. [회귀모형 &rarr; caret &rarr; 스파크 &rarr; $H_2 O$ - 1부](ml-from-reg-to-h2o.html)
