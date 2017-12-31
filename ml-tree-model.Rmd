@@ -18,15 +18,24 @@ knitr::opts_chunk$set(echo=TRUE, message=FALSE, warning=FALSE)
 
 library(tidyverse)
 library(skimr)
-library(AER)        # 카드발급 데이터가 포함됨 
 library(rpart)      # 재귀분할 나무모형
 library(caret)      # 예측모형 플랫폼
 library(Metrics)    # 예측모형 성능평가
-
+library(ipred)      # 배깅
+library(randomForest)
+library(ggpubr)
+library(extrafont)
+loadfonts()
+library(gbm)
 
 ```
 
-## 1. 나무기반 모형 {#tree-based-machine-leanring-model}
+## 1. 나무기반 모형  [^bagging-boosting-comparison] [^weak-learner-stacking] {#tree-based-machine-leanring-model}
+
+[^bagging-boosting-comparison]: [Bagging and Boosting are both ensemble methods in Machine Learning, but what’s the key behind them?](https://quantdare.com/what-is-the-difference-between-bagging-and-boosting/)
+
+[^weak-learner-stacking]: [Can a set of weak systems turn into a single strong system?](http://quantdare.com/dream-team-combining-classifiers-2/)
+
 
 나무기반 모형은 통계전문가 뿐만 아니라, 컴퓨터 과학자, 사업하시는 분들에게서 사랑받는 가장 대중적인 기계학습 모형중에 하나다.
 단점이 없는 모형이 없지만, 나무기반 모형은 다음 측면에서 다른 모형에 비해서 비교우위에 있는 것은 분명하다.
@@ -44,6 +53,19 @@ library(Metrics)    # 예측모형 성능평가
 - GBM(Gradient Boosting Machine): `gbm`  
 
 <img src="fig/ml-tree-overview.png" alt="나무기반 기계학습 모형 개요" width="100%" />
+
+
+### 1.1. 배깅(Bagging) vs. 부스팅(Boosting) {#tree-based-bagging-vs-boosting}
+
+배깅과 부스팅은 여러모로 비슷한 점이 있지만, 차이점도 크다.
+배깅과 부스팅 모두 재귀분할 의사결정나무의 안정성을 높인다는 점에서는 공통점이 있지만,
+부스팅만이 편향(Bias)를 줄일 수 있고, 배깅은 과적합 문제점에 대해서 해결책을 제공할 수 있을 뿐이다.
+
+또한, 배깅은 독립적으로 약한 학습기를 생성시키는데 반해, 부스팅은 신규 약한 학습기를 추가할 때 이전 모형이 저지른 실수를 잘 매꿀 수 있게 추가시킨다. 마찬가지로 배깅은 임의표본추출을 하는 반면에, 부스팅은 이미 해결한 문제에 대해서는 적은 가중치를 두고, 실수를 저지른 경우에 더 높은 가중치를 두어 편향을 줄여 나간다.
+
+이러한 사소하지만 큰 차이는 최종단계에서 총계(Aggregating)에서도 배깅은 $\frac{1}{n}$ 동일한 가중치를 주는 반면에 부스팅은 더 다은 성능을 낼 수 있는 쪽에 더 큰 가중치를 부여한다.
+
+<img src="fig/ml-bagging-vs-boosting.png" alt="배깅과 부스팅 비교" width="57%" />
 
 ## 2. 재귀적 분할(recursive partitioning) {#tree-based-model-rpart}
 
@@ -206,4 +228,254 @@ Metrics::ce(actual = cc_test$Class,
             predicted = best_pred)
 
 rpart.plot::rpart.plot(x = rpart_best_model, yesno = 2, type = 0, extra = 0)
+```
+
+> ### 기계학습 데이터 분할 
+>
+> 기계학습 데이터를 훈련(train) - 검증(test) 대신 train-valid-test로 3조각 내게 되면
+> `train`-`valid`를 통해서 초모수(Hyper paramter) 설정도 한 후에 검증(test)로 유연하게 넘길 수 있다.
+>
+> <img src="fig/ml-train-valid-test.png" alt="훈련, 유효, 검증 표본" width="77%" />
+
+
+## 3. 배깅(Bagging) [^bagging-boosting-stacking] {#tree-based-model-bagging}
+
+[^bagging-boosting-stacking]: [Bagging과 Boosting 그리고 Stacking](https://swalloow.github.io/bagging-boosting)
+
+배깅(Bagging)은 붓츠트랩(Bootstrap) 표본을 추출하여 **약한 학습기(Weak learner)**, 의사결정 나무 모형을 
+빠르게 학습시켜 결과값을 총계(Aggregating)내는 방식을 구현한 알고리즘이다.
+예측하고자 하는, 혹은 학습시키고자 하는 결과가 범주형이면 투표를 하여 가장 높은 투표수를 갖는 결과를 활용하고,
+결과가 연속형이면 평균을 내는 방식이다. 의사결정 나무모형의 안정화시키기 위해서 배깅이 제안되었다.
+
+<img src="fig/ml-bagging.png" alt="기계학습 배깅(Bagging)" width="57%" />
+
+### 3.1. `ipred` 배깅 {#tree-based-model-bagging-ipred}
+
+`ipred` 팩키지 내부 `bagging()` 함수를 활용하면 의사결정 나무모형에 배깅을 구현할 수 있다.
+
+``` {r tree-based-bagging-ipred}
+# 2. 배깅 모형 적합 ----------
+## 2.1. 모형적합
+bag_model <- bagging(formula = Class ~ ., 
+                        data = cc_train,
+                        coob = TRUE)
+
+## 2.2. 모형평가
+bag_class_pred <- predict(object = bag_model, newdata = cc_test, type = "class")
+
+### 오분류
+ce(predicted = bag_class_pred,
+   actual = cc_test$Class)
+
+### AUC
+bag_prob_pred <- predict(object = bag_model, newdata = cc_test, type = "prob")
+
+auc(predicted = bag_prob_pred[,"Good"],
+    actual = ifelse(cc_test$Class == "Good", 1, 0)) 
+```
+
+### 3.2. `caret` 배깅 {#tree-based-model-bagging-caret}
+
+`ipred` 대신 `caret` 팩키지를 활용하면 예측모형 설정을 하고 나서, `method = "treebag"` 인자를 지정하면 
+동일하게 의사결정 나무모형에 배깅을 적합시킬 수 있다.
+
+``` {r tree-based-bagging-caret}
+# 3. caret 배깅 ----------
+## 3.1. 예측모형 설정
+cc_ctrl <- trainControl(method = "cv",
+                     number = 10,   
+                     classProbs = TRUE,               
+                     summaryFunction = twoClassSummary)
+
+## 3.2. 예측모형 적합
+bag_caret_model <- train(Class ~ .,
+                            data = cc_train, 
+                            method = "treebag",
+                            metric = "ROC",
+                            trControl = cc_ctrl)
+
+## 3.3. 예측모형 평가
+### 훈련표본 AUC
+bag_caret_model$results[,"ROC"]
+
+bag_prob_pred <- predict(object = bag_caret_model, 
+                newdata = cc_test,
+                type = "prob")
+
+### 검증표본 AUC
+auc(actual = ifelse(cc_test$Class == "Good", 1, 0), 
+    predicted = bag_prob_pred[,"Good"])
+```
+
+## 4. 확률숲(Random Forest) {#tree-based-model-random-forest}
+
+배깅이 붓츠트랩 표본을 통해 약한 학습기(weak learner)로 학습을 할 때 변수(feature) 전체를 사용하는데 
+반해서 Random Forest는 `mtry`를 통해 변수 숫자를 조정할 수 있다. 기본 디폴트 설정으로 $\sqrt{\text{변수 전체 갯수}}$로 되어 있지만,
+임의 숫자로 설정할 수 있다.
+
+<img src="fig/ml-random-forest.png" alt="Random Forest" width="57%" />
+
+### 4.1. 확률숲(Random Forest) 맛보기 {#tree-based-model-random-forest-setup}
+
+`ntree` 의사결정 나무모형 갯수를 증가시킬수록 모형의 정확도는 높아지만, 높아지는 정확도에 비해 얻어지는 성능향상은 점점 줄어들게 된다.
+
+``` {r tree-based-random-forest}
+# 2. Random Forest 모형 적합 ----------
+## 2.1. 모형적합
+cc_rf_model <- randomForest(formula = Class ~ ., 
+                             data = cc_train)
+
+## 2.2. 모형성능평가
+cc_rf_class_pred <- predict(object = cc_rf_model,
+                            newdata = cc_test,
+                            type = "class")
+
+rf_cm <- ce(predicted = cc_rf_class_pred,
+            actual = cc_test$Class)
+
+
+## 2.3. 모형적합 시각화
+err_df <- cc_rf_model$err.rate %>% 
+  tbl_df() %>% 
+  mutate(index=row_number()) %>% 
+  gather(범주, 오류율, -index)
+
+ggplot(err_df, aes(x=index, y=오류율, color=범주)) +
+  geom_line() +
+  theme_pubr(base_family="NanumGothic") +
+  labs(x="", y="오류율")
+```
+
+### 4.3. 확률숲(Random Forest) 튜닝 {#tree-based-model-random-forest-tuning}
+
+앞서 재귀분할 의사결정모형에서와 마찬가지로 Random Forest 모형에 적합한 초모수를 유사한 방식으로 찾아내어
+최적 Random Forest 모형을 구축한다.
+
+- `ntree`: 약형 의사결정나무 모형 갯수
+- `mtry`: 의사결정 나무 분기에 사용되는 변수(feature) 갯수
+- `nodesize`: 나무 노드(터미널) 크기에 담기는 표본 크기
+- `sampsize`: 학습에 사용될 표본크기 
+- `maxnodes`: 최대 나무 노드(터미널) 갯수
+
+``` {r tree-based-random-forest-tuning}
+# 3. 초모수 Random Forest 모형 미세조정 ----------
+## 3.1. 초모수 설정
+rf_mtry <- seq(4, ncol(cc_train) * 0.8, 2)
+rf_nodesize <- seq(3, 8, 2)
+rf_sample_size <- nrow(cc_train) * c(0.7, 0.8)
+
+rf_hyper_grid <- expand.grid(mtry = rf_mtry, 
+                          nodesize = rf_nodesize, 
+                          sampsize = rf_sample_size)
+
+## 3.2. 설정된 초모수를 바탕으로 모형적합
+rf_oob_err <- c()
+
+for (i in 1:nrow(hyper_grid)) {
+  
+  model <- randomForest(formula = Class ~ ., 
+                        data     = cc_train,
+                        mtry     = rf_hyper_grid$mtry[i],
+                        nodesize = rf_hyper_grid$nodesize[i],
+                        sampsize = rf_hyper_grid$sampsize[i])
+  
+  rf_oob_err[i] <- model$err.rate[nrow(model$err.rate), "OOB"]
+}
+
+## 3.3. 최적 모수
+rf_hyper_grid[which.min(rf_oob_err),]
+
+# 4. 양산모형 적용 --------------------------
+
+rf_best_model <- randomForest(formula = Class ~ ., 
+                      data     = cc_train,
+                      mtry     = 12,
+                      nodesize = 3,
+                      sampsize = 483)
+
+## 검증표본 오분류율
+
+rf_class_pred <- predict(object = rf_best_model, 
+                           newdata = cc_test,
+                           type = "class")
+
+ce(predicted = rf_class_pred,
+   actual = cc_test$Class)
+
+
+## 검증표본 AUC
+rf_prob_pred <- predict(object = rf_best_model, 
+                           newdata = cc_test,
+                           type = "prob")
+
+auc(actual = ifelse(cc_test$Class == "Good", 1, 0), 
+    predicted = rf_prob_pred[,"Good"])
+```
+
+## 5. 부스팅(Boosting) {#tree-based-model-boosting}
+
+배깅이나 Random Forest가 병렬로 다수 의사결정 나무모형을 만들어내는 것과 달리
+부스팅(Boosting)은 순차적으로 의사결정 나무모형을 적합시킨다.
+
+매번 약한 학습기(weak learner) 의사결정 나무모형을 만들어 낼 때마다 틀린, 
+잘못 학습된 관측점에 대해서 **AdaBoost**는 더 높은 가중치를 두어 해당 관측점에 대해서
+다음 약한 학습기(weak learner)를 생성시킬 때 강조를 하는 반면,
+GBM(Gradient Boosting Machine)은 Gradient를 통해 이를 성능 높은 기계학습 알고리즘을 생성해 나간다.
+
+따라서, 부스팅 계열 알고리즘 AdaBoost, xgBoost, GBM 등은 이상점(Outlier)에 취약한 약점도 동시에 갖게 된다.
+
+
+``` {r tree-based-boosting}
+# 2. 부스팅 모형 적합 ----------
+## 2.1. 예측변수 변환
+cc_train$Class <- ifelse(cc_train$Class == "Good", 1, 0)
+
+## 2.2. GBM 모형적합
+gbm_model_cv <- gbm(formula = Class ~ ., 
+                    distribution = "bernoulli", 
+                    data = cc_train,
+                    n.trees = 5000,
+                    cv.folds = 5)
+
+## 2.3. 조기종료(early stopping)
+ntree_opt_cv <- gbm.perf(object = gbm_model_cv, 
+                         method = "cv")
+
+## 2.4. GBM 예측모형 평가
+cc_test$Class <- ifelse(cc_test$Class == "Good", 1, 0)
+
+gbm_prob_pred <- predict(object = gbm_model_cv, 
+                     newdata = cc_test,
+                     type = "response",
+                     n.trees = ntree_opt_cv)
+
+auc(actual = cc_test$Class, predicted = gbm_prob_pred)
+```
+
+
+## 6. 모형 평가 및 비교 {#tree-based-model-comparison}
+
+AUC 값을 기반으로 데이터에 가장 적합한 예측모형을 식별하고 시각화한다.
+
+``` {r tree-based-model-comparison}
+# 2. 예측모형 목록 ------------
+pred_list <- list(bag_prob_pred[,"Good"], rf_prob_pred[,"Good"], gbm_prob_pred)
+actual_list <- rep(list(cc_test$Class), length(pred_list))
+
+# 3. AUC ------------
+
+auc(actual = ifelse(cc_test$Class == "Good", 1, 0), 
+    predicted = bag_prob_pred[,"Good"])
+auc(actual = ifelse(cc_test$Class == "Good", 1, 0), 
+    predicted = rf_prob_pred[,"Good"])
+auc(actual = cc_test$Class, predicted = gbm_prob_pred)
+
+# 4. ROC 비교 ------------
+# cc_pred <- ROCR::prediction(pred_list, actual_list)
+# cc_rocs <- ROCR::performance(pred, "tpr", "fpr")
+# 
+# plot(cc_rocs, col = as.list(1:length(pred_list)))
+# legend(x = "bottomright", 
+#       legend = c("배깅(Bagging)", "Random Forest", "GBM"),
+#       fill = 1:length(pred_list))
 ```
