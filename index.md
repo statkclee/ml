@@ -68,16 +68,8 @@ subtitle: 데이터 과학자가 바라본 기계학습
             1. [사례 - 기계고장 빈도수 예측](ml-machine-failures.html)            
         1. **기계 중심 기계학습**
 1. **데이터 유형별 기계학습 모형**
-    1. **[네트워크 데이터 들어가며 -- 색상과 글꼴](ml-network-overview.html)**        
-        1. [네트워크 데이터](ml-network-data.html)
-        1. [정적 네트워크 데이터 시각화](ml-network-static-viz.html)
-        1. [동적 네트워크 데이터 시각화](ml-network-dynamic-viz.html)
-        1. [기타 네트워크 데이터 분석](ml-network-etc.html)
-        1. [R 팩키지 사회망 분석](ml-sna-r-ecosystem.html)        
-        1. [네트워크 데이터 연습문제](ml-network-data-ex.html)
-        1. [네트워크 분석 사용자 안내서](ml-network-user-guide.html)
-        1. [네트워크 유형](ml-network-type.html)
-        1. [네트워크 커뮤니티 탐지](ml-network-communities.html)
+    1. [네트워크 데이터](https://statkclee.github.io/network/)
+        - 보다 심화된 네트워크 데이터에 대한 분석을 위해 별도 저장소로 이동.
     1. **[텍스트 데이터와 저작](https://statkclee.github.io/ds-authoring/)**
         1. **텍스트 데이터 다루기**
             1. [숫자를 문자로 표현](ml-number-to-text.html)
