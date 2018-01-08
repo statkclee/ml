@@ -1,0 +1,179 @@
+---
+layout: page
+title: xwMOOC 기계 학습
+subtitle: 클래스 불균형(Class imbalance)
+output:
+  html_document: 
+    toc: yes
+    highlight: tango
+    code_folding: hide
+    css: css/swc.css
+  pdf_document:
+    latex_engine: xelatex
+mainfont: NanumGothic
+---
+ 
+``` {r, include=FALSE}
+source("tools/chunk-options.R")
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
+
+library(igraph)
+library(tidyverse)
+library(threejs)
+library(readxl)
+library(ggpubr)
+library(forcats)
+library(extrafont)
+loadfonts()
+
+```
+
+## 1. 기계학습 클래스 불균형 [^freesearch-class-imbalance] [^analytic-vidhya-class-imbalance] {#ml-class-imbalance-problem}
+
+[^freesearch-class-imbalance]: [예측 모형에서의 클래스 불균형(class imbalance) 문제](http://freesearch.pe.kr/archives/4506)
+
+[^analytic-vidhya-class-imbalance]: [Practical Guide to deal with Imbalanced Classification Problems in R](https://www.analyticsvidhya.com/blog/2016/03/practical-guide-deal-imbalanced-classification-problems/)
+
+기계학습에서 관심있는 예측변수의 클래스가 매우 적은 경우가 흔하다. 
+예를 들어 광고 캠페인을 실시할 때 구매율이 1~2%에 머무르는 경우가 일반적이다. 
+이런 경우 예측모형을 개발할 경우 이와 같은 **클래스 불균형(class imbalance)** 문제를 처리할 수 있는 방법이 많이 소개되었다.
+
+
+### 1.1. 환경설정 {#class-imbalance-import-setup}
+
+[Practical Guide to deal with Imbalanced Classification Problems in R](https://www.analyticsvidhya.com/blog/2016/03/practical-guide-deal-imbalanced-classification-problems/)에서 소개된 방법을 따라 
+환경을 설정히고 `hacide` 데이터를 준비한다. `ROSE` 팩키지에 포함되어 있는 가공된 데이터로 클래스 불균형 문제를 시작하는데 적절한 데이터로 사료된다.
+
+``` {r class-imbalance-setup}
+# 0. 환경설정 --------------
+
+library(ROSE)
+library(tidyverse)
+library(rpart)
+library(caret)
+library(ggpubr)
+library(extrafont)
+loadfonts()
+library(plotROC)
+
+# 1. 데이터 가져오기 --------
+
+data(hacide)
+
+hacide.train <- hacide.train %>% 
+    mutate(cls = factor(cls, labels= c("no", "yes")))
+
+hacide.test <- hacide.test %>% 
+    mutate(cls = factor(cls, labels= c("no", "yes")))
+```
+
+### 1.2. 데이터 살펴보기 {#class-imbalance-EDA}
+
+`hacide` 데이터를 시각화를 통해 이해한다. 
+데이터는 `cls`가 0과 1일 경우 다른 방식으로 생성되었는데 자세한 내용은 
+[hacide - Half Circle Filled Data](https://www.rdocumentation.org/packages/ROSE/versions/0.0-3/topics/hacide) 웹사이트를 참고한다.
+
+
+``` {r class-imbalance-EDA}
+# 2. 탐색적 데이터 분석 --------
+## 2.1. 데이터 시각화
+hacide.train %>% 
+    ggplot(aes(x=x1, y=x2, color=cls)) +
+      geom_point() +
+      theme_pubr(base_family = "NanumGothic") +
+      theme(legend.position = "top") +
+      labs(color = "종속변수(cls)") +
+      scale_color_manual(values = c("lightblue", "red"))
+
+## 2.2. 데이터 장표
+hacide.train %>% count(cls) %>% 
+    mutate(비율 = scales::percent(n/ sum(n))) 
+```    
+
+
+## 2. 클래스 불균형 극복전략 {#class-imbalance-countermeasure}
+
+클래스 불균형 문제에 대한 극복방법에 대해서 크게 4가지 방법이 제시되고 있다. 물론 `ROSE` 방법론을 옹호하는 입장에서 그렇다.
+클래스 불균형 문제를 인식하고 이에 대해 체계적으로 접근할 수 있는 가장 손쉬운 시작점으로 이해하면 좋다.
+
+- 과대표집(Over-Sampling)
+- 과소표집(Under-Sampling)
+- 양쪽 표집(Both-Sampling)
+- 로즈 표집(ROSE Sampling)
+
+``` {r class-imbalance-countermeasure}
+# 3. 클래스 불균형(class imbalance) 극복전략 -----
+
+balanced_over_sampling_df  <- ovun.sample(cls ~ ., data = hacide.train, method = "over", N = 1960)$data
+balanced_under_sampling_df <- ovun.sample(cls ~ ., data = hacide.train, method = "under", N = 40, seed = 1)$data
+balanced_both_sampling_df <- ovun.sample(cls ~ ., data = hacide.train, method = "both", p=0.5,                             N=1000, seed = 1)$data
+rose_df <- ROSE(cls ~ ., data = hacide.train)$data
+```
+
+## 4. 클래스 불균형 극복전략 성능비교 {#class-imbalance-countermeasure-performance}
+
+과대표집(Over-Sampling), 과소표집(Under-Sampling), 양쪽 표집(Both-Sampling), 로즈 표집(ROSE Sampling) 그리고 클래스 불균형 극복전략이 없는 
+경우 포함하여 총 5가지 전략에 대해서 성능을 비교해 보자.
+
+
+### 4.1. AUC 성능비교 {#class-imbalance-countermeasure-performance-auc}
+
+AUC 곡선 비교하면 `hacide` 데이터에는 로즈 방법론이 가장 좋은 성능을 나타내고 있다.
+
+``` {r class-imbalance-countermeasure-auc}
+# 4. 재귀분할(rpart) 나무모형 적합 --------
+
+raw_rpart   <- rpart(cls ~ ., data = hacide.train)
+over_rpart  <- rpart(cls ~ ., data = balanced_over_sampling_df)
+under_rpart <- rpart(cls ~ ., data = balanced_under_sampling_df)
+both_rpart  <- rpart(cls ~ ., data = balanced_both_sampling_df)
+rose_rpart  <- rpart(cls ~ ., data = rose_df)
+
+# 5. 클래스 불균형 재귀분할(rpart) 나무모형 평가 --------
+## 5.1. 검증데이터 적용 예측
+pred_raw_rpart    <- predict(raw_rpart  , newdata = hacide.test)
+pred_over_rpart   <- predict(over_rpart , newdata = hacide.test)
+pred_under_rpart  <- predict(under_rpart, newdata = hacide.test)
+pred_both_rpart   <- predict(both_rpart , newdata = hacide.test)
+pred_rose_rpart   <- predict(rose_rpart , newdata = hacide.test)
+
+## 5.2. AUC
+roc.curve(hacide.test$cls, pred_raw_rpart[,2], plot=FALSE)
+roc.curve(hacide.test$cls, pred_over_rpart[,2], plot=FALSE)
+roc.curve(hacide.test$cls, pred_under_rpart[,2], plot=FALSE)
+roc.curve(hacide.test$cls, pred_both_rpart[,2], plot=FALSE)
+roc.curve(hacide.test$cls, pred_rose_rpart[,2], plot=FALSE)
+```
+
+
+### 4.2. AUC 성능비교 `plotROC` 시각화 {#class-imbalance-countermeasure-performance-auc-plot}
+
+`ggplot`을 통해 5가지 예측모형의 성능을 살펴본다.
+
+``` {r class-imbalance-countermeasure-auc-plot}
+
+## 5.3. ggplot ROC 데이터 
+
+raw_roc_df  <- tibble(cls = hacide.test[,1], pred=pred_raw_rpart[,2],   sampling="원데이터")
+over_roc_df <- tibble(cls = hacide.test[,1], pred=pred_over_rpart[,2],  sampling="과대 표집")
+under_roc_df <- tibble(cls = hacide.test[,1], pred=pred_under_rpart[,2], sampling="과소 표집")
+both_roc_df <- tibble(cls = hacide.test[,1], pred=pred_both_rpart[,2],  sampling="양쪽 표집")
+rose_roc_df <- tibble(cls = hacide.test[,1], pred=pred_rose_rpart[,2],  sampling="ROSE 표집")
+
+hacide_roc_df <- bind_rows(raw_roc_df, over_roc_df) %>% 
+    bind_rows(under_roc_df) %>% 
+    bind_rows(both_roc_df) %>% 
+    bind_rows(rose_roc_df)
+
+## 5.4. ggplot ROC 시각화
+
+ggplot(hacide_roc_df, aes(d = cls, m = pred, color=sampling)) + 
+    geom_roc(labels =FALSE)  +
+    style_roc() +
+    theme_pubr(base_family="NanumGothic") +
+    theme(legend.position = "top") +
+    labs(color="클래스 불균형 해소방법: ")
+```    
+
+
+

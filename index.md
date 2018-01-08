@@ -29,6 +29,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
     1. 데이터 전처리
         1. [예측모형 적용을 위한 전처리](ml-preprocessing.html)
         1. [데이터 전처리 및 정제(파이썬)](14-ml-data-munging.html)
+        1. [클래스 불균형(Class imbalance)](ml-class-imbalance.html)
     1. [탐색적 데이터 분석(EDA)](ml-eda.html)
         1. [R 조합수학(Combinatorics)](ml-combinatorics.html)        
         1. [범주형 변수와 표](ml-categorical-var-table.html)        

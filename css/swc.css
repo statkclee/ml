@@ -496,7 +496,7 @@ table.workshops td.date {
 
 /* list with checkbox as bullet */
 ul.checklist {
-  list-style-image: url('../img/checkbox.png');
+  /*list-style-image: url('../img/checkbox.png');*/
 }
 
 /* FAQ */
@@ -515,7 +515,7 @@ dd {
 }
 
 .header.home {
-    background: url(../img/header.png) no-repeat center center;
+    /*background: url(../img/header.png) no-repeat center center;*/
     background-attachment: fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
@@ -619,7 +619,7 @@ footer a, footer a:hover{
 }
 
 footer .container .links {
-    background:url('../img/software-carpentry-banner-white.png') no-repeat;
+    /*background:url('../img/software-carpentry-banner-white.png') no-repeat;*/
     background-size: 200px;
     background-position: 0;
     min-height: 40px;
@@ -632,7 +632,7 @@ footer .container .links {
 /* TODO -- might clash with site footer */
 div.footer {
     clear: both;
-    background: url("/img/main_shadow.png") repeat-x scroll center top #FFFFFF;
+    /*background: url("/img/main_shadow.png") repeat-x scroll center top #FFFFFF;*/
     padding: 4px 10px 7px 10px;
    border-top: 1px solid #A6A6A6;
     text-align: right;
@@ -783,7 +783,7 @@ div.chapter h2 {
 	margin-top: 10px
     }
     footer .container .links {
-	background:url('../img/software-carpentry-banner-white.png') no-repeat;
+	/*background:url('../img/software-carpentry-banner-white.png') no-repeat;*/
 	background-size: 180px;
 	background-position: 0;
     }
