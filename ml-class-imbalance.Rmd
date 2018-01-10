@@ -28,15 +28,37 @@ loadfonts()
 
 ```
 
-## 1. 기계학습 클래스 불균형 [^freesearch-class-imbalance] [^analytic-vidhya-class-imbalance] {#ml-class-imbalance-problem}
+## 1. 기계학습 클래스 불균형 [^ml-class-imbalance-svds] [^freesearch-class-imbalance] [^analytic-vidhya-class-imbalance] {#ml-class-imbalance-problem}
 
 [^freesearch-class-imbalance]: [예측 모형에서의 클래스 불균형(class imbalance) 문제](http://freesearch.pe.kr/archives/4506)
 
 [^analytic-vidhya-class-imbalance]: [Practical Guide to deal with Imbalanced Classification Problems in R](https://www.analyticsvidhya.com/blog/2016/03/practical-guide-deal-imbalanced-classification-problems/)
 
+[^ml-class-imbalance-svds]: [Learning from Imbalanced Classes, AUGUST 25TH, 2016](https://svds.com/learning-imbalanced-classes/)
+
 기계학습에서 관심있는 예측변수의 클래스가 매우 적은 경우가 흔하다. 
-예를 들어 광고 캠페인을 실시할 때 구매율이 1~2%에 머무르는 경우가 일반적이다. 
-이런 경우 예측모형을 개발할 경우 이와 같은 **클래스 불균형(class imbalance)** 문제를 처리할 수 있는 방법이 많이 소개되었다.
+
+- 매년 약 2% 정도 신용카드가 도용되고 있다. 일반적으로 사기탐지(fraud detection) 분야는 2% 보다도 훨씬 적다.
+- 의학에서 질병검사도 건강한 일반인을 대상으로 하기 때문에 희귀하다. 예를 들어 미국에서 후천성면역결핍증(HIV) 발병율은 0.4% 정도에 불과하다.
+- 하드 디스크 고장율도 매년 약 1% 정도된다.
+- 온라인 광고의 전환율은 대략 $10^{-3} ~ 10^{-6}$ 정도 된다.
+- 자동화된 생산공장의 불량율도 대략 0.1% 정도다.
+
+이와 같이 관심을 갖고 예측하고자 하는 것이 매우 드문 경우가 빈번하기 때문에 지난 수십년동안 수많은 기계학습 분야에서 
+수많은 석박사를 배출했고, 따라서 예측에 빈번히 발생하는 **클래스 불균형(class imbalance)** 문제를 처리할 수 있는 방법이 많이 소개되었다.
+
+대응방법은 다음과 같다.
+
+- 아무 것도 하지 않는다.
+- 훈련 데이터를 보정한다.
+    - 과대표집(Over-Sampling)
+    - 과소표집(Under-Sampling)
+    - 소수 표본 데이터를 조합해서 생성시킴
+- 소수 표본 데이터를 버리고 비정상행위 탐지(anomaly detection framework)로 문제를 바꿔 접근한다.
+- 알고리즘 수준에서 미세 조정을 취한다.
+    - 클래스 가중치(오분류 비용)를 조정
+    - 컷오프 기준을 조정
+    - 소수 표본 데이터에 좀더 예민하게 반응하도록 알고리즘을 조정
 
 
 ### 1.1. 환경설정 {#class-imbalance-import-setup}
@@ -176,4 +198,144 @@ ggplot(hacide_roc_df, aes(d = cls, m = pred, color=sampling)) +
 ```    
 
 
+## 3. `caret` 구현 [^ml-class-imbalance-shiring] {#ml-class-imbalance-problem-caret}
 
+[^ml-class-imbalance-shiring]: [Shiring, Dealing with unbalanced data in machine learning](https://shiring.github.io/machine_learning/2017/04/02/unbalanced)
+
+
+### 3.1. `caret` 클래스 불균형 대응 {#ml-class-imbalance-caret-counter-measure}
+
+`caret` 팩키지 클래스 불균형 대응 구현된 기능을 활용하여 예측모형 성능을 비교평가한다.
+예측모형은 동일하게 `randomForest`를 사용하고 앞서 언급된 클래스 불균형 대응 알고리즘을 반영한다.
+
+
+``` {r class-imbalance-countermeasure-caret-fit, warning=FALSE, message=FALSE}
+# 2. 모형 적합 --------
+## 2.1. 원데이터 ------
+hacide_ctrl <- trainControl(method = "repeatedcv", 
+                            number = 5, 
+                            repeats = 5, 
+                            verboseIter = FALSE)
+
+model_rf <- train(cls ~ .,
+                  data = hacide.train,
+                  method = "rf",
+                  preProcess = c("scale", "center"),
+                  trControl = hacide_ctrl)
+
+## 2.2. Under-sampling ------
+hacide_under_ctrl <- trainControl(method = "repeatedcv", 
+                            number = 5, 
+                            repeats = 5, 
+                            verboseIter = FALSE,
+                            sampling = "down")
+
+model_under_rf <- train(cls ~ .,
+                  data = hacide.train,
+                  method = "rf",
+                  preProcess = c("scale", "center"),
+                  trControl = hacide_under_ctrl)
+
+## 2.3. Up-sampling ------
+hacide_up_ctrl <- trainControl(method = "repeatedcv", 
+                                  number = 5, 
+                                  repeats = 5, 
+                                  verboseIter = FALSE,
+                                  sampling = "up")
+
+model_up_rf <- train(cls ~ .,
+                        data = hacide.train,
+                        method = "rf",
+                        preProcess = c("scale", "center"),
+                        trControl = hacide_up_ctrl)
+
+## 2.4. ROSE ------
+hacide_rose_ctrl <- trainControl(method = "repeatedcv", 
+                               number = 5, 
+                               repeats = 5, 
+                               verboseIter = FALSE,
+                               sampling = "rose")
+
+model_rose_rf <- train(cls ~ .,
+                     data = hacide.train,
+                     method = "rf",
+                     preProcess = c("scale", "center"),
+                     trControl = hacide_rose_ctrl)
+
+## 2.5. SMOTE ------
+hacide_smote_ctrl <- trainControl(method = "repeatedcv", 
+                                 number = 5, 
+                                 repeats = 5, 
+                                 verboseIter = FALSE,
+                                 sampling = "smote")
+
+model_smote_rf <- train(cls ~ .,
+                       data = hacide.train,
+                       method = "rf",
+                       preProcess = c("scale", "center"),
+                       trControl = hacide_smote_ctrl)
+```
+
+### 3.2. `caret` 클래스 불균형 성능평가 {#ml-class-imbalance-caret-counter-measure-performance}
+
+`AUC` 값을 성능평가 기준으로 삼아 예측모형 성능을 비교한다.
+
+``` {r class-imbalance-countermeasure-caret-performance}
+# 3. 성능 비교 ------
+## 3.1. 일반적인 성능 평가 지표
+hacide_models <- list(original = model_rf,
+                      under    = model_under_rf,
+                      over     = model_up_rf,
+                      smote    = model_smote_rf,
+                      rose     = model_rose_rf)
+
+hacide_resampling <- resamples(hacide_models)
+bwplot(hacide_resampling)
+
+## 3.2. AUC 지표
+pred_rf           <- predict(model_rf,       newdata = hacide.test)
+pred_under_rf     <- predict(model_under_rf, newdata = hacide.test)
+pred_up_rf        <- predict(model_up_rf,    newdata = hacide.test)
+pred_smote_rf     <- predict(model_smote_rf, newdata = hacide.test)
+pred_rose_rf      <- predict(model_rose_rf,  newdata = hacide.test)
+
+roc.curve(hacide.test$cls, pred_rf, plot=FALSE)
+roc.curve(hacide.test$cls, pred_under_rf, plot=FALSE)
+roc.curve(hacide.test$cls, pred_up_rf, plot=FALSE)
+roc.curve(hacide.test$cls, pred_smote_rf, plot=FALSE)
+roc.curve(hacide.test$cls, pred_rose_rf, plot=FALSE)
+```
+
+### 3.3. `caret` 클래스 불균형 성능평가 시각화 {#ml-class-imbalance-caret-counter-measure-viz}
+
+`ggplot`으로 ROC 곡선을 도식화하여 성능을 비교한다.
+
+``` {r class-imbalance-countermeasure-caret-performance-viz}
+## 3.3. ggplot ROC 데이터 
+pred_rf           <- predict(model_rf,       newdata = hacide.test, type="prob")
+pred_under_rf     <- predict(model_under_rf, newdata = hacide.test, type="prob")
+pred_up_rf        <- predict(model_up_rf,    newdata = hacide.test, type="prob")
+pred_smote_rf     <- predict(model_smote_rf, newdata = hacide.test, type="prob")
+pred_rose_rf      <- predict(model_rose_rf,  newdata = hacide.test, type="prob")
+
+
+raw_roc_df   <- tibble(cls = hacide.test$cls, pred= pred_rf[,2],   sampling="원데이터")
+under_roc_df <- tibble(cls = hacide.test$cls, pred=pred_under_rf[,2],  sampling="과소 표집")
+up_roc_df    <- tibble(cls = hacide.test$cls, pred=pred_up_rf[,2], sampling="과대 표집")
+smote_roc_df <- tibble(cls = hacide.test$cls, pred=pred_smote_rf[,2],  sampling="SMOTE 표집")
+rose_roc_df  <- tibble(cls = hacide.test$cls, pred=pred_rose_rf[,2],  sampling="ROSE 표집")
+
+hacide_caret_roc_df <- bind_rows(raw_roc_df, under_roc_df) %>% 
+    bind_rows(up_roc_df) %>% 
+    bind_rows(smote_roc_df) %>% 
+    bind_rows(rose_roc_df)
+
+## 4.4. ggplot ROC 시각화
+
+ggplot(hacide_caret_roc_df, aes(d = cls, m = pred, color=sampling)) + 
+    geom_roc(labels =FALSE)  +
+    style_roc() +
+    theme_pubr(base_family="NanumGothic") +
+    theme(legend.position = "top") +
+    labs(color="클래스 불균형 해소방법: ")
+```
