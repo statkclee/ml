@@ -60,7 +60,6 @@ loadfonts()
     - 컷오프 기준을 조정
     - 소수 표본 데이터에 좀더 예민하게 반응하도록 알고리즘을 조정
 
-
 ### 1.1. 환경설정 {#class-imbalance-import-setup}
 
 [Practical Guide to deal with Imbalanced Classification Problems in R](https://www.analyticsvidhya.com/blog/2016/03/practical-guide-deal-imbalanced-classification-problems/)에서 소개된 방법을 따라 
@@ -122,6 +121,11 @@ hacide.train %>% count(cls) %>%
 - 과소표집(Under-Sampling)
 - 양쪽 표집(Both-Sampling)
 - 로즈 표집(ROSE Sampling)
+
+클래스 불균형 극복전략을 예측모형과 연관하여 부츠트랩 표본을 생성하고 나서 각 부츠트랩 표본에서 과소표집(Down-sampling)을 통해 클래스 불균형을 해소하고 
+단순한 예측모형을 적합시킨 후에 다수결 원칙에 의거하여 최종 예측모형을 완성하는 과정을 거친다.
+
+<img src="fig/class-imbalance-framework.png" alt="클래스 불균형 대응 예측모형" width="77%" />
 
 ``` {r class-imbalance-countermeasure}
 # 3. 클래스 불균형(class imbalance) 극복전략 -----
@@ -339,3 +343,28 @@ ggplot(hacide_caret_roc_df, aes(d = cls, m = pred, color=sampling)) +
     theme(legend.position = "top") +
     labs(color="클래스 불균형 해소방법: ")
 ```
+
+# 4. 향상도(Lift) [^caret-lift] {#ml-class-imbalance-problem-lift}
+
+[^caret-lift]: [caret 17 Measuring Performance, lift](https://topepo.github.io/caret/measuring-performance.html#lift)
+
+향상도(Lift)를 통해 희소한, 관심있는 클래스를 탐지하는데 예측모형에서 나온 표본 중 얼마를 탐지해야 유의미한지 확인한다.
+
+``` {r ml-class-imbalance-lift}
+# 5. lift ------------
+
+hacide.test$pred <- predict(model_rose_rf,  newdata = hacide.test, type="prob")[, "yes"]
+
+hacide_lift <- caret::lift(cls ~ pred,  data = hacide.test, cuts = 100, class="yes")
+
+ggplot(hacide_lift, values=80) +
+    geom_line(color="blue") +
+    theme_pubr(base_family = "NanumGothic") +
+    labs(title = "hacide 데이터에 대한 향상도(lift)", 
+         subtitle = "희귀한 2% 사례 80%를 탐지하기 하는데 약 5% 정도 노력만 필요",
+        x="탐색해야 될 표본비율(% Samples Tested)", y="탐색된 표본비율(% Samples Found)") +
+    scale_x_continuous(breaks = seq(0,100,10)) +
+    scale_x_continuous(breaks = seq(0,100,10))
+```
+
+

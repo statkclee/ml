@@ -26,6 +26,10 @@ subtitle: 데이터 과학자가 바라본 기계학습
     1. [기계학습 알고리즘](04-algorithm.html)
         1. [나무기반 기계학습모형](ml-tree-model.html)
         1. [기계학습 예측모형 준비](ml-predictive-modeling-basic.html)        
+    1. **R 예측모형 안쪽**
+        - [R 모형설계행렬(Recipe)](ml-r-design-matrix.html)
+        - [R기반 빅데이터 개발/운영환경](ml-r-bigdata-workflow.html)
+        - [R 모형개발 자동화(recipe, caret, twidlr)](ml-r-pipeline.html)
     1. 데이터 전처리
         1. [예측모형 적용을 위한 전처리](ml-preprocessing.html)
         1. [데이터 전처리 및 정제(파이썬)](14-ml-data-munging.html)
@@ -49,10 +53,6 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [EMR 스파크 클러스터 - wadal](ml-emr-wadal.html)
         1. [분석할 데이터를 스파크에 적재하는 방법 - S3 포함](ml-ec2-s3.html)
         1. [dplyr을 Spark 위에 올린 sparklyr](ml-sparklyr.html)
-    - **예측모형 개발 자동화**
-        - [R 모형설계행렬(Recipe)](ml-r-design-matrix.html)
-        - [R기반 빅데이터 개발/운영환경](ml-r-bigdata-workflow.html)
-        - [R 모형개발 자동화(recipe, caret, twidlr)](ml-r-pipeline.html)
     1. [데이터에 무게를 둔 예측모형](ml-modeling.html)
         1. **인간 중심 기계학습 모형**
             1. [선형대수와 함께하는 회귀분석 이해](ml-linear-algebra-reg.html)    
@@ -70,26 +70,10 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. **기계 중심 기계학습**
 1. **데이터 유형별 기계학습 모형**
     1. [네트워크 데이터](https://statkclee.github.io/network/)
-        - 보다 심화된 네트워크 데이터에 대한 분석을 위해 별도 저장소로 이동.
-    1. **[텍스트 데이터와 저작](https://statkclee.github.io/ds-authoring/)**
-        1. **텍스트 데이터 다루기**
-            1. [숫자를 문자로 표현](ml-number-to-text.html)
-            1. [stringr을 통해 문자열/텍스트 다루기](ml-stringr.html)
-            1. [해외연극 등장인물 출현횟수](ml-movie-play.html)
-            1. [국내영화(건축학 개론) 등장인물 출현횟수](ml-movie-arch101.html)
-        1. **[텍스트 마이닝(text mining)](ml-text.html)**
-            1. [텍스트 단어구름(Word Cloud)](ml-wordcloud.html)    
-            1. [텍스트 데이터 수집 -- 트위터](ml-text-twitter.html)
-            1. [단어문서행렬 -- 단어 빈도](ml-text-tdm.html)
-            1. [소설 텍스트 데이터 분석 -- 소나기](ml-text-basic.html)
-            1. [저녁이 있는 삶 -- 손학규](ml-book.html)
-            1. [연설문 판별 - 오바마 vs. 롬니](http://statkclee.github.io/politics/text-classify-speeches.html)
-        1. **평점 텍스트 데이터**
-            1. [텍스트 분류(Text Classification) - 나이브 베이즈(naive bayes)](ml-text-classification.html)
-            1. [고객 방문후기 평점 감성분석 - 옐프(Yelp)](ml-text-sentiment-yelp.html)
-            1. [영화 평점 - 무비렌즈(MovieLens)](ml-text-movielens.html)
-        1. **[감성분석(Sentiment Analysis) - 깔끔한 텍스트 방식(tidytext)](ml-sentiment.html)**
-        1. [정규표현식에서 워드2벡(Word2Vec)](ml-regex-word2vec.html)
+        - 보다 심화된 네트워크 데이터에 대한 분석을 위해 별도 저장소로 2017-12월 이동.
+    1. [텍스트 데이터](https://statkclee.github.io/text/)
+        - 보다 심화된 네트워크 데이터에 대한 분석을 위해 별도 저장소로 2018-01월 이동.
+        - [텍스트 데이터와 저작](https://statkclee.github.io/ds-authoring/)
     1. **[장바구니 데이터 분석](ml-market-basket.html)**    
 1. **기계학습 상용화**
     1. [기계학습 - 기술부채(Technical Debt)](ml-technical-debt.html)
@@ -102,7 +86,6 @@ subtitle: 데이터 과학자가 바라본 기계학습
     1. [마케팅 반응 예측모형](ml-pm-discrete.html)  
     1. [고객 이탈(churn) 모형](ml-pm-churn.html)  
     1. [마케팅 - RFM 및 응용분야](ml-pm-applications.html)
-
 
 
 ## 기계학습 관련 정보 [^David-Julian-2016]
