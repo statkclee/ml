@@ -5,9 +5,9 @@ subtitle: 나무기반 기계학습모형
 output:
   html_document: 
     toc: yes
-    hightlight: tango 
-  pdf_document:
-    latex_engine: xelatex
+    toc_float: true
+    highlight: tango
+    code_folding: hide
 mainfont: NanumGothic
 ---
  
@@ -27,10 +27,10 @@ library(ggpubr)
 library(extrafont)
 loadfonts()
 library(gbm)
-
+library(ggbeeswarm)
 ```
 
-## 1. 나무기반 모형  [^bagging-boosting-comparison] [^weak-learner-stacking] {#tree-based-machine-leanring-model}
+# 1. 나무기반 모형  [^bagging-boosting-comparison] [^weak-learner-stacking] {#tree-based-machine-leanring-model}
 
 [^bagging-boosting-comparison]: [Bagging and Boosting are both ensemble methods in Machine Learning, but what’s the key behind them?](https://quantdare.com/what-is-the-difference-between-bagging-and-boosting/)
 
@@ -67,7 +67,7 @@ library(gbm)
 
 <img src="fig/ml-bagging-vs-boosting.png" alt="배깅과 부스팅 비교" width="57%" />
 
-## 2. 재귀적 분할(recursive partitioning) {#tree-based-model-rpart}
+# 2. 재귀적 분할(recursive partitioning) {#tree-based-model-rpart}
 
 재귀적 분할 예측모형 개발을 위해서 사전에 몇가지 팩키지를 준비한다.
 
@@ -89,6 +89,11 @@ UCI 기계학습 저장소에서 신용승인 데이터 [Credit Approval Data Se
 # library(caret)      # 예측모형 플랫폼
 # library(Metrics)    # 예측모형 성능평가
 # library(ipred)      # 배깅(Bagging)
+# library(randomForest)
+# library(ggpubr)
+# library(extrafont)
+# loadfonts()
+# library(ggbeeswarm)
 
 # 1. 데이터 가져오기 ----------
 
@@ -123,7 +128,7 @@ ce(actual = cc_test$Class,
 rpart.plot::rpart.plot(x = cc_rpart, yesno = 2, type = 0, extra = 0)
 ```
 
-### 2.1. 재귀분할 나무모형 초모수(Hyper Parameter) {#tree-based-model-rpart-tuning}
+## 2.1. 재귀분할 나무모형 초모수(Hyper Parameter) {#tree-based-model-rpart-tuning}
 
 재귀분할 나무모형에서 초모수로 `cp`, 복잡성모수(Complexity Parameter)를 선택하여 나무 가지치기(`prune`) 과정을 거쳐서 
 최적의 모형을 구축하고 모형의 성능과 모형을 시각화하여 시각적 검증도 병행한다.
@@ -168,7 +173,7 @@ hyper_grid <- expand.grid(min_split = min_split,
                           split_criterion = split_criterion)
 ```
 
-### 2.2. 격자 검색 초모수 적합 {#tree-based-model-grid-search-fit}
+## 2.2. 격자 검색 초모수 적합 {#tree-based-model-grid-search-fit}
 
 두번째 단계로 각 초모수 조합 각각에 대해서 재귀분할 의사결정모형에 적합을 시킨다.
 
@@ -197,7 +202,7 @@ for (i in 1:nrow(hyper_grid)) {
 
 ``` {r tree-based-grid-search-optimal}
 
-# 3. 격자 검색 모형 평가 ----------
+## 2.3. 격자 검색 모형 평가 ----------
 
 acc_values <- vector("numeric", length(rpart_hyper_models))
 
@@ -215,7 +220,7 @@ rpart_best_model <- rpart_hyper_models[[which.min(acc_values)]]
 rpart_best_model$control
 ```
 
-### 2.4. 최종 양산모형 {#tree-based-model-grid-search-in-production}
+## 2.4. 최종 양산모형 {#tree-based-model-grid-search-in-production}
 
 최적 모수 조합을 최종 모형으로 선정하고 이를 양산에 반영한다.
 
@@ -238,7 +243,7 @@ rpart.plot::rpart.plot(x = rpart_best_model, yesno = 2, type = 0, extra = 0)
 > <img src="fig/ml-train-valid-test.png" alt="훈련, 유효, 검증 표본" width="77%" />
 
 
-## 3. 배깅(Bagging) [^bagging-boosting-stacking] {#tree-based-model-bagging}
+# 3. 배깅(Bagging) [^bagging-boosting-stacking] {#tree-based-model-bagging}
 
 [^bagging-boosting-stacking]: [Bagging과 Boosting 그리고 Stacking](https://swalloow.github.io/bagging-boosting)
 
@@ -249,7 +254,7 @@ rpart.plot::rpart.plot(x = rpart_best_model, yesno = 2, type = 0, extra = 0)
 
 <img src="fig/ml-bagging.png" alt="기계학습 배깅(Bagging)" width="57%" />
 
-### 3.1. `ipred` 배깅 {#tree-based-model-bagging-ipred}
+## 3.1. `ipred` 배깅 {#tree-based-model-bagging-ipred}
 
 `ipred` 팩키지 내부 `bagging()` 함수를 활용하면 의사결정 나무모형에 배깅을 구현할 수 있다.
 
@@ -274,7 +279,7 @@ auc(predicted = bag_prob_pred[,"Good"],
     actual = ifelse(cc_test$Class == "Good", 1, 0)) 
 ```
 
-### 3.2. `caret` 배깅 {#tree-based-model-bagging-caret}
+## 3.2. `caret` 배깅 {#tree-based-model-bagging-caret}
 
 `ipred` 대신 `caret` 팩키지를 활용하면 예측모형 설정을 하고 나서, `method = "treebag"` 인자를 지정하면 
 동일하게 의사결정 나무모형에 배깅을 적합시킬 수 있다.
@@ -307,7 +312,7 @@ auc(actual = ifelse(cc_test$Class == "Good", 1, 0),
     predicted = bag_prob_pred[,"Good"])
 ```
 
-## 4. 확률숲(Random Forest) {#tree-based-model-random-forest}
+# 4. 확률숲(Random Forest) {#tree-based-model-random-forest}
 
 배깅이 붓츠트랩 표본을 통해 약한 학습기(weak learner)로 학습을 할 때 변수(feature) 전체를 사용하는데 
 반해서 Random Forest는 `mtry`를 통해 변수 숫자를 조정할 수 있다. 기본 디폴트 설정으로 $\sqrt{\text{변수 전체 갯수}}$로 되어 있지만,
@@ -315,7 +320,7 @@ auc(actual = ifelse(cc_test$Class == "Good", 1, 0),
 
 <img src="fig/ml-random-forest.png" alt="Random Forest" width="57%" />
 
-### 4.1. 확률숲(Random Forest) 맛보기 {#tree-based-model-random-forest-setup}
+## 4.1. 확률숲(Random Forest) 맛보기 {#tree-based-model-random-forest-setup}
 
 `ntree` 의사결정 나무모형 갯수를 증가시킬수록 모형의 정확도는 높아지만, 높아지는 정확도에 비해 얻어지는 성능향상은 점점 줄어들게 된다.
 
@@ -346,7 +351,7 @@ ggplot(err_df, aes(x=index, y=오류율, color=범주)) +
   labs(x="", y="오류율")
 ```
 
-### 4.3. 확률숲(Random Forest) 튜닝 {#tree-based-model-random-forest-tuning}
+## 4.3. 확률숲(Random Forest) 튜닝 {#tree-based-model-random-forest-tuning}
 
 앞서 재귀분할 의사결정모형에서와 마찬가지로 Random Forest 모형에 적합한 초모수를 유사한 방식으로 찾아내어
 최적 Random Forest 모형을 구축한다.
@@ -391,7 +396,8 @@ rf_best_model <- randomForest(formula = Class ~ .,
                       data     = cc_train,
                       mtry     = 12,
                       nodesize = 3,
-                      sampsize = 483)
+                      sampsize = 483,
+                      proximity=TRUE)
 
 ## 검증표본 오분류율
 
@@ -412,7 +418,138 @@ auc(actual = ifelse(cc_test$Class == "Good", 1, 0),
     predicted = rf_prob_pred[,"Good"])
 ```
 
-## 5. 부스팅(Boosting) {#tree-based-model-boosting}
+## 4.4. 확률숲(Random Forest) 모형설명 {#tree-based-model-random-forest-explain}
+
+확률숲 나무모형에 대해서 이해를 통해 예측력도 뛰어나고 이를 통해 실무자가 실무에 적극 활용할 수 있게 된다.
+
+### 4.4.1. 노드갯수 {#tree-based-model-random-forest-explain-node}
+
+`rf_best_model` 객체에 초기설정값으로 혹은 임의로 설정한 의사결정나무가 다수 포함되어 있다.
+초기설정값을 지정하지 않았다면 500개 의사결정나무가 포함되게 되는데 각 모형마다 터미널 노드가 몇개로 구성되는지 파학하는 것도 
+모형을 이해하는 좋은 시발점이 된다.
+
+``` {r tree-based-model-rf-explain-node}
+# 5. 모형해석 --------------------------
+## 5.1. 노드 갯수
+treesize(rf_best_model) %>% 
+  as_tibble() %>% 
+  rename(num_nodes = value) %>% 
+  ggplot(aes(x=num_nodes)) +
+  geom_histogram(aes(y = ..count..), 
+                 fill = "lightgreen", color = "lightgreen") + 
+  geom_density(aes(y = ..density..*500), color="blue") +
+  theme_pubr(base_family="NanumGothic") +
+  labs(x="나무모형 노드 갯수", y="나무모형 빈도수")
+```
+
+### 4.4.2. 중요변수 {#tree-based-model-random-forest-explain-impvar}
+
+확률숲 모형은 과거 10년전만해도 최고의 성능을 나타내는 예측모형 중 하나였다. 
+최고의 성능을 내는데 어떠한 변수가 중요한 역할을 하는지 상위 10개 변수를 뽑아서 살펴보는데 `varImpPlot()` 함수를 활용한다.
+
+``` {r tree-based-model-rf-explain-impvar}
+## 5.2. 변수 중요도
+varImpPlot(rf_best_model,
+           sort = TRUE,
+           n.var = 10,
+           main = "중요변수 상위 10",
+           family = "NanumGothic")
+```
+
+### 4.4.3. 모형에 변수가 활용된 횟수 {#tree-based-model-random-forest-explain-varUsed}
+
+초기설정된 500개 의사결정나무 모형에 각변수가 몇번 사용되었는지도 예측모형을 이해하는데 중요한 지표가 될 수 있다.
+`varUsed()` 함수를 통해 변수중요도와 함께 모형에 변수가 활용된 횟수를 파악함으로써 블랙박스 모형이해에 한걸음 더 다가서게 된다.
+
+``` {r tree-based-model-rf-explain-varUsed}
+## 5.3. 모형에 변수가 나타난 횟수
+varUsed(rf_best_model) %>% as_tibble() %>% 
+  mutate(변수명 = setdiff(names(cc_train), "Class")) %>% 
+  ggplot(aes(x=변수명, y=value)) +
+    geom_col() +
+    scale_y_continuous(labels = scales::comma) +
+    labs(x="", y="변수가 나무모형에 포함된 빈도수") +
+    theme_pubr(base_family="NanumGothic") +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+### 4.4.4. 편의존성(Partial Dependence Plot) 그래프 {#tree-based-model-random-forest-explain-partial}
+
+`varImpPlot()`, `varUsed()` 함수를 통해서 중요한 변수를 추출했다면 다음으로 중요한 변수가 어디를 기준으로 
+종속변수를 분류하게 되었는지 이해하는 것도 필요하다. 이를 위해서 `partialPlot()` 함수에 앞서 파악한 중요변수를 넣어서 
+중요변수값 변화에 따른 신용평점 변화를 파악하게 된다.
+
+``` {r tree-based-model-rf-explain-partial}
+## 5.4. 편의존성 그래프(Partial Dependence Plot)
+top_6_var <- importance(rf_best_model) %>% 
+  as.data.frame() %>% 
+  rownames_to_column(var="변수명") %>% 
+  as_tibble() %>% 
+  arrange(desc(MeanDecreaseGini)) %>% 
+  top_n(6)
+
+par(mfrow=c(2,3))
+
+for(i in seq_along(top_6_var$변수명)) {
+  partialPlot(rf_best_model, cc_train, pull(top_6_var[i,1]), "Bad",
+              xlab = pull(top_6_var[i,1]),
+              main = paste("Partial Dependence on", pull(top_6_var[i,1])))
+}
+```
+
+### 4.4.5. 분류 집단 변수별 시각화 - MDS와 친구들 [^stackexchange-rf-viz] {#tree-based-model-random-forest-explain-mds}
+
+[^stackexchange-rf-viz]: [Alternative to MDS plot for random forest visualisation](https://stats.stackexchange.com/questions/286993/alternative-to-mds-plot-for-random-forest-visualisation)
+
+`randomForest()` 예측모형을 개발할 때 `proximity=TRUE`로 설정하게 되면 `MDSplot()`을 통해 다차원 설명변수를 차원축소를 통해서 
+"Good", "Bad" 두집단을 파악할 수 있다. 하지만, 직접적으로 각 변수별로 분류집단을 시각화하는 것이 직관적으로 다가서기도 하다.
+이를 위해서 `classCenter()` 함수를 통해 `rf_best_model$proximity`에서 분류집단별 중심점을 찾아 `rf_best_model_center` 객체에 넣어두고 
+이를 `ggplot()`을 통해 앞서 추출한 중요변수를 집단 중심점을 겹쳐서 시각화한다.
+
+``` {r tree-based-model-rf-explain-mds}
+## 5.5. MDS --------------
+### MDS 그래프
+MDSplot(rf_best_model, k=3, cc_train$Class)
+
+### 변수별 설명
+top_6_var_v <- top_6_var %>% 
+  pull(변수명)
+
+rf_best_model_center <- classCenter(cc_train[,-10], cc_train[,10], rf_best_model$proximity) %>% 
+  as.data.frame() %>% 
+  rownames_to_column(var="Class") %>% 
+  as_tibble()
+
+rf_best_model_center_df <- rf_best_model_center %>% 
+  gather(key, value, -Class) %>%
+  filter(key %in% top_6_var_v)
+
+cc_train %>% 
+  gather(key, value, -Class) %>% 
+  filter(key %in% top_6_var_v) %>% 
+  ungroup() %>% 
+  ggplot(aes(x=Class, color=Class)) + 
+    geom_quasirandom(aes(y=value), groupOnX=TRUE, alpha =0.3, height=1) +
+    # geom_point(aes(y=value)) +
+    geom_point(data=rf_best_model_center_df, aes(y=value), size=4, pch=15, color='grey40') + 
+    facet_wrap( ~ key, scales = "free") +
+    scale_y_continuous(labels = scales::comma) +
+    labs(x="", y="") +
+    theme_pubr(base_family="NanumGothic")
+```
+
+### 4.4.6. 의사결정나무 추출 {#tree-based-model-random-forest-explain-single}
+
+`getTree()` 함수를 통해 초기설정한 500개 의사결정나무 중 특정 나무를 추출해 낼 수 있다.
+이를 통해 추가분석을 진행하는 것도 가능하다. 
+
+
+``` {r tree-based-model-rf-explain-single, eval=FALSE}
+## 5.6. 의사결정나무 추출 --------------
+getTree(rf_best_model, 1, labelVar = TRUE)
+```
+
+# 5. 부스팅(Boosting) {#tree-based-model-boosting}
 
 배깅이나 Random Forest가 병렬로 다수 의사결정 나무모형을 만들어내는 것과 달리
 부스팅(Boosting)은 순차적으로 의사결정 나무모형을 적합시킨다.
@@ -453,7 +590,7 @@ auc(actual = cc_test$Class, predicted = gbm_prob_pred)
 ```
 
 
-## 6. 모형 평가 및 비교 {#tree-based-model-comparison}
+# 6. 모형 평가 및 비교 {#tree-based-model-comparison}
 
 AUC 값을 기반으로 데이터에 가장 적합한 예측모형을 식별하고 시각화한다.
 
@@ -479,3 +616,5 @@ auc(actual = cc_test$Class, predicted = gbm_prob_pred)
 #       legend = c("배깅(Bagging)", "Random Forest", "GBM"),
 #       fill = 1:length(pred_list))
 ```
+
+
