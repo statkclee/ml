@@ -544,7 +544,7 @@ cc_train %>%
 이를 통해 추가분석을 진행하는 것도 가능하다. 
 
 
-``` {r tree-based-model-rf-explain-single, eval=FALSE}
+``` {r tree-based-model-rf-explain-single, eval=FALSE657100}
 ## 5.6. 의사결정나무 추출 --------------
 getTree(rf_best_model, 1, labelVar = TRUE)
 ```
