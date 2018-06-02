@@ -1,290 +1,264 @@
 ---
 layout: page
 title: xwMOOC 기계학습
-subtitle: 모형식별 및 선택
+subtitle: 모형식별 및 선택 (yardstick)
 output:
   html_document: 
-    keep_md: yes
-  pdf_document:
-    latex_engine: xelatex
+    toc: yes
+    toc_float: true
+    highlight: tango
+    code_folding: show
 mainfont: NanumGothic
 ---
  
-> ## 학습목표 {.objectives}
->
-> * 기계학습 모형식별하고 선택한다.
-> * 기계학습 모형식별의 중요한 결정사항에 대해 파악한다.
 
 
 
-## 1. 기계학습 모형 선택 [^applied-predictive-modeling]
+# 1. 기계학습 예측모형 선택 [^best-algorithm] [^applied-predictive-modeling] {#predictive-model}
 
 [^applied-predictive-modeling]: [Kuhn, Max, and Kjell Johnson. Applied predictive modeling. New York: Springer, 2013.](http://link.springer.com/book/10.1007/978-1-4614-6849-3)
+
+[^best-algorithm]: [Randal S. Olson, William La Cava, Zairah Mustahsan, Akshay Varik, Jason H. Moore(2018), "Data-driven Advice for Applying Machine Learning to Bioinformatics Problems"](https://arxiv.org/abs/1708.05070v1)
 
 기계학습 모형을 선정할 때, 인간이 사용하는 경우 **성능 상한(Performance Ceiling)** 을 가장 복잡한 모형으로 잡고, 
 컴퓨팅 복잡성, 예측 용이성, 해석 편이성을 고려하여 모형을 선정한다. 
 예를 들어, 비선형 지지도 벡터 머신(Nonlinear SVM) 혹은 확률숲(Random Forest)의 경우 데이터에 대한 접합은 좋지만, 
 실제 운영환경으로 배포하기가 그다지 좋지는 못하다.
 
-1. 기계학습 모형을 최종 모형으로 선정할 때 가장 해석이 되지 않지만 가장 유연한 모형으로 시작한다.
+1. 분류문제(classification) 이항회귀모형과 연속형 예측 선형회귀모형은 최종적으로 선정되는 예측모형과 벤치마크 성능을 비교하는 지표로 필히 실행하여 선정한다.
+1. 기계학습 모형을 최종 모형으로 선정할 때 해석용이성은 떨어지지만, 가장 성능이 좋은 모형으로 선정한다.
 예를 들어, 부스팅 나무모형(Boosting Tree Models), 지지도 벡터 머신(Support Vector Machine, SVM)으로 시작하는데 이유는 가장 정확한 최적의 결과를 제공하기 때문이다.
 1. 최적의 모형이 어떻게 보면 가장 좋은 성능의 상한을 제시하게 되고, 이를 기반으로 최적의 성능에 버금가는 해석이 용이한 모형을 탐색한다. 
 예를 들어, multivariate adaptive regression splines (MARS), partial least squares, generalized additive models, 나이브 베이즈 모형이 대표적이다.
 1. 성능은 복잡성이 높은 모형이 기준이 되고, 검토하는 모형은 가장 단순한 모형으로 선정한다.
 
 
-## 2. 모형 선정 사례 -- 독일신용평가 데이터
+# 2. 각 단계별 데이터셋 [^applied-predictive-modeling] {#predictive-model}
 
-### 2.1. 데이터 가져오기
+데이터셋을 훈련(train), 타당성검증(validation), 시험(test) 데이터셋을 나누고 
+데이터의 역할에 맞게 기계학습 모형 선정에 필요한 기능을 갖추는데 활용한다.
+훈련 데이터, 타당성검증 데이터, 시험 데이터는 많은 경우 6:2:2 비율로 나누는 것이 일반적이다.
+그리고, 모형을 한번 수행하는 것이 아니라 10-fold 교차검증을 5번 반복하는 것이 좋은 성능을 낸다는 연구결과도 있다.
+
+<img src="fig/ml-caret-yardstick.png" alt="기계학습 모형선정 및 평가" width="77%" />
+
+# 3. 모형 선정 사례 -- 독일신용평가 데이터 {#german-credit-data}
+
+## 3.1. 환경설정 및 데이터 가져오기 {#german-credit-data-import}
 
 독일신용평가 데이터를 `caret` 팩키지에 포함된 것을 사용한다. 훈련데이터와 검증데이터를 반반 나눈다.
 `createDataPartition` 함수를 사용해서 쉽게 사용한다. `sample` 함수를 사용해도 좋다.
+데이터 전처리가 깔끔히 되어 있으니 생략한다. 필요하면 더 작업을 해도 좋다.
 
 
 ~~~{.r}
-##==========================================================================================
-## 01. 데이터 가져오기
-##==========================================================================================
-suppressMessages(library(caret))
+# 0. 환경설정 ------
+library(caret)
+library(tidyverse)
+library(yardstick)
+~~~
+
+
+
+~~~{.output}
+Error in library(yardstick): there is no package called 'yardstick'
+
+~~~
+
+
+
+~~~{.r}
+# 1. 데이터 ------
+## 1.1. 데이터 가져오기
 data(GermanCredit)
-
-in_train <- createDataPartition(GermanCredit$Class, p = .5, list = FALSE)
-
-credit.train.df <- GermanCredit[in_train, ]
-credit.test.df <- GermanCredit[-in_train, ]
 ~~~
 
-### 2.2. 데이터 전처리
+## 3.2. 데이터 분할 {#german-credit-data-split}
 
-이미 데이터 전처리가 깔끔히 되어 있으니 생략한다. 필요하면 더 작업을 해도 좋다.
+`createDataPartition()` 함수를 사용해서 우선 훈련 데이터를 먼저 발래내고,
+다음으로 타당성검증과 시험 데이터를 순차적으로 발라낸다.
+이때, 일반적인 데이터 분할 사례 6:2:2를 반영한다. 즉,
+훈련데이터 60%, 타당성검증 데이터 20%, 시험데이터 20%를 반영한다.
 
 
 ~~~{.r}
-##==========================================================================================
-## 02. 데이터 전처리
-##==========================================================================================
-# 생략... 이미 정제가 완료된 데이터
+## 1.2. 데이터 분할: 훈련, 타당성검증, 시험
+### 훈련 vs 검증/시험
+in_train <- createDataPartition(GermanCredit$Class, p = c(0.6, 0.4), list = FALSE)
+
+training <- GermanCredit[in_train, ]
+validation_test <- GermanCredit[-in_train, ]
+
+### 타당성검증 vs 시험
+in_test <- createDataPartition(validation_test$Class, p = c(0.5, 0.5), list = FALSE)
+
+validation <- validation_test[-in_test, ]
+testing <- validation_test[in_test, ]
 ~~~
 
-### 2.3. 데이터에 모형을 적합
+## 3.3. 모형공식 {#german-credit-model-formula}
 
 R에 공식 비공식적으로 10,000개가 넘는 팩키지가 존재하고 각 팩키지마다 모형을 명세하는 방식이 다르다.
 크게 `~` 공식을 사용하는 방식과 데이터프레임 `=` 을 사용하는 방식이 있는데 팩키지마다 공식을 명세하는 방식을 준용하면 된다. 
 중요한 것은 `~`, `=` 좌측은 종속변수, 우측은 독립변수가 위치해 넣으면 된다.
 
-이항회귀모형과 SVM, 확률숲(randomForest) 모형을 차례로 적합시켜 **성능**은 가장 뛰어나면서, 
+
+~~~{.r}
+# 2. 예측모형 개발 ------
+## 2.1. 예측모형 공식 
+
+credit_var <- setdiff(colnames(training), list('Class'))
+credit_formula <- as.formula(paste('Class', paste(credit_var, collapse=' + '), sep=' ~ '))
+~~~
+
+## 3.4. 모형 아키텍처 {#german-credit-model-architecture}
+
+일반화선형모형(GLM)을 벤치마킹 기본 모형으로 잡고, 
+독일신용평가 데이터는 분류문제로 CART 모형도 예측모형에 포함하고 
+`Random Forest`, GBM, xgBoost를 선택해야하는 모형 아키텍처에 포함시킨다. 
+모형을 차례로 적합시켜 **성능**은 가장 뛰어나면서, 
 
 1. 가장 단순한 모형
 1. 가장 이해하기 쉬운 모형
 1. 가장 실운영환경에 배포하기 좋은 모형
 
-이런 모형을 선정한다.
+이런 모형을 선정한다. 이를 위한 판단기준으로 타당성검증(validation) 데이터를 활용한다.
+타당성검증(validation) 데이터는 물론 훈련과정에 포함된 적은 없다.
+
+`trainControl()` 함수에 `method = 'cv'`로 설정하게 되면 10-fold 가 지정된다.
+이를 반복해서 5회하는 것이 성능이 좋은 것으로 알려져 있다.
 
 
 ~~~{.r}
-##==========================================================================================
-## 03. 모형적합
-##==========================================================================================
-# 모형 공식 준비
+## 2.2. 예측모형 아키텍처 
+ml_control <- trainControl(method = "repeatedcv", 
+                           number = 10, 
+                           repeats = 5,
+                           sampling = "up",
+                           verboseIter=FALSE)
 
-credit.var <- setdiff(colnames(credit.train.df),list('Class'))
-credit.formula <- as.formula(paste('Class', paste(credit.var,collapse=' + '), sep=' ~ '))
+### 2.2.1. 벤치마크 모형 - 이항회귀모형 적합
+glm_m <- train(credit_formula, data = training,
+                        method = "glm", family=binomial(link='logit'),
+                        trControl = ml_control)
 
-#-------------------------------------------------------------------------------------------
-# 1. 이항회귀모형 적합
+### 2.2.2. 의사결정나무모형(cart)
+cart_m <- train(credit_formula, data = training,
+                method = "rpart",
+                trControl = trainControl(method = "none",
+                                         sampling = "up"))
 
-credit.logit.m <- train(credit.formula, data = credit.train.df,
-                       method = "glm", family=binomial(link='logit'),
-                       trControl = trainControl(method = "repeatedcv", repeats = 5))
-credit.logit.m
+### 2.2.3. 확률숲(Random Forest)
+rf_m <- train(credit_formula, data = training,
+                 method = "rf",
+                 trControl = ml_control)
+
+### 2.2.4. gbm
+gbm_m <- train(credit_formula, data = training,
+                     method = "gbm",
+                     trControl = ml_control,
+                     verbose = FALSE)
+
+### 2.2.5. xgBoost
+xgboost_m <- train(credit_formula, data = training,
+                     method = "xgbLinear",
+                     trControl = ml_control)
 ~~~
 
 
 
-~~~{.output}
-Generalized Linear Model 
+## 3.5. 모형 아키텍처 선정 {#german-credit-model-choose}
 
-500 samples
- 61 predictor
-  2 classes: 'Bad', 'Good' 
-
-No pre-processing
-Resampling: Cross-Validated (10 fold, repeated 5 times) 
-Summary of sample sizes: 450, 450, 450, 450, 450, 450, ... 
-Resampling results:
-
-  Accuracy  Kappa    
-  0.7332    0.3280172
-
- 
-
-~~~
-
+이항회귀모형, 의사결정나무, 확률숲(randomForest), GBM, xgBoost 모형의 성능을 정확도(accuracy)를 기준으로 각각 비교한다.
 
 
 ~~~{.r}
-#-------------------------------------------------------------------------------------------
-# 2. SVM 
+## 2.3. 모형 아키텍처 선정 
+model_arch <- validation %>%
+    mutate(GLM = predict(glm_m, validation),
+           CART = predict(cart_m, validation),
+           RF = predict(rf_m, validation),
+           XGB = predict(xgboost_m, validation),
+           GBM = predict(gbm_m, validation))
 
-credit.svm.m <- train(credit.formula, data = credit.train.df,
-                  method = "svmRadial",
-                  tuneLength = 10,
-                  trControl = trainControl(method = "repeatedcv", repeats = 5))
+metrics(model_arch, truth = Class, estimate = GLM)
 ~~~
 
 
 
 ~~~{.output}
-Loading required package: kernlab
-
-~~~
-
-
-
-~~~{.output}
-
-Attaching package: 'kernlab'
-
-~~~
-
-
-
-~~~{.output}
-The following object is masked from 'package:ggplot2':
-
-    alpha
+Error in metrics(model_arch, truth = Class, estimate = GLM): 함수 "metrics"를 찾을 수 없습니다
 
 ~~~
 
 
 
 ~~~{.r}
-credit.svm.m
+metrics(model_arch, truth = Class, estimate = CART)
 ~~~
 
 
 
 ~~~{.output}
-Support Vector Machines with Radial Basis Function Kernel 
-
-500 samples
- 61 predictor
-  2 classes: 'Bad', 'Good' 
-
-No pre-processing
-Resampling: Cross-Validated (10 fold, repeated 5 times) 
-Summary of sample sizes: 450, 450, 450, 450, 450, 450, ... 
-Resampling results across tuning parameters:
-
-  C       Accuracy  Kappa        
-    0.25  0.6996    -0.0007792208
-    0.50  0.6860    -0.0185525049
-    1.00  0.6920     0.0471641071
-    2.00  0.7004     0.0875409530
-    4.00  0.7076     0.1076889328
-    8.00  0.7068     0.1070036279
-   16.00  0.7064     0.1124521970
-   32.00  0.7064     0.1181307521
-   64.00  0.6992     0.1055573595
-  128.00  0.6964     0.1074038992
-
-Tuning parameter 'sigma' was held constant at a value of 4.600361e-06
-Accuracy was used to select the optimal model using  the largest value.
-The final values used for the model were sigma = 4.600361e-06 and C = 4. 
+Error in metrics(model_arch, truth = Class, estimate = CART): 함수 "metrics"를 찾을 수 없습니다
 
 ~~~
 
 
 
 ~~~{.r}
-#-------------------------------------------------------------------------------------------
-# 3. randomForest
-
-credit.rf.m <- train(credit.formula, data = credit.train.df,
-                method = "rf",
-                trControl=trainControl(method="repeatedcv",repeats=5),
-                prox=TRUE, allowParallel=TRUE)
+metrics(model_arch, truth = Class, estimate = RF)
 ~~~
 
 
 
 ~~~{.output}
-Loading required package: randomForest
-
-~~~
-
-
-
-~~~{.output}
-randomForest 4.6-12
-
-~~~
-
-
-
-~~~{.output}
-Type rfNews() to see new features/changes/bug fixes.
-
-~~~
-
-
-
-~~~{.output}
-
-Attaching package: 'randomForest'
-
-~~~
-
-
-
-~~~{.output}
-The following object is masked from 'package:ggplot2':
-
-    margin
+Error in metrics(model_arch, truth = Class, estimate = RF): 함수 "metrics"를 찾을 수 없습니다
 
 ~~~
 
 
 
 ~~~{.r}
-credit.rf.m
+metrics(model_arch, truth = Class, estimate = GBM)
 ~~~
 
 
 
 ~~~{.output}
-Random Forest 
-
-500 samples
- 61 predictor
-  2 classes: 'Bad', 'Good' 
-
-No pre-processing
-Resampling: Cross-Validated (10 fold, repeated 5 times) 
-Summary of sample sizes: 450, 450, 450, 450, 450, 450, ... 
-Resampling results across tuning parameters:
-
-  mtry  Accuracy  Kappa     
-   2    0.7160    0.07941971
-  31    0.7444    0.33255677
-  61    0.7416    0.34102545
-
-Accuracy was used to select the optimal model using  the largest value.
-The final value used for the model was mtry = 31. 
+Error in metrics(model_arch, truth = Class, estimate = GBM): 함수 "metrics"를 찾을 수 없습니다
 
 ~~~
 
 
-### 2.4. 모형 평가 및 선정
 
-SVM, 이항회귀모형, 확률숲(randomForest) 모형의 성능을 각각 비교하고,
-쌍체 t-검증 (paired t-test)을 사용하여 모형간 유의성을 검증한다.
-이항회귀모형과 확률숲 모형간에 유의미한 차이가 발견되지 않아 단순한 이항회귀모형을 선정한다.
+~~~{.r}
+metrics(model_arch, truth = Class, estimate = XGB)
+~~~
+
+
+
+~~~{.output}
+Error in metrics(model_arch, truth = Class, estimate = XGB): 함수 "metrics"를 찾을 수 없습니다
+
+~~~
+
 
 
 ~~~{.r}
-resample.res <- resamples(list(SVM = credit.svm.m, Logistic = credit.logit.m, randomForest=credit.rf.m))
-summary(resample.res)
+# predict(glm_m, validation, type="prob")
+~~~
+
+사실 모형 아키텍처에 포함된 모든 모형이 동일한 값을 주지는 않는다.
+차이가 크다고 하더라도 확률적인 요인에 의한 차이로 밝혀질 수도 있다. 
+이런 경우 쌍체 $t$-검증 (paired t-test)을 사용하여 모형간 유의성을 검증한다.
+만약 차이점이 없다면 가장 단순한 모형을 선택한다.
+
+
+~~~{.r}
+diff_test <- resamples(list(GLM = glm_m, 
+                            XGB = xgboost_m))
+summary(diff_test)
 ~~~
 
 
@@ -292,30 +266,27 @@ summary(resample.res)
 ~~~{.output}
 
 Call:
-summary.resamples(object = resample.res)
+summary.resamples(object = diff_test)
 
-Models: SVM, Logistic, randomForest 
+Models: GLM, XGB 
 Number of resamples: 50 
 
 Accuracy 
-             Min. 1st Qu. Median   Mean 3rd Qu. Max. NA's
-SVM          0.64    0.68   0.72 0.7076    0.72 0.76    0
-Logistic     0.62    0.70   0.74 0.7332    0.76 0.86    0
-randomForest 0.62    0.72   0.74 0.7444    0.78 0.86    0
+         Min.   1st Qu.    Median      Mean   3rd Qu. Max. NA's
+GLM 0.5666667 0.6500000 0.7000000 0.6880000 0.7333333  0.8    0
+XGB 0.6000000 0.6833333 0.7166667 0.7253333 0.7500000  0.9    0
 
 Kappa 
-                 Min. 1st Qu.  Median   Mean 3rd Qu.   Max. NA's
-SVM          -0.07595 0.05882 0.09639 0.1077  0.1772 0.3548    0
-Logistic      0.07216 0.21870 0.33840 0.3280  0.4123 0.6465    0
-randomForest -0.04396 0.24870 0.33840 0.3326  0.4211 0.6602    0
+          Min.   1st Qu.    Median      Mean   3rd Qu.      Max. NA's
+GLM 0.08088235 0.2315447 0.3440519 0.3248065 0.4354193 0.5522388    0
+XGB 0.01639344 0.2163625 0.3286830 0.3250742 0.3750000 0.7368421    0
 
 ~~~
 
 
 
 ~~~{.r}
-model.diff <- diff(resample.res)
-summary(model.diff)
+diff(diff_test) %>% summary
 ~~~
 
 
@@ -323,22 +294,55 @@ summary(model.diff)
 ~~~{.output}
 
 Call:
-summary.diff.resamples(object = model.diff)
+summary.diff.resamples(object = .)
 
 p-value adjustment: bonferroni 
 Upper diagonal: estimates of the difference
 Lower diagonal: p-value for H0: difference = 0
 
 Accuracy 
-             SVM       Logistic randomForest
-SVM                    -0.0256  -0.0368     
-Logistic     0.01202            -0.0112     
-randomForest 9.876e-05 0.70352              
+    GLM      XGB     
+GLM          -0.03733
+XGB 0.004676         
 
 Kappa 
-             SVM       Logistic randomForest
-SVM                    -0.22033 -0.22487    
-Logistic     4.336e-12          -0.00454    
-randomForest 3.438e-11 1                    
+    GLM    XGB       
+GLM        -0.0002678
+XGB 0.9926           
+
+~~~
+
+## 3.6. 최종 모형 성능 {#german-credit-model-choose}
+
+최종적으로 모형의 성능을 `testing` 검증데이터를 통해서 사전에 선정한 측도(정확도, `accuracy`)를 통해 반영한다.
+`xgboost` 모형과 `GLM` 모형의 차이만큼을 모형 성능으로 보고 이를 예측모형으로 적용시킨다.
+
+
+~~~{.r}
+# 3. 모형성능 ------
+testing_perf <- testing %>%
+    mutate(GLM = predict(glm_m, testing),
+           XGB = predict(xgboost_m, testing))
+
+metrics(testing_perf, truth = Class, estimate = GLM)
+~~~
+
+
+
+~~~{.output}
+Error in metrics(testing_perf, truth = Class, estimate = GLM): 함수 "metrics"를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+metrics(testing_perf, truth = Class, estimate = XGB)
+~~~
+
+
+
+~~~{.output}
+Error in metrics(testing_perf, truth = Class, estimate = XGB): 함수 "metrics"를 찾을 수 없습니다
 
 ~~~

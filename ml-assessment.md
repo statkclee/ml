@@ -4,9 +4,10 @@ title: xwMOOC 기계학습
 subtitle: 알고리즘 성능평가
 output:
   html_document: 
-    keep_md: yes
-  pdf_document:
-    latex_engine: xelatex
+    toc: yes
+    toc_float: true
+    highlight: tango
+    code_folding: hide
 mainfont: NanumGothic
 ---
  
@@ -17,14 +18,16 @@ mainfont: NanumGothic
 
 
 
-## 기계학습 알고리즘 성능평가
+# 0. 기계학습 알고리즘 성능평가 {#algo-performance}
 
 기계학습 알고리즘 성능평가는 데이터를 이용해서 풀려는 문제에 따라 다르다.
 
 * 분류 
 * 예측
 
-### 1. 범주형 성능평가 
+# 1. 분류(Classification) 성능평가 [^roc-curve-with-r] {#classification-performance}
+
+[^roc-curve-with-r]: [ROC Curve & Area Under Curve (AUC) with R - Application Example](https://www.youtube.com/watch?v=ypO1DPEKYFo)
 
 전자우편을 스팸(spam)이냐 정상햄(ham)이냐를 분류한 기계학습 알고리즘의 성능을 평가할 때 정량화된 측도가 필요하다. 
 일견 스팸전자우편을 스팸이라고 분류하고, 정상 전자우편을 정상으로 분류하면 되는 간단한 문제로 보이지만 사실 그렇게 간단한 것은 아니다.
@@ -40,28 +43,29 @@ mainfont: NanumGothic
 
 기계학습을 통해 나온 결과를 상기 옹어로 정리한 것이 **오차행렬(confusion matrix)** 이 된다. 2가지 이상되는 분류문제에도 적용될 수 있다. 
 
-|                |                |     **실제 정답**  |              | 
-|----------------|----------------|---------------|---------------|
-|                |                |     참(True)  |  거짓(False)   | 
-| **실험 결과**    |  양성(Positive)  | TP(True Positive)| FP(False Positive) | 
-|                |  음성(Negative) | FN(False Negative)| TN(True Negative) |
+|                |                            |    **실제 정답**     |   (Reference)         | 
+|----------------|----------------------------|----------------------|-----------------------|
+|                |                            | 참(True): Event      | 거짓(False): No Event | 
+| **실험 결과**  | 양성(Positive): Event      | TP(True Positive): A | FP(False Positive): B | 
+| (Predicted)    | 음성(Negative): No Event   | FN(False Negative): C| TN(True Negative): D  |
 
 <img src="fig/ml-precision-recall.svg" alt="정밀도와 재현율 도식화" width="50%"> [^wiki-walber]
 
 [^wiki-walber]: [Precision and recall SVG 파일](https://commons.wikimedia.org/wiki/File:Precisionrecall.svg)
 
-범주형 자료를 목적으로 분류하는 기계학습 알고리즘의 경우 정밀도, 재현율, 정확도를 통상적인 추적 모니터링 대상 측도가 된다.
+범주형 자료를 목적으로 분류하는 기계학습 알고리즘의 경우 정확도, 정밀도, 재현율, 통상적인 추적 모니터링 대상 측도가 된다.
 
-* 정밀도(Precision): 선택된 항목이 얼마나 연관성이 있나를 측정. $$정밀도 = \frac{TP}{TP+FP}$$
-* 재현율(Recall) 혹은 민감도(Sensitivity): 예를 들어, 환자가 실제 암이 있는데, 양성으로 검진될 확률. 연관된 항목이 얼마나 많이 선택되었는지 측정. $$재현율 = \frac{TP}{TP+FN}$$
-* 정확도(Accuracy): 1 에서 빼면 오분류율이 된다. $$정확도 = \frac{TP+TN}{TP+TN+FP+FN}$$
-* 특이성(Specificity): 예를 들어, 환자가 정상인데, 음성으로 검질될 확률. $$특이성 = \frac{TN} {TN+FP}$$
+* 정확도(Accuracy): 1 에서 빼면 오분류율이 된다. $$정확도 = \frac{TP+TN}{TP+TN+FP+FN}, 정확도 = \frac{A+D}{A+B+C+D}$$
+* 재현율(Recall) 혹은 민감도(Sensitivity): 예를 들어, 환자가 실제 암이 있는데, 양성으로 검진될 확률. 연관된 항목이 얼마나 많이 선택되었는지 측정. 
+$$재현율 = \frac{TP}{TP+FN}, 민감도 = \frac{A}{A+C}$$
+* 특이성(Specificity): 예를 들어, 환자가 정상인데, 음성으로 검질될 확률. $$특이성 = \frac{TN} {TN+FP}, Specificity = \frac{D}{B+D}$$
+* 정밀도(Precision): 선택된 항목이 얼마나 연관성이 있나를 측정,  PPV(positive predictive value)로도 불림. $$정밀도 = \frac{TP}{TP+FP}$$
 
 이를 하나의 숫자로 바꾼것이 $F_1$ 점수($F_1$ Score, $F$-Score, $F$-Measure)로 불리는 것으로 정밀도와 재현율을 조화평균한 것이다.
 
 $$F_1 = \frac{2}{\frac{1}{정밀도}+\frac{1}{재현율}} = 2 \times \frac{정밀도 \times 재현율}{정밀도 + 재현율}$$
 
-#### 1.1. 범주형 예측 모형 평가
+## 1.1. 범주형 예측 모형 평가 {#classification-category-performance}
 
 범주형 예측모형의 성능평가를 위해 도입되는 척도는 다음과 같다.
 
@@ -74,13 +78,13 @@ $$F_1 = \frac{2}{\frac{1}{정밀도}+\frac{1}{재현율}} = 2 \times \frac{정�
 $$\kappa = \frac {O - E}{1- E}$$
 
 
-#### 1.2. ROC 곡선, PR 그래프 
+## 1.2. ROC 곡선, PR 그래프 {#classification-performance-roc}
 
 [ROC 곡선](https://en.wikipedia.org/wiki/Receiver_operating_characteristic)은 오인식률(1종오류)과 
 오거부률(2종오류) 간의 상충관계를 시각적으로 나타낸 그래프로, 정밀도(Precision)와 재현율(Recall)을 유사하게 표현한 것이 PR 그래프로 시각화를 하고, 
 아래 면적을 측정하여 성능을 평가하기도 한다.
 
-#### 1.2. 독일신용평가 데이터 사례
+### 1.3. 독일신용평가 데이터 사례 {#classification-performance-german}
 
 `caret` 팩키지에 포함된 `data("GermanCredit")` 신용평가 데이터를 통해 좀더 직접적인 사례를 확인해 보자.
 
@@ -93,67 +97,59 @@ $$\kappa = \frac {O - E}{1- E}$$
     * 훈련데이터 신용불량확률예측, 검증데이터 신용불량확률예측
 1. 모형 성능평가
     * `ggplot` 통한 신용불량고객과 정상고객 확률분포 도식화
-    * 컷오프 75% 설정 시 모형이 갖는 함의 파악
+    * 컷오프 50% 설정 시 모형이 갖는 함의 파악
 
 
 ~~~{.r}
-# 팩키지 및 데이터 준비
-suppressMessages(library(caret))
+# 0. 팩키지 및 데이터 준비 -------------
+library(tidyverse)
+library(extrafont)
+loadfonts()
+library(caret)
+library(ROCR)
 data("GermanCredit")
 
 # 훈련데이터와 검증데이터 분리: 70% 훈련데이터, 30% 검증데이터
-d <- sort(sample(nrow(GermanCredit), nrow(GermanCredit)*.7))
-train.df <- GermanCredit[d,]
-test.df <- GermanCredit[-d,]
+ind <- createDataPartition(GermanCredit$Class, p=0.7, list=FALSE)
+
+train_df <- GermanCredit[ind,]
+test_df <- GermanCredit[-ind,]
 
 # 이항회귀모형 변수 설정: 종속변수 Class, 독립변수 그외.
-credit.var <- setdiff(colnames(train.df), list('Class'))
-credit.formula <- as.formula(paste('Class', paste(credit.var,collapse=' + '), sep=' ~ '))
+credit_var <- setdiff(colnames(train_df), list('Class'))
+credit_formula <- as.formula(paste('Class', paste(credit_var, collapse=' + '), sep=' ~ '))
 
 # 이항회귀모형 적합
-credit.m <- glm(credit.formula, family=binomial(link='logit'),data=train.df)
+credit_m <- glm(credit_formula, data=train_df, family=binomial)
+credit_var_m <- step(credit_m, trace=FALSE)
 
 # 훈련데이터 신용불량확률예측, 검증데이터 신용불량확률예측
-train.df$pred <- predict(credit.m, newdata=train.df, type='response')
-~~~
+train_df$pred_prob <- predict(credit_var_m, newdata=train_df, type='response')
+test_df$pred_prob  <- predict(credit_var_m, newdata=test_df, type='response')
 
-
-
-~~~{.output}
-Warning in predict.lm(object, newdata, se.fit, scale = 1, type =
-ifelse(type == : prediction from a rank-deficient fit may be misleading
-
-~~~
-
-
-
-~~~{.r}
-test.df$pred <- predict(credit.m, newdata=test.df, type='response')
-~~~
-
-
-
-~~~{.output}
-Warning in predict.lm(object, newdata, se.fit, scale = 1, type =
-ifelse(type == : prediction from a rank-deficient fit may be misleading
-
-~~~
-
-
-
-~~~{.r}
 # 검증데이터 속 신용고객 확률밀도분포 도식화
-ggplot(data=test.df) +
-  geom_density(aes(x=pred, color=Class, linetype=Class))
+ggplot(data=test_df) +
+    geom_density(aes(x=pred_prob, color=Class, linetype=Class)) +
+    geom_vline(xintercept = 0.5, color="green", linetype="dashed")
 ~~~
 
 <img src="fig/german-credit-logit-1.png" title="plot of chunk german-credit-logit" alt="plot of chunk german-credit-logit" style="display: block; margin: auto;" />
 
 ~~~{.r}
-# 컷오프를 75%로 설정했을 경우, 오차행렬
-test.df$results75 <- ifelse(test.df$pred > 0.75, "Good", "Bad")
+# 컷오프를 50%로 설정했을 경우, 오차행렬
+test_df$pred_class <- ifelse(test_df$pred_prob > 0.5, "Good", "Bad")
 
-confusionMatrix(data=test.df$results75, reference=test.df$Class, positive = "Good")
+test_df %>% 
+    mutate(cutoff = 0.5) %>% 
+    select(Class, pred_prob, cutoff, pred_class) %>% 
+    DT::datatable() %>% 
+      DT::formatPercentage(c(2:3), digits=1)
+~~~
+
+<img src="fig/german-credit-logit-2.png" title="plot of chunk german-credit-logit" alt="plot of chunk german-credit-logit" style="display: block; margin: auto;" />
+
+~~~{.r}
+confusionMatrix(data=test_df$pred_class, reference=test_df$Class, positive = "Good")
 ~~~
 
 
@@ -163,34 +159,173 @@ Confusion Matrix and Statistics
 
           Reference
 Prediction Bad Good
-      Bad   69   50
-      Good  25  156
-                                        
-               Accuracy : 0.75          
-                 95% CI : (0.697, 0.798)
-    No Information Rate : 0.6867        
-    P-Value [Acc > NIR] : 0.009618      
-                                        
-                  Kappa : 0.4582        
- Mcnemar's Test P-Value : 0.005584      
-                                        
-            Sensitivity : 0.7573        
-            Specificity : 0.7340        
-         Pos Pred Value : 0.8619        
-         Neg Pred Value : 0.5798        
-             Prevalence : 0.6867        
-         Detection Rate : 0.5200        
-   Detection Prevalence : 0.6033        
-      Balanced Accuracy : 0.7457        
-                                        
-       'Positive' Class : Good          
-                                        
+      Bad   40   26
+      Good  50  184
+                                          
+               Accuracy : 0.7467          
+                 95% CI : (0.6935, 0.7949)
+    No Information Rate : 0.7             
+    P-Value [Acc > NIR] : 0.042852        
+                                          
+                  Kappa : 0.3471          
+ Mcnemar's Test P-Value : 0.008333        
+                                          
+            Sensitivity : 0.8762          
+            Specificity : 0.4444          
+         Pos Pred Value : 0.7863          
+         Neg Pred Value : 0.6061          
+             Prevalence : 0.7000          
+         Detection Rate : 0.6133          
+   Detection Prevalence : 0.7800          
+      Balanced Accuracy : 0.6603          
+                                          
+       'Positive' Class : Good            
+                                          
 
 ~~~
 
-### 2. 연속형 성능평가 
+# 2. 특정 측도 최적화 [^metric-opt] {#classification-performance-opt}
 
-#### 2.1. 연속형 성능평가 측정 &rarr; RMSE
+[^metric-opt]: [A HopStat and Jump Away, A small introduction to the ROCR package](https://hopstat.wordpress.com/2014/12/19/a-small-introduction-to-the-rocr-package/)
+
+분류를 위한 예측모형에서 정확도(accuracy)만이 최적화해야 되는 측도는 아니다. 
+경우에 따라서는 오분류 1종 오류를 최소화하거나 2종 오류를 최소화해야 하는 것이 예측모형 본래의 취지에 더 부합되는 경우가 있다.
+
+`ROCR` 팩키지의 `prediction()`, `performance()` 함수를 활용하여 정확도, 재현율, 민감도 등 특정 측도를 기준이 최대화되는 컷오프(cutoff)를 결정할 수 있다.
+
+## 2.1. 정확도 최적 분류기준 {#classification-performance-opt-acc}
+
+ `performance()` 함수에 인자로 `acc`를 넣어 정확도가 최대화되는 컷오프를 찾아본다.
+
+
+~~~{.r}
+# 2. 모형성능 최적화 -------------
+test_rocr <- prediction(test_df$pred_prob, test_df$Class)
+
+## 2.1. 정확도가 최대가 되는 기준: Accuracy
+test_rocr_acc <- performance(test_rocr, "acc")
+
+test_rocr_acc_df <- data_frame(cutoff = test_rocr_acc@x.values %>% unlist, accuracy = test_rocr_acc@y.values %>% unlist)
+
+test_rocr_acc_v <- test_rocr_acc_df %>% 
+    arrange(desc(accuracy)) %>% 
+    filter(row_number()==1)
+
+par(family = 'NanumGothic') 
+plot(test_rocr_acc, main="정확도 기준으로 최적 컷오프 설정", xlab="컷오프 (Cutoff)", ylab="정확도 (Accuracy)") 
+abline(v=test_rocr_acc_v$cutoff, h=test_rocr_acc_v$accuracy, col="green")
+text(x=0.5, y=0.4, paste0("컷오프:", round(test_rocr_acc_v$cutoff,2), "\n",
+                          "측도:", round(test_rocr_acc_v$accuracy,2)))
+~~~
+
+<img src="fig/german-credit-optim-acc-1.png" title="plot of chunk german-credit-optim-acc" alt="plot of chunk german-credit-optim-acc" style="display: block; margin: auto;" />
+
+## 2.2. 예측모형에서 활용도 높은 지표 기준 컷오프 시각화 {#classification-performance-opt-viz}
+
+예측모형에서 활용도 높아 많이 살펴보는 지표인 "acc", "f", "spec", "sens"를 넣어 각 지표가 제안하는 최적 지점을 시각화한다. 
+
+- "acc": 정확도(Accuracy)
+- "f": $F_1$ 점수
+- "spec": 특이성(Specificity)
+- "sens": 민감도(Sensitivity)
+
+
+~~~{.r}
+## 2.2. 특정 지표를 기준을 최대화하는 컷오프 설정 -----
+
+find_optimal_cutoff <- function(rocr_dat, metric_label) {
+    # 기준별 모형성능
+    test_rocr_metric <- performance(rocr_dat, metric_label)
+    
+    # 컷오프와 기준별 모형성능 데이터프레임 변환
+    test_rocr_metric_df <- data_frame(cutoff = test_rocr_metric@x.values %>% unlist, metric = test_rocr_metric@y.values %>% unlist)
+    
+    # 기준지표에 따른 최적 컷오프(Cutoff)
+    test_rocr_metric_v <- test_rocr_metric_df %>% 
+        arrange(desc(metric)) %>% 
+        filter(row_number()==1)
+    
+    # 컷오프에 따른 
+    par(family = 'NanumGothic') 
+    plot(test_rocr_metric, main=paste0(metric_label, " 기준으로 최적 컷오프 설정"), 
+         xlab="컷오프 (Cutoff)", ylab=metric_label) 
+    abline(v=test_rocr_metric_v$cutoff, h=test_rocr_metric_v$metric, col="green")
+    text(x=0.5, y=0.4, paste0("컷오프: ", round(test_rocr_metric_v$cutoff,2), "\n",
+                              metric_label, " : ", round(test_rocr_metric_v$metric,2)))
+}
+
+par(mfrow=c(2,2))
+find_optimal_cutoff(test_rocr, "acc")
+find_optimal_cutoff(test_rocr, "f")
+find_optimal_cutoff(test_rocr, "spec")
+find_optimal_cutoff(test_rocr, "sens")
+~~~
+
+<img src="fig/german-credit-optim-acc-cutoff-1.png" title="plot of chunk german-credit-optim-acc-cutoff" alt="plot of chunk german-credit-optim-acc-cutoff" style="display: block; margin: auto;" />
+
+## 2.3. 오분류 비용 혹은 수익 고려 {#classification-performance-opt-cost}
+
+과학기술분야에서 정확도, 재현율, 정밀도, $F_1$ 점수가 중요한 측도가 되지만, **1종 오류**, **2종 오류** 함의도 중요하다.
+
+### 2.3.1. 1종 오류가 중요한 기계학습 알고리즘 설계 {#classification-performance-opt-cost-type1}
+
+보안이 중요한 경우 1종 오류가 매우 중요할 수 있다. 왜냐하면, 1종 오류를 범하게 되면,
+들어오지 말아야 되는 사람, 예를 들어 악성 해커가 기계학습 모형의 예측결과로 잘못되어 들어오게 되면 큰 문제가 야기될 수도 있기 때문이다.
+이런 경우, 1종오류에 대한 비용을 매우 높게 잡는 반면에, 2종오류는 낮게 잡는다.
+이유는 정상적으로 승인되어 들어와야 하는 사람인데, 기계학습 알고리즘의 거부로 말미암아 
+생기는 문제는 시간을 갖고 추후 적절한 조치를 취하면 되기 때문이다. 
+물론 일부 비용이 발생되기는 하지만 악성 해커가 잠입해서 생기는 것보다는 훨씬 낫다고 판단한다.
+
+
+|                |                | **실제 결과** |               | 
+|----------------|----------------|---------------|---------------|
+|                |                |     참(True)  |  거짓(False)  | 
+| **모형 예측**  |  양성          |     0         | 100 (1종오류) | 
+|                |  음성          |  1 (2종오류)  |       0       |
+
+
+### 2.3.2. 2종 오류가 중요한 기계학습 알고리즘 설계 {#classification-performance-opt-cost-type2}
+
+반대의 경우로 2종 오류가 더 중요할 수도 있다. 왜냐하면, 전형적인 마케팅 사례가 여기에 해당된다.
+1종오류를 범하게 되면, 캠페인에 포함되지 않는 사람이 기계학습 모형이 잘못되어 들어오게 되면 큰 문제가 되지 않는다.
+캠페인 비용만큼만 손해가 발생되고, 혹시나 나중에 충성심 높은 고객이 될 수도 있다.
+반면에, 이런 경우 2종오류는 큰 문제가 될 수 있다.
+당연히 캠페인에 포함되어 초대를 받은 고객이 지속적으로 기계학습 알고리즘에 의해서 
+거절되면, 화를 내고 고객센터에 연락을 취하거나, 다른 회사로 고객이 도망가게 된다.
+
+|                |                | **실제 결과** |              | 
+|----------------|----------------|---------------|--------------|
+|                |                |     참(True)  |  거짓(False) | 
+| **모형 예측**  |  양성          |     0         |  1 (1종오류) | 
+|                |  음성          |  10 (2종오류) |       0      |
+
+
+
+~~~{.r}
+## 2.3. 비용을 고려한 최적 컷오프 -----
+# 비용고려 모형성능
+cost_metric <- performance(test_rocr, "cost", cost_fp=1, cost_fn=10)
+# 컷오프와 비용고려 모형성능 데이터프레임 변환
+cost_metric_df <- data_frame(cutoff = cost_metric@x.values %>% unlist, cost = cost_metric@y.values %>% unlist)
+# 기준지표에 따른 최적 컷오프(Cutoff)
+cost_metric_v <- cost_metric_df %>%
+    arrange(cost) %>%
+    filter(row_number()==1)
+
+# 컷오프에 따른 시각화
+plot(cost_metric, main=paste0("비용 기준으로 최적 컷오프 설정"),
+     xlab="컷오프 (Cutoff)", ylab="비용")
+abline(v=cost_metric_v$cutoff, h=cost_metric_v$cost, col="green")
+text(x=0.5, y=0.4, paste0("컷오프: ", round(cost_metric_v$cutoff,2), "\n",
+                          "비용 : ", round(cost_metric_v$cost,2)))
+~~~
+
+<img src="fig/german-credit-optim-cost-1.png" title="plot of chunk german-credit-optim-cost" alt="plot of chunk german-credit-optim-cost" style="display: block; margin: auto;" />
+
+
+# 3. 연속형 성능평가 {#prediction-performance}
+
+## 3.1. 연속형 성능평가 측정 &rarr; RMSE {#prediction-performance-numeric}
 
 평균 제곱근 오차(Root Mean Squared Error, RMSE)가 가장 일반적인 연속형 성능평가 측도가 된다.
 특히, RMSE는 측정 종속변수와 동일한 단위라서 설명하기 쉽고, 표준편차처럼 예측이 얼마나 벗어났는지 정보를 제공한다.
@@ -237,7 +372,7 @@ sqrt(mean((dat.df$pred-dat.df$yvalue.v)^2))
 
 ~~~
 
-#### 2.2. 연속형 성능평가 모니터링
+## 3.2. 연속형 성능평가 모니터링 {#prediction-performance-numeric-monitoring}
 
 회귀분석 등을 통해서 연속형 변수 성능을 평가하고 모니터링할 경우, 평균제곱오차(Mean Squared Error)를 사용한다. 
 그렇다고 평균제곱오차가 가장 좋다는 의미는 아니다. 다만, 기본적인 성능평가 추정 모니터링 방법은 다음과 같다.
@@ -250,35 +385,5 @@ $$\overline{\epsilon_{n+1}} = \frac{n\times\bar{\epsilon_n} + \epsilon_{n+1}}{n+
 기계학습 알고리즘이 새로운 데이터에서 산출해내는 평균제곱오차를 상기 공식에 맞춰 추적 모니터링한다.
 
 
-### 3. 오분류 비용 혹은 수익 고려 
-
-과학기술분야에서 정확도, 재현율, 정밀도, $F_1$ 점수가 중요한 측도가 되지만, **1종 오류**, **2종 오류** 함의도 중요하다.
-
-#### 3.1. 1종 오류가 중요한 기계학습 알고리즘 설계
-
-보안이 중요한 경우 1종 오류가 매우 중요할 수 있다. 왜냐하면, 1종오류를 범하게 되면,
-들어오지 말아야 되는 사람이 기계학습 모형이 잘못되어 들어오게 되면 큰 문제가 될 수 있기 때문이다. 
-이런 경우, 1종오류에 대한 비용을 매우 높게 잡는 반면에, 2종오류는 낮게 잡는다.
-이유는 들어와야 하는 사람인데 기계학습 알고리즘이 거절신호를 보내는 것으로 추후 적절한 조치를 취하면 된다.
 
 
-|                |                |     **실제 결과**  |              | 
-|----------------|----------------|---------------|---------------|
-|                |                |     참(True)  |  거짓(False)   | 
-| **모형 예측**    |  양성            |     0        |   100 (1종오류)   | 
-|                |  음성           |  1 (2종오류)  |       0       |
-
-#### 3.2. 2종 오류가 중요한 기계학습 알고리즘 설계
-
-반대의 경우로 2종 오류가 더 중요할 수도 있다. 왜냐하면, 전형적인 마케팅 사례가 여기에 해당된다.
-1종오류를 범하게 되면, 캠페인에 포함되지 않는 사람이 기계학습 모형이 잘못되어 들어오게 되면 큰 문제가 되지 않는다.
-캠페인 비용만큼만 손해가 발생되고, 혹시나 나중에 충성심 높은 고객이 될 수도 있다.
-반면에, 이런 경우 2종오류는 큰 문제가 될 수 있다.
-당연히 캠페인에 포함되어 초대를 받은 고객이 지속적으로 기계학습 알고리즘에 의해서 
-거절되면, 화를 내고 고객센터에 연락을 취하거나, 다른 회사로 고객이 도망가게 된다.
-
-|                |                |     **실제 결과**  |              | 
-|----------------|----------------|---------------|---------------|
-|                |                |     참(True)  |  거짓(False)   | 
-| **모형 예측**    |  양성            |     0        |   1 (1종오류)   | 
-|                |  음성           |  10 (2종오류)  |       0       |
