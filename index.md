@@ -86,6 +86,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
     1. [마케팅 반응 예측모형](ml-pm-discrete.html)  
     1. [고객 이탈(churn) 모형](ml-pm-churn.html)  
     1. [마케팅 - RFM 및 응용분야](ml-pm-applications.html)
+    1. [지방선거 광역단체장 지지율 예측모형](ml-local-election.html)
 
 
 ## 기계학습 관련 정보 [^David-Julian-2016]
