@@ -80,7 +80,7 @@ churn_dat <- read_csv("https://community.watsonanalytics.com/wp-content/uploads/
     - 모형성능 평가
 1. 예측모형 배포 및 서비스    
 
-<img src="fig/ml-churn-pipeline.png" alt="고객이탈 예측모형 개발 파이프라인" width="77%" />
+<img src="fig/ml-churn-pipeline.png" alt="고객이탈 예측모형 개발 파이프라인" width="100%" />
 
 ## 데이터 가져오기 및 전처리 {#import-attrition-dataset}
 
