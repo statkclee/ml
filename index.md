@@ -77,16 +77,19 @@ subtitle: 데이터 과학자가 바라본 기계학습
     1. **[장바구니 데이터 분석](ml-market-basket.html)**    
 1. **기계학습 상용화**
     1. [기계학습 - 기술부채(Technical Debt)](ml-technical-debt.html)
+    1. [보스턴 집값예측 - 주성분 회귀](ml-pm-boston.html)  
     1. [신용평점모형 개발](ml-credit-scoring-overview.html)
         1. [신용평점모형 탐색적 데이터 분석, 전처리](ml-credit-scoring-eda.html)
         1. [신용평점모형 - 로지스틱 회귀모형과 의사결정나무](ml-credit-scoring-model.html)
         1. [신용평가와 신용평점모형](ml-credit-scoring-business.html)
         1. [소매금융 부도예측 - 독일신용 데이터](ml-credit-scoring.html)
     1. [랜딩클럽 - 채무불이행 예측모형](ml-css-lendingclub.html)
-    1. [보스턴 집값예측 - 주성분 회귀](ml-pm-boston.html)  
-    1. [마케팅 반응 예측모형](ml-pm-discrete.html)  
-    1. [고객 이탈(churn) 모형](ml-pm-churn.html)  
-    1. [마케팅 - RFM 및 응용분야](ml-pm-applications.html)
+    1. **마케팅**
+        1. [마케팅 반응 예측모형](ml-pm-discrete.html)      
+        1. [마케팅 - RFM 및 응용분야](ml-pm-applications.html)
+    1. **고객 이탈(churn)**
+        1. [고객 이탈(churn): 탐색적 데이터 분석(EDA)](ml-pm-churn-eda.html)
+        1. [고객 이탈(churn) 예측모형](ml-pm-churn.html)
     1. [지방선거 광역단체장 지지율 예측모형](ml-local-election.html)
 
 
