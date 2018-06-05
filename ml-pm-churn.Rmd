@@ -6,9 +6,10 @@ date: "`r Sys.Date()`"
 output:
   html_document: 
     toc: yes
-  pdf_document:
-    latex_engine: xelatex
-mainfont: NanumGothic
+    toc_float: true
+    highlight: tango
+    code_folding: hide
+    number_section: true
 ---
  
 
@@ -18,200 +19,18 @@ source("tools/chunk-options.R")
 knitr::opts_knit$set(echo=TRUE, verbose = FALSE, message=FALSE, warning=FALSE)
 
 library(tidyverse)
-library(corrplot)
-library(gridExtra)
-library(ggthemes)
 library(caret)
 library(randomForest)
-library(party)
-library(purrr)
 library(extrafont)
-library(forcats)
-library(skimr)
 loadfonts()
 library(doParallel)
-
-churn_dat <- read_csv("https://community.watsonanalytics.com/wp-content/uploads/2015/03/WA_Fn-UseC_-Telco-Customer-Churn.csv")
+library(recipes)
+library(yardstick)
 
 ```
 
 
-## 1. 고객이탈(Churn) [^mca-churn] [^logistic-churn] {#customer-attrition-basics} 
-
-
-[^mca-churn]: [Data Science +, "Using MCA and variable clustering in R for insights in customer attrition"](https://datascienceplus.com/using-mca-and-variable-clustering-in-r-for-insights-in-customer-attrition/)
-
-[^logistic-churn]: [Data Science +, "Predict Customer Churn – Logistic Regression, Decision Tree and Random Forest"](https://datascienceplus.com/predict-customer-churn-logistic-regression-decision-tree-and-random-forest/)
-
-
-고객이탈은 영어로 "Customer Churn" 혹은 "Customer Attrition"이라고 하는데 통상적으로 고객이 더이상 서비스 이용이나 제품구매를 멈출 때 발생된다.
-거의 모든 사업영역에서 고객이탈이 문제가 되지만, 특히 문제가 되는 분야가 통신(텔코, Tele-communication)산업으로 KT, SKT, U+ 등 통신3사가 거의 과점을 하고 있는 
-산업분야로 이해하면 된다.
-
-## 2. 데이터셋 {#customer-attrition-dataset}
-
-고객이탈 데이터셋으로 [IBM Watson Analytics, Guide to Sample Data Sets](https://www.ibm.com/communities/analytics/watson-analytics-blog/guide-to-sample-datasets/) 
-웹사이트에 다양한 데이터가 공개되어 있으며, 
-그중 고객지원(Customer Support), [WA_Fn UseC_ Telco Customer Churn.csv](https://community.watsonanalytics.com/wp-content/uploads/2015/03/WA_Fn-UseC_-Telco-Customer-Churn.csv)
-데이터를 다운로드 받아 **"고객이탈 예측모형"**을 개발해 보자.
-
-
-## 3. 고객이탈 예측모형 작업흐름 {#customer-attrition-workflow}
-
-고객이탈 예측모형은 일반적인 예측모형(predictive model)과 작업흐름이 다르지 않다.
-예측하고자 하는 변수가 **이탈(churn)** 여부(0/1, yes/no, 1/2, 이탈/정상 등)로 다양하게 인코딩한다.
-
-데이터를 분석환경으로 불러와서 데이터를 전처리하고, 탐색적 데이터 분석 및 변수공학을 동원하여 
-고객이탈 예측을 높일 수 있는 변수를 찾아내고 가공한다. 
-그리고 나서 고객이탈을 예측할 수 있는 다양한 모형 아키텍쳐를 식별하여 
-선정된 최종 예측모형 아키텍쳐에 대해서 변수선정 및 초모수 미세조정을 통한 모형 튜닝작업을 수행한다.
-고객이탈 예측모형에 대한 모형성능을 평가하고 나서, 예측모형 배포 및 서비스를 실시한다.
-
-1. 데이터 가져오기
-1. 데이터 전처리
-    - 탐색적 데이터 분석
-    - 변수 공학(Feature Engineering) 
-    - 단/다변량 변수 시각화
-1. 예측모형 개발 
-    - 훈련/테스트 데이터 분할
-    - 예측모형 아키텍처 선정
-    - 선정된 예측모형 아키텍쳐 기반 변수선정 및 초모수(hyper parameter) 미세조정을 통한 모형 튜팅
-    - 모형성능 평가
-1. 예측모형 배포 및 서비스    
-
-<img src="fig/ml-churn-pipeline.png" alt="고객이탈 예측모형 개발 파이프라인" width="77%" />
-
-
-### 3.1. 데이터 가져오기 및 전처리 {#import-attrition-dataset}
-
-고객이탈 [WA_Fn UseC_ Telco Customer Churn.csv](https://community.watsonanalytics.com/wp-content/uploads/2015/03/WA_Fn-UseC_-Telco-Customer-Churn.csv) 데이터를 
-웹사이트에서 바로 불러들인다. 
-
-그리고 나서 `skimr` 팩키지 `skim` 함수를 통해 전반적인 데이터 현황을 살펴보고 나서,
-전처리에 대한 전략을 수립한다. 전처리 전략에 바탕을 두고 차근차근 데이터 전처리 작업을 진행한다.
-
-``` {r import-attrition-data}
-# 0. 환경설정 --------------------------------------------------------------
-# library(tidyverse)
-# library(corrplot)
-# library(gridExtra)
-# library(ggthemes)
-# library(caret)
-# library(randomForest)
-# library(party)
-# library(purrr)
-# library(extrafont)
-# library(forcats)
-# library(skimr)
-# library(doParallel)
-# loadfonts()
-
-# 1. 데이터 가져오기 --------------------------------------------------------------
-
-# churn_dat <- read_csv("https://community.watsonanalytics.com/wp-content/uploads/2015/03/WA_Fn-UseC_-Telco-Customer-Churn.csv")
-
-# 2. 데이터 전처리 --------------------------------------------------------------
-## 2.0. 현황파악 --------------
-skim(churn_dat)
-
-## 2.1. 변수 결측값 --------------
-map(churn_dat, ~ sum(is.na(.))) %>% keep( function(x) x > 0)
-
-churn_dat <- churn_dat %>% 
-  filter(complete.cases(TotalCharges))
-
-## 2.2. 주요 변수 Recode --------
-
-churn_dat <- churn_dat %>% 
-  mutate(OnlineSecurity   = ifelse(OnlineSecurity =="No internet service", "No", OnlineSecurity),
-         OnlineBackup     = ifelse(OnlineBackup =="No internet service", "No", OnlineBackup),
-         DeviceProtection = ifelse(DeviceProtection =="No internet service", "No", DeviceProtection),
-         TechSupport      = ifelse(TechSupport =="No internet service", "No", TechSupport),
-         StreamingTV      = ifelse(StreamingTV =="No internet service", "No", StreamingTV),
-         StreamingMovies  = ifelse(StreamingMovies =="No internet service", "No", StreamingMovies),
-         MultipleLines    = ifelse(MultipleLines =="No phone service", "No", MultipleLines))
-
-churn_dat %>% select(OnlineSecurity, OnlineBackup, DeviceProtection, TechSupport, StreamingTV, StreamingMovies, MultipleLines) %>%
-  purrr::map(., table)
-
-churn_dat <- churn_dat %>% 
-  mutate(tenure_grp = case_when( tenure <= 12 ~ "00-12개월",
-                                 tenure <= 24 ~ "13-24개월",
-                                 tenure <= 36 ~ "25-36개월",
-                                 tenure <= 48 ~ "37-48개월",
-                                 tenure <= 60 ~ "49-60개월",
-                                 tenure  > 60 ~ "60개월이상"))
-
-churn_dat <- churn_dat %>% 
-  mutate(SeniorCitizen  = ifelse(SeniorCitizen == 0, "No", "Yes"))
-
-## 2.3. 무의미한 변수 제거 --------
-churn_dat <- churn_dat %>% 
-  select(-customerID, -tenure)
-
-## 2.4. 자료형 변환 --------
-churn_df <- map_if(churn_dat, is.character, as.factor) %>% 
-  as_data_frame()
-
-## 2.5. 데이터 내보내기 - 저장 --------
-
-# dir.create("data_processed")
-# saveRDS(churn_df, "data_processed/churn_df.rds")
-```
-
-
-### 3.2. 탐색적 데이터 분석(EDA) {#eda-attrition-dataset}
-
-데이터를 숫자형 데이터와 범주형 데이터로 나눠서 연속형 변수의 경우 상관관계를 `corrplot` 팩키지를 통해 탐색적으로 분석하고,
-범주형 변수는 "고객이탈" 변수와 교차분석을 막대그래프로 수행하여 살펴본다.
-
-``` {r eda-attrition-data, fig.width=12}
-# 2. 탐색적 데이터 분석(EDA) --------------------------------------------------------------
-
-## 2.1. 상관 분석
-
-numeric_var <- map(churn_df, is.numeric) %>% keep(., function(x) x == TRUE) %>% names
-
-churn_df %>% 
-  select(numeric_var) %>% 
-    cor() %>% 
-    corrplot(main="숫자형 변수에 대한 상관도", method="number")
-
-## 2.2. 단변량 분석
-
-barplot_univariate <-  function(df, var, var_name) {
-  ggplot(df, aes_string(x=var)) + 
-    geom_bar(aes(y = 100*(..count..)/sum(..count..)), width = 0.5) + 
-    labs(x=var_name, y="비율", title=var_name) +
-    coord_flip() + 
-    theme_few(base_family = "NanumGothic")
-}
-
-uni_p1 <- barplot_univariate(churn_df, "gender", "성별")
-uni_p2 <- barplot_univariate(churn_df, "SeniorCitizen", "노인우대")
-uni_p3 <- barplot_univariate(churn_df, "Partner", "파트너사")
-uni_p4 <- barplot_univariate(churn_df, "Dependents", "결합")
-uni_p5 <- barplot_univariate(churn_df, "PhoneService", "유선전화")
-uni_p6 <- barplot_univariate(churn_df, "MultipleLines", "다중회선")
-uni_p7 <- barplot_univariate(churn_df, "InternetService", "인터넷")
-uni_p8 <- barplot_univariate(churn_df, "OnlineSecurity", "온라인 보안 서비스")
-
-grid.arrange(uni_p1, uni_p2, uni_p3, uni_p4, uni_p5, uni_p6, uni_p7, uni_p8, ncol=2)
-
-uni_p9 <- barplot_univariate(churn_df, "OnlineBackup", "온라인 백업")
-uni_p10 <- barplot_univariate(churn_df, "DeviceProtection", "디바이스 보호")
-uni_p11 <- barplot_univariate(churn_df, "TechSupport", "기술지원")
-uni_p12 <- barplot_univariate(churn_df, "StreamingTV", "TV 스트리밍")
-uni_p13 <- barplot_univariate(churn_df, "StreamingMovies", "영화 스트리밍")
-uni_p14 <- barplot_univariate(churn_df, "Contract", "계약관련")
-uni_p15 <- barplot_univariate(churn_df, "PaperlessBilling", "전자고지서")
-uni_p16 <- barplot_univariate(churn_df, "PaymentMethod", "지불방법")
-uni_p17 <- barplot_univariate(churn_df, "tenure_grp", "가입기간")
-
-grid.arrange(uni_p9, uni_p10, uni_p11, uni_p12, uni_p13, uni_p14, uni_p15, uni_p16, uni_p17, ncol=3)
-```
-
-### 3.3. 모형 아키텍쳐(Model Architecture) {#architecture-attrition-dataset}
+# 모형 아키텍쳐(Model Architecture) {#architecture-attrition-dataset}
 
 시간과 비용의 제약으로 인해서 모든 예측 모형에 적합시켜보는 것은 불가능하다.
 따라서, 서로 다른 패러다임을 갖는 대표 모형을 선정하여 적절한 모형 아키텍쳐를 선정하는 전략을 취한다.
@@ -222,90 +41,183 @@ SVM, 신경망, 유전자 알고리즘 등은 시간과 지면이 한정되어 �
 
 - 일반화 선형회귀모형 
 - 의사결정나무 모형
-    - GBM
+    - GBM / xgBoost
     - Random Forest
-- ~~SVM~~  
+- SVM  
 - ~~신경망~~
 
-의사결정나무의 경우 `caret` 팩키지를 활용하여 교차 타당도 및 반복이 많아 병렬컴퓨팅 기법을 적용시켜 모형 적합을 빨리 수행시키고,
+의사결정나무의 경우 `caret` 팩키지를 활용하여 교차 타당도 및 반복이 많아 병렬컴퓨팅 기법을 적용시켜 모형 적합을 빨리 수행시킨다.
 
 
-``` {r architecture-attrition-data, fig.width=12}
-# 1. 병렬처리 클러스터 생성 --------------------------------------------------------------
+# 모형설계행렬 {#architecture-attrition-dataset-design}
+
+목표변수(이탈, Churn)을 예측하고 설명하는데 사용하는 모형설계행렬(Model Desgin Matrix) 혹은 Feature Matrix를 
+`recipes` 팩키지를 활용하여 간결하게 데이터 정제작업을 수행한다.
+
+``` {r attrition-data-setup}
+# 0. 환경설정 -----
+## 0.1. 팩키지 준비
+# library(tidyverse)
+# library(caret)
+# library(randomForest)
+# library(extrafont)
+# loadfonts()
+# library(doParallel)
+# library(recipes)
+# library(yardstick)
+
+## 0.2. 병렬처리환경설정
 cl <- makeCluster(detectCores())
-
 registerDoParallel(cl)
 
-# 2. 훈련/검증 데이터  ------------------------------------------------------------
+# 1. 데이터 ------
+## 1.1. 데이터 가져오기
+churn_df <- read_rds("data/churn_df.rds")
 
-train_idx <- createDataPartition(churn_df$Churn, p=0.7, list=FALSE)
+## 1.2. 모형설계행렬(Feature Matrix) ------
+### 1.2.1. 새로운 데이터 조리법: 고객이탈 
+churn_rec <- recipe(churn_df, Churn ~ .) %>% 
+  add_role(gender,           SeniorCitizen,    Partner,          Dependents,       PhoneService,    
+           MultipleLines,    InternetService,  OnlineSecurity,   OnlineBackup,     DeviceProtection,
+           TechSupport,      StreamingTV,      StreamingMovies,  Contract,         PaperlessBilling,
+           PaymentMethod,    MonthlyCharges,   TotalCharges,     tenure_grp, 
+           new_role = "predictor") %>%
+  add_role(Churn, new_role = "outcome")
+
+### 1.2.2. 고객이탈 요리법 절차
+churn_rec_with_steps <- churn_rec %>% 
+  step_center(all_numeric()) %>%
+  step_scale(all_numeric()) %>% 
+  step_dummy(all_nominal(), -Churn)
+
+### 1.2.3. 고객이탈 요리 준비
+churn_rec_prepped <- churn_rec_with_steps %>% 
+  prep()
+
+### 1.2.4. 고객이탈 데이터 요리 시작
+churn_dm <- bake(churn_rec_prepped, newdata = churn_df)
+
+DT::datatable(churn_dm)
+```
+
+## 훈련시험 데이터 {#architecture-attrition-dataset-train-test}
+
+`caret` 팩키지 `createDataPartition()` 함수를 사용해서 훈련데이터(`training_df`)와 
+시험데이터(`testing_df`)로 구분한다.
+
+``` {r attrition-data-train-test}
+## 1.3. 훈련/검증 데이터
+train_idx <- createDataPartition(churn_dm$Churn, p=0.7, list=FALSE)
 
 training_df <- churn_df[train_idx,]
 testing_df  <- churn_df[-train_idx,]
+```
+
+# 모형 선정 {#architecture-attrition-modeling}
 
 
-# 3. 모형 아키텍처 선정  ------------------------------------------------------------
+## 모형 적합 {#architecture-attrition-modeling-fit}
 
-## 3.1. 모형 공식 준비 
+로지스틱 회귀 모형, RF 모형, GBM 모형, SVM 모형, xgBoost 모형을 순차적으로 학습시키고 결과값을 
+각 객체에 저장시킨다.
 
-x_var <- setdiff(colnames(training_df),list('Churn'))
+``` {r attrition-data-modeling}
+# 2. 모형 아키텍처 선정  ------------------------------------------------------------
+
+## 2.1. 모형 공식 준비 
+x_var <- setdiff(colnames(training_df), list('Churn'))
 churn_formula <- as.formula(paste('Churn', paste(x_var, collapse=' + '), sep=' ~ '))
 
-## 3.2. 모형 패러미터 튜팅
-
-parameter_control <- trainControl(
-  method = "repeatedcv", number = 10, ## 10-fold CV
-  repeats = 10, ## 10번 반복
+## 2.2. 모형 패러미터 튜팅
+ml_control <- trainControl(
+  method = "repeatedcv", number = 3, ## 10-fold CV
+  repeats = 3, ## 10번 반복
   classProbs = TRUE,
   summaryFunction = twoClassSummary
 )
 
-## 3.2. 모형 아키텍처
+## 2.3. 모형 아키텍처
 ### 로지스틱 회귀 모형
 churn_glm <- train(churn_formula, data = training_df,
                         method = "glm", 
                         family=binomial(link='logit'),
-                        trControl = parameter_control,
+                        trControl = ml_control,
                         metric = "ROC")
-churn_glm
 
-### GBM 모형
-churn_gbm <- train(churn_formula, data = training_df, 
-                 method = "gbm", 
-                 trControl = parameter_control, 
+### RF 모형
+churn_rf <- train(churn_formula, data = training_df, 
+                 method = "rf", 
+                 importance = TRUE,
+                 trControl = ml_control, 
                  verbose = FALSE, 
                  metric = "ROC")
-churn_gbm
 
 ### GBM 모형
 churn_gbm <- train(churn_formula, data = training_df, 
                    method = "gbm", 
-                   trControl = parameter_control, 
+                   trControl = ml_control, 
                    verbose = FALSE, 
                    metric = "ROC")
-churn_gbm
 
-### randomForest 모형
-churn_rf <- train(churn_formula, data = training_df, 
-                   method = "rf", 
-                   trControl = parameter_control, 
-                   verbose = FALSE, 
+### SVM 모형
+churn_svm <- train(churn_formula, data = training_df, 
+                   method = "svmLinear",
+                   trControl=ml_control,
                    metric = "ROC")
-churn_rf
 
+### xgBoost
+churn_xgboost <- train(churn_formula, data = training_df,
+                             method = "xgbLinear",
+                             trControl = ml_control,
+                             verbose = FALSE, 
+                             metric = "ROC")
 stopCluster(cl)
-
-# 4. 모형 아키텍쳐 평가 --------------------------
-
-resample_res <- resamples(list(Logistic = churn_glm, GBM = churn_gbm, randomForest=churn_rf))
-summary(resample_res)
-
-parallelplot(resample_res, metric = "ROC")
-
-bwplot(resample_res, layout = c(3, 1))
 ```
 
-### 3.4. 변수 선정과 초모수 튜팅 {#variable-selection-tuning-churn-dataset}
+## 모형 평가 {#architecture-attrition-modeling-fit-assessment}
+
+상기 5가지 모형에 대해 분류가 잘 되었는지 성능을 `yardstick` 팩키지를 활용하여 평가한다.
+
+``` {r attrition-data-modeling-assessment}
+# 4. 모형 아키텍쳐 평가 --------------------------
+## 4.1. 모형 아키텍처 시각화
+churn_caret_comp <- resamples(list( 
+   GLM = churn_glm,
+   RF = churn_rf,
+   GBM = churn_gbm,
+   SVM = churn_svm,
+   XgBoost = churn_xgboost))
+
+bwplot(churn_caret_comp, layout = c(3, 1), scales = list(relation = "free"))
+
+## 4.2. 모형 아키텍처 
+model_arch <- testing_df %>%
+  mutate(GLM = predict(churn_glm, testing_df),
+         SVM = predict(churn_svm, testing_df),
+         RF = predict(churn_rf, testing_df),
+         GBM = predict(churn_gbm, testing_df),
+         XgBoost = predict(churn_xgboost, testing_df))
+
+glm_metric_df <- metrics(model_arch, truth = Churn, estimate = GLM) %>% 
+  mutate(model = 'GLM')
+rf_metric_df <- metrics(model_arch, truth = Churn, estimate = RF) %>% 
+  mutate(model = 'RF')
+gbm_metric_df <- metrics(model_arch, truth = Churn, estimate = GBM) %>% 
+  mutate(model = 'GBM')
+svm_metric_df <- metrics(model_arch, truth = Churn, estimate = SVM) %>% 
+  mutate(model = 'SVM')
+xgboost_metric_df <- metrics(model_arch, truth = Churn, estimate = XgBoost) %>% 
+  mutate(model = 'XgBoost')
+
+bind_rows(glm_metric_df, rf_metric_df) %>% 
+  bind_rows(gbm_metric_df) %>%
+  bind_rows(svm_metric_df) %>% 
+  bind_rows(xgboost_metric_df) %>% 
+  DT::datatable() %>% 
+  DT::formatRound(c("accuracy"), digits=2)
+```
+
+# 모형선정과 적용 {#architecture-attrition-modeling-fit-apply}
 
 다양한 모형 아키텍쳐를 접합시키고 나서 **일반화 선형모형**을 최종 모형 아키텍처로 선정한다.
 예측모형 양산을 위해서 과적합 방지 및 고성능 예측을 위해서 일반화 선형모형에 대한 튜닝작업을 진행한다.
@@ -313,40 +225,96 @@ bwplot(resample_res, layout = c(3, 1))
 변수선택을 `step` 함수를 통해 수행한다. 
 그리고 나서, 선택된 변수를 대상으로 양산 예측모형을 적합시킨다.
 
+## 모형선정 {#architecture-attrition-modeling-fit-apply}
 
-``` {r model-tuning-attrition-data, fig.width=12}
+`MASS` 팩키지 `stepAIC()` 함수를 사용해서 모형 아키텍처에서 선정한 일반화선형모형(GLM)을 
+기본으로 변수를 선정하여 강건한 모형을 구축한다.
+
+``` {r attrition-data-modeling-apply}
 # 3. 로지스틱 모형 변수 선택  ------------------------------------------------------------
-
-## 3.1. 모형 공식 준비 
-
-x_var <- setdiff(colnames(training_df),list('Churn'))
-churn_formula <- as.formula(paste('Churn', paste(x_var, collapse=' + '), sep=' ~ '))
-
-## 3.2. 변수 선택
-
+## 3.1. 변수 선택
 churn_glm <- glm(churn_formula, family="binomial", data=training_df)
+churn_var_glm <- MASS::stepAIC(churn_glm, direction = "both", trace = 0)
 
-churn_var_selection <- step(churn_glm, direction = "both", trace = 1)
+churn_parsi_fmla <- as.formula(summary(churn_var_glm)$call)
 
-## 3.3. 영향력 큰 변수
-anova(churn_var_selection, test="Chisq")
-
-## 3.4. 변수 선택 모형
-churn_best_glm <- glm(Churn ~ SeniorCitizen +Dependents + InternetService +OnlineSecurity +TechSupport +Contract +PaperlessBilling +PaymentMethod +TotalCharges +tenure_grp, family="binomial", data=training_df)
+## 3.2. 모형적합
+churn_fit_glm <- glm(churn_parsi_fmla, family="binomial", data=training_df)
 ```
 
-### 3.5. 예측모형 선능 {#performance-tuning-churn-dataset}
+## 최적 컷오프 설정 {#architecture-attrition-modeling-fit-apply-cutoff}
+
+이탈 확률에 대해 특정 확률값(컷오프, cutoff)을 적용하게 되면 이탈고객과 잔존 고객으로 나눠지게 되는데
+이에 대해서 다음과 같이 행렬을 구성할 수 있다.
+
+|                |                            |    **실제 이탈**     |   (Reference)         | 
+|----------------|----------------------------|----------------------|-----------------------|
+|                |                            | 참(True): Event      | 거짓(False): No Event | 
+| **모형 예측**  | 양성(Positive): Event      | TP(True Positive): A | FP(False Positive): B | 
+| (Predicted)    | 음성(Negative): No Event   | FN(False Negative): C| TN(True Negative): D  |
+
+
+하지만, 상기 지표는 이탈고객과 잔존고객의 이익과 손실이 모두 1로 가정한 것이다.
+고객이 그대로 남게 되면 25만큼의 이익이 생긴다고 가정하고, 이탈하게 되면 30만큼 손해가 생긴다고 
+가정해서 최적의 컷오프를 지정해 보자.
+
+|                |                            |    **실제 이탈**     |   (Reference)         | 
+|----------------|----------------------------|----------------------|-----------------------|
+|                |                            | 참(True): Event      | 거짓(False): No Event | 
+| **모형 예측**  | 양성(Positive): Event      |         0            |           0           | 
+| (Predicted)    | 음성(Negative): No Event   |          -30         |           25          |
+
+
+``` {r attrition-data-modeling-apply-cutoff}
+# 4. 예측모형 성능  ------------------------------------------------------------
+## 4.1. 최적 컷오프 설정 
+testing_df$pred <- predict(churn_fit_glm, newdata = testing_df, type = "response", na.action = na.exclude)
+
+payoff_df <- data_frame(
+  cutoff = seq(from = 0.1, to = 1.0, by = 0.1),
+  payoff = NA
+)
+
+for(i in 1:nrow(payoff_df)) {
+  conf_matrix <- SDMTools::confusion.matrix(as.integer(testing_df$Churn)-1,
+                                 testing_df$pred, 
+                                 threshold = payoff_df$cutoff[i])
+  payoff_df$payoff[i] <- conf_matrix[1,1] * 25 + conf_matrix[1,2] * (-30)
+}
+
+## 4.2. 최적 컷오프 시각화 
+payoff_max_df <- payoff_df %>% 
+  filter(payoff == max(payoff))
+
+payoff_df %>% 
+  ggplot(aes(x=cutoff, y=payoff)) +
+    geom_line() +
+    geom_point() +
+    theme_minimal(base_family = "NanumGothic") +
+    labs(x="컷오프(cutoff)", y="수익") +
+    scale_y_continuous(labels = scales::comma) +
+    geom_vline(xintercept = payoff_max_df$cutoff, color="green") +
+    geom_hline(yintercept = payoff_max_df$payoff, color="green")
+
+## 4.3. 최적금액 산출 
+# payoff = 25 * true negative - 30 * false negative
+payoff_matrix <- SDMTools::confusion.matrix(as.integer(testing_df$Churn)-1,
+                           testing_df$pred, 
+                           threshold = 0.5)
+
+25 * payoff_matrix[1,1] - 30 * payoff_matrix[1,2]
+```
+
+## 예측모형 성능 {#performance-tuning-churn-dataset}
 
 양산 예측모형이 준비되면 예측모형에 대한 성능을 파악한다.
 그리고, 일반화 선형모형이 예측모형을 활용될 경우 오즈비를 통해 변수별로 고객이탈에 대한 비이탈고객대비 이탈고객에 대한 정보는 덤으로 획득가능하다.
 
-
 ``` {r performance-attrition-data, fig.width=12}
 # 4. 모형 성능  ------------------------------------------------------------
-
 ## 4.1. 모형 성능
 
-churn_glm_df <- broom::augment(churn_best_glm, newdata=testing_df, type.predict = "response")
+churn_glm_df <- broom::augment(churn_fit_glm, newdata=testing_df, type.predict = "response")
 
 churn_glm_df <- churn_glm_df %>% 
   mutate(Churn_pred = ifelse(.fitted >= 0.5, "Yes", "No"))
@@ -358,14 +326,15 @@ confusionMatrix(churn_glm_tbl, positive = "Yes")
 ## 4.2. 로지스틱 모형 - 오즈비
 churn_glm_odds <- exp(cbind(OR=coef(churn_glm), confint(churn_glm)))
 
-DT::datatable(churn_glm_odds)
+DT::datatable(churn_glm_odds) %>% 
+  DT::formatRound(c(1:3), digits=2)
 ```
 
-### 3.6. 예측모형 양산 {#in-production-tuning-churn-dataset}
+## 예측모형 양산 {#in-production-tuning-churn-dataset}
 
-고객이탈 양산에 대한 자세한 내용은 [R 양산환경(plumber) - 타이타닉](http://statkclee.github.io/parallel-r/r-in-production-plumber.html)을 참조하여 
+고객이탈 양산에 대한 자세한 내용은 
+[TV 시청시간 예측서비스 - 데이터는 openCPU, 구현은 plumber](http://statkclee.github.io/parallel-r/r-gss-tvhours.html),
+[R 양산환경(plumber) - 타이타닉](http://statkclee.github.io/parallel-r/r-in-production-plumber.html)을 참조하여 
 RESTful API형태로 서비스를 제공한다.
-
-
 
 
