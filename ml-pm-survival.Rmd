@@ -1,0 +1,70 @@
+---
+layout: page
+title: xwMOOC 기계학습
+subtitle: 생존분석(Survival Analysis)
+output:
+  html_document: 
+    toc: yes
+    toc_float: true
+    highlight: tango
+    code_folding: hide
+---
+ 
+
+``` {r, include=FALSE}
+source("tools/chunk-options.R")
+knitr::opts_chunk$set(echo=TRUE, message=FALSE, warning=FALSE)
+```
+
+# 생존분석 개요 {#survival-overview}
+
+
+[생존분석(Survival analysis)](https://ko.wikipedia.org/wiki/생존분석)은 통계학의 한 분야로, 
+어떠한 현상이 발생하기까지에 걸리는 시간에 대해 분석하는 것이다
+
+**중도절단(censoring)**은 데이터의 측정값이나 관찰치가 부분적으로만 알려진 상태로 생존 분석에서 손실된 데이터를 처리하는 방법이다. 
+이상적으로는 표본의 생일과 사망일을 통해 생존 기간을 파악하는 것이 좋지만, 그렇지 못한 경우에 중도절단을 사용한다.
+중도절단 자료가 필연적으로 발생되는 이유는 환자 거부로 인한 중도탈락, 연락두절로 인한 추적조사 불가, 사망/고장 발생 전 연구 종결 혹은 다른 원인으로 인한 사망/고장을 들 수 있다.
+추적이 불가능(이사, 연락처 소실)
+
+생존분석의 주된 관심사는 생존함수(survival function, $S(t)$)로 다음과 같이 정의한다.
+
+$$S(t) = \Pr(T > t)$$
+
+생존함수는 특정한 시간 $t$ 보다 오래 생존할 확률로 $t$ 는 특정 시간, 
+$T$ 는 사망에 이르는 시점을 나타내는 확률변수로 정의되며, $\Pr$은 확률함수가 된다.
+
+## 생존분석 응용분야 [^application-of-survival] {#survival-application}
+
+[^application-of-survival]: [Is survival analysis the right model for you?](https://www.analyticsvidhya.com/blog/2014/04/survival-analysis-model-you/)
+
+생존분석 응용분야는 다음는 의학에서 많이 사용되지만 동일한 기법을 마케팅, 공학(신뢰성)에도 사용이 가능하다.
+
+- 사업계획 수립 : 이탈하지 않고 잔존기간이 긴 고객의 특성을 파악하여 전략 수립
+- LTV(Lifetime Value) 예측: LTV 가치에 맞춰 고객 대응
+- 유효 고객 : 고객이 특정 시점까지 유효할지 예측
+- 캠페인 평가 : 고객 이탈율(생존률)에 따라 캠페인 효과 모니터링
+- 산업별 생존분석
+    - 소매업: 신선식품구매고객이 비신선식품 구매까지 소요되는 시간
+    - 제조업: 기계부품 수명(lifetime)
+    - 공공: 사회적 중요사건이 발생할 때까지 걸리는 시간
+    - 카탈로그 우편주문: 다음 주문까지 걸리는 시간
+    - 주택모기지: 주택 모기지 상환까지 걸리는 시간
+    - 보험: 보험증권권리 소멸에 걸리는 시간
+
+## 생존분석 도구상자 {#survival-toolbox}
+
+- 생존시간 기술
+    - 생명표(Life tables)
+    - 캐플란-마이어 곡선(Kaplan-Meier curves)
+    - 생존함수(Survival function)
+    - 위험함수(Hazard function)
+- 두집단 이상 생존시간 비교     
+    - 로그 순위검정(Log-rank test)
+- 생존시간에 대한 연속형, 범주형 변수의 효과를 기술
+    - Cox 비례위험 회귀모형 (Cox proportional hazards regression model)
+    - 모수 생존모형(Parametric survival models)
+    - 생존 나무모형(Survival trees)
+    - 생존 확률숲(Survival random forests)
+
+

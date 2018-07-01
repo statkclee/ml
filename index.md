@@ -17,7 +17,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [대용량 데이터 표본추출](ml-random-sampling.html)    
     1. [파이썬기반 기계학습 툴체인(toolchain)](00-toolchain.html): 파이썬 기계학습 생태계
     1. [기계학습 (순수한) 맛보기](ml-taste-with-r.html): 전통적인 통계모형 개발과정 맛보기     
-1. **[기계학습 지도](ml-map.html)**
+1. **[기계학습 지도와 통계모형](ml-map.html)**
     1. [3가지 기계학습 원리](ml-three-principles.html)
         1. [(사업) 문제의 정의](01-problem.html)
         1. [데이터(Data)](02-data.html)
@@ -69,12 +69,12 @@ subtitle: 데이터 과학자가 바라본 기계학습
             1. [사례 - 기계고장 빈도수 예측](ml-machine-failures.html)            
         1. **기계 중심 기계학습**
 1. **데이터 유형별 기계학습 모형**
-    1. [네트워크 데이터](https://statkclee.github.io/network/)
-        - 보다 심화된 네트워크 데이터에 대한 분석을 위해 별도 저장소로 2017-12월 이동.
-    1. [텍스트 데이터](https://statkclee.github.io/text/)
-        - 보다 심화된 네트워크 데이터에 대한 분석을 위해 별도 저장소로 2018-01월 이동.
+    1. [네트워크 데이터](https://statkclee.github.io/network/): 보다 심화된 네트워크 데이터에 대한 분석을 위해 별도 저장소로 2017-12월 이동.
+    1. [텍스트 데이터](https://statkclee.github.io/text/): 보다 심화된 네트워크 데이터에 대한 분석을 위해 별도 저장소로 2018-01월 이동.
         - [텍스트 데이터와 저작](https://statkclee.github.io/ds-authoring/)
-    1. **[장바구니 데이터 분석](ml-market-basket.html)**    
+    1. [공간정보 데이터](https://statkclee.github.io/spatial/)
+    1. [시각 데이터](https://statkclee.github.io/trilobite/)
+    1. **[장바구니 데이터 분석](ml-market-basket.html)** 
 1. **기계학습 상용화**
     1. [기계학습 - 기술부채(Technical Debt)](ml-technical-debt.html)
     1. [보스턴 집값예측 - 주성분 회귀](ml-pm-boston.html)  
@@ -90,6 +90,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
     1. **고객 이탈(churn)**
         1. [고객 이탈(churn): 탐색적 데이터 분석(EDA)](ml-pm-churn-eda.html)
         1. [고객 이탈(churn) 예측모형](ml-pm-churn.html)
+        1. [생존분석(Survival Analysis)](ml-pm-survival.html)
     1. [지방선거 광역단체장 지지율 예측모형](ml-local-election.html)
 
 
