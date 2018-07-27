@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: xwMOOC 기계학습</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-59802572-17', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <a href="index.html"><h1 class="title">xwMOOC 기계학습</h1></a>
+          <h2 class="subtitle">고객 이탈(churn)</h2>
+          <h1 id="customer-attrition-basics">고객이탈(Churn) <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> <a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></h1>
+<p>고객이탈은 영어로 “Customer Churn” 혹은 “Customer Attrition”이라고 하는데 통상적으로 고객이 더이상 서비스 이용이나 제품구매를 멈출 때 발생된다. 거의 모든 사업영역에서 고객이탈이 문제가 되지만, 특히 문제가 되는 분야가 통신(텔코, Tele-communication)산업으로 KT, SKT, U+ 등 통신3사가 거의 과점을 하고 있는 산업분야로 이해하면 된다.</p>
+<h1 id="customer-attrition-dataset">데이터셋</h1>
+<p>고객이탈 데이터셋으로 <a href="https://www.ibm.com/communities/analytics/watson-analytics-blog/guide-to-sample-datasets/">IBM Watson Analytics, Guide to Sample Data Sets</a> 웹사이트에 다양한 데이터가 공개되어 있으며, 그중 고객지원(Customer Support), <a href="https://community.watsonanalytics.com/wp-content/uploads/2015/03/WA_Fn-UseC_-Telco-Customer-Churn.csv">WA_Fn UseC_ Telco Customer Churn.csv</a> 데이터를 다운로드 받아 <strong>“고객이탈 예측모형”</strong>을 개발해 보자.</p>
+<h1 id="customer-attrition-workflow">고객이탈 예측모형 작업흐름</h1>
+<p>고객이탈 예측모형은 일반적인 예측모형(predictive model)과 작업흐름이 다르지 않다. 예측하고자 하는 변수가 <strong>이탈(churn)</strong> 여부(0/1, yes/no, 1/2, 이탈/정상 등)로 다양하게 인코딩한다.</p>
+<p>데이터를 분석환경으로 불러와서 데이터를 전처리하고, 탐색적 데이터 분석 및 변수공학을 동원하여 고객이탈 예측을 높일 수 있는 변수를 찾아내고 가공한다. 그리고 나서 고객이탈을 예측할 수 있는 다양한 모형 아키텍쳐를 식별하여 선정된 최종 예측모형 아키텍쳐에 대해서 변수선정 및 초모수 미세조정을 통한 모형 튜닝작업을 수행한다. 고객이탈 예측모형에 대한 모형성능을 평가하고 나서, 예측모형 배포 및 서비스를 실시한다.</p>
+<ol style="list-style-type: decimal">
+<li>데이터 가져오기</li>
+<li>데이터 전처리
+<ul>
+<li>탐색적 데이터 분석</li>
+<li>변수 공학(Feature Engineering)</li>
+<li>단/다변량 변수 시각화</li>
+</ul></li>
+<li>예측모형 개발
+<ul>
+<li>훈련/테스트 데이터 분할</li>
+<li>예측모형 아키텍처 선정</li>
+<li>선정된 예측모형 아키텍쳐 기반 변수선정 및 초모수(hyper parameter) 미세조정을 통한 모형 튜팅</li>
+<li>모형성능 평가</li>
+</ul></li>
+<li>예측모형 배포 및 서비스</li>
+</ol>
+<p><img src="fig/ml-churn-pipeline.png" alt="고객이탈 예측모형 개발 파이프라인" width="100%" /></p>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://datascienceplus.com/using-mca-and-variable-clustering-in-r-for-insights-in-customer-attrition/">Data Science +, “Using MCA and variable clustering in R for insights in customer attrition”</a><a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p><a href="https://datascienceplus.com/predict-customer-churn-logistic-regression-decision-tree-and-random-forest/">Data Science +, “Predict Customer Churn – Logistic Regression, Decision Tree and Random Forest”</a><a href="#fnref2">↩</a></p></li>
+</ol>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </body>
+</html>
