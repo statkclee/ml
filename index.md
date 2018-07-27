@@ -87,7 +87,8 @@ subtitle: 데이터 과학자가 바라본 기계학습
     1. **마케팅**
         1. [마케팅 반응 예측모형](ml-pm-discrete.html)      
         1. [마케팅 - RFM 및 응용분야](ml-pm-applications.html)
-    1. **고객 이탈(churn)**
+    1. **[고객 이탈(churn)](ml-churn.html)**
+        1. [데이터 위생처리(sanitize)](ml-pm-churn-sanitize.html)
         1. [고객 이탈(churn): 탐색적 데이터 분석(EDA)](ml-pm-churn-eda.html)
         1. [고객 이탈(churn) 예측모형](ml-pm-churn.html)
         1. [생존분석(Survival Analysis)](ml-pm-survival.html)
