@@ -16,7 +16,8 @@ output:
 ``` {r, include=FALSE}
 source("tools/chunk-options.R")
 
-knitr::opts_knit$set(echo=TRUE, verbose = FALSE, message=FALSE, warning=FALSE)
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE,
+                      comment="", digits = 3, tidy = FALSE, prompt = TRUE, fig.align = 'center')
 
 library(tidyverse)
 library(corrplot)
@@ -24,149 +25,217 @@ library(gridExtra)
 library(ggthemes)
 library(caret)
 library(randomForest)
-library(party)
 library(purrr)
+library(ggridges)
+library(cowplot)
 library(extrafont)
 library(forcats)
+library(crosstalk)
 library(skimr)
 loadfonts()
-library(doParallel)
+library(plotly)
 
-churn_dat <- read_csv("https://community.watsonanalytics.com/wp-content/uploads/2015/03/WA_Fn-UseC_-Telco-Customer-Churn.csv")
-
-```
-
-
-## 데이터 가져오기 및 전처리 {#import-attrition-dataset}
-
-고객이탈 [WA_Fn UseC_ Telco Customer Churn.csv](https://community.watsonanalytics.com/wp-content/uploads/2015/03/WA_Fn-UseC_-Telco-Customer-Churn.csv) 데이터를 
-웹사이트에서 바로 불러들인다. 
-
-그리고 나서 `skimr` 팩키지 `skim` 함수를 통해 전반적인 데이터 현황을 살펴보고 나서,
-전처리에 대한 전략을 수립한다. 전처리 전략에 바탕을 두고 차근차근 데이터 전처리 작업을 진행한다.
-
-``` {r import-attrition-data}
-# 0. 환경설정 --------------------------------------------------------------
-# library(tidyverse)
-# library(corrplot)
-# library(gridExtra)
-# library(ggthemes)
-# library(caret)
-# library(randomForest)
-# library(party)
-# library(purrr)
-# library(extrafont)
-# library(forcats)
-# library(skimr)
-# library(doParallel)
-# loadfonts()
-
-# 1. 데이터 가져오기 --------------------------------------------------------------
-
-# churn_dat <- read_csv("https://community.watsonanalytics.com/wp-content/uploads/2015/03/WA_Fn-UseC_-Telco-Customer-Churn.csv")
-
-# 2. 데이터 전처리 --------------------------------------------------------------
-## 2.0. 현황파악 --------------
-skim(churn_dat)
-
-## 2.1. 변수 결측값 --------------
-map(churn_dat, ~ sum(is.na(.))) %>% keep( function(x) x > 0)
-
-churn_dat <- churn_dat %>% 
-  filter(complete.cases(TotalCharges))
-
-## 2.2. 주요 변수 Recode --------
-
-churn_dat <- churn_dat %>% 
-  mutate(OnlineSecurity   = ifelse(OnlineSecurity =="No internet service", "No", OnlineSecurity),
-         OnlineBackup     = ifelse(OnlineBackup =="No internet service", "No", OnlineBackup),
-         DeviceProtection = ifelse(DeviceProtection =="No internet service", "No", DeviceProtection),
-         TechSupport      = ifelse(TechSupport =="No internet service", "No", TechSupport),
-         StreamingTV      = ifelse(StreamingTV =="No internet service", "No", StreamingTV),
-         StreamingMovies  = ifelse(StreamingMovies =="No internet service", "No", StreamingMovies),
-         MultipleLines    = ifelse(MultipleLines =="No phone service", "No", MultipleLines))
-
-churn_dat %>% select(OnlineSecurity, OnlineBackup, DeviceProtection, TechSupport, StreamingTV, StreamingMovies, MultipleLines) %>%
-  purrr::map(., table)
-
-churn_dat <- churn_dat %>% 
-  mutate(tenure_grp = case_when( tenure <= 12 ~ "00-12개월",
-                                 tenure <= 24 ~ "13-24개월",
-                                 tenure <= 36 ~ "25-36개월",
-                                 tenure <= 48 ~ "37-48개월",
-                                 tenure <= 60 ~ "49-60개월",
-                                 tenure  > 60 ~ "60개월이상"))
-
-churn_dat <- churn_dat %>% 
-  mutate(SeniorCitizen  = ifelse(SeniorCitizen == 0, "No", "Yes"))
-
-## 2.3. 무의미한 변수 제거 --------
-churn_dat <- churn_dat %>% 
-  select(-customerID, -tenure)
-
-## 2.4. 자료형 변환 --------
-churn_df <- map_if(churn_dat, is.character, as.factor) %>% 
-  as_data_frame()
-
-## 2.5. 데이터 내보내기 - 저장 --------
-
-# dir.create("data_processed")
-# saveRDS(churn_df, "data_processed/churn_df.rds")
-```
-
-
-## 탐색적 데이터 분석(EDA) {#eda-attrition-dataset}
-
-데이터를 숫자형 데이터와 범주형 데이터로 나눠서 연속형 변수의 경우 상관관계를 `corrplot` 팩키지를 통해 탐색적으로 분석하고,
-범주형 변수는 "고객이탈" 변수와 교차분석을 막대그래프로 수행하여 살펴본다.
-
-``` {r eda-attrition-data, fig.width=12}
-# 2. 탐색적 데이터 분석(EDA) --------------------------------------------------------------
-
-## 2.1. 상관 분석
-
-numeric_var <- map(churn_df, is.numeric) %>% keep(., function(x) x == TRUE) %>% names
-
-churn_df %>% 
-  select(numeric_var) %>% 
-    cor() %>% 
-    corrplot(main="숫자형 변수에 대한 상관도", method="number")
-
-## 2.2. 단변량 분석
-
-barplot_univariate <-  function(df, var, var_name) {
-  ggplot(df, aes_string(x=var)) + 
-    geom_bar(aes(y = 100*(..count..)/sum(..count..)), width = 0.5) + 
-    labs(x=var_name, y="비율", title=var_name) +
-    coord_flip() + 
-    theme_few(base_family = "NanumGothic")
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+    require(grid)
+    plots <- c(list(...), plotlist)
+    numPlots = length(plots)
+    
+    if (is.null(layout)) {
+        layout <- matrix(seq(1, cols * ceiling(numPlots/cols)), ncol = cols, nrow = ceiling(numPlots/cols))
+    }
+    
+    if (numPlots==1) {
+        print(plots[[1]])
+    } 
+    else {
+        grid.newpage()
+        pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+        for (i in 1:numPlots) {
+            matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+            print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row, layout.pos.col = matchidx$col))
+        }
+    }
 }
 
-uni_p1 <- barplot_univariate(churn_df, "gender", "성별")
-uni_p2 <- barplot_univariate(churn_df, "SeniorCitizen", "노인우대")
-uni_p3 <- barplot_univariate(churn_df, "Partner", "파트너사")
-uni_p4 <- barplot_univariate(churn_df, "Dependents", "결합")
-uni_p5 <- barplot_univariate(churn_df, "PhoneService", "유선전화")
-uni_p6 <- barplot_univariate(churn_df, "MultipleLines", "다중회선")
-uni_p7 <- barplot_univariate(churn_df, "InternetService", "인터넷")
-uni_p8 <- barplot_univariate(churn_df, "OnlineSecurity", "온라인 보안 서비스")
+# 1. 데이터 ------
+churn_m_df <- read_rds("data/churn_m_df.rds") 
 
-grid.arrange(uni_p1, uni_p2, uni_p3, uni_p4, uni_p5, uni_p6, uni_p7, uni_p8, ncol=2)
-
-uni_p9 <- barplot_univariate(churn_df, "OnlineBackup", "온라인 백업")
-uni_p10 <- barplot_univariate(churn_df, "DeviceProtection", "디바이스 보호")
-uni_p11 <- barplot_univariate(churn_df, "TechSupport", "기술지원")
-uni_p12 <- barplot_univariate(churn_df, "StreamingTV", "TV 스트리밍")
-uni_p13 <- barplot_univariate(churn_df, "StreamingMovies", "영화 스트리밍")
-uni_p14 <- barplot_univariate(churn_df, "Contract", "계약관련")
-uni_p15 <- barplot_univariate(churn_df, "PaperlessBilling", "전자고지서")
-uni_p16 <- barplot_univariate(churn_df, "PaymentMethod", "지불방법")
-uni_p17 <- barplot_univariate(churn_df, "tenure_grp", "가입기간")
-
-grid.arrange(uni_p9, uni_p10, uni_p11, uni_p12, uni_p13, uni_p14, uni_p15, uni_p16, uni_p17, ncol=3)
 ```
 
 
+# 기계학습 EDA 활용 {#churn-EDA}
+
+기계학습을 탐색적 데이터 분석에 효과적으로 활용하기 위해서 예측변수(고객이탈)에 대해 유의적인 영향을 미치는 중요 변수를 
+식별해 내는 것이 중요하다. 이를 위해서 기계학습 알고리즘을 통해 중요변수를 추출해보자.
+
+기계학습을 통해서 중요변수를 추출한 후에 단변량, 교차분석을 통해서 고객이탈 모형 개발에 사용될 데이터에 대해서 익숙해진다.
+
+지도 기계학습 모형에 대한 자세한 사항은 [xwMOOC 모형, 지도학습모형 → EDA - 포도주(wine)](https://statkclee.github.io/model/model-eda-wine.html)을 참조한다.
+
+# 중요변수 추출 {#churn-machine-learning-importance}
+
+`random forest` 기계학습 알고리즘을 통해서 중요변수를 추출한다.
 
 
+``` {r churn-machine-learning}
+# 1. 데이터 ------
+churn_m_df <- read_rds("data/churn_m_df.rds") %>% 
+    sample_frac(0.1)
+
+# 2. 중요변수 추출 기계학습 ------
+## 2.1. 훈련/시험 데이터 분할 ------
+idx <- createDataPartition(churn_m_df$churn, 
+                           p = 0.8, 
+                           list = FALSE, 
+                           times = 1)
+
+churn_train <- churn_m_df[ idx,]
+churn_test  <- churn_m_df[-idx,]
+
+## 2.2. 모형적합 ------
+fit_ctrl <- trainControl(method = "repeatedcv", number = 5, repeats = 3)
+
+churn_rf <- train(churn ~ ., 
+                 data = churn_train, 
+                 method = "rf", 
+                 preProcess = c("scale", "center"),
+                 trControl = fit_ctrl,
+                 verbose = FALSE)
+
+## 2.3. 모형성능평가 ------
+
+test_predict <- predict(churn_rf, churn_test)
+confusionMatrix(test_predict, churn_test$churn)
+
+# 3. 모형 설명 -----
+## 3.1. 중요변수 추출 -----
+churn_rf_imp <- varImp(churn_rf, scale = TRUE)
+
+churn_rf_imp$importance %>%
+    as.data.frame() %>%
+    rownames_to_column(var="variable") %>% 
+    top_n(3, Overall) %>% 
+    pull(variable)
+
+## 3.2. 중요변수 시각화 -----
+churn_rf_imp$importance %>%
+    as.data.frame() %>%
+    rownames_to_column(var="variable") %>%
+    ggplot(aes(x = reorder(variable, Overall), y = Overall)) +
+    geom_bar(stat = "identity", fill = "#1F77B4", alpha = 0.8) +
+    coord_flip() +
+    labs(y="중요도", x="") +
+    theme_minimal(base_family="NanumGothic")
+```
+
+기계학습 모형을 돌려서... 상위 4개 변수가 중요한 역할을 한 것으로 식별이 되었다고 볼 수 있다.
+
+
+# 지도학습 모형 시각화 {#churn-supervised-model-eda}
+
+기계학습을 통해서 `tenure`, `total_charges`,
+`monthly_charges`, `payment_method` 변수가 다른 변수에 비해서 고객이탈 분류에 중요한 역할을 수행하는 것을 확인했다. 
+이를 염두에 두고 시각화를 진행해 보자.
+
+## 정적 시각화 {#churn-supervised-model-eda-static}
+
+고객이탈 분류가 목적이기 때문에 예측변수와 예측에 동원되는 설명변수를 시각화한다.
+우선 연속형 변수와 범주형 변수로 변수를 구분한다. 그리고 나서 범주형 변수의 경우 변주형 변수를 모아서 "고객이탈"과 
+결합하여 시각화한다.
+
+``` {r churn-machine-learning-eda-static-cat}
+## 범주형 변수
+cat_var <- churn_m_df %>% 
+    select_if(is.factor) %>% 
+    colnames()
+
+## 연속형 변수
+cont_var <- churn_m_df %>% 
+    select_if(is.numeric) %>% 
+    colnames()
+
+
+# 2. 탐색적 데이터 분석 ------
+## 2.1. 정적 시각화 -----
+### 범주형 변수 시각화
+visualize_category <- function(variable) {
+    # var <- enquo(variable)
+    var <- sym(variable)
+    churn_m_df %>% 
+        select_if(is.factor) %>% 
+        count(!!var, churn) %>% 
+        ggplot(aes(x=!!var, y=n, fill=churn)) +
+        geom_col() +
+        labs(x=rlang::quo_text(var), y="") +
+        scale_y_continuous(labels = scales::comma) +
+        scale_fill_viridis_d() +
+        theme(legend.position = "none") +
+        scale_x_discrete(label = function(x) abbreviate(x, minlength=7))
+}
+
+# visualize_category(gender)
+# visualize_category("churn")
+
+cat_barplot_lst <- map(setdiff(cat_var, "churn"), visualize_category)
+
+multiplot(plotlist=cat_barplot_lst, cols=4)
+```
+
+범주형 변수와 동일한 방식으로 연속형 변수를 고객이탈과 결합하여 시각화한다.
+
+``` {r churn-machine-learning-eda-static-cont}
+### 연속형 변수 시각화
+y_p <- churn_m_df %>%
+    ggplot(aes(x = churn, fill = churn)) +
+    geom_bar(alpha = 0.8) +
+    scale_fill_manual(values = c("red", "gray")) +
+    guides(fill = FALSE)
+
+x_p <- churn_m_df %>%
+    select(churn, cont_var) %>% 
+    gather(variable, value, -churn) %>%
+    ggplot(aes(x = value, y = churn, color = churn, fill = churn)) +
+    facet_wrap( ~ variable, scale = "free", ncol = 3) +
+    scale_color_manual(values = c("red", "gray")) +
+    scale_fill_manual(values = c("red", "gray")) +
+    geom_density_ridges(alpha = 0.8) +
+    guides(fill = FALSE, color = FALSE)
+
+plot_grid(y_p, x_p, rel_widths = c(1,3))
+```
+
+
+## 인터랙티브 시각화 {#churn-supervised-model-eda-interactive}
+
+`crosstalk`를 통해 예측변수와 설명변수를 연결하고 이를 `plotly` 팩키지로 인터랙티브 시각화한다.
+자세한 방식은 [포도주 분류 인터랙티브 시각화](https://statkclee.github.io/model/model-eda-wine.html#32_%EC%9D%B8%ED%84%B0%EB%9E%99%ED%8B%B0%EB%B8%8C_%EC%8B%9C%EA%B0%81%ED%99%94)를 참조한다.
+
+# 교차분석 {#churn-supervised-model-ggpairs}
+
+기계학습을 통해서 추출된 고객이탈에 중요도가 큰 변수 네개(`tenure`, `total_charges`, `monthly_charges`, `payment_method`)를 대상을 
+`ggpairs()` 함수로 교차분석을 수행한다.
+
+``` {r churn-machine-learning-eda-static-ggpairs}
+## 기계학습 중요 변수
+imp_var <- churn_m_df %>% 
+    select(tenure, total_charges, monthly_charges, payment_method) %>% 
+    colnames()
+
+# 3. 교차 분석 ------
+churn_m_df %>% 
+    select(imp_var, churn) %>% 
+    GGally::ggpairs(aes(color=churn, alpha=0.7))
+```
+
+`crosstalk`와 `plotly`를 결합하여 인터랙티브 교차분석 그래프도 가능하다.
+
+``` {r churn-machine-learning-eda-interactive-ggpairs}
+## 인터랙티브 교차그래프
+churn_sd <- churn_m_df %>% 
+    select(imp_var, churn) %>% 
+    sample_frac(0.1) %>% SharedData$new(.)
+
+churn_xy_g <- GGally::ggpairs(churn_sd, aes(color=churn, alpha=0.7))
+highlight(ggplotly(churn_xy_g), on = "plotly_selected")
+```
 
