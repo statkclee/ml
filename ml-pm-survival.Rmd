@@ -7,7 +7,8 @@ output:
     toc: yes
     toc_float: true
     highlight: tango
-    code_folding: hide
+    code_folding: show
+    number_section: true
 ---
  
 
@@ -17,7 +18,6 @@ knitr::opts_chunk$set(echo=TRUE, message=FALSE, warning=FALSE)
 ```
 
 # 생존분석 개요 {#survival-overview}
-
 
 [생존분석(Survival analysis)](https://ko.wikipedia.org/wiki/생존분석)은 통계학의 한 분야로, 
 어떠한 현상이 발생하기까지에 걸리는 시간에 대해 분석하는 것이다
@@ -67,4 +67,100 @@ $T$ 는 사망에 이르는 시점을 나타내는 확률변수로 정의되며,
     - 생존 나무모형(Survival trees)
     - 생존 확률숲(Survival random forests)
 
+
+# 생존 분석 사례 [^data-camp-survival] {#survival-analysis-example}
+
+[^data-camp-survival]: [DataCamp, Survival Analysis in R For Beginners](https://www.datacamp.com/community/tutorials/survival-analysis-R)
+
+
+## 데이터 {#survival-analysis-example-data}
+
+`ovarian`(난소) 관련 질병으로 인한 생존시간을 살펴본다. 
+`survival` 팩키지에 포함된 데이터셋으로 "Survival in a randomised trial comparing two treatments for ovarian cancer" 난소암에 대한 
+두가지 처방을 비교하여 생존시간에 대한 차이에 대한 정보를 담고 있다.
+
+데이터를 가져와서 필요한 데이터 정제작업을 수행한다.
+
+``` {r datacamp-survial}
+# 0. 환경설정 -----
+library(tidyverse)
+library(survival)
+library(survminer)
+
+# 1. 데이터 -----
+data(ovarian)
+
+# 2. 데이터 전처리 -----
+ovarian <- ovarian %>% 
+    mutate(rx = factor(rx, levels = c("1", "2"), labels = c("A", "B")),
+           resid.ds = factor(resid.ds, levels = c("1", "2"), labels = c("no", "yes")),
+           ecog.ps = factor(ecog.ps, levels = c("1", "2"), labels = c("good", "bad"))) %>% 
+    mutate(age_group = ifelse(age >=50, "old", "young") %>% as.factor)
+
+DT::datatable(ovarian)
+```
+
+
+## 단변량 분석 {#survival-analysis-example-univariate}
+
+단변량, 다변량 분석에 들어가기 전에 우선 생존분석 객체(`Surv()`)를 생성한다.
+그후 `rx`, `resid.ds`... 변수를 생존시간에 대한 차이를 분석하는데 동원하다.
+
+집단간의 차이를 검정하는 `survfit()` 함수를 통해 log rank 검정을 수행한다.
+그리고 `ggsurvplot()` 함수 `pval = TRUE` 인자를 넣게 되면 집단간 생존시간 차이에 대한 
+통계검정 p-값도 산출해 준다.
+
+``` {r datacamp-survial-univariate}
+# 3. 예측모형 -----
+## 3.1. 생존모형 객체 -----
+surv_object <- Surv(time = ovarian$futime, event = ovarian$fustat)
+
+## 3.2. 생존모형: 단변량 -----
+### log rank 검정(rx)
+km_rx_survfit <- survfit(surv_object ~ rx, data = ovarian)
+
+summary(km_rx_survfit)
+
+ggsurvplot(km_rx_survfit, data = ovarian, pval = TRUE)
+
+### log rank 검정(resid.ds)
+km_resid_survfit <- survfit(surv_object ~ resid.ds, data = ovarian)
+
+summary(km_resid_survfit)
+
+ggsurvplot(km_resid_survfit, data = ovarian, pval = TRUE)
+```
+
+
+## 다변량 분석 {#survival-analysis-example-multivariate}
+
+각각의 변수에 대해서 일일이 생존시간의 차이를 분석하는 대신에 
+`coxph()` 함수로 회귀모형을 작성해서 모형을 구축하고 중요한 변수를 식별할 수 있다.
+
+특히, `step()` 함수로 변수선정도 가능해서 최종 보형을 `ecog.ps`가 제거된 모형이고 
+콕스 모형이 가정한 사항이 맞는지를 `cox.zph()` 함수로 검정하고 모형에 대한 이해를 위해서 
+`ggforest()` 함수로 1을 기준으로 생존에 긍정 혹은 부정 영향을 미치는 변수에 대한 영향도를 
+시각적으로 확인한다.
+
+
+``` {r datacamp-survial-multivariate}
+## 3.3. 생존모형: 다변량 -----
+### 변수선택
+coxph_full <- coxph(surv_object ~ rx + resid.ds + age_group + ecog.ps, 
+                   data = ovarian)
+
+coxph_step <- step(coxph_full, direction = "both", trace = 0)
+
+### 최종모형
+coxph_survfit <- coxph(surv_object ~ rx + resid.ds + age_group, data = ovarian)
+
+### 가설검정
+cox.zph(coxph_survfit)
+
+par(mfrow=c(2,2))
+plot(cox.zph(coxph_survfit))
+
+### 모형 시각화
+ggforest(coxph_survfit, data = ovarian)
+```
 
