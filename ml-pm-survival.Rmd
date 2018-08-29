@@ -86,6 +86,9 @@ $T$ 는 사망에 이르는 시점을 나타내는 확률변수로 정의되며,
 library(tidyverse)
 library(survival)
 library(survminer)
+library(janitor)
+library(extrafont)
+loadfonts()
 
 # 1. 데이터 -----
 data(ovarian)
@@ -163,4 +166,186 @@ plot(cox.zph(coxph_survfit))
 ### 모형 시각화
 ggforest(coxph_survfit, data = ovarian)
 ```
+
+# 재구매 사례분석 [^survival-sthda] {#survival-analysis-bought-again}
+
+[^survival-sthda]: [STHDA: Statistical tools for high-throughput data analysis - "Cox Proportional-Hazards Model"](http://www.sthda.com/english/wiki/cox-proportional-hazards-model)
+
+## 데이터 가져오기 {#survival-analysis-bought-again-import}
+
+재구매 여부와 첫번째 구매 이후 경과 시간을 담은 데이터를 가져온다.
+
+``` {r repurchase-data-import}
+# 1. 탐색적 데이터 분석 -----
+
+order_df  <- read_csv("data/next_order_clean.csv") %>%
+    mutate_if(is.character, as.factor)
+
+# 2. 탐색적 데이터 분석 -----
+# 생략
+```
+
+## 재구매 확률 시각화 {#survival-analysis-bought-again-viz}
+
+재구매 하지 않을 확률 전체를 시각화한다.
+
+``` {r repurchase-data-viz}
+# 3. 생존분석 모형 -----
+## 3.0. 생존객체 생성 
+order_surv <- Surv(order_df$days, order_df$buy_again)
+
+## 3.1. 단변량 분석
+### 3.1.1. 전체 생존확률 -----
+km_fit <- survfit(order_surv ~ 1, data = order_df)
+
+ggsurvplot(km_fit, data = order_df, risk.table = TRUE,
+           theme=theme_minimal(base_family="NanumGothic")) +
+    labs(x="첫구매시점 이후 경과일", y="재구매하지 않은 확률")
+```
+
+## 단변량 분석 {#survival-analysis-bought-again-univariate}
+
+변수가 많지는 않지만, 반품여부, 쿠폰 활용여부, 성별, 첫번째 구매시 구매총합을 대상으로 각각의
+Kaplan-Meier 생존분석을 돌려 유의성 검증을 수행한다.
+
+``` {r repurchase-data-univariate}
+### 3.1.2. 유의적인 단변량 변수 -----
+#### 변수명 선정
+order_varname_v <- order_df %>% names %>% dput
+order_covariates_v <- setdiff(order_varname_v, c("days", "buy_again"))
+
+#### 단변량변수 생존분석 모형 적합
+univ_formulas <- map(order_covariates_v,
+                        function(x) as.formula(paste('Surv(days, buy_again) ~ ', x)))
+
+univ_models <- map( univ_formulas, function(x){coxph(x, data = order_df)})
+
+# Extract data 
+univ_results <- map(univ_models,
+                       function(x){ 
+                           x <- summary(x)
+                           p.value<-signif(x$wald["pvalue"], digits=2)
+                           wald.test<-signif(x$wald["test"], digits=2)
+                           beta<-signif(x$coef[1], digits=2);#coeficient beta
+                           HR <-signif(x$coef[2], digits=2);#exp(beta)
+                           HR.confint.lower <- signif(x$conf.int[,"lower .95"], 2)
+                           HR.confint.upper <- signif(x$conf.int[,"upper .95"],2)
+                           HR <- paste0(HR, " (", 
+                                        HR.confint.lower, "-", HR.confint.upper, ")")
+                           res<-c(beta, HR, wald.test, p.value)
+                           names(res)<-c("beta", "HR (95% CI for HR)", "wald.test", 
+                                         "p.value")
+                           return(res)
+                           #return(exp(cbind(coef(x),confint(x))))
+                       })
+
+univ_res_df <- t(as.data.frame(univ_results, check.names = FALSE)) %>% tbl_df
+
+univ_res_df %>% 
+    bind_cols(var_name = order_covariates_v) %>% 
+    select(var_name, everything()) %>% 
+    DT::datatable()
+```
+
+## 단변량 분석 시각화 {#survival-analysis-bought-again-univariate-viz}
+
+앞서 분석한 단변량 분석을 통해 유의적으로 판정된 변수를 대상으로 시각화작업을 수행한다.
+
+
+``` {r repurchase-data-univariate-viz}
+### 3.1.2. 단변량 변수: 바우처 -----
+km_voucher_fit <- survfit(order_surv ~ voucher, data = order_df)
+
+ggsurvplot(km_voucher_fit, data = order_df, pval=TRUE, risk.table = TRUE,
+           ggtheme=theme_minimal(base_family="NanumGothic")) +
+    labs(x="첫구매시점 이후 경과일", y="재구매하지 않을 확률", 
+         title="바우처 효과", color = "바우처 지급여부")
+
+### 3.1.3. 단변량 변수: 반품 -----
+km_return_fit <- survfit(order_surv ~ returned, data = order_df)
+
+ggsurvplot(km_return_fit, data = order_df, pval=TRUE, risk.table = TRUE,
+           ggtheme = theme_minimal(base_family="NanumGothic")) +
+    labs(x="첫구매시점 이후 경과일", y="재구매하지 않을 확률", 
+         subtitle="반품 효과", color="반품여부")
+
+### 3.1.4. 단변량 변수: 성별 -----
+km_gender_fit <- survfit(order_surv ~ gender, data = order_df)
+
+ggsurvplot(km_gender_fit, data = order_df, pval=TRUE, risk.table = TRUE,
+           ggtheme = theme_minimal(base_family="NanumGothic")) +
+    labs(x="첫구매시점 이후 경과일", y="재구매하지 않을 확률", 
+         subtitle="성별(Gender) 효과", color="성별")
+```
+
+
+## 다변량 분석 시각화 {#survival-analysis-bought-again-multivariate}
+
+모든 변수를 한번에 넣어 다변량 분석을 수행하고 변수선택과정을 통해 절약의 법칙(Principle of Parsimony)을 충족시킨다.
+그리고 `cox.zph()` 함수로 콕스 비례위험모형의 가정사항을 점검하고 
+`ggforest()` 함수로 각 변수가 재구매에 미치는 영향도를 살펴본다.
+
+
+``` {r repurchase-data-multivariate}
+## 3.2. 다변량 분석 -----
+### 3.2.1. 변수선택
+order_cph_full <- coxph(order_surv ~ cart_value  + voucher + returned + gender, data = order_df)
+
+(coxph_step <- step(order_cph_full, direction = "both", trace = 0))
+
+### 3.2.2. 최종모형
+order_cph_fit <- coxph(order_surv ~ cart_value  + voucher + returned + gender, data = order_df)
+
+### 3.2.3. 모형 가설 검정
+cox.zph(order_cph_fit)
+
+### 3.2.4. 모형 이해와 설명
+ggforest(order_cph_fit, data = order_df)
+```
+
+## 다변량 분석 시각화 {#survival-analysis-bought-again-multivariate}
+
+신규 고객 세그먼트를 지정하고 나서 첫구매이후 경과일로 재구매확률 변화를 앞서 구축한 예측모형을 바탕으로 
+예측한다. 5개 고객집단의 특성을 `segment_df` 데이터프레임에 정의했고 이를 `survfit()`으로 예측했다.
+
+``` {r repurchase-data-multivariate-predict}
+# 4. 재구매 예측 -----
+## 신규 고객 정의 데이터
+segment_df <- tribble(
+    ~ days, ~cart_value, ~gender, ~voucher, ~returned,
+    30,  77, "male",   1, 1,
+    50,  37, "male",   0, 1,
+    70,  70, "female", 0, 1,
+    5,  17, "female", 0, 0,
+    170, 300, "male", 1, 1) %>% 
+    mutate(voucher  = factor(voucher, levels=c(0, 1), labels=c("no", "yes")),
+           returned = factor(returned, levels=c(0, 1), labels=c("no", "yes")))
+
+## 신규 고객 재구매하지 않을 확률 예측
+segment_pred <- survfit(order_cph_fit, newdata = segment_df)
+
+segment_pred %>% broom::tidy() %>% 
+    select(time, contains("estimate")) %>% 
+    gather(customer, purchase_prob, -time) %>% 
+    # mutate(purchase_prob = 1 - purchase_prob) %>% 
+    mutate(customer = str_replace(customer, "estimate", "segment")) %>% 
+    ggplot(aes(x=time, y=purchase_prob, color=customer)) +
+        geom_line() +
+        geom_point() +
+        theme_minimal(base_family="NanumGothic") +
+        labs(x="첫구매시점 이후 경과일", y="재구매하지 않을 확률", 
+             subtitle="경과일에 따른 고객 세그먼트별 재구매 확률 변화", color="고객 Segment") +
+        scale_color_viridis_d()
+    
+
+segment_pred %>% broom::tidy() %>% 
+    select(time, contains("estimate")) %>% 
+    rename_at(vars(contains("estimate")), funs(str_replace_all(., "estimate", "segment"))) %>% 
+    DT::datatable() %>% 
+      DT::formatPercentage(c(2:6), digits=1)
+```    
+
+
+
+
 
