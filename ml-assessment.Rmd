@@ -2,6 +2,7 @@
 layout: page
 title: xwMOOC 기계학습
 subtitle: 알고리즘 성능평가
+data: "`r Sys.Date()`"
 output:
   html_document: 
     toc: yes
@@ -10,6 +11,8 @@ output:
     code_folding: show
     number_section: true
 mainfont: NanumGothic
+editor_options: 
+  chunk_output_type: console
 ---
  
 
@@ -117,7 +120,7 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 10px;}
 오거부률(2종오류) 간의 상충관계를 시각적으로 나타낸 그래프로, 정밀도(Precision)와 재현율(Recall)을 유사하게 표현한 것이 PR 그래프로 시각화를 하고, 
 아래 면적을 측정하여 성능을 평가하기도 한다.
 
-### 1.3. 독일신용평가 데이터 사례 {#classification-performance-german}
+## 독일신용평가 사례 {#classification-performance-german}
 
 `caret` 팩키지에 포함된 `data("GermanCredit")` 신용평가 데이터를 통해 좀더 직접적인 사례를 확인해 보자.
 
@@ -133,11 +136,96 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 10px;}
     * 컷오프 50% 설정 시 모형이 갖는 함의 파악
 
 ```{r german-credit-logit}
+# 0. 환경설정 ------
+library(tidyverse)
+library(caret)
+library(funModeling)
+library(extrafont)
+loadfonts()
 
+# 1. 데이터 ------
+## 1.1. 데이터 가져오기 
+data(GermanCredit)
 
+gc_df <- GermanCredit %>% tbl_df %>% 
+    mutate(Class = 2 - as.integer(Class))
+
+## 1.2. 훈련데이터와 검증데이터 분리: 70% 훈련데이터, 30% 검증데이터
+ind <- createDataPartition(gc_df$Class, p=0.7, list=FALSE)
+
+train_df <- gc_df[ind,]
+test_df <- gc_df[-ind,]
+
+# 2. 예측모형 적합 -----
+## 2.1. 이항회귀모형 변수 설정: 종속변수 Class, 독립변수 그외.
+credit_var <- setdiff(colnames(train_df), list('Class'))
+credit_formula <- as.formula(paste('Class', paste(credit_var, collapse=' + '), sep=' ~ '))
+
+## 2.2. 이항회귀모형 적합
+credit_m <- glm(credit_formula, data=train_df, family=binomial)
+credit_var_m <- step(credit_m, trace=FALSE)
+
+# 3. 예측 -----
+# 훈련데이터 신용불량확률예측, 검증데이터 신용불량확률예측
+train_df$pred_prob <- predict(credit_var_m, newdata=train_df, type='response')
+test_df$pred_prob  <- predict(credit_var_m, newdata=test_df, type='response')
+
+# 4. 예측 시각화 -----
+# 검증데이터 속 신용고객 확률밀도분포 도식화
+test_df %>% 
+    ggplot(aes(x=pred_prob, color=as.factor(Class))) +
+        geom_density() +
+        geom_vline(xintercept = 0.5, color="green", linetype="dashed") +
+        labs(x="채무 불이행 예측확률", y="밀도", title="독일 신용데이터 - 채무불이행 시각화") +
+        theme_bw(base_family = "NanumGothic")
 ```
 
-# 2. 특정 측도 최적화 [^metric-opt] {#classification-performance-opt}
+## Lift 그래프 [^lift-german] [^lift-reference] {#classification-performance-german-lift}
+
+[^lift-german]: [Pablo Casas(July 2018), "Data Science Live Book - 4. Assesing Model Performance""](https://livebook.datascienceheroes.com/model-performance.html)
+
+[^lift-reference]: [Cumulative Gains and Lift Charts](http://www2.cs.uregina.ca/~dbd/cs831/notes/lift_chart/lift_chart.html)
+
+`Gain` 칼럼은 전체 신용 담보대출 신청자를 10%씩 10조각을 내서 각 10분위마다 
+해당되는 신용불량자를 모형예측결과 통계지표를 제시하고 있다.
+예를 들어, 상위 30%를 선택할 경우 신용불량 예측율을 66.7%까지 할 수 있다는 계산이 된다.
+
+```{r german-credit-lift}
+gain_lift(data=train_df, score='pred_prob', target='Class')
+```
+
+예측모형 적합에 대해서 사용되는 비용 대비 효과를 Lift 그래프로 표현한다.
+
+```{r lift-chart-example}
+lift_df <- tribble(
+~cost_dollar, ~customers_contacted, ~positive_responses,
+10000, 10000, 6000,
+20000, 20000, 10000,
+30000, 30000, 13000,
+40000, 40000, 15800,
+50000, 50000, 17000,
+60000, 60000, 18000,
+70000, 70000, 18800,
+80000, 80000, 19400,
+90000, 90000, 19800,
+100000, 100000,20000)
+
+lift_df %>% 
+    mutate(base_line = seq(0.1,1,0.1),
+           gains = positive_responses / 20000) %>% 
+    ggplot(aes(x=base_line, y=gains)) +
+       geom_line(color="blue") +
+       geom_point(color="blue", size=2) +
+       geom_line(aes(x= base_line, y= base_line)) +
+       geom_point(aes(x= base_line, y= base_line), size=2) +
+       labs(x="고객 접촉비율(%)", y="구매결정 응답비율(%)") +
+       theme_bw(base_family = "NanumGothic") +
+       scale_x_continuous(labels = scales::percent) +
+       scale_y_continuous(labels = scales::percent)
+```
+
+
+# 특정 측도 최적화 [^metric-opt] {#classification-performance-opt}
 
 [^metric-opt]: [A HopStat and Jump Away, A small introduction to the ROCR package](https://hopstat.wordpress.com/2014/12/19/a-small-introduction-to-the-rocr-package/)
 
@@ -146,11 +234,12 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 10px;}
 
 `ROCR` 팩키지의 `prediction()`, `performance()` 함수를 활용하여 정확도, 재현율, 민감도 등 특정 측도를 기준이 최대화되는 컷오프(cutoff)를 결정할 수 있다.
 
-## 2.1. 정확도 최적 분류기준 {#classification-performance-opt-acc}
+## 정확도 최적 분류기준 {#classification-performance-opt-acc}
 
  `performance()` 함수에 인자로 `acc`를 넣어 정확도가 최대화되는 컷오프를 찾아본다.
 
 ``` {r german-credit-optim-acc}
+library(ROCR)
 # 2. 모형성능 최적화 -------------
 test_rocr <- prediction(test_df$pred_prob, test_df$Class)
 
@@ -170,7 +259,7 @@ text(x=0.5, y=0.4, paste0("컷오프:", round(test_rocr_acc_v$cutoff,2), "\n",
                           "측도:", round(test_rocr_acc_v$accuracy,2)))
 ```
 
-## 2.2. 예측모형에서 활용도 높은 지표 기준 컷오프 시각화 {#classification-performance-opt-viz}
+## 예측모형에서 활용도 높은 지표 기준 컷오프 시각화 {#classification-performance-opt-viz}
 
 예측모형에서 활용도 높아 많이 살펴보는 지표인 "acc", "f", "spec", "sens"를 넣어 각 지표가 제안하는 최적 지점을 시각화한다. 
 
@@ -210,11 +299,11 @@ find_optimal_cutoff(test_rocr, "spec")
 find_optimal_cutoff(test_rocr, "sens")
 ```
 
-## 2.3. 오분류 비용 혹은 수익 고려 {#classification-performance-opt-cost}
+## 오분류 비용 혹은 수익 고려 {#classification-performance-opt-cost}
 
 과학기술분야에서 정확도, 재현율, 정밀도, $F_1$ 점수가 중요한 측도가 되지만, **1종 오류**, **2종 오류** 함의도 중요하다.
 
-### 2.3.1. 1종 오류가 중요한 기계학습 알고리즘 설계 {#classification-performance-opt-cost-type1}
+### 1종 오류가 중요한 기계학습 알고리즘 설계 {#classification-performance-opt-cost-type1}
 
 보안이 중요한 경우 1종 오류가 매우 중요할 수 있다. 왜냐하면, 1종 오류를 범하게 되면,
 들어오지 말아야 되는 사람, 예를 들어 악성 해커가 기계학습 모형의 예측결과로 잘못되어 들어오게 되면 큰 문제가 야기될 수도 있기 때문이다.
@@ -231,7 +320,7 @@ find_optimal_cutoff(test_rocr, "sens")
 |                |  음성          |  1 (2종오류)  |       0       |
 
 
-### 2.3.2. 2종 오류가 중요한 기계학습 알고리즘 설계 {#classification-performance-opt-cost-type2}
+### 2종 오류가 중요한 기계학습 알고리즘 설계 {#classification-performance-opt-cost-type2}
 
 반대의 경우로 2종 오류가 더 중요할 수도 있다. 왜냐하면, 전형적인 마케팅 사례가 여기에 해당된다.
 1종오류를 범하게 되면, 캠페인에 포함되지 않는 사람이 기계학습 모형이 잘못되어 들어오게 되면 큰 문제가 되지 않는다.
@@ -267,9 +356,9 @@ text(x=0.5, y=0.4, paste0("컷오프: ", round(cost_metric_v$cutoff,2), "\n",
 ```
 
 
-# 3. 연속형 성능평가 {#prediction-performance}
+# 연속형 성능평가 {#prediction-performance}
 
-## 3.1. 연속형 성능평가 측정 &rarr; RMSE {#prediction-performance-numeric}
+## 연속형 성능평가 측정 &rarr; RMSE {#prediction-performance-numeric}
 
 평균 제곱근 오차(Root Mean Squared Error, RMSE)가 가장 일반적인 연속형 성능평가 측도가 된다.
 특히, RMSE는 측정 종속변수와 동일한 단위라서 설명하기 쉽고, 표준편차처럼 예측이 얼마나 벗어났는지 정보를 제공한다.
@@ -304,7 +393,7 @@ ggplot(data=dat.df) + geom_point(aes(x=xvalue.v, y=yvalue.v), color='purple') +
 sqrt(mean((dat.df$pred-dat.df$yvalue.v)^2))
 ```
 
-## 3.2. 연속형 성능평가 모니터링 {#prediction-performance-numeric-monitoring}
+## 연속형 성능평가 모니터링 {#prediction-performance-numeric-monitoring}
 
 회귀분석 등을 통해서 연속형 변수 성능을 평가하고 모니터링할 경우, 평균제곱오차(Mean Squared Error)를 사용한다. 
 그렇다고 평균제곱오차가 가장 좋다는 의미는 아니다. 다만, 기본적인 성능평가 추정 모니터링 방법은 다음과 같다.
