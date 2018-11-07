@@ -2,11 +2,21 @@
 layout: page
 title: xwMOOC 기계학습
 subtitle: 군집분석(Clustering) - 포켓몬
+author:
+    name: xwMOOC
+    url: https://www.facebook.com/groups/tidyverse/
+    affiliation: Tidyverse Korea
+date: "`r Sys.Date()`"
 output:
   html_document: 
-  pdf_document:
-    latex_engine: xelatex
-mainfont: NanumGothic
+    toc: yes
+    toc_float: true
+    highlight: tango
+    code_folding: show
+    number_section: true
+    self_contained: true
+editor_options: 
+  chunk_output_type: console
 ---
  
 > ## 학습목표 {.objectives}
@@ -17,12 +27,13 @@ mainfont: NanumGothic
 
 
 ``` {r, include=FALSE}
-source("tools/chunk-options.R")
-knitr::opts_knit$set(verbose = FALSE, echo=FALSE, message=FALSE, warning =FALSE)
+# source("tools/chunk-options.R")
+
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE,
+                      comment="", digits = 3, tidy = FALSE, prompt = FALSE, fig.align = 'center')
+
 
 library(tidyverse)
-library(purrr)
-options(warn=-1)
 
 library(factoextra)
 library(FactoMineR)
@@ -38,7 +49,7 @@ library(ggmosaic)
 loadfonts()
 ```
 
-## 1. 탐색적 다차원 데이터 분석 - 포켓몬 데이터 [^prcatical-guide-to-cluster-analaysis-in-r] {#pokemon-data-multivariate}
+# 탐색적 다차원 데이터 분석 - 포켓몬 데이터 [^prcatical-guide-to-cluster-analaysis-in-r] {#pokemon-data-multivariate}
 
 [^prcatical-guide-to-cluster-analaysis-in-r]: [Mr Alboukadel Kassambara (2017), Practical Guide to Cluster Analysis in R: Unsupervised Machine Learning, Amazon Digital Services LLC](https://www.amazon.com/Practical-Guide-Cluster-Analysis-Unsupervised-ebook/dp/B077KQBXTN/ref=la_B076JDHZC8_1_1?s=books&ie=UTF8&qid=1511857119&sr=1-1)
 
@@ -55,7 +66,7 @@ loadfonts()
 
 <img src="fig/pokemon-eda-clustering.png" alt="포켓몬 캐릭터 군집분석" width="77%" />
 
-### 1.1. 군집분석 작업흐름 {#clustering-pipeline}
+## 군집분석 작업흐름 {#clustering-pipeline}
 
 군집분석에 필요한 데이터를 가져온 후 다양한 군집분석 모형 탐색과정을 거쳐 최적의 군집 알고리즘을 선정하고, 
 더불어 적절한 군집갯수 $k$도 선정한다.
@@ -64,9 +75,9 @@ loadfonts()
 
 <img src="fig/pokemon-clustering-pipeline.png" alt="포켓몬 군집분석 파이프라인" width="77%" />
 
-## 2. 군집분석 {#pokemon-cluster-analysis}
+# 군집분석 {#pokemon-cluster-analysis}
 
-### 2.1 포켓몬 데이터 불러와서 전처리 작업 {#cluster-import-preprocess-pokemon-data}
+## 포켓몬 데이터 불러와서 전처리 작업 {#cluster-import-preprocess-pokemon-data}
 
 포켓몬 데이터를 캐글에서 다운로드 받아 불러온다. 
 변수명을 변경하고 범주형 데이터에 대해서 범주를 재조정하고,
@@ -99,14 +110,14 @@ row.names(pkmon_scaled_df) <- pkmon_dat$Name
 # saveRDS(pkmon_df, "data_preprocessed/pkmon_df.rds")
 ```
 
-### 2.2 군집분석을 위한 탐색적 데이터 분석 {#cluster-eda-pokemon-data}
+## 군집분석을 위한 탐색적 데이터 분석 {#cluster-eda-pokemon-data}
 
 포켓몬 데이터를 캐글에서 다운로드 받아 불러온다. 
 변수명을 변경하고 범주형 데이터에 대해서 범주를 재조정하고,
 군집분석에 적합하게 척도(scale)를 각 변수별로 동일하게 재조정하는 
 전처리 작업을 수행한다.
 
-### 2.2.1. 군집(cluster)은 존재하는가? {#cluster-eda-exist-cluster}
+### 군집(cluster)은 존재하는가? {#cluster-eda-exist-cluster}
 
 존재론적인 질문이 될 수 있으나, 군집은 과연 존재하는가? 이러한 철학적인 질문에 대해서
 **hopkins** 통계량, `fviz_dist`함수의 시각적인 방법을 통해서 확인할 수 있다.
@@ -145,7 +156,7 @@ pkmon_scaled_df %>%
       coord_fixed()
 ```
 
-### 2.2.2. 군집(cluster)은 몇개가 적절할까? {#cluster-eda-how-many-cluster}
+### 군집(cluster)은 몇개가 적절할까? {#cluster-eda-how-many-cluster}
 
 군집이 존재한다고 판단이 되면, 다음으로 드는 의문점은 몇개의 군집이 적절한가라는 문제로 귀결된다.
 적절한 군집 식별을 위해서 팔꿈치(elbow) 방법, 실루엣 방법, 갭 방법 등이 개발되었다.
@@ -197,7 +208,7 @@ pkmon_scaled_df %>%
          title="최적 군집갯수", subtitle = "NbClust 방법") 
 ```
 
-### 2.3. 최적 군집분석 알고리즘 선정 {#cluster-eda-optimal-algorithm-cluster}
+## 최적 군집분석 알고리즘 선정 {#cluster-eda-optimal-algorithm-cluster}
 
 `clValid` 팩키지는 최적 군집분석 알고리즘과 군집갯수를 선택하도록 개발되었다.
 대상 군집 알고리즘(`clmethods`)을 쭉 나열하고, 군집갯수(`nClust`)도 지정하고 나서,
@@ -218,7 +229,7 @@ summary(clust_algo)
 ```
 
 
-### 2.4. 군집분석 알고리즘 적합 {#cluster-eda-fit-algorithm-cluster}
+## 군집분석 알고리즘 적합 {#cluster-eda-fit-algorithm-cluster}
 
 최적 군집 알고리즘과 군집갯수가 선정되면 "군집분석 알고리즘 적합"하는 과정을 거치게 된다.
 군집 2개를 갖는 계층적 군집분석 알고리즘이 선정된 군집분석 알고리즘이기 때문에,
@@ -260,7 +271,7 @@ fviz_cluster(list(data = pkmon_smpl_df, cluster = pkmon_grp),
     labs(title="포켓몬 군집 그래프", subtitle ="계층적 군집분석 알고리즘 - 군집 2개") 
 ```
 
-### 2.5. 군집분석 알고리즘 - 열지도(heatmap) {#cluster-eda-fit-algorithm-cluster-heatmap}
+## 군집분석 알고리즘 - 열지도(heatmap) {#cluster-eda-fit-algorithm-cluster-heatmap}
 
 군집분석을 관측점 관점과 변수관점으로 **열지도(heatmap)**를 생성하여 면밀하게 살펴본다.
 예쁜 열지도(`pheatmap`)를 통해 정적 열지도도 그려보고, `d3heatmap`을 통해 인터랙티브 열지도도 그려본다.
@@ -278,12 +289,12 @@ d3heatmap::d3heatmap(pkmon_smpl_df, colors = "RdYlBu",
 ```
 
 
-## 3. 군집특성 요약 {#cluster-summary-cluster}
+# 군집특성 요약 {#cluster-summary-cluster}
 
 군집 알고리즘을 통해 해당 관측점에 대한 군집에 대한 배정이 완료되었다면,
 이제는 해당 군집별 특성을 요약하는 작업을 수행한다.
 
-### 3.1. 군집특성 요약 데이터 {#cluster-summary-cluster-cbind}
+## 군집특성 요약 데이터 {#cluster-summary-cluster-cbind}
 
 군집 2개를 갖는 계층적 군집분석 알고리즘 적합시킨 데이터를 원본 `pkmon_df` 데이터프레임과 병합한다.
 병합된 `pkmon_full_df` 데이터프레임에 대해 군집특성요약을 위해 추가로 필요한 데이터 정제작업도 수행한다.
@@ -307,11 +318,11 @@ pkmon_full_df <- bind_cols(pkmon_df, pkmon_full_grp) %>%
 # saveRDS(pkmon_full_df, "data_preprocessed/pkmon_full_df.rds")
 ```
 
-### 3.2. 군집특성 요약 데이터 - 병렬그래프 {#cluster-summary-cluster-parallel}
+## 군집특성 요약 데이터 - 병렬그래프 {#cluster-summary-cluster-parallel}
 
 병렬그래프(parallel plot)를 통해 군집을 잘 식별하는 변수가 어떤 것인지 활용한다.
 
-``` {r cluster-summary-cluster-parallel}
+``` {r cluster-summary-cluster-parallel, eval=TRUE}
 # 2. 포켓몬 군집 해석 ------------------
 ## 2.1. 전체적인 능력값
 pkmon_full_df %>% 
@@ -323,14 +334,15 @@ pkmon_full_df %>%
     scale_fill_manual(values=c("red","blue")) +
     theme_bw(base_family = "NanumGothic") +
     labs(x="", y="능력치", color="군집", title="포켓몬 캐릭터 군집 평행그림")
+
 ```
 
-### 3.3. 군집특성 요약 데이터 - 모자이크 그래프 {#cluster-summary-cluster-mosaic}
+## 군집특성 요약 데이터 - 모자이크 그래프 {#cluster-summary-cluster-mosaic}
 
 군집은 태생이 범주형인데, 범주형 변수가 포함된 경우 군집과 교차하여 군집별 특성도 함께 살펴본다.
 이를 위해서 모자이크 그래프를 활용한다.
 
-``` {r cluster-summary-cluster-mosaic}
+``` {r cluster-summary-cluster-mosaic, eval=FALSE}
 ## 2.2. 범주형 변수에 대한 군집
 pkmon_full_df %>% 
     mutate(group = factor(group),
@@ -342,7 +354,7 @@ pkmon_full_df %>%
     theme(legend.position = "right")
 ```
 
-### 3.3. 군집특성 요약 데이터 - 밀도 그래프 {#cluster-summary-cluster-mosaic}
+## 군집특성 요약 데이터 - 밀도 그래프 {#cluster-summary-cluster-mosaic}
 
 연속형 변수와 군집을 밀도 그래프와 교차하여 각 군집별 특성도 각 변수별로 시각화하여 이해한다.
 
