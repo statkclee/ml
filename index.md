@@ -39,7 +39,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [텍스트 콘솔기반 탐색적 데이터 분석(EDA)](ml-text-console.html)        
         1. [이상점(Outlier) 검출](ml-detect-outliers.html)        
         1. [이상점 검출 - mahalanobis](ml-detect-outliers-mahalanobis.html)
-        1. [비지도 학습 - 포켓몬](ml-pokemon-unsupervised.html)
+        1. [차원축소 - 포켓몬](ml-pokemon-unsupervised.html)
         1. [군집분석(Clustering) - 포켓몬](ml-pokemon-clustering-pipeline.html)
     1. [알고리즘 성능평가](ml-assessment.html)
 1. [기계학습 운영 및 자동화 - 파이프라인](ml-production.html)
