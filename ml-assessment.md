@@ -2,30 +2,34 @@
 layout: page
 title: xwMOOC 기계학습
 subtitle: 알고리즘 성능평가
+data: "2018-11-07"
 output:
   html_document: 
     toc: yes
     toc_float: true
     highlight: tango
-    code_folding: hide
+    code_folding: show
+    number_section: true
 mainfont: NanumGothic
+editor_options: 
+  chunk_output_type: console
 ---
  
-> ## 학습목표 {.objectives}
->
-> * 기계학습 알고리듬 성능평가를 이해한다.
-> * 범주형, 연속형, 지도학습/비지도학습 알고리듬 성능평가를 이해한다.
 
 
 
-# 0. 기계학습 알고리즘 성능평가 {#algo-performance}
+# 기계학습 알고리즘 성능평가 [^data-science-live-book] {#algo-performance}
+
+[^data-science-live-book]: [Pablo Casas (July 2018), "Data Science Live Book"](https://livebook.datascienceheroes.com/)
 
 기계학습 알고리즘 성능평가는 데이터를 이용해서 풀려는 문제에 따라 다르다.
+기계학습 팩키지로 유명한 `caret` 팩키지도 결국 데어터에 내재된 예측과 분류 문제를 풀려고 제작되었다.
+기계학습 알고리듬 성능평가를 이해하고, 범주형, 연속형, 지도학습/비지도학습 알고리즘 성능평가를 R 코드로 구현해본다.
 
-* 분류 
-* 예측
+* 분류(Classification) 
+* 예측(Prediction)
 
-# 1. 분류(Classification) 성능평가 [^roc-curve-with-r] {#classification-performance}
+# 분류(Classification) 성능평가 [^roc-curve-with-r] {#classification-performance}
 
 [^roc-curve-with-r]: [ROC Curve & Area Under Curve (AUC) with R - Application Example](https://www.youtube.com/watch?v=ypO1DPEKYFo)
 
@@ -49,7 +53,7 @@ mainfont: NanumGothic
 | **실험 결과**  | 양성(Positive): Event      | TP(True Positive): A | FP(False Positive): B | 
 | (Predicted)    | 음성(Negative): No Event   | FN(False Negative): C| TN(True Negative): D  |
 
-<img src="fig/ml-precision-recall.svg" alt="정밀도와 재현율 도식화" width="50%"> [^wiki-walber]
+<img src="fig/ml-precision-recall.svg" alt="정밀도와 재현율 도식화" width="25%"> [^wiki-walber]
 
 [^wiki-walber]: [Precision and recall SVG 파일](https://commons.wikimedia.org/wiki/File:Precisionrecall.svg)
 
@@ -65,7 +69,7 @@ $$재현율 = \frac{TP}{TP+FN}, 민감도 = \frac{A}{A+C}$$
 
 $$F_1 = \frac{2}{\frac{1}{정밀도}+\frac{1}{재현율}} = 2 \times \frac{정밀도 \times 재현율}{정밀도 + 재현율}$$
 
-## 1.1. 범주형 예측 모형 평가 {#classification-category-performance}
+## 범주형 예측 모형 평가 {#classification-category-performance}
 
 범주형 예측모형의 성능평가를 위해 도입되는 척도는 다음과 같다.
 
@@ -78,13 +82,42 @@ $$F_1 = \frac{2}{\frac{1}{정밀도}+\frac{1}{재현율}} = 2 \times \frac{정�
 $$\kappa = \frac {O - E}{1- E}$$
 
 
-## 1.2. ROC 곡선, PR 그래프 {#classification-performance-roc}
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 10px;}
+</style>
+<div class = "blue">
+
+- **부츠트랩핑(Bootstrapping)**은 모수를 추정할 때 많이 사용된다.  Bootstrapping is mostly used when estimating a parameter.
+- **교차검증(Cross-Validation)**은 서로 다른 예측모형을 선택할 때 선택지가 된다. Cross-Validation is the choice when choosing among different predictive models.
+
+</div>
+
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 10px;}
+</style>
+<div class = "blue">
+
+- $\text{오차(error) = 편이(bias) + 분산(variance)}$ [^random-forest-gbm]
+    - **랜덤 포리스트(Random Forest)**는 분산을 줄이는데 초점을 둔다.
+    - **Gradient boosting machine**은 편이(Bias)에 초점을 둔다. 
+
+부스팅(Boosting)은 순차적(sequential)으로 나무를 뻗어가는 반면에 RF는 병렬(parallel)로 뻗어나간다.
+
+</div>
+
+[^random-forest-gbm]: [“Gradient boosting machine vs random forest” (stats.stackexchange.com 2015)](https://stats.stackexchange.com/questions/173390/gradient-boosting-tree-vs-random-forest)
+
+
+
+## ROC 곡선, PR 그래프 {#classification-performance-roc}
 
 [ROC 곡선](https://en.wikipedia.org/wiki/Receiver_operating_characteristic)은 오인식률(1종오류)과 
 오거부률(2종오류) 간의 상충관계를 시각적으로 나타낸 그래프로, 정밀도(Precision)와 재현율(Recall)을 유사하게 표현한 것이 PR 그래프로 시각화를 하고, 
 아래 면적을 측정하여 성능을 평가하기도 한다.
 
-### 1.3. 독일신용평가 데이터 사례 {#classification-performance-german}
+## 독일신용평가 사례 {#classification-performance-german}
 
 `caret` 팩키지에 포함된 `data("GermanCredit")` 신용평가 데이터를 통해 좀더 직접적인 사례를 확인해 보자.
 
@@ -101,90 +134,252 @@ $$\kappa = \frac {O - E}{1- E}$$
 
 
 ~~~{.r}
-# 0. 팩키지 및 데이터 준비 -------------
+# 0. 환경설정 ------
 library(tidyverse)
-library(extrafont)
-loadfonts()
 library(caret)
-library(ROCR)
-data("GermanCredit")
-
-# 훈련데이터와 검증데이터 분리: 70% 훈련데이터, 30% 검증데이터
-ind <- createDataPartition(GermanCredit$Class, p=0.7, list=FALSE)
-
-train_df <- GermanCredit[ind,]
-test_df <- GermanCredit[-ind,]
-
-# 이항회귀모형 변수 설정: 종속변수 Class, 독립변수 그외.
-credit_var <- setdiff(colnames(train_df), list('Class'))
-credit_formula <- as.formula(paste('Class', paste(credit_var, collapse=' + '), sep=' ~ '))
-
-# 이항회귀모형 적합
-credit_m <- glm(credit_formula, data=train_df, family=binomial)
-credit_var_m <- step(credit_m, trace=FALSE)
-
-# 훈련데이터 신용불량확률예측, 검증데이터 신용불량확률예측
-train_df$pred_prob <- predict(credit_var_m, newdata=train_df, type='response')
-test_df$pred_prob  <- predict(credit_var_m, newdata=test_df, type='response')
-
-# 검증데이터 속 신용고객 확률밀도분포 도식화
-ggplot(data=test_df) +
-    geom_density(aes(x=pred_prob, color=Class, linetype=Class)) +
-    geom_vline(xintercept = 0.5, color="green", linetype="dashed")
-~~~
-
-<img src="fig/german-credit-logit-1.png" title="plot of chunk german-credit-logit" alt="plot of chunk german-credit-logit" style="display: block; margin: auto;" />
-
-~~~{.r}
-# 컷오프를 50%로 설정했을 경우, 오차행렬
-test_df$pred_class <- ifelse(test_df$pred_prob > 0.5, "Good", "Bad")
-
-test_df %>% 
-    mutate(cutoff = 0.5) %>% 
-    select(Class, pred_prob, cutoff, pred_class) %>% 
-    DT::datatable() %>% 
-      DT::formatPercentage(c(2:3), digits=1)
-~~~
-
-<img src="fig/german-credit-logit-2.png" title="plot of chunk german-credit-logit" alt="plot of chunk german-credit-logit" style="display: block; margin: auto;" />
-
-~~~{.r}
-confusionMatrix(data=test_df$pred_class, reference=test_df$Class, positive = "Good")
 ~~~
 
 
 
 ~~~{.output}
-Confusion Matrix and Statistics
-
-          Reference
-Prediction Bad Good
-      Bad   40   26
-      Good  50  184
-                                          
-               Accuracy : 0.7467          
-                 95% CI : (0.6935, 0.7949)
-    No Information Rate : 0.7             
-    P-Value [Acc > NIR] : 0.042852        
-                                          
-                  Kappa : 0.3471          
- Mcnemar's Test P-Value : 0.008333        
-                                          
-            Sensitivity : 0.8762          
-            Specificity : 0.4444          
-         Pos Pred Value : 0.7863          
-         Neg Pred Value : 0.6061          
-             Prevalence : 0.7000          
-         Detection Rate : 0.6133          
-   Detection Prevalence : 0.7800          
-      Balanced Accuracy : 0.6603          
-                                          
-       'Positive' Class : Good            
-                                          
+Error in library(caret): there is no package called 'caret'
 
 ~~~
 
-# 2. 특정 측도 최적화 [^metric-opt] {#classification-performance-opt}
+
+
+~~~{.r}
+library(funModeling)
+~~~
+
+
+
+~~~{.output}
+Error in library(funModeling): there is no package called 'funModeling'
+
+~~~
+
+
+
+~~~{.r}
+library(extrafont)
+loadfonts()
+
+# 1. 데이터 ------
+## 1.1. 데이터 가져오기 
+data(GermanCredit)
+
+gc_df <- GermanCredit %>% tbl_df %>% 
+    mutate(Class = 2 - as.integer(Class))
+~~~
+
+
+
+~~~{.output}
+Error in eval(lhs, parent, parent): 객체 'GermanCredit'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+## 1.2. 훈련데이터와 검증데이터 분리: 70% 훈련데이터, 30% 검증데이터
+ind <- createDataPartition(gc_df$Class, p=0.7, list=FALSE)
+~~~
+
+
+
+~~~{.output}
+Error in createDataPartition(gc_df$Class, p = 0.7, list = FALSE): 함수 "createDataPartition"를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+train_df <- gc_df[ind,]
+~~~
+
+
+
+~~~{.output}
+Error in eval(expr, envir, enclos): 객체 'gc_df'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+test_df <- gc_df[-ind,]
+~~~
+
+
+
+~~~{.output}
+Error in eval(expr, envir, enclos): 객체 'gc_df'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+# 2. 예측모형 적합 -----
+## 2.1. 이항회귀모형 변수 설정: 종속변수 Class, 독립변수 그외.
+credit_var <- setdiff(colnames(train_df), list('Class'))
+~~~
+
+
+
+~~~{.output}
+Error in is.data.frame(x): 객체 'train_df'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+credit_formula <- as.formula(paste('Class', paste(credit_var, collapse=' + '), sep=' ~ '))
+~~~
+
+
+
+~~~{.output}
+Error in paste(credit_var, collapse = " + "): 객체 'credit_var'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+## 2.2. 이항회귀모형 적합
+credit_m <- glm(credit_formula, data=train_df, family=binomial)
+~~~
+
+
+
+~~~{.output}
+Error in stats::model.frame(formula = credit_formula, data = train_df, : 객체 'credit_formula'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+credit_var_m <- step(credit_m, trace=FALSE)
+~~~
+
+
+
+~~~{.output}
+Error in terms(object): 객체 'credit_m'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+# 3. 예측 -----
+# 훈련데이터 신용불량확률예측, 검증데이터 신용불량확률예측
+train_df$pred_prob <- predict(credit_var_m, newdata=train_df, type='response')
+~~~
+
+
+
+~~~{.output}
+Error in predict(credit_var_m, newdata = train_df, type = "response"): 객체 'credit_var_m'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+test_df$pred_prob  <- predict(credit_var_m, newdata=test_df, type='response')
+~~~
+
+
+
+~~~{.output}
+Error in predict(credit_var_m, newdata = test_df, type = "response"): 객체 'credit_var_m'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
+# 4. 예측 시각화 -----
+# 검증데이터 속 신용고객 확률밀도분포 도식화
+test_df %>% 
+    ggplot(aes(x=pred_prob, color=as.factor(Class))) +
+        geom_density() +
+        geom_vline(xintercept = 0.5, color="green", linetype="dashed") +
+        labs(x="채무 불이행 예측확률", y="밀도", title="독일 신용데이터 - 채무불이행 시각화") +
+        theme_bw(base_family = "NanumGothic")
+~~~
+
+
+
+~~~{.output}
+Error in eval(lhs, parent, parent): 객체 'test_df'를 찾을 수 없습니다
+
+~~~
+
+## Lift 그래프 [^lift-german] [^lift-reference] {#classification-performance-german-lift}
+
+[^lift-german]: [Pablo Casas(July 2018), "Data Science Live Book - 4. Assesing Model Performance""](https://livebook.datascienceheroes.com/model-performance.html)
+
+[^lift-reference]: [Cumulative Gains and Lift Charts](http://www2.cs.uregina.ca/~dbd/cs831/notes/lift_chart/lift_chart.html)
+
+`Gain` 칼럼은 전체 신용 담보대출 신청자를 10%씩 10조각을 내서 각 10분위마다 
+해당되는 신용불량자를 모형예측결과 통계지표를 제시하고 있다.
+예를 들어, 상위 30%를 선택할 경우 신용불량 예측율을 66.7%까지 할 수 있다는 계산이 된다.
+
+
+~~~{.r}
+gain_lift(data=train_df, score='pred_prob', target='Class')
+~~~
+
+
+
+~~~{.output}
+Error in gain_lift(data = train_df, score = "pred_prob", target = "Class"): 함수 "gain_lift"를 찾을 수 없습니다
+
+~~~
+
+예측모형 적합에 대해서 사용되는 비용 대비 효과를 Lift 그래프로 표현한다.
+
+
+~~~{.r}
+lift_df <- tribble(
+~cost_dollar, ~customers_contacted, ~positive_responses,
+10000, 10000, 6000,
+20000, 20000, 10000,
+30000, 30000, 13000,
+40000, 40000, 15800,
+50000, 50000, 17000,
+60000, 60000, 18000,
+70000, 70000, 18800,
+80000, 80000, 19400,
+90000, 90000, 19800,
+100000, 100000,20000)
+
+lift_df %>% 
+    mutate(base_line = seq(0.1,1,0.1),
+           gains = positive_responses / 20000) %>% 
+    ggplot(aes(x=base_line, y=gains)) +
+       geom_line(color="blue") +
+       geom_point(color="blue", size=2) +
+       geom_line(aes(x= base_line, y= base_line)) +
+       geom_point(aes(x= base_line, y= base_line), size=2) +
+       labs(x="고객 접촉비율(%)", y="구매결정 응답비율(%)") +
+       theme_bw(base_family = "NanumGothic") +
+       scale_x_continuous(labels = scales::percent) +
+       scale_y_continuous(labels = scales::percent)
+~~~
+
+<img src="fig/lift-chart-example-1.png" title="plot of chunk lift-chart-example" alt="plot of chunk lift-chart-example" style="display: block; margin: auto;" />
+
+
+# 특정 측도 최적화 [^metric-opt] {#classification-performance-opt}
 
 [^metric-opt]: [A HopStat and Jump Away, A small introduction to the ROCR package](https://hopstat.wordpress.com/2014/12/19/a-small-introduction-to-the-rocr-package/)
 
@@ -193,34 +388,120 @@ Prediction Bad Good
 
 `ROCR` 팩키지의 `prediction()`, `performance()` 함수를 활용하여 정확도, 재현율, 민감도 등 특정 측도를 기준이 최대화되는 컷오프(cutoff)를 결정할 수 있다.
 
-## 2.1. 정확도 최적 분류기준 {#classification-performance-opt-acc}
+## 정확도 최적 분류기준 {#classification-performance-opt-acc}
 
  `performance()` 함수에 인자로 `acc`를 넣어 정확도가 최대화되는 컷오프를 찾아본다.
 
 
 ~~~{.r}
+library(ROCR)
+~~~
+
+
+
+~~~{.output}
+Error in library(ROCR): there is no package called 'ROCR'
+
+~~~
+
+
+
+~~~{.r}
 # 2. 모형성능 최적화 -------------
 test_rocr <- prediction(test_df$pred_prob, test_df$Class)
+~~~
 
+
+
+~~~{.output}
+Error in prediction(test_df$pred_prob, test_df$Class): 함수 "prediction"를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 ## 2.1. 정확도가 최대가 되는 기준: Accuracy
 test_rocr_acc <- performance(test_rocr, "acc")
+~~~
 
+
+
+~~~{.output}
+Error in performance(test_rocr, "acc"): 함수 "performance"를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 test_rocr_acc_df <- data_frame(cutoff = test_rocr_acc@x.values %>% unlist, accuracy = test_rocr_acc@y.values %>% unlist)
+~~~
 
+
+
+~~~{.output}
+Error in eval(lhs, parent, parent): 객체 'test_rocr_acc'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 test_rocr_acc_v <- test_rocr_acc_df %>% 
     arrange(desc(accuracy)) %>% 
     filter(row_number()==1)
+~~~
 
+
+
+~~~{.output}
+Error in eval(lhs, parent, parent): 객체 'test_rocr_acc_df'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 par(family = 'NanumGothic') 
 plot(test_rocr_acc, main="정확도 기준으로 최적 컷오프 설정", xlab="컷오프 (Cutoff)", ylab="정확도 (Accuracy)") 
+~~~
+
+
+
+~~~{.output}
+Error in plot(test_rocr_acc, main = "정확도 기준으로 최적 컷오프 설정", : 객체 'test_rocr_acc'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 abline(v=test_rocr_acc_v$cutoff, h=test_rocr_acc_v$accuracy, col="green")
+~~~
+
+
+
+~~~{.output}
+Error in int_abline(a = a, b = b, h = h, v = v, untf = untf, ...): 객체 'test_rocr_acc_v'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 text(x=0.5, y=0.4, paste0("컷오프:", round(test_rocr_acc_v$cutoff,2), "\n",
                           "측도:", round(test_rocr_acc_v$accuracy,2)))
 ~~~
 
-<img src="fig/german-credit-optim-acc-1.png" title="plot of chunk german-credit-optim-acc" alt="plot of chunk german-credit-optim-acc" style="display: block; margin: auto;" />
 
-## 2.2. 예측모형에서 활용도 높은 지표 기준 컷오프 시각화 {#classification-performance-opt-viz}
+
+~~~{.output}
+Error in paste0("컷오프:", round(test_rocr_acc_v$cutoff, 2), "\n", : 객체 'test_rocr_acc_v'를 찾을 수 없습니다
+
+~~~
+
+## 예측모형에서 활용도 높은 지표 기준 컷오프 시각화 {#classification-performance-opt-viz}
 
 예측모형에서 활용도 높아 많이 살펴보는 지표인 "acc", "f", "spec", "sens"를 넣어 각 지표가 제안하는 최적 지점을 시각화한다. 
 
@@ -256,18 +537,59 @@ find_optimal_cutoff <- function(rocr_dat, metric_label) {
 
 par(mfrow=c(2,2))
 find_optimal_cutoff(test_rocr, "acc")
+~~~
+
+
+
+~~~{.output}
+Error in performance(rocr_dat, metric_label): 함수 "performance"를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 find_optimal_cutoff(test_rocr, "f")
+~~~
+
+
+
+~~~{.output}
+Error in performance(rocr_dat, metric_label): 함수 "performance"를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 find_optimal_cutoff(test_rocr, "spec")
+~~~
+
+
+
+~~~{.output}
+Error in performance(rocr_dat, metric_label): 함수 "performance"를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 find_optimal_cutoff(test_rocr, "sens")
 ~~~
 
-<img src="fig/german-credit-optim-acc-cutoff-1.png" title="plot of chunk german-credit-optim-acc-cutoff" alt="plot of chunk german-credit-optim-acc-cutoff" style="display: block; margin: auto;" />
 
-## 2.3. 오분류 비용 혹은 수익 고려 {#classification-performance-opt-cost}
+
+~~~{.output}
+Error in performance(rocr_dat, metric_label): 함수 "performance"를 찾을 수 없습니다
+
+~~~
+
+## 오분류 비용 혹은 수익 고려 {#classification-performance-opt-cost}
 
 과학기술분야에서 정확도, 재현율, 정밀도, $F_1$ 점수가 중요한 측도가 되지만, **1종 오류**, **2종 오류** 함의도 중요하다.
 
-### 2.3.1. 1종 오류가 중요한 기계학습 알고리즘 설계 {#classification-performance-opt-cost-type1}
+### 1종 오류가 중요한 기계학습 알고리즘 설계 {#classification-performance-opt-cost-type1}
 
 보안이 중요한 경우 1종 오류가 매우 중요할 수 있다. 왜냐하면, 1종 오류를 범하게 되면,
 들어오지 말아야 되는 사람, 예를 들어 악성 해커가 기계학습 모형의 예측결과로 잘못되어 들어오게 되면 큰 문제가 야기될 수도 있기 때문이다.
@@ -284,7 +606,7 @@ find_optimal_cutoff(test_rocr, "sens")
 |                |  음성          |  1 (2종오류)  |       0       |
 
 
-### 2.3.2. 2종 오류가 중요한 기계학습 알고리즘 설계 {#classification-performance-opt-cost-type2}
+### 2종 오류가 중요한 기계학습 알고리즘 설계 {#classification-performance-opt-cost-type2}
 
 반대의 경우로 2종 오류가 더 중요할 수도 있다. 왜냐하면, 전형적인 마케팅 사례가 여기에 해당된다.
 1종오류를 범하게 되면, 캠페인에 포함되지 않는 사람이 기계학습 모형이 잘못되어 들어오게 되면 큰 문제가 되지 않는다.
@@ -305,27 +627,91 @@ find_optimal_cutoff(test_rocr, "sens")
 ## 2.3. 비용을 고려한 최적 컷오프 -----
 # 비용고려 모형성능
 cost_metric <- performance(test_rocr, "cost", cost_fp=1, cost_fn=10)
+~~~
+
+
+
+~~~{.output}
+Error in performance(test_rocr, "cost", cost_fp = 1, cost_fn = 10): 함수 "performance"를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 # 컷오프와 비용고려 모형성능 데이터프레임 변환
 cost_metric_df <- data_frame(cutoff = cost_metric@x.values %>% unlist, cost = cost_metric@y.values %>% unlist)
+~~~
+
+
+
+~~~{.output}
+Error in eval(lhs, parent, parent): 객체 'cost_metric'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 # 기준지표에 따른 최적 컷오프(Cutoff)
 cost_metric_v <- cost_metric_df %>%
     arrange(cost) %>%
     filter(row_number()==1)
+~~~
 
+
+
+~~~{.output}
+Error in eval(lhs, parent, parent): 객체 'cost_metric_df'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 # 컷오프에 따른 시각화
 plot(cost_metric, main=paste0("비용 기준으로 최적 컷오프 설정"),
      xlab="컷오프 (Cutoff)", ylab="비용")
+~~~
+
+
+
+~~~{.output}
+Error in plot(cost_metric, main = paste0("비용 기준으로 최적 컷오프 설정"), : 객체 'cost_metric'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 abline(v=cost_metric_v$cutoff, h=cost_metric_v$cost, col="green")
+~~~
+
+
+
+~~~{.output}
+Error in int_abline(a = a, b = b, h = h, v = v, untf = untf, ...): 객체 'cost_metric_v'를 찾을 수 없습니다
+
+~~~
+
+
+
+~~~{.r}
 text(x=0.5, y=0.4, paste0("컷오프: ", round(cost_metric_v$cutoff,2), "\n",
                           "비용 : ", round(cost_metric_v$cost,2)))
 ~~~
 
-<img src="fig/german-credit-optim-cost-1.png" title="plot of chunk german-credit-optim-cost" alt="plot of chunk german-credit-optim-cost" style="display: block; margin: auto;" />
 
 
-# 3. 연속형 성능평가 {#prediction-performance}
+~~~{.output}
+Error in paste0("컷오프: ", round(cost_metric_v$cutoff, 2), "\n", "비용 : ", : 객체 'cost_metric_v'를 찾을 수 없습니다
 
-## 3.1. 연속형 성능평가 측정 &rarr; RMSE {#prediction-performance-numeric}
+~~~
+
+
+# 연속형 성능평가 {#prediction-performance}
+
+## 연속형 성능평가 측정 &rarr; RMSE {#prediction-performance-numeric}
 
 평균 제곱근 오차(Root Mean Squared Error, RMSE)가 가장 일반적인 연속형 성능평가 측도가 된다.
 특히, RMSE는 측정 종속변수와 동일한 단위라서 설명하기 쉽고, 표준편차처럼 예측이 얼마나 벗어났는지 정보를 제공한다.
@@ -372,7 +758,7 @@ sqrt(mean((dat.df$pred-dat.df$yvalue.v)^2))
 
 ~~~
 
-## 3.2. 연속형 성능평가 모니터링 {#prediction-performance-numeric-monitoring}
+## 연속형 성능평가 모니터링 {#prediction-performance-numeric-monitoring}
 
 회귀분석 등을 통해서 연속형 변수 성능을 평가하고 모니터링할 경우, 평균제곱오차(Mean Squared Error)를 사용한다. 
 그렇다고 평균제곱오차가 가장 좋다는 의미는 아니다. 다만, 기본적인 성능평가 추정 모니터링 방법은 다음과 같다.
