@@ -52,6 +52,8 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [EMR 스파크 클러스터 - wadal](ml-emr-wadal.html)
         1. [분석할 데이터를 스파크에 적재하는 방법 - S3 포함](ml-ec2-s3.html)
         1. [dplyr을 Spark 위에 올린 sparklyr](ml-sparklyr.html)
+    - **AWS 클라우드**
+        1. [데이터 크롤링 &rarr; S3](ml-crawling-s3.html)
     1. [데이터에 무게를 둔 예측모형](ml-modeling.html)
         1. **인간 중심 기계학습 모형**
             1. [선형대수와 함께하는 회귀분석 이해](ml-linear-algebra-reg.html)    
