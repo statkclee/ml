@@ -1,20 +1,54 @@
 ---
 layout: page
 title: xwMOOC 기계학습
-subtitle: 이상점 검출 - 마할라노비스(mahalanobis) 거리
+subtitle: "단변량/다변량 이상점 검출 - 사기 탐지"
+author:
+    name: xwMOOC
+    url: https://www.facebook.com/groups/tidyverse/
+    affiliation: Tidyverse Korea
+date: "`r Sys.Date()`"
 output:
   html_document: 
-    keep_md: yes
-  pdf_document:
-    latex_engine: xelatex
-mainfont: NanumGothic
+    toc: yes
+    toc_float: true
+    highlight: tango
+    code_folding: show
+    number_section: true
+    self_contained: true
+editor_options: 
+  chunk_output_type: console
 ---
- 
+
+
 ``` {r, include=FALSE}
-source("tools/chunk-options.R")
+# source("tools/chunk-options.R")
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE,
+                      comment="", digits = 3, tidy = FALSE, prompt = FALSE, fig.align = 'center')
+
 ```
 
-## 마할라노비스 거리 [^outlier-mahalanobis-distance] [^outlier-mahalanobis]
+# 이상점 탐지 방법론 [^outlier-detection-techniques] {#outlier-detection-techniques}
+
+[^outlier-detection-techniques]: [Outlier Detection Techniques](http://www.dbs.ifi.lmu.de/~zimek/publications/KDD2010/kdd10-outlier-tutorial.pdf)
+
+이상점 탐지 기법을 통해 사기탐지(fraud detection)에도 응용이 가능하다. [Outlier Detection Techniques](http://www.dbs.ifi.lmu.de/~zimek/publications/KDD2010/kdd10-outlier-tutorial.pdf) 발표자료에 의하면 정말 다양한 이상점 탐지 방법이 제시되고 있다.
+
+- 모형기반 (Model-based) 
+    - 통계검증 (Statistical Tests)
+    - 깊이 기반 접근법(Depth-based Approaches)
+    - 편차 기반 접근법(Deviation-based Approaches)
+- 근접기반 (Proximity-based)
+    - 거리 기반(Distance-based Approaches)
+    - 밀도 기반(Density-based Approaches)
+- 고차원 접근법 (High dimensional Approaches)
+
+
+# 마할라노비스 거리 맛보기 [^outlier-mahalanobis-distance] [^outlier-mahalanobis] {#mahalanobis-distance-overview}
+
+> "It is perfect to use both classical and robust methods routinely, and only worry
+> when they differ enough to matter... But when they differ, you should think hard."
+> **J.W. Tukey (1979)**
+
 
 [^outlier-mahalanobis-distance]: [Outlier Detection with Mahalanobis Distance](https://www.steffenruefer.com/2016/12/outlier-detection-with-mahalanobis-distance/)
 [^outlier-mahalanobis]: [Using Mahalanobis Distance to Find Outliers](https://eurekastatistics.com/using-mahalanobis-distance-to-find-outliers/)
@@ -27,9 +61,11 @@ source("tools/chunk-options.R")
 
 $D_M(\vec{x}) = \sqrt{(\vec{x} - \vec{\mu})^T S^{-1} (\vec{x}-\vec{\mu})}$
 
-### 신장과 체중 
+## 신장과 체중 {#mahalanobis-distance-data}
 
 ``` {r mahalanobis-ex}
+library(tidyverse)
+
 # 신장과 체중 데이터 
 df <- data.frame(height_cm=c(164, 167, 168, 169, 169, 170, 170, 170, 171, 172, 172, 173, 173, 175, 176, 178),
                  weight_kg=c( 54,  57,  58,  60,  61,  60,  61,  62,  62,  64,  62,  62,  64,  56,  66,  70))
@@ -56,7 +92,7 @@ ggplot(df, aes(x = weight_kg, y = height_cm, color = outlier_maha)) +
     theme_minimal(base_family = "NanumGothic")
 ```
 
-### 마할라노비스 거리 적용시 주의점
+## 마할라노비스 거리 적용시 주의점 {#mahalanobis-distance-caveat}
 
 마할라노비스 거리를 활용하여 이상점을 추출할 수 있으나 선형적인 관계가 존재할 때 유용하고 비선형인 경우 이상점을 잘못 검출할 수 있다.
 
@@ -83,4 +119,73 @@ ggplot(caveats_df, aes(x = x, y = y, color = outlier_maha)) +
     theme_minimal(base_family = "NanumGothic")
 ```
 
+
+# 기술 통계량 {#outlier-descriptive-stats}
+
+```{r outlier-descriptive-stats}
+library(readxl)
+library(tidyverse)
+
+inc_2016_dat <- read_excel("data/근로소득천분위.xlsx", sheet="2016", skip=3) 
+inc_2015_dat <- read_excel("data/근로소득천분위.xlsx", sheet="2015", skip=3) 
+inc_2014_dat <- read_excel("data/근로소득천분위.xlsx", sheet="2014", skip=3) 
+inc_2013_dat <- read_excel("data/근로소득천분위.xlsx", sheet="2013", skip=3) 
+
+inc_2016_df <- inc_2016_dat %>%
+  filter(`구분` != "합계") %>% 
+  mutate(`백분위` = 100 - parse_number(`구분`) %>% ntile(100)) %>% 
+  group_by(`백분위`) %>% 
+  summarise(`총급여합` = sum(`총급여`)) %>% 
+  mutate(`연도` = 2016)
+
+inc_2015_df <- inc_2015_dat %>%
+  filter(`구분` != "합계") %>% 
+  mutate(`백분위` = 100 - parse_number(`구분`) %>% ntile(100)) %>% 
+  group_by(`백분위`) %>% 
+  summarise(`총급여합` = sum(`총급여`)) %>% 
+  mutate(`연도` = 2015)
+
+inc_2014_df <- inc_2014_dat %>%
+  filter(`구분` != "합계") %>% 
+  mutate(`백분위` = 100 - parse_number(`구분`) %>% ntile(100)) %>% 
+  group_by(`백분위`) %>% 
+  summarise(`총급여합` = sum(`총급여`)) %>% 
+  mutate(`연도` = 2014)
+
+inc_2013_df <- inc_2013_dat %>%
+  filter(`구분` != "합계") %>% 
+  mutate(`백분위` = 100 - parse_number(`구분`) %>% ntile(100)) %>% 
+  group_by(`백분위`) %>% 
+  summarise(`총급여합` = sum(`총급여`)) %>% 
+  mutate(`연도` = 2013)
+
+inc_df <- bind_rows(inc_2013_df, inc_2014_df) %>% 
+  bind_rows(inc_2015_df) %>% 
+  bind_rows(inc_2016_df)
+
+  
+inc_df %>% 
+  ggplot(aes(x=`백분위`, y=`총급여합`, color=as.factor(`연도`))) +
+    geom_point() +
+    geom_line() +
+    coord_flip() +
+    scale_y_continuous(labels=scales::comma) +
+    # scale_x_continuous(limits=c(0,30)) +
+    # coord_cartesian(xlim = c(0, 20), ylim=c(0,25000)) +
+    coord_cartesian(xlim = c(90, 100), ylim=c(100000, 450000))
+    
+inc_2016_dat %>% 
+  filter(`구분` != "합계") %>% 
+  ggplot(aes(x=`총급여`)) +
+    geom_density() +
+        scale_y_sqrt(labels=scales::comma)
+
+inc_2016_dat %>% 
+  filter(`구분` != "합계") %>% 
+  ggplot(aes(x=`총급여`)) +
+    geom_histogram() +
+        scale_y_sqrt(labels=scales::comma)
+
+
+```
 
