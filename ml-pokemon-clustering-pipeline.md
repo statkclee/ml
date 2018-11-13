@@ -6,7 +6,7 @@ author:
     name: xwMOOC
     url: https://www.facebook.com/groups/tidyverse/
     affiliation: Tidyverse Korea
-date: "2018-11-07"
+date: "2018-11-13"
 output:
   html_document: 
     toc: yes
@@ -19,32 +19,731 @@ editor_options:
   chunk_output_type: console
 ---
  
-> ## 학습목표 {.objectives}
->
-> * 실무에서 많이 활용되는 군집분석 방법론을 이해한다.
-> * 다양한 군집분석 알로리즘을 비교하여 최적의 알고리즘을 추출한다.
-> * 추출된 군집분석 알고리즘을 적용하여 군집의 특성을 올바르게 이해한다.
 
 
+# 탐색적 다차원 데이터 분석 - 포켓몬 데이터 [^prcatical-guide-to-cluster-analaysis-in-r] {#pokemon-data-multivariate}
+
+[^prcatical-guide-to-cluster-analaysis-in-r]: [Mr Alboukadel Kassambara (2017), Practical Guide to Cluster Analysis in R: Unsupervised Machine Learning, Amazon Digital Services LLC](https://www.amazon.com/Practical-Guide-Cluster-Analysis-Unsupervised-ebook/dp/B077KQBXTN/ref=la_B076JDHZC8_1_1?s=books&ie=UTF8&qid=1511857119&sr=1-1)
+
+[캐글 포켓몬](https://www.kaggle.com/abcsds/pokemon) 데이터가 공개되어 721종류 포켓몬에 대한 데이터와 포켓몬 유형에 대한 정보가 담겨있다.
+
+각 포켓몬에 대한 데이터 원본은 [http://pokemondb.net/pokedex](http://pokemondb.net/pokedex)에서 확인한다.
+전통적인 군집분석에 대해서는 [포켓몬 군집분석](http://statkclee.github.io/ml/ml-pokemon-unsupervised.html)을 참조한다.
+
+기계학습을 통해 예측모형을 개발할 경우 데이터를 가져와서 전처리 작업을 통한 데이터 정제작업과는 별개로,
+데이터 과학자가 데이터와 친숙해지는 과정이 필요하다. 이런 과정을 통해서 새로운 "아하~" 통찰, 인사이트(Insight)를 발견해 낼 수도 있고,
+데이터에 더 친숙해지게 된다. 추가로 새로운 피쳐공학(Feature Engineering)을 통해 새로운 변수 및 유의미한 관측점을 추려낼 수 있다.
+
+특히, 차원축소 기법과 함께 **군집분석(cluster analysis)**이 많이 활용되는 다변량 분석기법 중 하나이다.
+군집분석은 **관측점(observation)**을 유위미한 군집으로 묶어내는데 군집은 **공통된 특징(feature)**을 공유하게 된다.
+
+<img src="fig/pokemon-eda-clustering.png" alt="포켓몬 캐릭터 군집분석" width="100%" />
+
+## 군집분석 작업흐름 {#clustering-pipeline}
+
+군집분석을 위한 데이터를 준비한 후에 전처리 작업을 거쳐서 자료형에 맞는 유사성(Similarity) 측도를 정의해야 한다. 
+유사성에 기반한 거리가 준비되면 군집 알고리즘을 실행해서 최적의 군집알고리즘을 찾아내게 되면 이를 바탕으로 프로파일링 작업을 수행해서 마무리 한다.
+
+즉, 군집분석에 필요한 데이터를 가져온 후 다양한 군집분석 모형 탐색과정을 거쳐 최적의 군집 알고리즘을 선정하고, 
+더불어 적절한 군집갯수 $k$도 선정한다. 선정된 군집갯수와 군집 알고리즘에 맞춰 데이터에 적합시켜 군집에 데이터를 접목하여 군집특성을 요약하는 절차를 거친다.
+
+<img src="fig/pokemon-clustering-workflow.png" alt="군집분석 작업흐름도" width="100%" />
+
+# 군집분석 맛보기 {#pokemon-cluster-analysis-taste}
+
+군집분석은 크게 계층적 군집분석과 k-평균 군집분석으로 나뉜다. 두가지 군집분석 알고리즘 모두 장단점이 있다.
+
+|             |  계층적 군집 알고리즘  | k-평균 군집 알고리즘 |
+|-------------|------------------------|----------------------|
+| 거리 측도   |  거의 모든 거리측도    | 유클리드 거리        |
+| 군집 안정성 |    안정적임            |    유동적임          |
+| 군집수 평가 | 수목도, 실루엣, 팔꿈치 |  실루엣, 팔꿈치      |
+| 계산 복잡도 |     상대적으로 높음    |  상대적으로 낮음     |
+
+## 포켓몬 데이터 전처리 작업 {#cluster-import-preprocess-pokemon-data}
+
+포켓몬 데이터를 캐글에서 다운로드 받아 불러온다. 
+변수명을 변경하고 범주형 데이터에 대해서 범주를 재조정하고,
+군집분석에 적합하게 척도(scale)를 각 변수별로 동일하게 재조정하는 
+전처리 작업을 수행한다.
 
 
+```r
+# 0. 환경설정 --------------------------------------------
+library(tidyverse)
+library(janitor)
+```
+
+```
+Error in library(janitor): there is no package called 'janitor'
+```
+
+```r
+library(factoextra)
+```
+
+```
+Error in library(factoextra): there is no package called 'factoextra'
+```
+
+```r
+library(FactoMineR)
+```
+
+```
+Error in library(FactoMineR): there is no package called 'FactoMineR'
+```
+
+```r
+library(clustertend)
+```
+
+```
+Error in library(clustertend): there is no package called 'clustertend'
+```
+
+```r
+library(NbClust)
+```
+
+```
+Error in library(NbClust): there is no package called 'NbClust'
+```
+
+```r
+library(clValid)
+```
+
+```
+Error in library(clValid): there is no package called 'clValid'
+```
+
+```r
+library(mclust)
+```
+
+```
+Error in library(mclust): there is no package called 'mclust'
+```
+
+```r
+library(pheatmap)
+```
+
+```
+Error in library(pheatmap): there is no package called 'pheatmap'
+```
+
+```r
+library(ggthemes)
+library(extrafont)
+library(gridExtra)
+library(ggmosaic)
+```
+
+```
+Error in library(ggmosaic): there is no package called 'ggmosaic'
+```
+
+```r
+loadfonts()
+
+# 1. 포켓몬 데이터 가져오기 ------------------------------
+pkmon_dat <- read_csv("data/Pokemon.csv", col_type = cols()) %>% 
+  dplyr::filter(Name != "Shuckle") %>% 
+  as.data.frame()
+
+pkmon_df <- pkmon_dat %>%  
+    mutate(legend = ifelse(Legendary == "True", "전설", "일반")) %>% 
+    dplyr::select(legend, attack = Attack, defense = Defense, sp_attack = `Sp. Atk`, sp_defense =`Sp. Def`, speed = Speed)
+
+# 2. 데이터 전처리 ---------------------------------------
+
+## 2.1. 척도조정
+pkmon_scaled_df <- pkmon_df %>% 
+    select(-legend) %>% 
+    mutate_if(is.integer, scale)
+
+row.names(pkmon_scaled_df) <- pkmon_dat$Name
+
+DT::datatable(pkmon_scaled_df)
+```
+
+```
+Error in loadNamespace(name): there is no package called 'webshot'
+```
+
+## 거리(distance)  {#taste-pokemon-unsupervised-algorithm-distance}
+
+범주형 변수도 가변수(dummy variable)를 생성하고 쟈카드 거리(Jaccard distance)를 사용해서 거리를 생성해 낼 수 있다.
 
 
+```r
+library(caret)
+```
+
+```
+Error in library(caret): there is no package called 'caret'
+```
+
+```r
+pkmon_cat_df <- pkmon_dat %>% tbl_df %>% 
+  clean_names() %>% 
+  select(generation, legendary) %>% 
+  mutate(generation = factor(generation))
+```
+
+```
+Error in clean_names(.): 함수 "clean_names"를 찾을 수 없습니다
+```
+
+```r
+pkmon_dummy_df <- predict(dummyVars(~ ., data = pkmon_cat_df, fullRank = TRUE), pkmon_cat_df)
+```
+
+```
+Error in dummyVars(~., data = pkmon_cat_df, fullRank = TRUE): 함수 "dummyVars"를 찾을 수 없습니다
+```
+
+```r
+dist(t(pkmon_dummy_df), method="binary")
+```
+
+```
+Error in t(pkmon_dummy_df): 객체 'pkmon_dummy_df'를 찾을 수 없습니다
+```
 
 
+## 군집 알고리즘 {#taste-pokemon-unsupervised-algorithm}
+
+## 비지도 학습 - 계층적 군집(Hierachical Clustering) {#taste-pokemon-unsupervised}
+
+비지도 학습의 대표적인 알고리즘이 계층적 군집(Hierachical Clustering) 알고리즘과 
+ k-평균(k-means) 알고리즘이다. 계층적 군집(Hierachical Clustering) 알고리즘은
+`dist()` 함수로 변수간 거리를 미리 계산하고 나서 `hclust` 함수에 넣어 수목도(dendrogram)을 통해 적절한 군집갯수를 확정한다.
+
+높이를 기준으로 7.5를 자를 경우 군집을 3개까지 확보가 가능하다.
+물론 `cutree` 함수를 통해 군집 갯수를 지정해 놓으면 자동으로 특정 갯수(예를 들어, 5개)만큼 선정한다.
+
+계층적 군집법은 다양한 연결방법(linkage)을 제시하고 있어 상황에 맞춰 적절한 연결방식을 선택한다.
+`centroid`는 역전 현상이 나타나 권장되고 있지 않다.
 
 
+```r
+# 3. 비지도 학습 : 계층적 군집(Hierachical Clustering) -----------------------------------------
+
+pkmon_dist <- dist(pkmon_scaled_df)
+pkmon_hclust <- hclust(pkmon_dist)
+
+plot(pkmon_hclust)
+abline(h=8.5, col="red")
+```
+
+<img src="figure/pokemon-hclust-1.png" title="plot of chunk pokemon-hclust" alt="plot of chunk pokemon-hclust" style="display: block; margin: auto;" />
+
+```r
+# 높이를 기준으로 군집화
+#cutree(pkmon_hclust, h = 220)
+# 군집갯수를 기준으로 군집화
+#cutree(pkmon_hclust, k = 5)
+
+## 3.1. 다양한 계층적 군집 연결방법 -----------------------------------------------------
+pkmon_hclust_complete <- hclust(pkmon_dist, method = "complete")
+pkmon_hclust_average  <- hclust(pkmon_dist, method = "average")
+pkmon_hclust_single   <- hclust(pkmon_dist, method = "single")
+
+pkmon_hclust_cut <- cutree(pkmon_hclust_complete, k = 3)
+
+table(pkmon_hclust_cut)
+```
+
+```
+pkmon_hclust_cut
+  1   2   3 
+305 359 135 
+```
+
+## 비지도 학습 - k-평균(k-means) {#taste-pokemon-unsupervised-kmeans} 
+
+비지도 학습 k-평균법은 전체 군내 제곱합(total within cluster sum of squares)를 
+최소화하는 방식이 선택되는데 이를 위해서 x축에는 군집갯수, y축에는 전체 군내 제곱합(WSS)를 쭉 시각화해서
+팔꿈치처럼 전체 군내 제곱합이 변곡점을 지나 감소하는 지점을 최적 군집갯수로 선정한다.
 
 
+```r
+# 3. 비지도 학습 : k-평균(k-means) -----------------------------------------
+
+# 3.1. 비지도 학습 k-평균 알고리즘 시각화 --------------------------------
+par(mfrow = c(2, 3))
+
+for(i in 1:6) {
+    pkmon_km_out <- kmeans(pkmon_scaled_df, i, nstart=1, iter.max = 50)
+
+    plot(pkmon_scaled_df[1:2], col = pkmon_km_out$cluster,
+         main = paste0("Total Within Sum of Squares: ", round(pkmon_km_out$tot.withinss, 0)),
+         xlab = "공격력", ylab = "방어력")
+}
+```
+
+<img src="figure/pokemon-kmeans-1.png" title="plot of chunk pokemon-kmeans" alt="plot of chunk pokemon-kmeans" style="display: block; margin: auto;" />
+
+```r
+## 3.2. k-평균 군집갯수 선정 --------------------------------
+
+# 포켓몬 데이터 군집내 전체 제곱합 초기화: 0
+pkmon_wss <- 0
+
+# 군집을 1개부터 15개까지 증가
+for (i in 1:15) {
+    pkmon_km_out <- kmeans(pkmon_scaled_df, i, nstart=20, iter.max = 50)
+    pkmon_wss[i] <- pkmon_km_out$tot.withinss
+}
+
+par(mfrow=c(1,2))
+par(family = "NanumGothic")
+
+# 군집내 전체 제곱합과 군집갯수 시각화 
+plot(1:15, pkmon_wss, type = "b", 
+     xlab = "군집(Cluster) 갯수", 
+     ylab = "군집내 전체 제곱합(Within groups sum of squares)")
+
+## 3.3. k-평균 군집화 --------------------------------
+k <- 3
+
+pkmon_km_out <- kmeans(pkmon_scaled_df, centers = k, nstart = 20, iter.max = 50)
+
+# 방어와 속도 기준으로 군집 시각화 
+plot(pkmon_scaled_df[, c("defense", "speed")],
+     col = pkmon_km_out$cluster,
+     main = paste("k-평균법을 활용한 포켓몬 군집화:", k, "개 군집"),
+     xlab = "방어력", ylab = "속도")
+```
+
+<img src="figure/pokemon-kmeans-2.png" title="plot of chunk pokemon-kmeans" alt="plot of chunk pokemon-kmeans" style="display: block; margin: auto;" />
+
+## 군집분석 성능 비교 {#pokemon-unsupervised-comparison} 
+
+주성분분석을 위해 차원축소를 한 후에 계층적 군집분석과 k-평균 군집분석을 수행하고 
+이를 `table` 함수를 통해 성능을 비교한다.
 
 
+```r
+# 4. 군집분석 성능비교 ------------------------------
+
+pkmon_pca <- prcomp(pkmon_scaled_df)
+pkmon_pca_df <- pkmon_pca$x[,c(1:4)]
+
+pkmon_pca_dist <- dist(pkmon_pca_df)
+
+# 계층적 군집분석 vs. K-평균 군집
+pkmon_hclust <- hclust(pkmon_pca_dist, method = "complete")
+pkmon_km <- kmeans(pkmon_pca_df, 3, nstart=20, iter.max = 50)
+
+# 3개 군집으로 분류
+pkmon_hclust_clusters <- cutree(pkmon_hclust, k=3)
+
+# 군집비교
+table(pkmon_km$cluster, pkmon_hclust_clusters)
+```
 
 
+# 군집분석 {#pokemon-cluster-analysis}
+
+### 군집(cluster)은 존재하는가? {#cluster-eda-exist-cluster}
+
+존재론적인 질문이 될 수 있으나, 군집은 과연 존재하는가? 이러한 철학적인 질문에 대해서
+**hopkins** 통계량, `fviz_dist`함수의 시각적인 방법을 통해서 확인할 수 있다.
+물론, 질문자체가 철학적이기에 이외에도 다양한 방법론이 존재한다. 예를 들어, CCC를 들 수 있다.
 
 
+```r
+# 1. 포켓몬 데이터 가져오기 ------------------------------
+
+# 2. 군집이 있는가? clustering tendancy ------------------
+
+## 2.1. hopkins 통계량 : H = 0.5 기준
+pkmon_scaled_df %>% 
+    clustertend::hopkins(., nrow(pkmon_scaled_df) -1)
+```
+
+```
+Error in loadNamespace(name): there is no package called 'clustertend'
+```
+
+```r
+## 2.2. 시각적인 방법
+pkmon_scaled_df %>% 
+    dist() %>% 
+      fviz_dist(., show_labels = FALSE) +
+      labs(title = "포켓몬 캐릭터 군집") +
+      coord_fixed()
+```
+
+```
+Error in fviz_dist(., show_labels = FALSE): 함수 "fviz_dist"를 찾을 수 없습니다
+```
+
+### 군집(cluster)은 몇개가 적절할까? {#cluster-eda-how-many-cluster}
+
+군집이 존재한다고 판단이 되면, 다음으로 드는 의문점은 몇개의 군집이 적절한가라는 문제로 귀결된다.
+적절한 군집 식별을 위해서 팔꿈치(elbow) 방법, 실루엣 방법, 갭 방법 등이 개발되었다.
+이를 시각화해서 최적의 군집 갯수를 선정한다.
+
+`NbClust` 팩키지 포함된 다양한 군집방법을 모두 시도해보고 나서 최적의 성능을 보이는 군집갯수를 선정하는 것도 가능하다.
 
 
+```r
+# 3. 군집이 존재한다면 몇개일까? ------------------
+## 3.1. 팔꿈치 방법
+elbow_g <- pkmon_scaled_df %>% 
+    fviz_nbclust(., kmeans, method = "wss") +
+      theme_few(base_family = "NanumGothic") +
+      geom_vline(xintercept = 2, linetype = 2) +
+      scale_y_continuous(labels = scales::comma ) +
+      labs(x="군집갯수(k)", y="전체 군집내 제곱합", title="최적 군집갯수", subtitle = "팔꿈치 방법(Elbow method)") 
+```
+
+```
+Error in fviz_nbclust(., kmeans, method = "wss"): 함수 "fviz_nbclust"를 찾을 수 없습니다
+```
+
+```r
+## 3.2. 실루엣 방법
+silhouette_g <- pkmon_scaled_df %>% 
+    fviz_nbclust(., kmeans, method = "silhouette") +
+    theme_few(base_family = "NanumGothic") +
+    geom_vline(xintercept = 2, linetype = 2) +
+    scale_y_continuous(labels = scales::comma ) +
+    labs(x="군집갯수(k)", y="평균 실루엣 폭", 
+         title="최적 군집갯수", subtitle = "실루엣 방법(silhouette method)") 
+```
+
+```
+Error in fviz_nbclust(., kmeans, method = "silhouette"): 함수 "fviz_nbclust"를 찾을 수 없습니다
+```
+
+```r
+## 3.3. 갭 방법
+gap_g <- pkmon_scaled_df %>% 
+    fviz_nbclust(., kmeans, nstart = 25, method = "gap_stat", nboot = 50) +
+    theme_few(base_family = "NanumGothic") +
+    geom_vline(xintercept = 2, linetype = 2) +
+    scale_y_continuous(labels = scales::comma ) +
+    labs(x="군집갯수(k)", y="갭 통계량(k)", 
+         title="최적 군집갯수", subtitle = "갭 방법(gap method)") 
+```
+
+```
+Error in fviz_nbclust(., kmeans, nstart = 25, method = "gap_stat", nboot = 50): 함수 "fviz_nbclust"를 찾을 수 없습니다
+```
+
+```r
+grid.arrange(elbow_g, silhouette_g, gap_g, nrow=3)
+```
+
+```
+Error in arrangeGrob(...): 객체 'elbow_g'를 찾을 수 없습니다
+```
+
+```r
+## 3.4. NbClust 방법
+
+pkmon_scaled_df %>% 
+      NbClust(., distance = "euclidean", min.nc = 2, max.nc = 10, method = "kmeans") %>% 
+      fviz_nbclust() +
+      scale_y_continuous(labels = scales::comma ) +
+      labs(x="군집갯수(k)", y="추천 빈도수", 
+         title="최적 군집갯수", subtitle = "NbClust 방법") 
+```
+
+```
+Error in NbClust(., distance = "euclidean", min.nc = 2, max.nc = 10, method = "kmeans"): 함수 "NbClust"를 찾을 수 없습니다
+```
+
+## 최적 군집분석 알고리즘 선정 {#cluster-eda-optimal-algorithm-cluster}
+
+`clValid` 팩키지는 최적 군집분석 알고리즘과 군집갯수를 선택하도록 개발되었다.
+대상 군집 알고리즘(`clmethods`)을 쭉 나열하고, 군집갯수(`nClust`)도 지정하고 나서,
+검증(`validation`)을 위한 조건도 지정하면 해당 데이터에 대한 최적 군집 알고리즘과 군집갯수를 제시하여 준다.
 
 
+```r
+# 4. 최적 군집 알고리즘 선택 ------------------
+clmethods <- c("hierarchical", "kmeans", "diana", "fanny", "model", "sota", "pam", "clara", "agnes")
+
+clust_algo <- pkmon_scaled_df %>% 
+    sample_frac(0.5) %>%
+    as.matrix %>%
+    clValid(., nClust = 2:7,
+       clMethods = clmethods, validation = "internal")
+```
+
+```
+Error in clValid(., nClust = 2:7, clMethods = clmethods, validation = "internal"): 함수 "clValid"를 찾을 수 없습니다
+```
+
+```r
+summary(clust_algo)
+```
+
+```
+Error in summary(clust_algo): 객체 'clust_algo'를 찾을 수 없습니다
+```
+
+
+## 군집분석 알고리즘 적합 {#cluster-eda-fit-algorithm-cluster}
+
+최적 군집 알고리즘과 군집갯수가 선정되면 "군집분석 알고리즘 적합"하는 과정을 거치게 된다.
+군집 2개를 갖는 계층적 군집분석 알고리즘이 선정된 군집분석 알고리즘이기 때문에,
+이를 포켓몬 데이터 적합시킨다. 30개 포켓몬 표본을 뽑아 수목도(dendogram)도 그려보고, 
+`fviz_cluster` 함수로 시각화도 실행해 본다.
+
+
+```r
+# 1. 포켓몬 데이터 가져오기 ------------------------------
+# pkmon_scaled_df <- readRDS("data_preprocessed/pkmon_scaled_df.rds")
+
+# 2. 최적 군집 알고리즘 적합: 계층적 군집 ------------------
+pkmon_smpl_df <- pkmon_scaled_df %>% 
+    sample_n(30)
+
+pkmon_hclust <- pkmon_smpl_df %>% 
+    get_dist(method = "euclidean") %>% 
+    hclust(method = "ward.D2")
+```
+
+```
+Error in get_dist(., method = "euclidean"): 함수 "get_dist"를 찾을 수 없습니다
+```
+
+```r
+# 3. 군집분석 시각화 ------------------
+## 3.1. 수목도(dendogram) 
+fviz_dend(pkmon_hclust, k = 2,
+          cex = 0.5,
+          k_colors = c("#2E9FDF", "#FC4E07"),
+          color_labels_by_k = TRUE,
+          rect = TRUE) +
+    theme_void(base_family="NanumGothic") + 
+    labs(title="포켓몬 캐릭터 군집분석", subtitle="계층적 군집분석 알고리즘 - 군집 2개", y="")
+```
+
+```
+Error in fviz_dend(pkmon_hclust, k = 2, cex = 0.5, k_colors = c("#2E9FDF", : 함수 "fviz_dend"를 찾을 수 없습니다
+```
+
+```r
+## 3.2. 군집 시각화
+pkmon_grp <- cutree(pkmon_hclust, k = 2)
+
+fviz_cluster(list(data = pkmon_smpl_df, cluster = pkmon_grp),
+             palette = c("#2E9FDF", "#FC4E07"),
+             ellipse.type = "convex", 
+             repel = TRUE, 
+             show.clust.cent = FALSE, ggtheme = theme_minimal(base_family = "NanumGothic")) +
+    labs(title="포켓몬 군집 그래프", subtitle ="계층적 군집분석 알고리즘 - 군집 2개") 
+```
+
+```
+Error in fviz_cluster(list(data = pkmon_smpl_df, cluster = pkmon_grp), : 함수 "fviz_cluster"를 찾을 수 없습니다
+```
+
+## 군집분석 알고리즘 - 열지도(heatmap) {#cluster-eda-fit-algorithm-cluster-heatmap}
+
+군집분석을 관측점 관점과 변수관점으로 **열지도(heatmap)**를 생성하여 면밀하게 살펴본다.
+예쁜 열지도(`pheatmap`)를 통해 정적 열지도도 그려보고, `d3heatmap`을 통해 인터랙티브 열지도도 그려본다.
+
+
+```r
+## 3.3. 열지도(heatmap)
+### 3.3.1. 정적 열지도
+pheatmap::pheatmap(pkmon_smpl_df, cutree_rows = 2)
+```
+
+```
+Error in loadNamespace(name): there is no package called 'pheatmap'
+```
+
+```r
+### 3.3.2. 인터랙티브 열지도(heatmap)
+
+d3heatmap::d3heatmap(pkmon_smpl_df, colors = "RdYlBu",
+          k_row = 2,
+          k_col = 2)
+```
+
+```
+Error in loadNamespace(name): there is no package called 'd3heatmap'
+```
+
+
+# 군집특성 요약 {#cluster-summary-cluster}
+
+군집 알고리즘을 통해 해당 관측점에 대한 군집에 대한 배정이 완료되었다면,
+이제는 해당 군집별 특성을 요약하는 작업을 수행한다.
+
+## 군집특성 요약 데이터 {#cluster-summary-cluster-cbind}
+
+군집 2개를 갖는 계층적 군집분석 알고리즘 적합시킨 데이터를 원본 `pkmon_df` 데이터프레임과 병합한다.
+병합된 `pkmon_full_df` 데이터프레임에 대해 군집특성요약을 위해 추가로 필요한 데이터 정제작업도 수행한다.
+
+군집 2개를 갖는 계층적 군집분석 알고리즘 적합시킨 데이터를 원본 `pkmon_df` 데이터프레임과 병합한다.
+병합된 `pkmon_full_df` 데이터프레임에 대해 군집특성요약을 위해 추가로 필요한 데이터 정제작업도 수행한다.
+
+
+```r
+# 4. 군집자체 분석 ------------------
+## 4.1. 군집데이터 준비
+pkmon_full_hclust <- pkmon_scaled_df %>% 
+    get_dist(method = "euclidean") %>% 
+    hclust(method = "ward.D2")
+```
+
+```
+Error in get_dist(., method = "euclidean"): 함수 "get_dist"를 찾을 수 없습니다
+```
+
+```r
+pkmon_full_grp <- cutree(pkmon_full_hclust, k = 2) %>% as_data_frame()
+```
+
+```
+Error in nrow(tree$merge): 객체 'pkmon_full_hclust'를 찾을 수 없습니다
+```
+
+```r
+pkmon_full_df <- bind_cols(pkmon_df, pkmon_full_grp) %>% 
+    select(group=value, everything())
+```
+
+```
+Error in dots_values(...): 객체 'pkmon_full_grp'를 찾을 수 없습니다
+```
+
+```r
+# 5. 데이터 내보내기 ------------------
+# saveRDS(pkmon_full_df, "data_preprocessed/pkmon_full_df.rds")
+```
+
+## 군집특성 요약 데이터 - 병렬그래프 {#cluster-summary-cluster-parallel}
+
+병렬그래프(parallel plot)를 통해 군집을 잘 식별하는 변수가 어떤 것인지 활용한다.
+
+
+```r
+# 2. 포켓몬 군집 해석 ------------------
+## 2.1. 전체적인 능력값
+pkmon_full_df %>% 
+    mutate(ID = 1:n()) %>% 
+    gather(key, value, -group, -legend, -ID) %>% 
+    ggplot(aes(x = key, y = value, color= as.factor(group), group = ID)) +
+    geom_path(alpha = 0.5, lineend = 'round', linejoin = 'round') +
+    geom_point(size=1, shape=21, colour="grey50") +
+    scale_fill_manual(values=c("red","blue")) +
+    theme_bw(base_family = "NanumGothic") +
+    labs(x="", y="능력치", color="군집", title="포켓몬 캐릭터 군집 평행그림")
+```
+
+```
+Error in eval(lhs, parent, parent): 객체 'pkmon_full_df'를 찾을 수 없습니다
+```
+
+## 군집특성 요약 데이터 - 모자이크 그래프 {#cluster-summary-cluster-mosaic}
+
+군집은 태생이 범주형인데, 범주형 변수가 포함된 경우 군집과 교차하여 군집별 특성도 함께 살펴본다.
+이를 위해서 모자이크 그래프를 활용한다.
+
+
+```r
+## 2.2. 범주형 변수에 대한 군집
+pkmon_full_df %>% 
+    mutate(group = factor(group),
+           legend = factor(legend)) %>% 
+    ggplot() +
+    geom_mosaic(aes(x = product(legend, group), fill=product(group)), na.rm=TRUE, divider=mosaic("v")) +
+    theme_minimal(base_family = "NanumGothic") +
+    labs(x="전설여부", title='포켓몬 전설, 군집') +
+    theme(legend.position = "right")
+```
+
+## 군집특성 요약 데이터 - 밀도 그래프 {#cluster-summary-cluster-mosaic}
+
+연속형 변수와 군집을 밀도 그래프와 교차하여 각 군집별 특성도 각 변수별로 시각화하여 이해한다.
+
+
+```r
+## 2.3. 단변량 비교
+pkmon_full_df %>% 
+    mutate(group = factor(group),
+           legend = factor(legend)) %>% 
+    ggplot(aes(attack, colour = group)) +
+    geom_density() +
+    theme_minimal(base_family = "NanumGothic") +
+    labs(x="공격", y="분포밀도", title='포켓몬 공격력', color="군집") +
+    theme(legend.position = "right")
+```
+
+```
+Error in eval(lhs, parent, parent): 객체 'pkmon_full_df'를 찾을 수 없습니다
+```
+
+```r
+density_univariate <-  function(df, var, var_name) {
+    df %>% 
+        mutate(group = factor(group),
+               legend = factor(legend)) %>% 
+        ggplot(aes_string(var)) +
+        geom_density(aes(colour = group)) +
+        theme_minimal(base_family = "NanumGothic") +
+        labs(x="공격", y="분포밀도", title=var_name, color="군집") +
+        theme(legend.position = "none")
+}
+
+attack_g     <- density_univariate(pkmon_full_df, "attack", "공격력")
+```
+
+```
+Error in eval(lhs, parent, parent): 객체 'pkmon_full_df'를 찾을 수 없습니다
+```
+
+```r
+defense_g    <- density_univariate(pkmon_full_df, "defense", "방어력")
+```
+
+```
+Error in eval(lhs, parent, parent): 객체 'pkmon_full_df'를 찾을 수 없습니다
+```
+
+```r
+sp_attack_g  <- density_univariate(pkmon_full_df, "sp_attack", "특수공격력")
+```
+
+```
+Error in eval(lhs, parent, parent): 객체 'pkmon_full_df'를 찾을 수 없습니다
+```
+
+```r
+sp_defense_g <- density_univariate(pkmon_full_df, "sp_defense", "특수방어력")
+```
+
+```
+Error in eval(lhs, parent, parent): 객체 'pkmon_full_df'를 찾을 수 없습니다
+```
+
+```r
+speed_g      <- density_univariate(pkmon_full_df, "speed", "속도")
+```
+
+```
+Error in eval(lhs, parent, parent): 객체 'pkmon_full_df'를 찾을 수 없습니다
+```
+
+```r
+grid.arrange(attack_g, defense_g, sp_attack_g, sp_defense_g,speed_g, nrow=2)
+```
+
+```
+Error in arrangeGrob(...): 객체 'attack_g'를 찾을 수 없습니다
+```
 
 
