@@ -1,18 +1,738 @@
 ---
 layout: page
 title: xwMOOC 기계학습
-subtitle: 이상점 검출 - 마할라노비스(mahalanobis) 거리
+subtitle: "단변량/다변량 이상점 검출 - 사기 탐지"
+author:
+    name: xwMOOC
+    url: https://www.facebook.com/groups/tidyverse/
+    affiliation: Tidyverse Korea
+date: "2018-11-15"
 output:
   html_document: 
-    keep_md: yes
-  pdf_document:
-    latex_engine: xelatex
-mainfont: NanumGothic
+    toc: yes
+    toc_float: true
+    highlight: tango
+    code_folding: show
+    number_section: true
+    self_contained: true
+editor_options: 
+  chunk_output_type: console
 ---
+
+
+
+
+# 이상점 탐지 방법론 [^outlier-detection-techniques] {#outlier-detection-techniques}
+
+[^outlier-detection-techniques]: [Outlier Detection Techniques](http://www.dbs.ifi.lmu.de/~zimek/publications/KDD2010/kdd10-outlier-tutorial.pdf)
+
+이상점 탐지 기법을 통해 사기탐지(fraud detection)에도 응용이 가능하다. [Outlier Detection Techniques](http://www.dbs.ifi.lmu.de/~zimek/publications/KDD2010/kdd10-outlier-tutorial.pdf) 발표자료에 의하면 정말 다양한 이상점 탐지 방법이 제시되고 있다.
+
+- 모형기반 (Model-based) 
+    - 통계검증 (Statistical Tests)
+    - 깊이 기반 접근법(Depth-based Approaches)
+    - 편차 기반 접근법(Deviation-based Approaches)
+- 근접기반 (Proximity-based)
+    - 거리 기반(Distance-based Approaches)
+    - 밀도 기반(Density-based Approaches)
+- 고차원 접근법 (High dimensional Approaches)
+
+
+# 소득 천분위 자료 사례 [^sim-income-report] {#income-korea-sim}  
+
+[^sim-income-report]: [보도자료 - 심상정, 소득 천분위 자료 공개 (종합, 근로, 배당, 이자 소득)](https://blog.naver.com/713sim/221350785950)
+
+심상정 국회의원은 국세청으로부터 제출받은 지난해 소득 천분위 자료를 최초로 분석했습니다. 근로소득뿐만 아니라 이자·배당·종합소득 천분위 자료까지 국세청으로부터 확보하여 소득주도성장을 둘러싼 논란이 한창인 이 시점 소득의 실상을 정확히 아는 것이 무엇보다 중요하다는 점을 분명히 했습니다.
+
+이 분석 자료를 보면 소득양극화의 결과가 상위 1%, 나아가 0.1%의 소득에 의해 주도된다는 점을 확인하면서 국세청 데이터를 근거로 다음을 들고 있습니다.
+
+- 근로소득 상위 0.1%의 1인당 평균은 6억 5천만원으로 하위 10%의 69만원보다 1천배 가까이 많음. 
+- 상위 0.1%의 #이자소득 총액은 2조 5078억으로 전체의 17.79%를 차지했고, #배당소득 은 7조 2896억으로 전체의 51.75%에 달함. - 이자·배당·부동산임대·사업·근로·기타소득을 모두 합산한 종합소득을 살펴보면, 상위 0.1%가 1인당 25억 8900만원을 벌었는데 반해, 하위 10%는 1인당 평균 193만원으로 월 17만원에 못미침.
+
+따라서, 소득 양극화가 극심한 것이 국세청 자료를 통해 확인된만큼 소득격차를 해소를 위한 최저임금 인상, 임금공시제, 노동이사제, 최고임금제 (살찐 고양이법) 뿐만 아니라, 슈퍼리치들의 돈잔치가 되고 있는 이자소득과 배당소득 등 불로소득에 대한 금융과세, 보유세 등 적극적인 불평등 해소 대책을 강력하게 병행을 주장.
+
+## 데이터 {#korea-income-data}
+
+[심상정, 소득 천분위 자료 공개 (종합, 근로, 배당, 이자 소득) 블로그](https://blog.naver.com/713sim/221350785950)에서 데이터를 엑셀형태로 다운로드 받을 수 있습니다. 이를 데이터 분석이 가능한 형태로 정제작업을 수행합니다.
+인원은 명수, 기타 금액은 단위가 억원입니다.
+
+
+```r
+# 팩키지 ----
+library(readxl)
+library(tidyverse)
+
+# 데이터 가져오기 ----
+inc_2016_dat <- read_excel("data/근로소득천분위.xlsx", sheet="2016", skip=3) %>% 
+  mutate(`연도` = 2016)
+inc_2015_dat <- read_excel("data/근로소득천분위.xlsx", sheet="2015", skip=3) %>% 
+  mutate(`연도` = 2015)
+inc_2014_dat <- read_excel("data/근로소득천분위.xlsx", sheet="2014", skip=3) %>% 
+  mutate(`연도` = 2014)
+inc_2013_dat <- read_excel("data/근로소득천분위.xlsx", sheet="2013", skip=3) %>% 
+  mutate(`연도` = 2013)
+
+# 데이터와 사투시작 ----
+inc_dat <- bind_rows(inc_2013_dat, inc_2014_dat) %>% 
+  bind_rows(inc_2015_dat) %>% 
+  bind_rows(inc_2016_dat)
+
+inc_df <- inc_dat %>% 
+  filter(!str_detect(`구분`, "합계")) %>% 
+  mutate(`연도` = factor(`연도`)) %>% 
+  mutate(`천분위수` = 1000 - parse_number(`구분`) %>% ntile(1000)) %>% 
+  mutate(`인당급여` = `총급여`/`인원`,
+         `인당근로소득` = `근로소득금액`/`인원`,
+         `인당비근로소득` = (`총급여` - `근로소득금액`)/`인원`)
+
+inc_df %>% 
+  DT::datatable() %>% 
+    DT::formatRound(c(2:7), digits=0) %>% 
+    DT::formatRound(c(10:12), digits=2)
+```
+
+```
+Error in loadNamespace(name): there is no package called 'webshot'
+```
+
+## 탐색적 데이터분석 [^income-frekonometrics] {#korea-income-eda}
+
+[^income-frekonometrics]: [ARTHUR CHARPENTIER(17/01/2015), "MODELING INCOMES AND INEQUALITIES"](https://freakonometrics.hypotheses.org/18859)
+
+### 연도별 천분위 소득 변화 {#korea-income-eda-by-year}
+
+
+```r
+library(extrafont)
+loadfonts()
+
+inc_df %>% 
+  ggplot(aes(x=`천분위수`, y=`인당급여`, color=`연도`)) +
+    # geom_point() +
+    geom_line() +
+    scale_y_continuous(breaks = c(1:7)) +
+    scale_x_continuous(labels = scales::comma) +
+    theme_minimal(base_family = "NanumGothic") +
+    labs(x="천분위수", y="인당급여(억원)", 
+         title="연도별 천분위수 구간별 인당급여",
+         caption = "국세청 소득 천분위 자료 (심상정 의원실)") +
+    theme(legend.position = "top")
+```
+
+<img src="figure/sim-income-eda-by-year-1.png" title="plot of chunk sim-income-eda-by-year" alt="plot of chunk sim-income-eda-by-year" style="display: block; margin: auto;" />
+
+### 연도별 천분위 소득 분포 {#korea-income-eda-distribution}
+
+
+```r
+library(fitdistrplus)
+```
+
+```
+Error in library(fitdistrplus): there is no package called 'fitdistrplus'
+```
+
+```r
+## 원데이터 소득 분포 
+inc_v <- inc_df %>% 
+  filter(`연도` == 2016) %>% 
+  pull(`인당급여`)
+
+inc_df %>% 
+  filter(`연도` == 2016) %>% 
+  ggplot(aes(x=`인당급여`)) +
+    geom_histogram(aes(y=14*..count..), bins=100, fill="lightgreen") +
+    geom_density(aes(y=..count..), color="blue", size=1) +
+    scale_x_continuous()
+```
+
+<img src="figure/sim-income-eda-distribution-1.png" title="plot of chunk sim-income-eda-distribution" alt="plot of chunk sim-income-eda-distribution" style="display: block; margin: auto;" />
+
+```r
+descdist(inc_v, boot = 1000)
+```
+
+```
+Error in descdist(inc_v, boot = 1000): 함수 "descdist"를 찾을 수 없습니다
+```
+
+```r
+## 로그변환 (정규) 급여분포 
+
+inc_df %>% 
+  filter(`연도` == 2016) %>% 
+  ggplot(aes(x=log(`인당급여` + 0.0001))) +
+    geom_histogram(aes(y=7*..count..), bins=80, fill="lightgreen") +
+    geom_density(aes(y=..count..), color="blue", size=1) +
+    scale_x_continuous()
+```
+
+<img src="figure/sim-income-eda-distribution-2.png" title="plot of chunk sim-income-eda-distribution" alt="plot of chunk sim-income-eda-distribution" style="display: block; margin: auto;" />
+
+```r
+inc_2016_dist <- fitdist(log(inc_v + 0.0001), "norm")
+```
+
+```
+Error in fitdist(log(inc_v + 1e-04), "norm"): 함수 "fitdist"를 찾을 수 없습니다
+```
+
+```r
+plotdist(log(inc_v + 0.0001), "norm", 
+         para=list(mean = inc_2016_dist$estimate[1],
+                   sd   = inc_2016_dist$estimate[2]))
+```
+
+```
+Error in plotdist(log(inc_v + 1e-04), "norm", para = list(mean = inc_2016_dist$estimate[1], : 함수 "plotdist"를 찾을 수 없습니다
+```
+
+### 지니계수 [^gini-wikipedia]  {#korea-income-gini}
+
+[^gini-wikipedia]: [Wikipedia, List of countries by income equality](https://en.wikipedia.org/wiki/List_of_countries_by_income_equality)
+
+
+
+```r
+library(ineq)
+```
+
+```
+Error in library(ineq): there is no package called 'ineq'
+```
+
+```r
+inc_lc <- inc_df %>% 
+  dplyr::select(`연도`, `인당급여`) %>% 
+  group_by(`연도`) %>% 
+  nest() 
+
+inc_lc %>% 
+  mutate(`지니계수` = map_dbl(data, ~ineq(.x$`인당급여`))) %>% 
+  dplyr::select(`연도`, `지니계수`) %>% 
+  DT::datatable() %>% 
+    DT::formatRound("지니계수", digits=3)
+```
+
+```
+Error in mutate_impl(.data, dots): Evaluation error: 함수 "ineq"를 찾을 수 없습니다.
+```
+
+```r
+inc_lc %>% 
+  mutate(`지니계수` = map_dbl(data, ~ineq(.x$`인당급여`))) %>% 
+  ggplot(aes(x=`연도`, y=`지니계수`, group=1)) +
+    geom_line(size=2) +
+    geom_point(size=5) +
+    geom_text(aes(label = round(`지니계수`,3)), position = position_dodge(width = 1), vjust = -1) +
+    expand_limits(y=c(0.344, 0.534)) +
+    theme_minimal(base_family = "NanumGothic") +
+    labs(x="연도", y="지니계수", 
+         title="연도별 지니계수 변화",
+         caption = "국세청 소득 천분위 자료 (심상정 의원실) ")
+```
+
+```
+Error in mutate_impl(.data, dots): Evaluation error: 함수 "ineq"를 찾을 수 없습니다.
+```
+
+지니계수를 통해 불평도의 심화 혹은 개선을 파악할 수도 있지만,
+시각적으로 불평등도 혹은 소득집중을 파악하는데 로렌츠 곡선이 동원된다. [^lorenz-curve-daum]
+
+[^lorenz-curve-daum]: [로렌츠 곡선과 지니계수](http://blog.daum.net/kfs-jjang/15858787)
+
+
+```r
+inc_df %>% 
+  group_by(`연도`) %>% 
+  arrange(`천분위수`) %>%
+  mutate(Lp = cumsum(`인당급여`) / sum(`인당급여`)) %>% 
+  ggplot(aes(x=`천분위수`, y=Lp, color=`연도`)) +
+    # geom_point() +
+    geom_line() +
+    geom_segment(aes(x = 0, y = 0, xend = 1000, yend = 1), colour = "black") +
+    scale_y_continuous(breaks = seq(0,1,0.1), labels = scales::percent) +
+    scale_x_continuous(labels = scales::comma) +
+    theme_minimal(base_family = "NanumGothic") +
+    labs(x="천분위수", y="소득누적 점유율", 
+         title="연도별 로렌츠 곡선 변화",
+         caption = "국세청 소득 천분위 자료 (심상정 의원실)") +
+    theme(legend.position = "top") +
+    coord_fixed(ratio=1000)
+```
+
+<img src="figure/sim-income-lorenz-1.png" title="plot of chunk sim-income-lorenz" alt="plot of chunk sim-income-lorenz" style="display: block; margin: auto;" />
+
+
+# 인당 소득 이상점 검출 {#detect-outliers}
+
+## 기술통계량 {#detect-outlier-descriptive-stats}
+
+평균과 표준편차를 계산하여 `Z-점수`를 구하는 공식에 넣어 3을 넘는 것을 이상점으로 판단하여 검출한다.
+
+$$z_i = \frac{x_i - \hat{\mu}}{\hat{\sigma}}$$
+
+정규화를 기준으로 이상점을 추출하면 다음과 같다.
+
+
+```r
+inc_2016_v <- inc_df %>% 
+  filter(`연도` == 2016) %>% 
+  pull(`인당급여`)
+
+inc_2016_mean <- mean(inc_2016_v)
+inc_2016_sd   <- sd(inc_2016_v)
+
+inc_df %>% 
+  filter(`연도` == 2016) %>% 
+  mutate(`점수` = abs((`인당급여` - inc_2016_mean) / inc_2016_sd)) %>% 
+  mutate(`이상여부` = ifelse(`점수` >3, "이상", "정상") %>% as.factor) %>% 
+  count(`이상여부`)
+```
+
+```
+# A tibble: 2 x 2
+  이상여부     n
+  <fct>    <int>
+1 이상        10
+2 정상       990
+```
+
+```r
+inc_df %>% 
+  filter(`연도` == 2016) %>% 
+  mutate(`점수` = abs((`인당급여` - inc_2016_mean) / inc_2016_sd)) %>% 
+  mutate(`이상여부` = ifelse(`점수` >3, "이상", "정상") %>% as.factor) %>% 
+  filter(`이상여부` %in% "이상") %>% 
+  DT::datatable() %>% 
+    DT::formatRound(c("인당급여", "인당근로소득", "인당비근로소득", "점수"), digits=2)
+```
+
+```
+Error in loadNamespace(name): there is no package called 'webshot'
+```
+
+이상점 검출을 위해서 강건한 통계량을 바탕으로 이상점을 검출한다.
+이를 위해서 평균을 중위수로 치환하고 표준편차를 `MAD(Median absolute deviation)`로 넣어 동일한 방식으로
+`Z-점수`를 구하는 공식에 넣어 3을 넘는 것을 이상점으로 판단하여 검출한다.
+
+$$z_i = \frac{x_i - \hat{\text{중위수}}} {\hat{\text{MAD}}}$$
+
+여기서, $\sigma=\Phi^{-1}(3/4)\cdot \text{MAD}\approx1.4826\cdot\text{MAD}$ 관계가 성립한다.
+강건점수를 기준으로 이상점을 추출하면 다음과 같다.
+
+
+```r
+inc_2016_median <- median(inc_2016_v)
+inc_2016_mad    <- mad(inc_2016_v)
+
+inc_df %>% 
+  filter(`연도` == 2016) %>% 
+  mutate(`강건_점수` = abs((`인당급여` - inc_2016_median) / inc_2016_mad)) %>% 
+  mutate(`이상여부` = ifelse(`강건_점수` >3, "이상", "정상") %>% as.factor) %>% 
+  count(`이상여부`)
+```
+
+```
+# A tibble: 2 x 2
+  이상여부     n
+  <fct>    <int>
+1 이상        57
+2 정상       943
+```
+
+```r
+inc_df %>% 
+  filter(`연도` == 2016) %>% 
+  mutate(`강건_점수` = abs((`인당급여` - inc_2016_median) / inc_2016_mad)) %>% 
+  mutate(`이상여부` = ifelse(`강건_점수` >3, "이상", "정상") %>% as.factor) %>% 
+  filter(`이상여부` %in% "이상") %>% 
+  DT::datatable() %>% 
+    DT::formatRound(c("인당급여", "인당근로소득", "인당비근로소득", "강건_점수"), digits=2)
+```
+
+```
+Error in loadNamespace(name): there is no package called 'webshot'
+```
+
+# 상자그림(boxplot) 이상점 검출 {#boxplot-outlier-detection}
+
+## 단변량 이상점 검출 [^boxplot-outlier-labeling] {#boxplot-outlier-detection-univariate}
+
+[^boxplot-outlier-labeling]: [Labeling Outliers of Boxplots in R](http://stackoverflow.com/questions/33524669/labeling-outliers-of-boxplots-in-r)
+
+[상자그림(boxplot)](https://ko.wikipedia.org/wiki/상자_수염_그림)을 통해 분포를 시각화하거나 서로 다른 집단간 분포를 쉽게 시각화하여 비교가 가능하다.
+특히, 이상점을 한눈에 볼 수 있게 `ggplot`을 활용하여 시각화하는 방법은 다음과 같다.
+
+1. `is_outlier` 함수를 통해 상자수염그림에서 이상점을 별도 점으로 표시하는 로직을 작성한다.
+1. `mtcars` 데이터는 rownames를 갖는 데이터프레임이라 모델명을 별도 변수로 저장한다.
+    - 이상점 표식에 사용될 라벨로 사용됨
+1. `is_outlier` 함수를 통해 이상점을 식별하여 `qsec_outlier` 변수에 저장한다.
+1. ggplot의 `geom_text` 함수에 `ifelse` 문을 적용하여 이상점만 표식한다.
+
+
+
+```r
+is_outlier <- function(x) {
+  return(x < quantile(x, 0.25) - 1.5 * IQR(x) | x > quantile(x, 0.75) + 1.5 * IQR(x))
+}
+
+inc_df %>% 
+  group_by(`연도`) %>% 
+  mutate(inc_outlier = is_outlier(`인당급여`)) %>% 
+  ungroup() %>% 
+  ggplot(aes(y=`인당급여`, x=`연도`)) +
+    geom_boxplot(outlier.colour = "red", outlier.size = 3) +
+    geom_text(aes(label=ifelse(inc_outlier, `구분`, "")), na.rm=TRUE, hjust=-0.3) +
+    theme_minimal(base_family = "NanumGothic") +
+    labs(x="", y="인당급여", 
+         title="연도별 인당급여 이상점",
+         caption = "국세청 소득 천분위 자료 (심상정 의원실)") 
+```
+
+<img src="figure/univariate-boxplot-1.png" title="plot of chunk univariate-boxplot" alt="plot of chunk univariate-boxplot" style="display: block; margin: auto;" />
+
+
+## 강건한 상자그림(boxplot) [^ggplot-legend] {#detect-outlier-boxplot}
+
+[^ggplot-legend]: [Laura DeCicco, "Exploring ggplot2 boxplots - Defining limits and adjusting style"](https://owi.usgs.gov/blog/boxplots/)
+
+
+> "It is perfect to use both classical and robust methods routinely, and only worry
+> when they differ enough to matter... But when they differ, you should think hard."
+> **J.W. Tukey (1979)**
+
+
+
+```r
+ggplot_box_legend <- function(family = "serif"){
+  
+  # Create data to use in the boxplot legend:
+  set.seed(100)
+
+  sample_df <- data.frame(parameter = "test",
+                        values = sample(500))
+
+  # Extend the top whisker a bit:
+  sample_df$values[1:100] <- 701:800
+  # Make sure there's only 1 lower outlier:
+  sample_df$values[1] <- -350
+  
+  # Function to calculate important values:
+  ggplot2_boxplot <- function(x){
+  
+    quartiles <- as.numeric(quantile(x, 
+                                     probs = c(0.25, 0.5, 0.75)))
+    
+    names(quartiles) <- c("25th percentile", 
+                          "50th percentile\n(median)",
+                          "75th percentile")
+    
+    IQR <- diff(quartiles[c(1,3)])
+  
+    upper_whisker <- max(x[x < (quartiles[3] + 1.5 * IQR)])
+    lower_whisker <- min(x[x > (quartiles[1] - 1.5 * IQR)])
+      
+    upper_dots <- x[x > (quartiles[3] + 1.5*IQR)]
+    lower_dots <- x[x < (quartiles[1] - 1.5*IQR)]
+  
+    return(list("quartiles" = quartiles,
+                "25th percentile" = as.numeric(quartiles[1]),
+                "50th percentile\n(median)" = as.numeric(quartiles[2]),
+                "75th percentile" = as.numeric(quartiles[3]),
+                "IQR" = IQR,
+                "upper_whisker" = upper_whisker,
+                "lower_whisker" = lower_whisker,
+                "upper_dots" = upper_dots,
+                "lower_dots" = lower_dots))
+  }
+  
+  # Get those values:
+  ggplot_output <- ggplot2_boxplot(sample_df$values)
+  
+  # Lots of text in the legend, make it smaller and consistent font:
+  update_geom_defaults("text", 
+                     list(size = 3, 
+                          hjust = 0,
+                          family = family))
+  # Labels don't inherit text:
+  update_geom_defaults("label", 
+                     list(size = 3, 
+                          hjust = 0,
+                          family = family))
+  
+  # Create the legend:
+  # The main elements of the plot (the boxplot, error bars, and count)
+  # are the easy part.
+  # The text describing each of those takes a lot of fiddling to
+  # get the location and style just right:
+  explain_plot <- ggplot() +
+    stat_boxplot(data = sample_df,
+                 aes(x = parameter, y=values),
+                 geom ='errorbar', width = 0.3) +
+    geom_boxplot(data = sample_df,
+                 aes(x = parameter, y=values), 
+                 width = 0.3, fill = "lightgrey") +
+    geom_text(aes(x = 1, y = 950, label = "500"), hjust = 0.5) +
+    geom_text(aes(x = 1.17, y = 950,
+                  label = "Number of values"),
+              fontface = "bold", vjust = 0.4) +
+    theme_minimal(base_size = 5, base_family = family) +
+    geom_segment(aes(x = 2.3, xend = 2.3, 
+                     y = ggplot_output[["25th percentile"]], 
+                     yend = ggplot_output[["75th percentile"]])) +
+    geom_segment(aes(x = 1.2, xend = 2.3, 
+                     y = ggplot_output[["25th percentile"]], 
+                     yend = ggplot_output[["25th percentile"]])) +
+    geom_segment(aes(x = 1.2, xend = 2.3, 
+                     y = ggplot_output[["75th percentile"]], 
+                     yend = ggplot_output[["75th percentile"]])) +
+    geom_text(aes(x = 2.4, y = ggplot_output[["50th percentile\n(median)"]]), 
+              label = "Interquartile\nrange", fontface = "bold",
+              vjust = 0.4) +
+    geom_text(aes(x = c(1.17,1.17), 
+                  y = c(ggplot_output[["upper_whisker"]],
+                        ggplot_output[["lower_whisker"]]), 
+                  label = c("Largest value within 1.5 times\ninterquartile range above\n75th percentile",
+                            "Smallest value within 1.5 times\ninterquartile range below\n25th percentile")),
+                  fontface = "bold", vjust = 0.9) +
+    geom_text(aes(x = c(1.17), 
+                  y =  ggplot_output[["lower_dots"]], 
+                  label = "Outside value"), 
+              vjust = 0.5, fontface = "bold") +
+    geom_text(aes(x = c(1.9), 
+                  y =  ggplot_output[["lower_dots"]], 
+                  label = "-Value is >1.5 times and"), 
+              vjust = 0.5) +
+    geom_text(aes(x = 1.17, 
+                  y = ggplot_output[["lower_dots"]], 
+                  label = "<3 times the interquartile range\nbeyond either end of the box"), 
+              vjust = 1.5) +
+    geom_label(aes(x = 1.17, y = ggplot_output[["quartiles"]], 
+                  label = names(ggplot_output[["quartiles"]])),
+              vjust = c(0.4,0.85,0.4), 
+              fill = "white", label.size = 0) +
+    ylab("") + xlab("") +
+    theme(axis.text = element_blank(),
+          axis.ticks = element_blank(),
+          panel.grid = element_blank(),
+          aspect.ratio = 4/3,
+          plot.title = element_text(hjust = 0.5, size = 10)) +
+    coord_cartesian(xlim = c(1.4,3.1), ylim = c(-600, 900)) +
+    labs(title = "EXPLANATION")
+
+  return(explain_plot) 
+  
+}
+
+
+inc_boxplot_g <- inc_df %>% 
+  ggplot(aes(x=`연도`, y= `인당급여`)) +
+    geom_boxplot(outlier.colour = "red", outlier.shape = 17, outlier.size = 2,
+                 fill = "lightgreen", width = 0.7) +
+    labs(x="", y="인당급여 소득 (단위:억원)",
+         title = "연도별 일인당 급여소득",
+         caption = "국세청 소득 천분위 자료 (심상정 의원실)") +
+    theme_minimal(base_family = "NanumGothic")
+
+cowplot::plot_grid(inc_boxplot_g, ggplot_box_legend(), rel_widths=c(3,1))
+```
+
+<img src="figure/detect-outliers-robust-boxplot-1.png" title="plot of chunk detect-outliers-robust-boxplot" alt="plot of chunk detect-outliers-robust-boxplot" style="display: block; margin: auto;" />
+
+[Box Plot Diagram to Identify Outliers](https://www.whatissixsigma.net/box-plot-diagram-to-identify-outliers/)의 공식을 참조하여 상위 25% 분위수값에 $1.5 \times IQR $을 통해서 이상점을 발라낸다.
+
+
+```r
+inc_boxplot_outlier_g <- inc_df %>% 
+  filter(`연도` == 2016) %>% 
+  ggplot(aes(y=`인당급여`)) +
+    geom_boxplot()
+
+inc_IQR <- inc_df %>% 
+  filter(`연도` == 2016) %>% 
+  summarise(IQR = IQR(`인당급여`)) %>% 
+  pull()
+
+inc_df %>% 
+  filter(`연도` == 2016) %>%
+  mutate(outlier = ifelse(`인당급여` > (quantile(inc_2016_v, 0.75) + 1.5 * inc_IQR), "이상점", "정상")) %>% 
+  filter(outlier == "이상점") %>% 
+  DT::datatable()
+```
+
+```
+Error in loadNamespace(name): there is no package called 'webshot'
+```
+
+```r
+## 교차검증
+boxplot(inc_2016_v, col="blue", ylab="인당급여")$out
+```
+
+<img src="figure/detect-outliers-robust-boxplot-run-1.png" title="plot of chunk detect-outliers-robust-boxplot-run" alt="plot of chunk detect-outliers-robust-boxplot-run" style="display: block; margin: auto;" />
+
+```
+ [1] 6.8451522 3.0942503 2.4478016 2.1086809 1.9005637 1.7624577 1.6592446
+ [8] 1.5796505 1.5162909 1.4651635 1.4220168 1.3841037 1.3506201 1.3216460
+[15] 1.2956595 1.2716460 1.2493799 1.2289741 1.2101466 1.1949831 1.1798095
+[22] 1.1649380 1.1507892 1.1370913 1.1242390 1.1120631 1.1005637 1.0894025
+[29] 1.0788050 1.0685457 1.0583958 1.0485344 1.0389515 1.0295378 1.0204622
+[36] 1.0116122 1.0028749 0.9943630 0.9860767 0.9779030 0.9700130 0.9625141
+[43] 0.9555806 0.9483089 0.9411499 0.9341037 0.9272266 0.9205750
+```
+
+수정된 상자그림(Adjusted boxplot)은 [robustbase: Basic Robust Statistics](https://cran.r-project.org/web/packages/robustbase/index.html) 팩키지에 포함되어 있는 `adjboxStats()`함수로 구현이 가능한데 이론적인 배경은 [Hubert and Vandervieren (2008), "An Adjusted Boxplot for Skewed Distributions", Computational Statistics & Data Analysis 52(12):5186-5201](https://www.researchgate.net/publication/4749681_An_Adjusted_Boxplot_for_Skewed_Distributions)
+참조한다.
  
 
 
-## 마할라노비스 거리 [^outlier-mahalanobis-distance] [^outlier-mahalanobis]
+```r
+## 상자그림
+normal_boxplot_g <- inc_df %>% 
+  filter(`연도` == 2016) %>% 
+  ggplot(aes(y=`인당급여`)) +
+    geom_boxplot() +
+    labs(x="", y="인당급여 소득 (단위:억원)",
+         title = "일인당 급여소득",
+         subtitle = "일반 상자그림(Boxplot)") +
+    theme_minimal(base_family = "NanumGothic")
+
+## 강건 상자그림
+library(robustbase)
+inc_adjbox_stats <- adjboxStats(inc_2016_v)$stats
+
+robust_boxplot_g <- inc_df %>% 
+  filter(`연도` == 2016) %>%
+  ggplot(aes(y = `인당급여`)) +
+    stat_boxplot(geom = "errorbar", width = 0.2, coef = 1.5*exp(3*mc(inc_2016_v))) +
+    geom_boxplot(ymin = inc_adjbox_stats[1],
+                 ymax = inc_adjbox_stats[5],
+                 middle = inc_adjbox_stats[3],
+                 upper = inc_adjbox_stats[4],
+                 lower = inc_adjbox_stats[2],
+                 outlier.shape = NA,
+                 fill = "lightblue",
+                 width = 0.6) +
+     geom_point(data= inc_df %>% filter(`연도` == 2016) %>% 
+                  filter(`인당급여` < inc_adjbox_stats[1] | `인당급여` > inc_adjbox_stats[5]),
+              aes(x=0, y=`인당급여`), col = "red", size = 3, shape = 16) +
+    labs(x="", y="",
+         title = "일인당 급여소득",
+         subtitle = "강건한 상자그림(Boxplot)",
+         caption = "국세청 소득 천분위 자료 (심상정 의원실)") +
+    theme_minimal(base_family = "NanumGothic")
+
+cowplot::plot_grid(normal_boxplot_g, robust_boxplot_g)
+```
+
+<img src="figure/detect-outliers-robust-boxplot-run-ggplot-1.png" title="plot of chunk detect-outliers-robust-boxplot-run-ggplot" alt="plot of chunk detect-outliers-robust-boxplot-run-ggplot" style="display: block; margin: auto;" />
+
+```r
+## 대칭, 비대칭 상자그림
+par(mfrow=c(1,2))
+boxplot(inc_2016_v, col="lightblue", ylab="인당급여")$out
+```
+
+```
+ [1] 6.8451522 3.0942503 2.4478016 2.1086809 1.9005637 1.7624577 1.6592446
+ [8] 1.5796505 1.5162909 1.4651635 1.4220168 1.3841037 1.3506201 1.3216460
+[15] 1.2956595 1.2716460 1.2493799 1.2289741 1.2101466 1.1949831 1.1798095
+[22] 1.1649380 1.1507892 1.1370913 1.1242390 1.1120631 1.1005637 1.0894025
+[29] 1.0788050 1.0685457 1.0583958 1.0485344 1.0389515 1.0295378 1.0204622
+[36] 1.0116122 1.0028749 0.9943630 0.9860767 0.9779030 0.9700130 0.9625141
+[43] 0.9555806 0.9483089 0.9411499 0.9341037 0.9272266 0.9205750
+```
+
+```r
+adjbox(inc_2016_v,  col="lightgreen", ylab="인당급여")$out
+```
+
+<img src="figure/detect-outliers-robust-boxplot-run-ggplot-2.png" title="plot of chunk detect-outliers-robust-boxplot-run-ggplot" alt="plot of chunk detect-outliers-robust-boxplot-run-ggplot" style="display: block; margin: auto;" />
+
+```
+ [1] 6.8451521984 3.0942502818 2.4478015784 2.1086809470 1.9005636979
+ [6] 1.7624577227 0.0052423901 0.0047350620 0.0042277339 0.0037201962
+[11] 0.0031567080 0.0026493799 0.0020856821 0.0015219842 0.0009582864
+[16] 0.0003945885 0.0000000000 0.0000000000 0.0000000000 0.0000000000
+```
+
+
+## 이변량 이상점 검출 [^aplpack-plot] [^bagplot-paper] {#outlier-detection-bivariate}
+
+[^aplpack-plot]: [aplpack - Another Plot PACKage: stem.leaf, bagplot, faces, spin3R, plotsummary, plothulls, and some slider functions](https://cran.r-project.org/web/packages/aplpack/)
+
+[^bagplot-paper]: [Rousseeuw, Peter J., Ruts I., Tukey J.W. (1999). "The Bagplot: A Bivariate Boxplot". The American Statistician. 53 (4): 382–387](http://venus.unive.it/romanaz/ada2/bagplot.pdf)
+
+상자그림은 단변량 분포를 시각화하고 이상점을 추출할 때 적합하지만, 이변량인 경우 `bagplot()`을 통해 분포를 시각화하고 이상점을 추출하는 것이 가능해졌다.
+
+깊이 중위수(depth median)이 중심이 되며, $\frac{n}{2}$의 데이터가 가운데 "가방(bag)"에 몰려있고, 가방을 3배 확장하여 펜스(fence)를 두르고 그 밖에 위치한 점은 이상점으로 별도로 표시한다.
+
+
+
+```r
+library(aplpack)
+```
+
+```
+Error in library(aplpack): there is no package called 'aplpack'
+```
+
+```r
+data(mtcars)
+mtcars$model_name <- rownames(mtcars)
+
+# with(mtcars,
+#      bagplot(qsec, mpg, xlab="qsec", ylab="mpg", show.outlier= TRUE,
+#              show.looppoints=TRUE,
+#              show.bagpoints=TRUE,dkmethod=2,
+#              show.whiskers=TRUE,show.loophull=TRUE,
+#              show.baghull=TRUE,verbose=FALSE))
+
+# 이상점 표기
+mtcars_bagplot <- with(mtcars, bagplot(qsec, mpg, xlab="qsec", ylab="mpg"))
+```
+
+```
+Error in bagplot(qsec, mpg, xlab = "qsec", ylab = "mpg"): 함수 "bagplot"를 찾을 수 없습니다
+```
+
+```r
+mtcars_outlier <- as.data.frame(mtcars_bagplot$pxy.outlier)
+```
+
+```
+Error in as.data.frame(mtcars_bagplot$pxy.outlier): 객체 'mtcars_bagplot'를 찾을 수 없습니다
+```
+
+```r
+names(mtcars_outlier) <- c("qsec", "mpg")
+```
+
+```
+Error in names(mtcars_outlier) <- c("qsec", "mpg"): 객체 'mtcars_outlier'를 찾을 수 없습니다
+```
+
+```r
+mtcars_outliers <- left_join(mtcars_outlier, mtcars)
+```
+
+```
+Error in left_join(mtcars_outlier, mtcars): 객체 'mtcars_outlier'를 찾을 수 없습니다
+```
+
+```r
+text(mtcars_outliers$qsec, mtcars_outliers$mpg, labels=mtcars_outliers$model_name, pos=1)
+```
+
+```
+Error in text(mtcars_outliers$qsec, mtcars_outliers$mpg, labels = mtcars_outliers$model_name, : 객체 'mtcars_outliers'를 찾을 수 없습니다
+```
+
+
+# 다변량 이상점 검출 -마할라노비스 {#outlier-detection-multivariate}
+
+## 마할라노비스 거리 맛보기 [^outlier-mahalanobis-distance] [^outlier-mahalanobis] {#mahalanobis-distance-overview}
 
 [^outlier-mahalanobis-distance]: [Outlier Detection with Mahalanobis Distance](https://www.steffenruefer.com/2016/12/outlier-detection-with-mahalanobis-distance/)
 [^outlier-mahalanobis]: [Using Mahalanobis Distance to Find Outliers](https://eurekastatistics.com/using-mahalanobis-distance-to-find-outliers/)
@@ -25,13 +745,15 @@ mainfont: NanumGothic
 
 $D_M(\vec{x}) = \sqrt{(\vec{x} - \vec{\mu})^T S^{-1} (\vec{x}-\vec{\mu})}$
 
-### 신장과 체중 
+신장과 체중데이터를 바탕으로 마할라노비스 이상점을 검출해보자.
 
 
-~~~{.r}
+```r
 # 신장과 체중 데이터 
-df <- data.frame(height_cm=c(164, 167, 168, 169, 169, 170, 170, 170, 171, 172, 172, 173, 173, 175, 176, 178),
-                 weight_kg=c( 54,  57,  58,  60,  61,  60,  61,  62,  62,  64,  62,  62,  64,  56,  66,  70))
+df <- tibble(height_cm =
+               c(164, 167, 168, 169, 169, 170, 170, 170, 171, 172, 172, 173, 173, 175, 176, 178),
+              weight_kg = 
+               c( 54,  57,  58,  60,  61,  60,  61,  62,  62,  64,  62,  62,  64,  56,  66,  70))
 
 
 # 신장과 체중 분포에 대한 마할라노비스 거리 계산
@@ -45,25 +767,26 @@ df$outlier_maha[df$m_dist > 12] <- "Yes"
 # 시각화
 ggplot(df, aes(x = weight_kg, y = height_cm, color = outlier_maha)) +
     geom_point(size = 5, alpha = 0.6) +
-    labs(title = "신장과 체중",
+    theme_minimal(base_family = "NanumGothic") +
+    labs(x="체중(kg)", y="신장(cm)",
+         color = "이상점 여부",
+         title = "신장과 체중",
          subtitle = "마할라노비스 거리를 활용하여 신장과 체중 이상점 검출",
          caption = "Source: https://www.steffenruefer.com/2016/12/outlier-detection-with-mahalanobis-distance/ \n
                             https://eurekastatistics.com/using-mahalanobis-distance-to-find-outliers/") +
-    ylab("신장(cm)") + xlab("체중(kg)") +
     scale_y_continuous(breaks = seq(160, 200, 5)) +
-    scale_x_continuous(breaks = seq(35, 80, 5)) +
-    theme_minimal(base_family = "NanumGothic")
-~~~
+    scale_x_continuous(breaks = seq(35, 80, 5))
+```
 
-<img src="fig/mahalanobis-ex-1.png" title="plot of chunk mahalanobis-ex" alt="plot of chunk mahalanobis-ex" style="display: block; margin: auto;" />
+<img src="figure/mahalanobis-ex-1.png" title="plot of chunk mahalanobis-ex" alt="plot of chunk mahalanobis-ex" style="display: block; margin: auto;" />
 
-### 마할라노비스 거리 적용시 주의점
+## 마할라노비스 거리 적용시 주의점 {#mahalanobis-distance-caveat} {#mahalanobis-distance-problem}
 
 마할라노비스 거리를 활용하여 이상점을 추출할 수 있으나 선형적인 관계가 존재할 때 유용하고 비선형인 경우 이상점을 잘못 검출할 수 있다.
 
 
 
-~~~{.r}
+```r
 # 주의점 ------------------------------------------------------------------
 
 caveats_df <- data.frame(x=c(4,  8, 10, 16, 17, 22, 27, 33, 38, 40, 47, 48, 53, 55, 63, 71, 76, 85, 85, 92, 96),
@@ -83,8 +806,229 @@ ggplot(caveats_df, aes(x = x, y = y, color = outlier_maha)) +
          caption = "Source: https://eurekastatistics.com/using-mahalanobis-distance-to-find-outliers/") +
     ylab("신장(cm)") + xlab("체중(kg)") +
     theme_minimal(base_family = "NanumGothic")
-~~~
+```
 
-<img src="fig/mahalanobis-caveats-1.png" title="plot of chunk mahalanobis-caveats" alt="plot of chunk mahalanobis-caveats" style="display: block; margin: auto;" />
+<img src="figure/mahalanobis-caveats-1.png" title="plot of chunk mahalanobis-caveats" alt="plot of chunk mahalanobis-caveats" style="display: block; margin: auto;" />
 
+## 마할라노비스 이상점 탐지 {#mahalanobis-distance-use-it}
+
+다변량 이상점 검출을 위해서 **마할라노비스 거리**를 활용하는데 유클리디언 거리와 비교하여 변수간의 공분산관계를 반영할 수 있다는 점에서 큰 장점이 있다. 데이터로 `MASS` 팩키지 `Animals` 데이터셋을 사용하자. `Animals` 데이터셋은 날짐승이 아닌 인간포함 육상 동물 28종에 대한 평균 체중과 평균 뇌무게를 포함하고 있다.
+
+
+```r
+library(MASS)
+data("Animals")
+
+animals_df <- Animals %>% 
+  rownames_to_column(var="animal") %>% 
+  tbl_df() %>% 
+  mutate(log_body = round(log(body), 3),
+         log_brain = round(log(brain),3))
+
+animals_df %>% 
+  DT::datatable()
+```
+
+```
+Error in loadNamespace(name): there is no package called 'webshot'
+```
+
+### 동물 뇌/체중 데이터 시각화 {#mahalanobis-distance-animals-viz}
+
+`Brachiosaurus`, `Dipliodocus`, `Triceratops` 동물 3종을 이상점으로 검출하는 방법이 필요함이 파악된다.
+
+
+```r
+orig_g <- animals_df %>% 
+  ggplot(aes(x=body, y=brain)) +
+    geom_point() +
+    labs(x = "체중",
+         y = "뇌무게",
+         title = "동물 체중과 뇌무게 관계",
+         subtitle = "원데이터 척도")+
+    theme_minimal(base_family = "NanumGothic") +
+    scale_x_continuous(labels = scales::comma) +
+    scale_y_continuous(labels = scales::comma) +
+    geom_text(aes(label=animal), check_overlap = TRUE, vjust=1, hjust=1)
+
+log_g <- animals_df %>% 
+  ggplot(aes(x=log_body, y=log_brain)) +
+    geom_point() +
+    labs(x = "로그 체중",
+       y = "로그 뇌무게",
+       title = "동물 체중과 뇌무게 관계",
+       subtitle = "로그변환 척도",
+       caption = "Source: MASS, Animals 데이터셋") +
+    theme_minimal(base_family = "NanumGothic") +
+    scale_x_continuous(labels = scales::comma) +
+    scale_y_continuous(labels = scales::comma) +
+    geom_text(aes(label=animal), check_overlap = TRUE, vjust=1, hjust=1)
+
+cowplot::plot_grid(orig_g, log_g)
+```
+
+<img src="figure/mahalanobis-animal-data-viz-1.png" title="plot of chunk mahalanobis-animal-data-viz" alt="plot of chunk mahalanobis-animal-data-viz" style="display: block; margin: auto;" />
+
+
+### 이변량 상자그림 이상점 검출 {#mahalanobis-distance-animals-bivariate-boxplot}
+
+`aplpack` 팩키지 `bagplot()` 함수를 통해서 이변량 상자그림을 도식화하고 이상점을 추출해 내는 것도 가능하다. 
+
+
+```r
+# 이상점 표기
+animals_bagplot <- with(animals_df, bagplot(log_body, log_brain, xlab="로그 체중", ylab="로그 뇌무게"))
+```
+
+```
+Error in bagplot(log_body, log_brain, xlab = "로그 체중", ylab = "로그 뇌무게"): 함수 "bagplot"를 찾을 수 없습니다
+```
+
+```r
+animals_outlier <- as.data.frame(animals_bagplot$pxy.outlier) %>% 
+  `colnames<-`(c("log_body", "log_brain"))
+```
+
+```
+Error in as.data.frame(animals_bagplot$pxy.outlier): 객체 'animals_bagplot'를 찾을 수 없습니다
+```
+
+```r
+animals_outliers <- left_join(animals_outlier, animals_df)
+```
+
+```
+Error in left_join(animals_outlier, animals_df): 객체 'animals_outlier'를 찾을 수 없습니다
+```
+
+```r
+text(animals_outliers$log_body, animals_outliers$log_brain, labels=animals_outliers$name, pos=1)
+```
+
+```
+Error in text(animals_outliers$log_body, animals_outliers$log_brain, labels = animals_outliers$name, : 객체 'animals_outliers'를 찾을 수 없습니다
+```
+
+```r
+animals_outliers %>% 
+  dplyr::select(animal, everything()) %>% 
+  DT::datatable()
+```
+
+```
+Error in eval(lhs, parent, parent): 객체 'animals_outliers'를 찾을 수 없습니다
+```
+
+### 다변량 이상점 탐지 {#mahalanobis-distance-animals-multivariate}
+
+데이터가 $d-$차원 정규분포를 따른다고 가정하면 마할라노비스 거리는 자유도 $d$를 갖는 $\chi^2$ 분포를 다른다. 마할라노비스 거리를 바탕으로 변수 다수를 사용해서 이상점을 추출할 경우 $\chi^2$ 분포와 비교하여 
+$\alpha = 0.001$을 기준으로 임계값은 다음과 같다. 즉, 아래 임계값을 넘는 것은 이상점으로 간주한다.
+
+| 자유도  | 임계값  |
+|---------|---------|
+|     2   | 13.82  |
+|     3   | 16.27  |
+|     4   | 18.47  |
+|     5   | 20.52  |
+|     6   | 22.46  |
+|     7   | 24.32  |
+|     8   | 26.13  |
+|     9   | 27.88  |
+|     10  | 29.59  |
+
+
+
+
+```r
+## 이상점 임계값 도출
+animals_md_df <- animals_df %>% 
+  dplyr::select(log_body, log_brain) 
+
+animal_mean <- colMeans(animals_md_df)
+animal_cov <- cov(animals_md_df)
+animal_rad <- sqrt(qchisq(0.975, df = ncol(animals_md_df)))
+
+m_dist <- mahalanobis(animals_md_df, animal_mean, animal_cov)
+
+## 이상점 임계값 시각화
+library(car)
+animal_ellipse_df <- data.frame(ellipse(center = animal_mean,
+        shape = animal_cov,
+        radius = animal_rad, segments = 100, draw = FALSE)) %>% 
+  `colnames<-`(c("log_body", "log_brain"))
+
+
+animals_df %>% 
+  ggplot(aes(x=log_body, y=log_brain)) +
+    geom_point() +
+    labs(x = "로그 체중",
+       y = "로그 뇌무게",
+       title = "동물 체중과 뇌무게 관계",
+       subtitle = "로그변환 척도",
+       caption = "Source: MASS, Animals 데이터셋") +
+    theme_minimal(base_family = "NanumGothic") +
+    scale_x_continuous(labels = scales::comma) +
+    scale_y_continuous(labels = scales::comma) +
+    geom_text(aes(label=animal), check_overlap = TRUE, vjust=1, hjust=1) +
+    geom_polygon(data=animal_ellipse_df, color = "blue", fill = "blue", alpha = 0.2) +
+    geom_point(aes(x = animal_mean[1], y = animal_mean[2]), color = "blue", size = 6)
+```
+
+<img src="figure/mahalanobis-animal-data-viz-multivariate-1.png" title="plot of chunk mahalanobis-animal-data-viz-multivariate" alt="plot of chunk mahalanobis-animal-data-viz-multivariate" style="display: block; margin: auto;" />
+
+### 강건 다변량 이상점 탐지 {#mahalanobis-distance-animals-multivariate-robust}
+
+Rousseeuw가 제안한 "MCD(Minimum Covariance Determinant)"는 가장 일반적인 강건한 다변량 추정량으로 받아들여진다.
+`animals_mcd$center`, `animals_mcd$cov`을 상기 코드에 꽂아 넣으면 강건한 다변량 이상점 탐지 기법이 완성된다.
+
+
+
+```r
+# animal_mvoutlier <- mvoutlier::chisq.plot(animals_md_df)
+animals_mcd <- robustbase::covMcd(animals_md_df)
+
+animals_mcd$center
+```
+
+```
+ log_body log_brain 
+ 3.028826  4.275609 
+```
+
+```r
+animals_mcd$cov
+```
+
+```
+          log_body log_brain
+log_body   18.8587  14.15960
+log_brain  14.1596  11.03236
+```
+
+```r
+## 이상점 임계값 시각화
+library(car)
+animal_ellipse_mcd_df <- data.frame(ellipse(center = animals_mcd$center,
+        shape = animals_mcd$cov,
+        radius = animal_rad, segments = 100, draw = FALSE)) %>% 
+  `colnames<-`(c("log_body", "log_brain"))
+
+animals_df %>% 
+  ggplot(aes(x=log_body, y=log_brain)) +
+    geom_point() +
+    labs(x = "로그 체중",
+       y = "로그 뇌무게",
+       title = "동물 체중과 뇌무게 관계",
+       subtitle = "로그변환 척도",
+       caption = "Source: MASS, Animals 데이터셋") +
+    theme_minimal(base_family = "NanumGothic") +
+    scale_x_continuous(labels = scales::comma) +
+    scale_y_continuous(labels = scales::comma) +
+    geom_text(aes(label=animal), check_overlap = TRUE, vjust=1, hjust=1) +
+    geom_polygon(data=animal_ellipse_df, color = "blue", fill = "blue", alpha = 0.2) +
+    geom_point(aes(x = animals_mcd$center[1], y = animals_mcd$center[2]), color = "blue", size = 6) +
+    geom_polygon(data=animal_ellipse_mcd_df, color = "red", fill = "red", alpha = 0.2) 
+```
+
+<img src="figure/mahalanobis-animal-data-viz-multivariate-robust-1.png" title="plot of chunk mahalanobis-animal-data-viz-multivariate-robust" alt="plot of chunk mahalanobis-animal-data-viz-multivariate-robust" style="display: block; margin: auto;" />
 
