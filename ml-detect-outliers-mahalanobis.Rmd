@@ -43,83 +43,6 @@ knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE,
 - 고차원 접근법 (High dimensional Approaches)
 
 
-# 마할라노비스 거리 맛보기 [^outlier-mahalanobis-distance] [^outlier-mahalanobis] {#mahalanobis-distance-overview}
-
-> "It is perfect to use both classical and robust methods routinely, and only worry
-> when they differ enough to matter... But when they differ, you should think hard."
-> **J.W. Tukey (1979)**
-
-
-[^outlier-mahalanobis-distance]: [Outlier Detection with Mahalanobis Distance](https://www.steffenruefer.com/2016/12/outlier-detection-with-mahalanobis-distance/)
-[^outlier-mahalanobis]: [Using Mahalanobis Distance to Find Outliers](https://eurekastatistics.com/using-mahalanobis-distance-to-find-outliers/)
-
-다차원 공간에서 이상점을 찾아내는 간단한 방법이 [마할라노비스 거리](https://en.wikipedia.org/wiki/Mahalanobis_distance)를 활용하는 것이다.
-유클리디안 거리를 다차원 공간으로 확장한 것으로 생각하면 쉽게 이해할 수 있다.
-
-평균 $\vec{\mu} = ( \mu_1, \mu_2, \mu_3, \dots , \mu_N )^T$와 공분산 $S$를 갖는 벡터 $\vec{x} = ( x_1, x_2, x_3, \dots, x_N )^T$에 대한  
-마할라노비스 거리에 대한 수학적 정의는 다음과 같다.
-
-$D_M(\vec{x}) = \sqrt{(\vec{x} - \vec{\mu})^T S^{-1} (\vec{x}-\vec{\mu})}$
-
-## 신장과 체중 {#mahalanobis-distance-data}
-
-``` {r mahalanobis-ex}
-library(tidyverse)
-
-# 신장과 체중 데이터 
-df <- data.frame(height_cm=c(164, 167, 168, 169, 169, 170, 170, 170, 171, 172, 172, 173, 173, 175, 176, 178),
-                 weight_kg=c( 54,  57,  58,  60,  61,  60,  61,  62,  62,  64,  62,  62,  64,  56,  66,  70))
-
-
-# 신장과 체중 분포에 대한 마할라노비스 거리 계산
-m_dist <- mahalanobis(df[, 1:2], colMeans(df[, 1:2]), cov(df[, 1:2]))
-df$m_dist <- round(m_dist, 2)
-
-# 마할라노비스 이상점 - 임계점을 12로 설정
-df$outlier_maha <- "No"
-df$outlier_maha[df$m_dist > 12] <- "Yes"
-
-# 시각화
-ggplot(df, aes(x = weight_kg, y = height_cm, color = outlier_maha)) +
-    geom_point(size = 5, alpha = 0.6) +
-    labs(title = "신장과 체중",
-         subtitle = "마할라노비스 거리를 활용하여 신장과 체중 이상점 검출",
-         caption = "Source: https://www.steffenruefer.com/2016/12/outlier-detection-with-mahalanobis-distance/ \n
-                            https://eurekastatistics.com/using-mahalanobis-distance-to-find-outliers/") +
-    ylab("신장(cm)") + xlab("체중(kg)") +
-    scale_y_continuous(breaks = seq(160, 200, 5)) +
-    scale_x_continuous(breaks = seq(35, 80, 5)) +
-    theme_minimal(base_family = "NanumGothic")
-```
-
-## 마할라노비스 거리 적용시 주의점 {#mahalanobis-distance-caveat}
-
-마할라노비스 거리를 활용하여 이상점을 추출할 수 있으나 선형적인 관계가 존재할 때 유용하고 비선형인 경우 이상점을 잘못 검출할 수 있다.
-
-
-``` {r mahalanobis-caveats}
-# 주의점 ------------------------------------------------------------------
-
-caveats_df <- data.frame(x=c(4,  8, 10, 16, 17, 22, 27, 33, 38, 40, 47, 48, 53, 55, 63, 71, 76, 85, 85, 92, 96),
-                         y=c(6, 22, 32, 34, 42, 51, 59, 63, 64, 69, 70, 20, 70, 63, 63, 55, 46, 41, 33, 19,  6))
-
-caveats_dist <- mahalanobis(caveats_df[, 1:2], colMeans(caveats_df[, 1:2]), cov(caveats_df[, 1:2]))
-caveats_df$m_dist <- round(caveats_dist, 2)
-
-# Mahalanobis Outliers - Threshold set to 12
-caveats_df$outlier_maha <- "No"
-caveats_df$outlier_maha[caveats_df$m_dist > 5] <- "Yes"
-
-ggplot(caveats_df, aes(x = x, y = y, color = outlier_maha)) +
-    geom_point(size = 5, alpha = 0.6) +
-    labs(title = "마할라노비스 거리 사용시 주의점",
-         subtitle = "비선형 관계일 경우 주의 요망 !!!",
-         caption = "Source: https://eurekastatistics.com/using-mahalanobis-distance-to-find-outliers/") +
-    ylab("신장(cm)") + xlab("체중(kg)") +
-    theme_minimal(base_family = "NanumGothic")
-```
-
-
 # 소득 천분위 자료 사례 [^sim-income-report] {#income-korea-sim}  
 
 [^sim-income-report]: [보도자료 - 심상정, 소득 천분위 자료 공개 (종합, 근로, 배당, 이자 소득)](https://blog.naver.com/713sim/221350785950)
@@ -297,6 +220,8 @@ inc_df %>%
 
 $$z_i = \frac{x_i - \hat{\mu}}{\hat{\sigma}}$$
 
+정규화를 기준으로 이상점을 추출하면 다음과 같다.
+
 ```{r detect-outliers}
 inc_2016_v <- inc_df %>% 
   filter(`연도` == 2016) %>% 
@@ -316,7 +241,8 @@ inc_df %>%
   mutate(`점수` = abs((`인당급여` - inc_2016_mean) / inc_2016_sd)) %>% 
   mutate(`이상여부` = ifelse(`점수` >3, "이상", "정상") %>% as.factor) %>% 
   filter(`이상여부` %in% "이상") %>% 
-  DT::datatable()
+  DT::datatable() %>% 
+    DT::formatRound(c("인당급여", "인당근로소득", "인당비근로소득", "점수"), digits=2)
 ```
 
 이상점 검출을 위해서 강건한 통계량을 바탕으로 이상점을 검출한다.
@@ -326,6 +252,7 @@ inc_df %>%
 $$z_i = \frac{x_i - \hat{\text{중위수}}} {\hat{\text{MAD}}}$$
 
 여기서, $\sigma=\Phi^{-1}(3/4)\cdot \text{MAD}\approx1.4826\cdot\text{MAD}$ 관계가 성립한다.
+강건점수를 기준으로 이상점을 추출하면 다음과 같다.
 
 ```{r detect-outliers-robust}
 
@@ -343,12 +270,54 @@ inc_df %>%
   mutate(`강건_점수` = abs((`인당급여` - inc_2016_median) / inc_2016_mad)) %>% 
   mutate(`이상여부` = ifelse(`강건_점수` >3, "이상", "정상") %>% as.factor) %>% 
   filter(`이상여부` %in% "이상") %>% 
-  DT::datatable()
+  DT::datatable() %>% 
+    DT::formatRound(c("인당급여", "인당근로소득", "인당비근로소득", "강건_점수"), digits=2)
 ```
+
+# 상자그림(boxplot) 이상점 검출 {#boxplot-outlier-detection}
+
+## 단변량 이상점 검출 [^boxplot-outlier-labeling] {#boxplot-outlier-detection-univariate}
+
+[^boxplot-outlier-labeling]: [Labeling Outliers of Boxplots in R](http://stackoverflow.com/questions/33524669/labeling-outliers-of-boxplots-in-r)
+
+[상자그림(boxplot)](https://ko.wikipedia.org/wiki/상자_수염_그림)을 통해 분포를 시각화하거나 서로 다른 집단간 분포를 쉽게 시각화하여 비교가 가능하다.
+특히, 이상점을 한눈에 볼 수 있게 `ggplot`을 활용하여 시각화하는 방법은 다음과 같다.
+
+1. `is_outlier` 함수를 통해 상자수염그림에서 이상점을 별도 점으로 표시하는 로직을 작성한다.
+1. `mtcars` 데이터는 rownames를 갖는 데이터프레임이라 모델명을 별도 변수로 저장한다.
+    - 이상점 표식에 사용될 라벨로 사용됨
+1. `is_outlier` 함수를 통해 이상점을 식별하여 `qsec_outlier` 변수에 저장한다.
+1. ggplot의 `geom_text` 함수에 `ifelse` 문을 적용하여 이상점만 표식한다.
+
+
+``` {r univariate-boxplot}
+is_outlier <- function(x) {
+  return(x < quantile(x, 0.25) - 1.5 * IQR(x) | x > quantile(x, 0.75) + 1.5 * IQR(x))
+}
+
+inc_df %>% 
+  group_by(`연도`) %>% 
+  mutate(inc_outlier = is_outlier(`인당급여`)) %>% 
+  ungroup() %>% 
+  ggplot(aes(y=`인당급여`, x=`연도`)) +
+    geom_boxplot(outlier.colour = "red", outlier.size = 3) +
+    geom_text(aes(label=ifelse(inc_outlier, `구분`, "")), na.rm=TRUE, hjust=-0.3) +
+    theme_minimal(base_family = "NanumGothic") +
+    labs(x="", y="인당급여", 
+         title="연도별 인당급여 이상점",
+         caption = "국세청 소득 천분위 자료 (심상정 의원실)") 
+```
+
 
 ## 강건한 상자그림(boxplot) [^ggplot-legend] {#detect-outlier-boxplot}
 
 [^ggplot-legend]: [Laura DeCicco, "Exploring ggplot2 boxplots - Defining limits and adjusting style"](https://owi.usgs.gov/blog/boxplots/)
+
+
+> "It is perfect to use both classical and robust methods routinely, and only worry
+> when they differ enough to matter... But when they differ, you should think hard."
+> **J.W. Tukey (1979)**
+
 
 ```{r detect-outliers-robust-boxplot}
 
@@ -508,14 +477,26 @@ inc_df %>%
 boxplot(inc_2016_v, col="blue", ylab="인당급여")$out
 ```
 
-Adjusted boxplot (Hubert and Vandervieren, 2008)
+수정된 상자그림(Adjusted boxplot)은 [robustbase: Basic Robust Statistics](https://cran.r-project.org/web/packages/robustbase/index.html) 팩키지에 포함되어 있는 `adjboxStats()`함수로 구현이 가능한데 이론적인 배경은 [Hubert and Vandervieren (2008), "An Adjusted Boxplot for Skewed Distributions", Computational Statistics & Data Analysis 52(12):5186-5201](https://www.researchgate.net/publication/4749681_An_Adjusted_Boxplot_for_Skewed_Distributions)
+참조한다.
+ 
 
-```{r}
+```{r detect-outliers-robust-boxplot-run-ggplot}
+## 상자그림
+normal_boxplot_g <- inc_df %>% 
+  filter(`연도` == 2016) %>% 
+  ggplot(aes(y=`인당급여`)) +
+    geom_boxplot() +
+    labs(x="", y="인당급여 소득 (단위:억원)",
+         title = "일인당 급여소득",
+         subtitle = "일반 상자그림(Boxplot)") +
+    theme_minimal(base_family = "NanumGothic")
+
+## 강건 상자그림
 library(robustbase)
-
 inc_adjbox_stats <- adjboxStats(inc_2016_v)$stats
 
-inc_df %>% 
+robust_boxplot_g <- inc_df %>% 
   filter(`연도` == 2016) %>%
   ggplot(aes(y = `인당급여`)) +
     stat_boxplot(geom = "errorbar", width = 0.2, coef = 1.5*exp(3*mc(inc_2016_v))) +
@@ -526,10 +507,17 @@ inc_df %>%
                  lower = inc_adjbox_stats[2],
                  outlier.shape = NA,
                  fill = "lightblue",
-                 width = 0.5) +
+                 width = 0.6) +
      geom_point(data= inc_df %>% filter(`연도` == 2016) %>% 
                   filter(`인당급여` < inc_adjbox_stats[1] | `인당급여` > inc_adjbox_stats[5]),
-              aes(x=0, y=`인당급여`), col = "red", size = 3, shape = 16)
+              aes(x=0, y=`인당급여`), col = "red", size = 3, shape = 16) +
+    labs(x="", y="",
+         title = "일인당 급여소득",
+         subtitle = "강건한 상자그림(Boxplot)",
+         caption = "국세청 소득 천분위 자료 (심상정 의원실)") +
+    theme_minimal(base_family = "NanumGothic")
+
+cowplot::plot_grid(normal_boxplot_g, robust_boxplot_g)
 
 ## 대칭, 비대칭 상자그림
 par(mfrow=c(1,2))
@@ -537,4 +525,278 @@ boxplot(inc_2016_v, col="lightblue", ylab="인당급여")$out
 adjbox(inc_2016_v,  col="lightgreen", ylab="인당급여")$out
 ```
 
+
+## 이변량 이상점 검출 [^aplpack-plot] [^bagplot-paper] {#outlier-detection-bivariate}
+
+[^aplpack-plot]: [aplpack - Another Plot PACKage: stem.leaf, bagplot, faces, spin3R, plotsummary, plothulls, and some slider functions](https://cran.r-project.org/web/packages/aplpack/)
+
+[^bagplot-paper]: [Rousseeuw, Peter J., Ruts I., Tukey J.W. (1999). "The Bagplot: A Bivariate Boxplot". The American Statistician. 53 (4): 382–387](http://venus.unive.it/romanaz/ada2/bagplot.pdf)
+
+상자그림은 단변량 분포를 시각화하고 이상점을 추출할 때 적합하지만, 이변량인 경우 `bagplot()`을 통해 분포를 시각화하고 이상점을 추출하는 것이 가능해졌다.
+
+깊이 중위수(depth median)이 중심이 되며, $\frac{n}{2}$의 데이터가 가운데 "가방(bag)"에 몰려있고, 가방을 3배 확장하여 펜스(fence)를 두르고 그 밖에 위치한 점은 이상점으로 별도로 표시한다.
+
+
+``` {r bivariate-boxplot}
+library(aplpack)
+
+data(mtcars)
+mtcars$model_name <- rownames(mtcars)
+
+# with(mtcars,
+#      bagplot(qsec, mpg, xlab="qsec", ylab="mpg", show.outlier= TRUE,
+#              show.looppoints=TRUE,
+#              show.bagpoints=TRUE,dkmethod=2,
+#              show.whiskers=TRUE,show.loophull=TRUE,
+#              show.baghull=TRUE,verbose=FALSE))
+
+# 이상점 표기
+mtcars_bagplot <- with(mtcars, bagplot(qsec, mpg, xlab="qsec", ylab="mpg"))
+mtcars_outlier <- as.data.frame(mtcars_bagplot$pxy.outlier)
+names(mtcars_outlier) <- c("qsec", "mpg")
+mtcars_outliers <- left_join(mtcars_outlier, mtcars)
+
+text(mtcars_outliers$qsec, mtcars_outliers$mpg, labels=mtcars_outliers$model_name, pos=1)
+```
+
+
+# 다변량 이상점 검출 -마할라노비스 {#outlier-detection-multivariate}
+
+## 마할라노비스 거리 맛보기 [^outlier-mahalanobis-distance] [^outlier-mahalanobis] {#mahalanobis-distance-overview}
+
+[^outlier-mahalanobis-distance]: [Outlier Detection with Mahalanobis Distance](https://www.steffenruefer.com/2016/12/outlier-detection-with-mahalanobis-distance/)
+[^outlier-mahalanobis]: [Using Mahalanobis Distance to Find Outliers](https://eurekastatistics.com/using-mahalanobis-distance-to-find-outliers/)
+
+다차원 공간에서 이상점을 찾아내는 간단한 방법이 [마할라노비스 거리](https://en.wikipedia.org/wiki/Mahalanobis_distance)를 활용하는 것이다.
+유클리디안 거리를 다차원 공간으로 확장한 것으로 생각하면 쉽게 이해할 수 있다.
+
+평균 $\vec{\mu} = ( \mu_1, \mu_2, \mu_3, \dots , \mu_N )^T$와 공분산 $S$를 갖는 벡터 $\vec{x} = ( x_1, x_2, x_3, \dots, x_N )^T$에 대한  
+마할라노비스 거리에 대한 수학적 정의는 다음과 같다.
+
+$D_M(\vec{x}) = \sqrt{(\vec{x} - \vec{\mu})^T S^{-1} (\vec{x}-\vec{\mu})}$
+
+신장과 체중데이터를 바탕으로 마할라노비스 이상점을 검출해보자.
+
+``` {r mahalanobis-ex}
+# 신장과 체중 데이터 
+df <- tibble(height_cm =
+               c(164, 167, 168, 169, 169, 170, 170, 170, 171, 172, 172, 173, 173, 175, 176, 178),
+              weight_kg = 
+               c( 54,  57,  58,  60,  61,  60,  61,  62,  62,  64,  62,  62,  64,  56,  66,  70))
+
+
+# 신장과 체중 분포에 대한 마할라노비스 거리 계산
+m_dist <- mahalanobis(df[, 1:2], colMeans(df[, 1:2]), cov(df[, 1:2]))
+df$m_dist <- round(m_dist, 2)
+
+# 마할라노비스 이상점 - 임계점을 12로 설정
+df$outlier_maha <- "No"
+df$outlier_maha[df$m_dist > 12] <- "Yes"
+
+# 시각화
+ggplot(df, aes(x = weight_kg, y = height_cm, color = outlier_maha)) +
+    geom_point(size = 5, alpha = 0.6) +
+    theme_minimal(base_family = "NanumGothic") +
+    labs(x="체중(kg)", y="신장(cm)",
+         color = "이상점 여부",
+         title = "신장과 체중",
+         subtitle = "마할라노비스 거리를 활용하여 신장과 체중 이상점 검출",
+         caption = "Source: https://www.steffenruefer.com/2016/12/outlier-detection-with-mahalanobis-distance/ \n
+                            https://eurekastatistics.com/using-mahalanobis-distance-to-find-outliers/") +
+    scale_y_continuous(breaks = seq(160, 200, 5)) +
+    scale_x_continuous(breaks = seq(35, 80, 5))
+    
+```
+
+## 마할라노비스 거리 적용시 주의점 {#mahalanobis-distance-caveat} {#mahalanobis-distance-problem}
+
+마할라노비스 거리를 활용하여 이상점을 추출할 수 있으나 선형적인 관계가 존재할 때 유용하고 비선형인 경우 이상점을 잘못 검출할 수 있다.
+
+
+``` {r mahalanobis-caveats}
+# 주의점 ------------------------------------------------------------------
+
+caveats_df <- data.frame(x=c(4,  8, 10, 16, 17, 22, 27, 33, 38, 40, 47, 48, 53, 55, 63, 71, 76, 85, 85, 92, 96),
+                         y=c(6, 22, 32, 34, 42, 51, 59, 63, 64, 69, 70, 20, 70, 63, 63, 55, 46, 41, 33, 19,  6))
+
+caveats_dist <- mahalanobis(caveats_df[, 1:2], colMeans(caveats_df[, 1:2]), cov(caveats_df[, 1:2]))
+caveats_df$m_dist <- round(caveats_dist, 2)
+
+# Mahalanobis Outliers - Threshold set to 12
+caveats_df$outlier_maha <- "No"
+caveats_df$outlier_maha[caveats_df$m_dist > 5] <- "Yes"
+
+ggplot(caveats_df, aes(x = x, y = y, color = outlier_maha)) +
+    geom_point(size = 5, alpha = 0.6) +
+    labs(title = "마할라노비스 거리 사용시 주의점",
+         subtitle = "비선형 관계일 경우 주의 요망 !!!",
+         caption = "Source: https://eurekastatistics.com/using-mahalanobis-distance-to-find-outliers/") +
+    ylab("신장(cm)") + xlab("체중(kg)") +
+    theme_minimal(base_family = "NanumGothic")
+```
+
+## 마할라노비스 이상점 탐지 {#mahalanobis-distance-use-it}
+
+다변량 이상점 검출을 위해서 **마할라노비스 거리**를 활용하는데 유클리디언 거리와 비교하여 변수간의 공분산관계를 반영할 수 있다는 점에서 큰 장점이 있다. 데이터로 `MASS` 팩키지 `Animals` 데이터셋을 사용하자. `Animals` 데이터셋은 날짐승이 아닌 인간포함 육상 동물 28종에 대한 평균 체중과 평균 뇌무게를 포함하고 있다.
+
+``` {r mahalanobis-animal-data}
+library(MASS)
+data("Animals")
+
+animals_df <- Animals %>% 
+  rownames_to_column(var="animal") %>% 
+  tbl_df() %>% 
+  mutate(log_body = round(log(body), 3),
+         log_brain = round(log(brain),3))
+
+animals_df %>% 
+  DT::datatable()
+```
+
+### 동물 뇌/체중 데이터 시각화 {#mahalanobis-distance-animals-viz}
+
+`Brachiosaurus`, `Dipliodocus`, `Triceratops` 동물 3종을 이상점으로 검출하는 방법이 필요함이 파악된다.
+
+``` {r mahalanobis-animal-data-viz}
+orig_g <- animals_df %>% 
+  ggplot(aes(x=body, y=brain)) +
+    geom_point() +
+    labs(x = "체중",
+         y = "뇌무게",
+         title = "동물 체중과 뇌무게 관계",
+         subtitle = "원데이터 척도")+
+    theme_minimal(base_family = "NanumGothic") +
+    scale_x_continuous(labels = scales::comma) +
+    scale_y_continuous(labels = scales::comma) +
+    geom_text(aes(label=animal), check_overlap = TRUE, vjust=1, hjust=1)
+
+log_g <- animals_df %>% 
+  ggplot(aes(x=log_body, y=log_brain)) +
+    geom_point() +
+    labs(x = "로그 체중",
+       y = "로그 뇌무게",
+       title = "동물 체중과 뇌무게 관계",
+       subtitle = "로그변환 척도",
+       caption = "Source: MASS, Animals 데이터셋") +
+    theme_minimal(base_family = "NanumGothic") +
+    scale_x_continuous(labels = scales::comma) +
+    scale_y_continuous(labels = scales::comma) +
+    geom_text(aes(label=animal), check_overlap = TRUE, vjust=1, hjust=1)
+
+cowplot::plot_grid(orig_g, log_g)
+```
+
+
+### 이변량 상자그림 이상점 검출 {#mahalanobis-distance-animals-bivariate-boxplot}
+
+`aplpack` 팩키지 `bagplot()` 함수를 통해서 이변량 상자그림을 도식화하고 이상점을 추출해 내는 것도 가능하다. 
+
+``` {r mahalanobis-animal-data-viz-boxplot}
+# 이상점 표기
+animals_bagplot <- with(animals_df, bagplot(log_body, log_brain, xlab="로그 체중", ylab="로그 뇌무게"))
+
+animals_outlier <- as.data.frame(animals_bagplot$pxy.outlier) %>% 
+  `colnames<-`(c("log_body", "log_brain"))
+
+animals_outliers <- left_join(animals_outlier, animals_df)
+
+text(animals_outliers$log_body, animals_outliers$log_brain, labels=animals_outliers$name, pos=1)
+
+animals_outliers %>% 
+  dplyr::select(animal, everything()) %>% 
+  DT::datatable()
+```
+
+### 다변량 이상점 탐지 {#mahalanobis-distance-animals-multivariate}
+
+데이터가 $d-$차원 정규분포를 따른다고 가정하면 마할라노비스 거리는 자유도 $d$를 갖는 $\chi^2$ 분포를 다른다. 마할라노비스 거리를 바탕으로 변수 다수를 사용해서 이상점을 추출할 경우 $\chi^2$ 분포와 비교하여 
+$\alpha = 0.001$을 기준으로 임계값은 다음과 같다. 즉, 아래 임계값을 넘는 것은 이상점으로 간주한다.
+
+| 자유도  | 임계값  |
+|---------|---------|
+|     2   | 13.82  |
+|     3   | 16.27  |
+|     4   | 18.47  |
+|     5   | 20.52  |
+|     6   | 22.46  |
+|     7   | 24.32  |
+|     8   | 26.13  |
+|     9   | 27.88  |
+|     10  | 29.59  |
+
+
+
+``` {r mahalanobis-animal-data-viz-multivariate}
+## 이상점 임계값 도출
+animals_md_df <- animals_df %>% 
+  dplyr::select(log_body, log_brain) 
+
+animal_mean <- colMeans(animals_md_df)
+animal_cov <- cov(animals_md_df)
+animal_rad <- sqrt(qchisq(0.975, df = ncol(animals_md_df)))
+
+m_dist <- mahalanobis(animals_md_df, animal_mean, animal_cov)
+
+## 이상점 임계값 시각화
+library(car)
+animal_ellipse_df <- data.frame(ellipse(center = animal_mean,
+        shape = animal_cov,
+        radius = animal_rad, segments = 100, draw = FALSE)) %>% 
+  `colnames<-`(c("log_body", "log_brain"))
+
+
+animals_df %>% 
+  ggplot(aes(x=log_body, y=log_brain)) +
+    geom_point() +
+    labs(x = "로그 체중",
+       y = "로그 뇌무게",
+       title = "동물 체중과 뇌무게 관계",
+       subtitle = "로그변환 척도",
+       caption = "Source: MASS, Animals 데이터셋") +
+    theme_minimal(base_family = "NanumGothic") +
+    scale_x_continuous(labels = scales::comma) +
+    scale_y_continuous(labels = scales::comma) +
+    geom_text(aes(label=animal), check_overlap = TRUE, vjust=1, hjust=1) +
+    geom_polygon(data=animal_ellipse_df, color = "blue", fill = "blue", alpha = 0.2) +
+    geom_point(aes(x = animal_mean[1], y = animal_mean[2]), color = "blue", size = 6)
+```
+
+### 강건 다변량 이상점 탐지 {#mahalanobis-distance-animals-multivariate-robust}
+
+Rousseeuw가 제안한 "MCD(Minimum Covariance Determinant)"는 가장 일반적인 강건한 다변량 추정량으로 받아들여진다.
+`animals_mcd$center`, `animals_mcd$cov`을 상기 코드에 꽂아 넣으면 강건한 다변량 이상점 탐지 기법이 완성된다.
+
+
+``` {r mahalanobis-animal-data-viz-multivariate-robust}
+# animal_mvoutlier <- mvoutlier::chisq.plot(animals_md_df)
+animals_mcd <- robustbase::covMcd(animals_md_df)
+
+animals_mcd$center
+
+animals_mcd$cov
+
+## 이상점 임계값 시각화
+library(car)
+animal_ellipse_mcd_df <- data.frame(ellipse(center = animals_mcd$center,
+        shape = animals_mcd$cov,
+        radius = animal_rad, segments = 100, draw = FALSE)) %>% 
+  `colnames<-`(c("log_body", "log_brain"))
+
+animals_df %>% 
+  ggplot(aes(x=log_body, y=log_brain)) +
+    geom_point() +
+    labs(x = "로그 체중",
+       y = "로그 뇌무게",
+       title = "동물 체중과 뇌무게 관계",
+       subtitle = "로그변환 척도",
+       caption = "Source: MASS, Animals 데이터셋") +
+    theme_minimal(base_family = "NanumGothic") +
+    scale_x_continuous(labels = scales::comma) +
+    scale_y_continuous(labels = scales::comma) +
+    geom_text(aes(label=animal), check_overlap = TRUE, vjust=1, hjust=1) +
+    geom_polygon(data=animal_ellipse_df, color = "blue", fill = "blue", alpha = 0.2) +
+    geom_point(aes(x = animals_mcd$center[1], y = animals_mcd$center[2]), color = "blue", size = 6) +
+    geom_polygon(data=animal_ellipse_mcd_df, color = "red", fill = "red", alpha = 0.2) 
+
+```
 
