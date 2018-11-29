@@ -14,10 +14,7 @@ editor_options:
 ---
  
 
-``` {r, include=FALSE}
-source("tools/chunk-options.R")
-knitr::opts_chunk$set(echo=TRUE, message=FALSE, warning=FALSE)
-```
+
 
 # 생존분석 개요 {#survival-overview}
 
@@ -111,7 +108,8 @@ $T$ 는 사망에 이르는 시점을 나타내는 확률변수로 정의되며,
 
 데이터를 가져와서 필요한 데이터 정제작업을 수행한다.
 
-``` {r datacamp-survial}
+
+~~~{.r}
 # 0. 환경설정 -----
 library(tidyverse)
 library(survival)
@@ -132,7 +130,9 @@ ovarian <- ovarian %>%
   mutate(age_group = ifelse(age >=50, "old", "young") %>% as.factor)
 
 DT::datatable(ovarian)
-```
+~~~
+
+preserve0aa644d5b55654e5
 
 
 ## 단변량 분석 - Kaplan-Meier 추정 {#survival-analysis-example-univariate}
@@ -146,59 +146,6 @@ DT::datatable(ovarian)
 
 [Kaplan-Meier Survival Estimates](https://www.statsdirect.com/help/survival_analysis/kaplan_meier.htm)에 나온 데이터를 바탕으로 캐플란-마이어 추정작업을 수행한다.
 
-<div class = "row">
-  <div class = "col-md-6">
-**수식 계산**
-
-$$\hat{S}(t) = \prod\limits_{i; t_i < t} \frac{n_i - d_i}{n_i}$$
-
-$$\hat{S}(143) =  \frac{19 - 1}{19} = 	0.947368$$
-$$\hat{S}(165) =  0.947368 \times \frac{18 - 1}{18} = 0.894737$$
-
-$$\hat{S}(188) =  0.894737 \times \frac{17 - 2}{17} = 0.7894738$$
-$$\cdots$$
-$$\hat{S}(265) =  	0.157895 \times \frac{2 - 1}{2} = 0.078947$$
-
-$$\hat{S}(303) =  	0.078947 \times \frac{1 - 1}{1} = 0$$
-
-  </div>
-  <div class = "col-md-6">
-**시각화 및 계산**
-
-```{r km-survival}
-test_df <- tribble(~time, ~censor, 
-143, 	1, 
-165, 	1, 
-188, 	1, 
-188, 	1, 
-190, 	1, 
-192, 	1, 
-206, 	1, 
-208, 	1, 
-212, 	1, 
-216, 	0, 
-216, 	1, 
-220, 	1, 
-227, 	1, 
-230, 	1, 
-235, 	1, 
-244, 	0, 
-246, 	1, 
-265, 	1, 
-303, 	1)
-
-calc_km <- survfit(Surv(time=time, event=censor) ~ 1, data = test_df)
-
-ggsurvplot(calc_km, conf.int = FALSE,
-           risk.table = "nrisk_cumevents",
-           tables.height = 0.3,
-           legend = "none")
-
-
-```
-
-  </div>
-</div>
 
 ## 단변량 분석 {#survival-analysis-example-univariate-real-data}
 
@@ -206,7 +153,8 @@ ggsurvplot(calc_km, conf.int = FALSE,
 그후 `rx`, `resid.ds`... 변수를 생존시간에 대한 차이를 분석하는데 동원하다.
 `ggsurvplot()` 시각화 함수에 `surv.median.line = "hv"` 인자를 넣어 50% 생존율을 갖는 경우 생존시간을 구하거나, 반대 얼마동안 생존해야 50% 생존율을 갖는지 시각화를 통해 쉽게 파악할 수 있고, 아울러 아래 `risk.table` 및 관련 인자를 넣어 누적 이벤트 혹은 누적 중도절단 건수도 파악할 수 있다.
 
-``` {r datacamp-survial-univariate}
+
+~~~{.r}
 # 3. 예측모형 -----
 ## 3.0. 생존모형 객체 -----
 surv_object <- Surv(time = ovarian$futime, event = ovarian$fustat)
@@ -225,7 +173,9 @@ ggsurvplot(ovarian_km,
            tables.height = 0.2,
            surv.median.line = "hv",
            legend = "none")
-```
+~~~
+
+<img src="fig/datacamp-survial-univariate-1.png" width="672" style="display: block; margin: auto;" />
 
 
 집단간의 차이를 검정하는 `survfit()` 함수를 통해 log rank 검정을 수행한다.
@@ -233,7 +183,8 @@ ggsurvplot(ovarian_km,
 통계검정 p-값도 산출해 준다.
 
 
-``` {r datacamp-survial-univariate-km}
+
+~~~{.r}
 # 3. 예측모형 -----
 
 ## 3.2. 생존모형: 단변량 -----
@@ -241,16 +192,80 @@ ggsurvplot(ovarian_km,
 km_rx_survfit <- survfit(surv_object ~ rx, data = ovarian)
 
 summary(km_rx_survfit)
+~~~
 
+
+
+~~~{.output}
+Call: survfit(formula = surv_object ~ rx, data = ovarian)
+
+                rx=A 
+ time n.risk n.event survival std.err lower 95% CI upper 95% CI
+   59     13       1    0.923  0.0739        0.789        1.000
+  115     12       1    0.846  0.1001        0.671        1.000
+  156     11       1    0.769  0.1169        0.571        1.000
+  268     10       1    0.692  0.1280        0.482        0.995
+  329      9       1    0.615  0.1349        0.400        0.946
+  431      8       1    0.538  0.1383        0.326        0.891
+  638      5       1    0.431  0.1467        0.221        0.840
+
+                rx=B 
+ time n.risk n.event survival std.err lower 95% CI upper 95% CI
+  353     13       1    0.923  0.0739        0.789        1.000
+  365     12       1    0.846  0.1001        0.671        1.000
+  464      9       1    0.752  0.1256        0.542        1.000
+  475      8       1    0.658  0.1407        0.433        1.000
+  563      7       1    0.564  0.1488        0.336        0.946
+
+~~~
+
+
+
+~~~{.r}
 ggsurvplot(km_rx_survfit, data = ovarian, pval = TRUE)
+~~~
 
+<img src="fig/datacamp-survial-univariate-km-1.png" width="672" style="display: block; margin: auto;" />
+
+~~~{.r}
 ### log rank 검정(resid.ds)
 km_resid_survfit <- survfit(surv_object ~ resid.ds, data = ovarian)
 
 summary(km_resid_survfit)
+~~~
 
+
+
+~~~{.output}
+Call: survfit(formula = surv_object ~ resid.ds, data = ovarian)
+
+                resid.ds=no 
+ time n.risk n.event survival std.err lower 95% CI upper 95% CI
+  353     11       1    0.909  0.0867        0.754            1
+  563      8       1    0.795  0.1306        0.577            1
+  638      7       1    0.682  0.1536        0.438            1
+
+                resid.ds=yes 
+ time n.risk n.event survival std.err lower 95% CI upper 95% CI
+   59     15       1    0.933  0.0644        0.815        1.000
+  115     14       1    0.867  0.0878        0.711        1.000
+  156     13       1    0.800  0.1033        0.621        1.000
+  268     12       1    0.733  0.1142        0.540        0.995
+  329     11       1    0.667  0.1217        0.466        0.953
+  365     10       1    0.600  0.1265        0.397        0.907
+  431      8       1    0.525  0.1310        0.322        0.856
+  464      7       1    0.450  0.1321        0.253        0.800
+  475      6       1    0.375  0.1296        0.190        0.738
+
+~~~
+
+
+
+~~~{.r}
 ggsurvplot(km_resid_survfit, data = ovarian, pval = TRUE)
-```
+~~~
+
+<img src="fig/datacamp-survial-univariate-km-2.png" width="672" style="display: block; margin: auto;" />
 
 
 ## 단변량 생존모형 - 와이블  {#survival-analysis-weibull-model}
@@ -260,20 +275,42 @@ Kaplan-Meier 모형을 시각화하면 계단모양으로 나타나는데 이를
 
 와이블 분포를 가정하고 생존확률 모형을 구축할 경우 `predict` 함수로 중위수 50% 생존확률과 90% 사람이 생존할 확률, 즉 10% 사망확률을 다음과 같이 계산한다.
 
-``` {r datacamp-survial-univariate-weibull}
+
+~~~{.r}
 weibull_survfit <- survreg(Surv(time=futime, event=fustat) ~ 1, data = ovarian, dist="weibull")
 
 predict(weibull_survfit, type="quantile", p=1-0.5, newdata = data.frame(1))
-predict(weibull_survfit, type="quantile", p=1-0.9, newdata = data.frame(1))
+~~~
 
-```
+
+
+~~~{.output}
+       1 
+880.3047 
+
+~~~
+
+
+
+~~~{.r}
+predict(weibull_survfit, type="quantile", p=1-0.9, newdata = data.frame(1))
+~~~
+
+
+
+~~~{.output}
+      1 
+160.795 
+
+~~~
 
 ### 단변량 생존모형 시각화 - 와이블  {#survival-analysis-weibull-model-viz}
 
 생존확률을 시각화할 경우 별도 데이터프레임을 제작해야 한다.
 생존확률 숫자순열을 생성하고 나서 이를 `weibull_survfit` 모형 예측값으로 넣어 예상 생존시간을 산출해낸다. 그리고 나서 이를 데이터 프레임으로 만들고 `ggsurvplot_df`에 넣어 시각화한다.
 
-``` {r datacamp-survial-univariate-weibull-viz}
+
+~~~{.r}
 surv_prob <- seq(.99, .01, by = -.01)
 
 surv_time <- predict(weibull_survfit, type = "quantile", p = 1 - surv_prob, newdata = data.frame(1))
@@ -285,7 +322,9 @@ surv_weibull_df <- tibble(time = surv_time,
                           std.err = NA) %>% as.data.frame()
 
 ggsurvplot_df(fit = surv_weibull_df, surv.geom = geom_line)
-```
+~~~
+
+<img src="fig/datacamp-survial-univariate-weibull-viz-1.png" width="672" style="display: block; margin: auto;" />
 
 ## 다변량 분석 {#survival-analysis-example-multivariate}
 
@@ -298,7 +337,8 @@ ggsurvplot_df(fit = surv_weibull_df, surv.geom = geom_line)
 시각적으로 확인한다.
 
 
-``` {r datacamp-survial-multivariate}
+
+~~~{.r}
 ## 3.3. 생존모형: 다변량 -----
 ### 변수선택
 coxph_full <- coxph(surv_object ~ rx + resid.ds + age_group + ecog.ps, 
@@ -311,13 +351,30 @@ coxph_survfit <- coxph(surv_object ~ rx + resid.ds + age_group, data = ovarian)
 
 ### 가설검정
 cox.zph(coxph_survfit)
+~~~
 
+
+
+~~~{.output}
+                  rho chisq     p
+rxB             0.269 0.744 0.388
+resid.dsyes    -0.415 1.550 0.213
+age_groupyoung -0.226 0.660 0.417
+GLOBAL             NA 3.150 0.369
+
+~~~
+
+
+
+~~~{.r}
 par(mfrow=c(2,2))
 plot(cox.zph(coxph_survfit))
 
 ### 모형 시각화
 ggforest(coxph_survfit, data = ovarian)
-```
+~~~
+
+<img src="fig/datacamp-survial-multivariate-1.png" width="672" style="display: block; margin: auto;" />
 
 # 재구매 사례분석 [^survival-sthda] {#survival-analysis-bought-again}
 
@@ -327,7 +384,8 @@ ggforest(coxph_survfit, data = ovarian)
 
 재구매 여부와 첫번째 구매 이후 경과 시간을 담은 데이터를 가져온다.
 
-``` {r repurchase-data-import}
+
+~~~{.r}
 # 1. 탐색적 데이터 분석 -----
 
 order_df  <- read_csv("data/next_order_clean.csv") %>%
@@ -335,13 +393,14 @@ order_df  <- read_csv("data/next_order_clean.csv") %>%
 
 # 2. 탐색적 데이터 분석 -----
 # 생략
-```
+~~~
 
 ## 재구매 확률 시각화 {#survival-analysis-bought-again-viz}
 
 재구매 하지 않을 확률 전체를 시각화한다.
 
-``` {r repurchase-data-viz}
+
+~~~{.r}
 # 3. 생존분석 모형 -----
 ## 3.0. 생존객체 생성 
 order_surv <- Surv(order_df$days, order_df$buy_again)
@@ -353,17 +412,33 @@ km_fit <- survfit(order_surv ~ 1, data = order_df)
 ggsurvplot(km_fit, data = order_df, risk.table = TRUE,
            theme=theme_minimal(base_family="NanumGothic")) +
     labs(x="첫구매시점 이후 경과일", y="재구매하지 않은 확률")
-```
+~~~
+
+<img src="fig/repurchase-data-viz-1.png" width="672" style="display: block; margin: auto;" />
 
 ## 단변량 분석 {#survival-analysis-bought-again-univariate}
 
 변수가 많지는 않지만, 반품여부, 쿠폰 활용여부, 성별, 첫번째 구매시 구매총합을 대상으로 각각의
 Kaplan-Meier 생존분석을 돌려 유의성 검증을 수행한다.
 
-``` {r repurchase-data-univariate}
+
+~~~{.r}
 ### 3.1.2. 유의적인 단변량 변수 -----
 #### 변수명 선정
 order_varname_v <- order_df %>% names %>% dput
+~~~
+
+
+
+~~~{.output}
+c("days", "cart_value", "gender", "voucher", "returned", "buy_again"
+)
+
+~~~
+
+
+
+~~~{.r}
 order_covariates_v <- setdiff(order_varname_v, c("days", "buy_again"))
 
 #### 단변량변수 생존분석 모형 적합
@@ -397,14 +472,17 @@ univ_res_df %>%
     bind_cols(var_name = order_covariates_v) %>% 
     select(var_name, everything()) %>% 
     DT::datatable()
-```
+~~~
+
+preserve1244b13084bc1de4
 
 ## 단변량 분석 시각화 {#survival-analysis-bought-again-univariate-viz}
 
 앞서 분석한 단변량 분석을 통해 유의적으로 판정된 변수를 대상으로 시각화작업을 수행한다.
 
 
-``` {r repurchase-data-univariate-viz}
+
+~~~{.r}
 ### 3.1.2. 단변량 변수: 바우처 -----
 km_voucher_fit <- survfit(order_surv ~ voucher, data = order_df)
 
@@ -412,7 +490,11 @@ ggsurvplot(km_voucher_fit, data = order_df, pval=TRUE, risk.table = TRUE,
            ggtheme=theme_minimal(base_family="NanumGothic")) +
     labs(x="첫구매시점 이후 경과일", y="재구매하지 않을 확률", 
          title="바우처 효과", color = "바우처 지급여부")
+~~~
 
+<img src="fig/repurchase-data-univariate-viz-1.png" width="672" style="display: block; margin: auto;" />
+
+~~~{.r}
 ### 3.1.3. 단변량 변수: 반품 -----
 km_return_fit <- survfit(order_surv ~ returned, data = order_df)
 
@@ -420,7 +502,11 @@ ggsurvplot(km_return_fit, data = order_df, pval=TRUE, risk.table = TRUE,
            ggtheme = theme_minimal(base_family="NanumGothic")) +
     labs(x="첫구매시점 이후 경과일", y="재구매하지 않을 확률", 
          subtitle="반품 효과", color="반품여부")
+~~~
 
+<img src="fig/repurchase-data-univariate-viz-2.png" width="672" style="display: block; margin: auto;" />
+
+~~~{.r}
 ### 3.1.4. 단변량 변수: 성별 -----
 km_gender_fit <- survfit(order_surv ~ gender, data = order_df)
 
@@ -428,7 +514,9 @@ ggsurvplot(km_gender_fit, data = order_df, pval=TRUE, risk.table = TRUE,
            ggtheme = theme_minimal(base_family="NanumGothic")) +
     labs(x="첫구매시점 이후 경과일", y="재구매하지 않을 확률", 
          subtitle="성별(Gender) 효과", color="성별")
-```
+~~~
+
+<img src="fig/repurchase-data-univariate-viz-3.png" width="672" style="display: block; margin: auto;" />
 
 
 ## 다변량 분석 시각화 {#survival-analysis-bought-again-multivariate}
@@ -438,29 +526,71 @@ ggsurvplot(km_gender_fit, data = order_df, pval=TRUE, risk.table = TRUE,
 `ggforest()` 함수로 각 변수가 재구매에 미치는 영향도를 살펴본다.
 
 
-``` {r repurchase-data-multivariate}
+
+~~~{.r}
 ## 3.2. 다변량 분석 -----
 ### 3.2.1. 변수선택
 order_cph_full <- coxph(order_surv ~ cart_value  + voucher + returned + gender, data = order_df)
 
 (coxph_step <- step(order_cph_full, direction = "both", trace = 0))
+~~~
 
+
+
+~~~{.output}
+Call:
+coxph(formula = order_surv ~ cart_value + voucher + returned + 
+    gender, data = order_df)
+
+                 coef exp(coef)  se(coef)     z       p
+cart_value  -0.002164  0.997839  0.000284 -7.62 2.6e-14
+voucheryes  -0.294615  0.744819  0.047969 -6.14 8.2e-10
+returnedyes -0.314829  0.729914  0.049470 -6.36 2.0e-10
+gendermale   0.108264  1.114341  0.036323  2.98  0.0029
+
+Likelihood ratio test=155.7  on 4 df, p=<2e-16
+n= 5122, number of events= 3199 
+
+~~~
+
+
+
+~~~{.r}
 ### 3.2.2. 최종모형
 order_cph_fit <- coxph(order_surv ~ cart_value  + voucher + returned + gender, data = order_df)
 
 ### 3.2.3. 모형 가설 검정
 cox.zph(order_cph_fit)
+~~~
 
+
+
+~~~{.output}
+                rho chisq      p
+cart_value  -0.0163 0.852 0.3560
+voucheryes  -0.0154 0.768 0.3808
+returnedyes  0.0261 2.179 0.1399
+gendermale   0.0390 4.913 0.0267
+GLOBAL           NA 8.478 0.0756
+
+~~~
+
+
+
+~~~{.r}
 ### 3.2.4. 모형 이해와 설명
 ggforest(order_cph_fit, data = order_df)
-```
+~~~
+
+<img src="fig/repurchase-data-multivariate-1.png" width="672" style="display: block; margin: auto;" />
 
 ## 다변량 분석 시각화 {#survival-analysis-bought-again-multivariate-segment}
 
 신규 고객 세그먼트를 지정하고 나서 첫구매이후 경과일로 재구매확률 변화를 앞서 구축한 예측모형을 바탕으로 
 예측한다. 5개 고객집단의 특성을 `segment_df` 데이터프레임에 정의했고 이를 `survfit()`으로 예측했다.
 
-``` {r repurchase-data-multivariate-predict}
+
+~~~{.r}
 # 4. 재구매 예측 -----
 ## 신규 고객 정의 데이터
 segment_df <- tribble(
@@ -488,14 +618,19 @@ segment_pred %>% broom::tidy() %>%
         labs(x="첫구매시점 이후 경과일", y="재구매하지 않을 확률", 
              subtitle="경과일에 따른 고객 세그먼트별 재구매 확률 변화", color="고객 Segment") +
         scale_color_viridis_d()
-    
+~~~
 
+<img src="fig/repurchase-data-multivariate-predict-1.png" width="672" style="display: block; margin: auto;" />
+
+~~~{.r}
 segment_pred %>% broom::tidy() %>% 
     select(time, contains("estimate")) %>% 
     rename_at(vars(contains("estimate")), funs(str_replace_all(., "estimate", "segment"))) %>% 
     DT::datatable() %>% 
       DT::formatPercentage(c(2:6), digits=1)
-```    
+~~~
+
+preservebd98961387c36887
 
 
 
