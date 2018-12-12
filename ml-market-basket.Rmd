@@ -23,6 +23,11 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE,
                       comment="", digits = 3, tidy = FALSE, prompt = FALSE, fig.align = 'center')
 
+
+library(arules)
+library(arulesViz)
+library(wordcloud)
+library(tidyverse)
 ```
 
 
@@ -31,6 +36,8 @@ knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE,
 
 카트에 담는 장바구니(Market Basket) 데이터를 이해하고, 기초적인 장바구니 데이터 분석방법을 학습한다. 아래 동영상을 참조한다.
 
+**연관규칙(association rule)**이란 특정 항목 집합이 발생하였을 때 또 다른 항목 집합이 발생하는 규칙을 의미하고, 
+**연관규칙분석(association rule analysis)**은 원본 데이터에서 대상들의 연관된 규칙을 찾는 방향이 없는 데이터 과학 기법으로 기존 데이터 마이닝(data mining) 용어가 일반적으로 사용되었을 때 많이 자주 활용된 기법이다. 마케팅에서 장바구니(cart)에 들어있는 품목 간의 관계를 탐색하기 위해 많이 사용된 기법으로 장바구니 분석(Market basket analysis)를 통해 팩키지 상품 발굴, 효과적인 매장진열, 교차판매(cross-selling) 전략 수립등에 활용될 수 있다.
 
 <style>
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 10px;}
@@ -46,39 +53,21 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 10px;}
 </div>
 
 
-
 # 장바구니 데이터 [^arules] {#market-basket-data}
 
 [^arules]: [Market Basket Analysis with R](http://www.salemmarafi.com/code/market-basket-analysis-with-r/)
 
+장바구니 분석을 위해서 데이터는 크게 두가지 형태 크게 나뉜다. 데이터 형태(wide 형태, long 형태)에 관계없이 장바구니에 담긴 데이터를 행렬로 나타내면 성긴(sparse) 행렬이 되기 때문에 이를 효율적으로 압축한 형태인 `transactions` 자료형으로 바꿔야 된다.
+
 장바구니 분석용 데이터로 가장 유명한 것 중 하나가 [`Groceries`](http://www.salemmarafi.com/wp-content/uploads/2014/03/groceries.csv) 데이터다. [^Michael-Hahsler-Kurt-Hornik]
+
+[`Groceries`](http://www.salemmarafi.com/wp-content/uploads/2014/03/groceries.csv) 데이터를 열어보면 이는 `wide`형태를 취한 것으로 알 수 있다. 이와 반대로 `long` 형태 데이터도 있는데 이를 각각 `transactions` 자료형으로 바꿔 후속 분석작업을 수행해 나간다.
 
 [^Michael-Hahsler-Kurt-Hornik]: Michael Hahsler, Kurt Hornik, and Thomas Reutterer (2006) Implications of probabilistic data modeling for mining association rules. In M. Spiliopoulou, R. Kruse, C. Borgelt, A. Nuernberger, and W. Gaul, editors, From Data and Information Analysis to Knowledge Engineering, Studies in Classification, Data Analysis, and Knowledge Organization, pages 598–605. Springer-Verlag.
 
+<img src="fig/market-basket-analysis-dataset.png" alt="카트 데이터 자료형" width="100%" />
 
-## 장바구니 데이터 분석 환경설정 {#market-basket-data-configure}
-
-가장 먼저 장바구니 데이터 분석을 위한 환경을 설정한다. 연관규칙 추출을 위한 `arules`, 추출된 연관규칙 시각화를 위한 `arulesViz` 팩키지가 기본적으로 필요하다. 여기에 `wordcloud` 팩키지를 사용해서
-사용된 장바구니에 가장 많이 든 물품이 무엇인지 텍스트 마이닝에 많이 사용되는 시각화도구도 활용한다.
-
-
-
-``` {r ml-market-basket-packages}
-##======================================================================================
-## 00. 장바구니 분석 환경 설정
-##======================================================================================
-# arules, arulesViz, wordcloud 팩키지 설치
-# install.packages("arules")
-# install.packages("arulesViz")
-# install.packages("wordcloud")
-
-library(arules)
-library(arulesViz)
-library(wordcloud)
-library(tidyverse)
-```
-
-## 데이터프레임 &rarr; 장바구니 데이터 [^market-basket-dataframe] {#dataframe-to-market-basket-data}
+## 데이터프레임 &rarr; 장바구니 데이터 - `wide` [^market-basket-dataframe] {#dataframe-to-market-basket-data}
 
 [^market-basket-dataframe]: [Working with arules transactions and read.transactions](http://www.learnbymarketing.com/1043/working-with-arules-transactions-and-read-transactions/)
 
@@ -86,24 +75,71 @@ library(tidyverse)
 장바구니 데이터는 고객별로 혹은 고객이 중복구매를 하지 않는다면 날짜별로 구매한 생필품이 장바구니(카트)에 담기 텍스트 형태로 원자료가 구성된다.
 
 ``` {r ml-groceries-dataset-df}
-
 cart_txt  <- read_lines("data/groceries.csv")
 
 cart_txt %>% 
     tbl_df() %>%
-    rename(groceries_in_cart=value) %>% 
+    rename(items=value) %>% 
     sample_n(10) %>% 
     DT::datatable()
 ```
+
+
+장바구니 데이터는 마트에서 카드에 담긴 물품을 생각하면 쉽다. 각 고객마다 마트에서 장바구니 카드를 밀게 되거나,
+인터넷에서 주문을 할 때 가상의 장바구니에 담게 된다. 담겨진 물건은 물품마다 고유 제품번호가 부여되어 있고, 해당 제품에 대한 라벨이 함께 붙어 있다. 고유 제품번호는 컴퓨터 전산처리를 위해 부여된 것이고, 해당 제품에 대한 라벨은 사람이 제품을 이해하기 위해 부여된 것이다.
+
+<img src="fig/ml-cart-metaphor.png" alt="카트 장바구니 데이터 코드화" width="57%" />
+
+``` {r ml-groceries-dataset-df-wide}
+cart_df <- cart_txt %>% tbl_df %>% 
+    rename(items=value) %>% 
+    mutate(transaction_id = paste0("trans_", row_number())) %>% 
+    select(transaction_id, items)
+
+cart_df %>% 
+    sample_n(100) %>% 
+    DT::datatable()
+```
+
+`arules` 팩키지에 소속된 `read.transactions` 함수를 사용해서 장바구니 데이터를 연관분석을 위한 자료형으로 불러 읽어온다.
+즉, 데이터가 이미 `basket`에 담긴 형태로 된 경우 구분자를 지정하여 바로 불러 읽어온다.
+
+``` {r ml-groceries-dataset}
+##======================================================================================
+## 01. 장바구니 분석 데이터 가져오기
+##======================================================================================
+
+cart  <- read.transactions("data/groceries.csv", format = "basket", sep=",")
+head(cart)
+
+library(datasets)
+data(Groceries)
+
+# 데이터가 동일한지 확인
+
+# G <- inspect(Groceries)
+# C <- inspect(cart)
+# identical(G, C)
+```
+
+`library(datasets)` 팩키지에 `Groceries` 데이터가 기본으로 포함되어 있어, 이를 바로 활용해도 좋다.
+
+## 데이터프레임 &rarr; 장바구니 데이터 - `long` {#dataframe-to-market-basket-data-long}
 
 혹은 데이터가 이와는 달리 다음과 같은 형태로 긴(long) 텍스트 데이터 형태로 구성되는 경우도 있다. [How to prep transaction data into basket for arules](https://stackoverflow.com/questions/32997410/how-to-prep-transaction-data-into-basket-for-arules)에 나와있는 데이터가 좋은 형태가 된다.
 
 <img src="fig/arules-data-source.png" alt="arules 데이터 변환" width="100%" />
 
-거래ID(transaction ID)는 "order", 아이템명은 "part_desc"로 지정한다. 이를 `image()` 함수로 시각화하고 이를 다시 `inspect()` 함수로 제대로 되었는지 확인한다.
-두가지 작업 흐름이 있지만 데이터프레임을 `.csv` 파일로 떨어뜨리고 이를 `read.transactions()` 함수로 불러오는 경우를 살펴본다.
+데이터가 아래와 같이 긴(long)형태로 되어 있는 경우, 
 
-``` {r ml-groceries-dataset-df-long}
+거래ID(transaction ID)는 "order", 아이템명은 "part_desc"로 지정한다. 이를 `image()` 함수로 시각화하고 이를 다시 `inspect()` 함수로 제대로 되었는지 확인한다.
+두가지 작업 흐름이 있지만 데이터프레임을 `.csv` 파일로 떨어뜨리고 이를 `read.transactions()` 함수로 불러오는 경우를 살펴본다. 하지만, 한글로 된 경우 가능하면 `split()` 함수를 사용하는 것이 직접 한글문자가 들어있는 `.csv` 파일을 불러 읽어들이는 것보다 문자가 깨지는 문제를 겪게되지 않을 가능성이 크다.
+
+### `csv` 파일로 떨어 뜨려 읽어오는 경우 {#dataframe-to-market-basket-data-long-csv}
+
+데이터프레임으로 거래 장바구니 데이터를 불러온 후에 `read.transactions()` 함수를 사용해서 즉접 `transactions` 객체로 전환시켜서 후속 연관분석용 데이터를 준비한다.
+
+``` {r ml-groceries-dataset-df-long-direct}
 order_df <- tribble(
     ~"order", ~"part", ~"part_desc",
     1, "A", "PartA", 
@@ -132,36 +168,43 @@ image(order_tr)
 inspect(order_tr)
 ```
 
+### `split()` 함수로 읽어오는 경우 {#dataframe-to-market-basket-data-long-split}
 
-## 장바구니 데이터 불러오기 {#market-basket-data-import}
+한글이 들어있는 경우 깨지는 경우가 있기 때문에 이를 방비하기 위해서 `split()`함수로 장바구니로 나누고 이를 `as()` 함수로 `transactions` 객체로 변환시킨다.
+`read.transactions()` 함수 대신에 `split()`을 사용하는 이유는 윈도우에서 한글이 깨져 후속 연관분석에서 원하는 결과를 얻지 못하기 때문이다. 이것이 유일한 이유다. 
 
-장바구니 데이터는 마트에서 카드에 담긴 물품을 생각하면 쉽다. 각 고객마다 마트에서 장바구니 카드를 밀게 되거나,
-인터넷에서 주문을 할 때 가상의 장바구니에 담게 된다. 담겨진 물건은 물품마다 고유 제품번호가 부여되어 있고, 해당 제품에 대한 
-라벨이 함께 붙어 있다. 고유 제품번호는 컴퓨터 전산처리를 위해 부여된 것이고, 해당 제품에 대한 라벨은 사람이 제품을 이해하기 위해 부여된 것이다.
+``` {r ml-groceries-dataset-df-long-split}
 
-<img src="fig/ml-cart-metaphor.png" alt="카트 장바구니 데이터 코드화" width="57%" />
+order_split <- split(order_df$part_desc, order_df$order)
 
-`arules` 팩키지에 소속된 `read.transactions` 함수를 사용해서 장바구니 데이터를 연관분석을 위한 자료형으로 불러 읽어온다.
+order_split_tr <- as(order_split, "transactions")
 
-``` {r ml-groceries-dataset}
-##======================================================================================
-## 01. 장바구니 분석 데이터 가져오기
-##======================================================================================
+image(order_split_tr)
 
-cart  <- read.transactions("data/groceries.csv", format = "basket", sep=",")
-head(cart)
-
-library(datasets)
-data(Groceries)
-
-# 데이터가 동일한지 확인
-
-# G <- inspect(Groceries)
-# C <- inspect(cart)
-# identical(G, C)
+inspect(order_split_tr)
 ```
 
-`library(datasets)` 팩키지에 `Groceries` 데이터가 기본으로 포함되어 있어, 이를 바로 활용해도 좋다.
+## 장바구니 데이터 분석 환경설정 {#market-basket-data-configure}
+
+가장 먼저 장바구니 데이터 분석을 위한 환경을 설정한다. 연관규칙 추출을 위한 `arules`, 추출된 연관규칙 시각화를 위한 `arulesViz` 팩키지가 기본적으로 필요하다. 여기에 `wordcloud` 팩키지를 사용해서
+사용된 장바구니에 가장 많이 든 물품이 무엇인지 텍스트 마이닝에 많이 사용되는 시각화도구도 활용한다.
+
+
+``` {r ml-market-basket-packages}
+##======================================================================================
+## 00. 장바구니 분석 환경 설정
+##======================================================================================
+# arules, arulesViz, wordcloud 팩키지 설치
+# install.packages("arules")
+# install.packages("arulesViz")
+# install.packages("wordcloud")
+
+library(arules)
+library(arulesViz)
+library(wordcloud)
+library(tidyverse)
+```
+
 
 <style>
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 10px;}
@@ -176,7 +219,7 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 10px;}
 * 제품추천: A,B,C 제품을 구매한 다음에 다음에 구매 가능성이 높은 제품 추천.  
 * 콘텐츠 최적화: 잡지 웹사이트, 블로그 콘텐츠 추천, 웹페이지 개인화  
 * 의료진단: 자세한 사항 논문 참조, [Implementation of Apriori Algorithm in Health Care Sector: A Survey](http://static.ijcsce.org/wp-content/uploads/2013/12/IJCSCE110513.pdf)  
-> * 교차마케팅, 우편-주문 캠페인 프로모션에 적용
+* 교차마케팅, 우편-주문 캠페인 프로모션에 적용
 
 </div>
 
@@ -185,18 +228,26 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 10px;}
 
 연관분석결과 산출물에 인용되는 주요 용어에 대해 이해하고 넘어가야 된다.
 
-* 지지도(Support) : 확률 $Support(A) = P(A)$, 하나이상의 빈발 제품 집합 식별에 활용됨
-* 신뢰도(Confidence) : 조건부 확률 $Confidence(A \rightarrow B) = \frac{P(A,B)}{P(A)}$, 제품 집합 간의 연관성 강도를 측정하는데 활용됨
-* 향상도(Lift) : $lift(A \rightarrow B) = \frac{P(A,B)}{P(A) \dot P(B)}$ 도출된 연관규칙의 효용성을 측정하는데 활용됨
-
+* 지지도(Support) : 확률 $Support(A) = P(A)$, 하나 이상의 빈발 제품 집합 식별에 활용됨, 물품 두개로 확장하게 되면 $S(X \rightarrow Y) = \frac{n(X \cap Y )}{N}$로 표현되며 전체 물품($N$) 중에서 $X, Y$가 모두 출현하는 횟수로 둘을 나누면 산출된다.
+* 신뢰도(Confidence) : 조건부 확률 $Confidence(A \rightarrow B) = \frac{P(A,B)}{P(A)}$, 제품 집합 간의 연관성 강도를 측정하는데 활용됨. 즉, $C(X \rightarrow Y) = \frac{n(X \cap Y )}{n(X)}$로 $X$가 포함된 거래중에서 $X, Y$가 모두 모함된 장바구니를 의미한다.
+* 향상도(Lift) : $lift(A \rightarrow B) = \frac{P(A,B)}{P(A) \dot P(B)}$ 도출된 연관규칙의 효용성을 측정하는데 활용됨. 향상도는 $lift = \frac{\text{신뢰도}}{\text{지지도}}$로 계산되고 1이면 서로 독립으로 관련이 없는 것으로 판정하고 1보다 크거나 작으면 관련이 있는 것으로 파악한다.
 
 생성 가능한 모든 규칙을 생성하고, 지지도, 신뢰도, 향상도를 판단기준으로 놓고 가장 최선의 규칙을 선택하면 되지만,
 현실적으로 제품개수가 증가하게 되면 컴퓨터 연산시간이 이를 감당하지 못한다. 대안으로 가장 빈발하는 제품집합만을 기준으로 삼아 연관규칙을 생성해 나간다.
 
-"Support of an item set never exceeds the support of its subsets, which is known as anti-monotoneproperty of support." 즉, 
-지지도 특성 중에 제품 집합 지지도는 절대로 하위집합 지지도를 넘어서지 못하는 특징이 있다. 이를 활용하여 빈발집합을 우선 고려하고, 지지도와 최소지지도를 
+"Support of an item set never exceeds the support of its subsets, which is known as anti-monotoneproperty of support." 즉, 지지도 특성 중에 제품 집합 지지도는 절대로 하위집합 지지도를 넘어서지 못하는 특징이 있다. 이를 활용하여 빈발집합을 우선 고려하고, 지지도와 최소지지도를 
 모수로 적당한 값 예를 들어, 기준 지지도 30%, 기준 신뢰도 70%로 설정하여 연관규칙 도출에 필요한 연산시간을 급격히 줄인다. 
-Apriori 알고리즘이 대표적인 연관규칙 도출 알고리즘이다.
+**지지도(support)**는 좋은 규칙(빈도가 많은, 구성비가 높은)을 찾거나, 불필요한 연산을 줄일 때(pruning, 가지치기)의 기준으로 사용하고, **신뢰도(confidence)**가 높을 수록 유용한 규칙일 가능성 높다고 본다. 통계전문가나 기계학습 전문가의 경우 신뢰도(confidence)와 향상도(lift)가 높은 연관규칙을 선호하는 경향이 있는 반면, 매출과 이익을 책임져야 하는 현업의 실무 담당자의 경우는 **지지도(Support)**가 높아서 전체 거래 건수 중에서 해당 연관규칙이 포함된 거래건수가 많아야 높은 매출 증가를 기대할 수 있기 때문에 지지도를 중요한 지표로 여긴다.
+
+Apriori 알고리즘이 대표적인 연관규칙 도출 알고리즘이고, `apriori()` 함수 기본디폴트 설정값은 다음과 같다.
+
+|  매개변수  | 기본디폴트 설정값  |      의미          |
+|------------|--------------------|--------------------|
+| `support`  |        0.1         | 연관규칙 최소 지지도   |
+| `confidence` | 0.8              | 연관규칙의 최소 신뢰도 |
+| `minlen`  |     1               | 연관 규칙에 포함되는 최소 물품 수 |
+| `maxlen`  |        10           | 연관규칙에 포함되는 최대 물품 수  |
+| `smax`    |   1                 | 연관규칙의 최대 지지도 |
 
 
 # 장바구니 기술통계 분석 {#association-rules-descriptive-stat}
