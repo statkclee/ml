@@ -298,7 +298,7 @@ inspect(rules[1:5])
 # 01. 정렬
 #--------------------------------------------------------------------------------------
 # 최대 길이 3인 집합으로 한정
-rules <- apriori(Groceries, parameter = list(supp = 0.001, conf = 0.8, maxlen=3))
+rules <- apriori(Groceries, parameter = list(supp = 0.001, conf = 0.8, minlen=2, maxlen=5))
 rules <- sort(rules, by="confidence", decreasing=TRUE)
 inspect(rules[1:10])
 ```
@@ -313,14 +313,10 @@ inspect(rules[1:10])
 #--------------------------------------------------------------------------------------
 # 02. 중복 집합 제거
 #--------------------------------------------------------------------------------------
-
-subset.matrix <- is.subset(rules, rules)
-subset.matrix[lower.tri(subset.matrix, diag=T)] <- NA
-redundant <- colSums(subset.matrix, na.rm=T) >= 1
-rules.pruned <- rules[!redundant]
-
-rules.pruned <- sort(rules.pruned, by="confidence", decreasing=TRUE)
-inspect(rules.pruned[1:10])
+# 중복규칙 제거 -----
+rules
+rules <- rules[!is.redundant(rules)]
+rules
 ```
 
 ## 목표 제품 집중 분석 {#association-rules-analysis}
@@ -359,33 +355,130 @@ inspect(rules_after [1:5])
 ## 단어구름 {#association-rules-wordcloud}
 
 연관규칙을 시각화하는데 네트워크 도표와 더불어 가장 빈발하는 제품을 `wordcloud`를 통해 
-살펴보는 것도 시각화의 한 좋은 사례다.
+살펴보는 것도 시각화의 한 좋은 사례다. `worldcloud()` 함수에 들어갈 자료형을 먼저 맞추고 나서 시각화한다. 단어와 단어 빈도수로 key-value 형태의 자료형이라 이를 `tibble()`에 넣어 시각화를 한다. 
+`letterCloud()`를 통해 시각화도 가능한데 현재 버그가 있어 구현이 되는 경우도 있고 구현이 되지 않는 경우도 있다. [^wordcloud2-bug]
+
+[^wordcloud2-bug]: [No plot in Rstudio, wordcloud2 #262](https://github.com/ramnathv/htmlwidgets/issues/262)
 
 
 ``` {r ml-groceries-rules-wordcloud}
 #--------------------------------------------------------------------------------------
 # 01. 단어 구름
 #--------------------------------------------------------------------------------------
-product_name <- itemLabels(cart)
-product_cnt <- itemFrequency(cart)*9835
-
+library(wordcloud)
+library(wordcloud2)
 col.pal <- brewer.pal(9, "Blues")
 
-wordcloud(words = product_name, freq = product_cnt, min.freq = 1, scale = c(3, 0.2), col = col.pal , random.order = FALSE)
+wordcloud_df <- tibble(
+  product_name = itemLabels(cart),
+  product_cnt  = itemFrequency(cart, type="absolute")
+)
+
+wordcloud(words = wordcloud_df$product_name, 
+          freq  = wordcloud_df$product_cnt, 
+          min.freq = 1, scale = c(3, 0.2), col = col.pal , random.order = FALSE)
+
+# letterCloud(words = wordcloud_df, word="W")
+
 ```
 
 ## 연관규칙 시각화 {#association-rules-viz-arules}
 
-연관규칙을 시각화하는데 `arulesViz` 팩키지를 활용한다.
+### 인터랙티브 연관규칙 산점도 {#association-rules-viz-arules-plotly}
 
-``` {r ml-groceries-rules-arulesViz}
+연관규칙을 시각화하는데 `arulesViz` 팩키지를 활용한다. 특히, `plotly_arules()` 함수를 사용하면 유용한 규칙을 뽑아내는 것을 시각적으로 수월하게 진행할 수도 있고, `DT` 팩키지를 함께 사용하면 시너지를 극대화할 수 있을 듯 싶다.
+
+``` {r ml-groceries-rules-arulesViz-plotly}
 #--------------------------------------------------------------------------------------
 # 02. 연관규칙 시각화
 #--------------------------------------------------------------------------------------
 library(arulesViz)
-plot(rules, method="graph", interactive=TRUE, shading=NA)
+# 연관분석 유용한 규칙 -----
+plotly_arules(rules,  measure = c("support", "confidence"), shading = "lift")
+```
 
-par(mfrow=c(1,2))
-plot(rules, method="grouped")
-plot(rules, method="paracoord", control=list(reorder=TRUE))
+### 인터랙티브 연관규칙 표 {#association-rules-viz-arules-DT}
+
+`plotly`를 사용하여 인터랙티브 그래픽으로 품질 좋은 연관규칙을 찾아내는 것도 가능하지만 `DT` 팩키지의 인터랙티브 표기능을 사용해서도 가능하다.
+
+``` {r ml-groceries-rules-arulesViz-table}
+# 데이터프레임 변환 -----
+rules_df <- tibble(
+  lhs = labels( lhs(rules) ), 
+  rhs = labels( rhs(rules) ))
+
+rules_df <- bind_cols(rules_df, quality(rules)) %>% 
+  arrange(desc(lift))
+
+rules_df %>% 
+  DT::datatable() %>% 
+    DT::formatRound(c("support", "confidence", "lift"), digits=2) %>% 
+    DT::formatRound(c("count"), digits=0)
+```
+
+### 인터랙티브 네트워크 시각화 [^arules-viz] {#association-rules-viz-arules-network}
+
+[^arules-viz]: [R Friend - R arules package로 연관규칙 분석하기](http://rfriend.tistory.com/193)
+
+네트워크 시각화를 할 때 노드가 너무 많은 경우 유용한 연관규칙을 발견하기 어려운 경우가 많기 때문에 30개로 추려 시각화 대상을 축소한다. 그리고 나서 네트워크 객체로 변환을 시키고 나서 이를 다시 `visNetwork()` 함수에 넣기 위해 데이터프레임으로 변환시킨다. 즉,
+
+- `arules` 객체 &rarr; `igraph` 객체 &rarr; 데이터프레임 변환 &rarr; `visNetwork()` 시각화
+
+```{r arules-support-confidence-network-viz-interactive}
+library(visNetwork)
+library(igraph)
+
+# rules_30 <- head(sort(rules, by="lift"), 30)
+rules_30 <- sort(rules, by="lift") %>% 
+  head(30)
+
+rules_30_ig <- plot(rules_30, method="graph", control=list(type="items") )
+
+# rules_30_ig_df <- toVisNetworkData(rules_30_ig, idToLabel = FALSE)
+rules_30_ig_df <- get.data.frame(rules_30_ig, what = "both" )
+
+visNetwork(
+  nodes = data.frame(
+    id = rules_30_ig_df$vertices$name,
+    value = rules_30_ig_df$vertices$lift, # lift, confidence, support
+    title = ifelse(rules_30_ig_df$vertices$label == "",rules_30_ig_df$vertices$name, rules_30_ig_df$vertices$label),
+    rules_30_ig_df$vertices),
+  edges = rules_30_ig_df$edges) %>% 
+    visNodes(size = 10) %>%
+    visLegend() %>%
+    visEdges(smooth = FALSE) %>%
+    visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE) %>%
+    visInteraction(navigationButtons = TRUE) %>%
+    visEdges(arrows = 'from') %>%
+    visPhysics(
+      solver = "barnesHut",
+      maxVelocity = 35,
+      forceAtlas2Based = list(gravitationalConstant = -6000))
+```
+
+`items` 기준이 아니라 `itemsets`기준으로 시각화를 한다.
+
+```{r arules-support-confidence-network-viz-itemsets}
+# rules_30_ig <- plot(rules_30, method="graph", control=list(type="items") )
+ig <- plot(rules_30, method="graph", control=list(type="itemsets") )
+
+ig_df <- get.data.frame(ig, what = "both" )
+
+visNetwork(
+  nodes = data.frame(
+    id = ig_df$vertices$name,
+    value = ig_df$vertices$lift, # lift, confidence, support
+    title = ifelse(ig_df$vertices$label == "",ig_df$vertices$name, ig_df$vertices$label),
+    ig_df$vertices),
+  edges = ig_df$edges) %>% 
+    visNodes(size = 10) %>%
+    visLegend() %>%
+    visEdges(smooth = FALSE) %>%
+    visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE) %>%
+    visInteraction(navigationButtons = TRUE) %>%
+    visEdges(arrows = 'from') %>%
+    visPhysics(
+      solver = "barnesHut",
+      maxVelocity = 35,
+      forceAtlas2Based = list(gravitationalConstant = -6000))
 ```
