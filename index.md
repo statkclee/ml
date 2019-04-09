@@ -85,7 +85,7 @@ subtitle: 데이터 과학자가 바라본 기계학습
         1. [고객 이탈(churn) 예측모형](ml-pm-churn.html)
         1. [생존분석(Survival Analysis)](ml-pm-survival.html)
     1. [지방선거 광역단체장 지지율 예측모형](ml-local-election.html)
-
+    1. [보험금 청구(insurance claim) 사기 예측(fraud detection)](ml-insurance-claim.html)
 
 ## 기계학습 관련 정보 [^David-Julian-2016]
 
