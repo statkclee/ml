@@ -4,24 +4,30 @@ title: xwMOOC 기계학습
 subtitle: 선형대수와 함께하는 회귀분석
 output:
   html_document: 
-    keep_md: yes
-  pdf_document:
-    latex_engine: xelatex
-mainfont: NanumGothic
+    toc: yes
+    toc_float: true
+    highlight: tango
+    code_folding: show
+    number_section: true
+editor_options: 
+  chunk_output_type: console
 ---
  
-> ## 학습목표 {.objectives}
->
-> * 기초 선형대수를 통해 회귀분석을 이해한다.
-> * 선형대수 수학식을 R 언어로 구현한다.
 
 ```{r, include=FALSE}
-source("tools/chunk-options.R")
-options(warn=-1)
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE,
+                      comment="", digits = 3, tidy = FALSE, prompt = FALSE, fig.align = 'center')
+
+library(tidyverse)
+library(reticulate)
+use_condaenv("anaconda3")
+# reticulate::repl_python()
 ```
 
-### 1. 회귀분석 [^advanced-linear-model] 
+# 회귀분석 [^advanced-linear-model] {#linear-algebra-reg}
 
+ 기초 선형대수를 통해 회귀분석을 이해하고, 선형대수 수학식을 R 언어로 구현한다.
+ 
 회귀분석은 갤톤(Galton) 부모와 자식의 신장간의 관계를 회귀식으로 표현한 데이터셋이 유명하다. 
 
 
@@ -30,11 +36,11 @@ options(warn=-1)
 부모의 신장을 기초로 자녀의 신장을 예측하는 회귀식을 구하기 전에 산점도를 통해 관계를 살펴보면 다음과 같다. 
 성별에 대한 신장의 차이도 산점도를 통해 시각적으로 확인된다.
 
-``` {r r-galton-hegith-scatterplot, warning=FALSE}
+``` {r r-galton-hegith-scatterplot}
+library(tidyverse)
+
 library(HistData)
 data(GaltonFamilies)
-
-library(ggplot2)
 
 ## 1. 산점도 
 # 성별 색상으로 구분
@@ -75,7 +81,7 @@ $$\beta = (X^t X)^{-1} X^t y $$
 
 위에서 정의된 방식으로 수식을 정의하고 이를 R로 코딩하면 회귀계수를 다음과 같이 구할 수 있다.
 
-``` {r r-galton-hegith-linear-algebra, warning=FALSE}
+``` {r r-galton-hegith-linear-algebra}
 ## 2. 회귀분석
 # 선형대수 수식으로 계산
 
@@ -89,14 +95,14 @@ solve(t(x) %*% x) %*% t(x) %*% y
 
 이를 `lm` 함수를 사용해서 다시 풀면 위에서 선형대수 수식으로 계산한 것과 동일함을 확인하게 된다.
 
-``` {r r-galton-hegith-lm, warning=FALSE}
+``` {r r-galton-hegith-lm}
 # lm 함수를 통해 계
 suppressMessages(library(dplyr))
 lm(childHeight ~ midparentHeight, data=GaltonFamilies) %>% coef()
 ```
 
 
-### 데이터셋
+# 데이터셋 {#linear-algebra-dataset}
 
 * [The R Datasets Package](http://stat.ethz.ch/R-manual/R-patched/library/datasets/html/00Index.html)
 * [HistData - Data Sets from the History of Statistics and Data Visualization](https://cran.r-project.org/web/packages/HistData/)
