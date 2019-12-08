@@ -36,8 +36,7 @@ library(tidyverse)
 
 카트에 담는 장바구니(Market Basket) 데이터를 이해하고, 기초적인 장바구니 데이터 분석방법을 학습한다. 아래 동영상을 참조한다.
 
-**연관규칙(association rule)**이란 특정 항목 집합이 발생하였을 때 또 다른 항목 집합이 발생하는 규칙을 의미하고, 
-**연관규칙분석(association rule analysis)**은 원본 데이터에서 대상들의 연관된 규칙을 찾는 방향이 없는 데이터 과학 기법으로 기존 데이터 마이닝(data mining) 용어가 일반적으로 사용되었을 때 많이 자주 활용된 기법이다. 마케팅에서 장바구니(cart)에 들어있는 품목 간의 관계를 탐색하기 위해 많이 사용된 기법으로 장바구니 분석(Market basket analysis)를 통해 팩키지 상품 발굴, 효과적인 매장진열, 교차판매(cross-selling) 전략 수립등에 활용될 수 있다.
+**연관규칙(association rule)**이란 특정 항목 집합이 발생하였을 때 또 다른 항목 집합이 발생하는 규칙을 의미하고, **연관규칙분석(association rule analysis)**은 원본 데이터에서 대상들의 연관된 규칙을 찾는 방향이 없는 데이터 과학 기법으로 기존 데이터 마이닝(data mining) 용어가 일반적으로 사용되었을 때 많이 자주 활용된 기법이다. 마케팅에서 장바구니(cart)에 들어있는 품목 간의 관계를 탐색하기 위해 많이 사용된 기법으로 장바구니 분석(Market basket analysis)를 통해 팩키지 상품 발굴, 효과적인 매장진열, 교차판매(cross-selling) 전략 수립등에 활용될 수 있다.
 
 <style>
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 10px;}
@@ -52,6 +51,21 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 10px;}
 
 </div>
 
+## 장바구니 확장 {#extend-basket}
+
+마트에서 구매하는 상품을 장바구니나 카트에 담게 되면 이를 장바구니 분석(Market Basket Analysis)를 수행하지만, 장바구니를 확장할 수 있다. 예를 들어,
+
+- 넥플릭스와 같은 온라인 영화 대여 서비스에서 사용자가 본 영화
+- 대학교 학생들이 교양과목으로 수강한 과목
+- 국회의원이 발의한 법안
+
+## 장바구니 데이터 활용 {#extend-basket-application}
+
+고객이 장바구니에 담은 데이터를 잘 활용하면 다음과 같은 질문에 대한 답을 구할 수 있다.
+
+- A 상품을 구매한 사람이 B 상품도 구매했다.
+- 진열장에 A 상품과 B 상품을 함께 놓아두고, A상품과 B상품을 묶음 판매한다.
+- 영화와 드라마를 추천한다.
 
 # 장바구니 데이터 [^arules] {#market-basket-data}
 
@@ -161,7 +175,8 @@ order_df %>% write_csv("data/order_df.csv", col_names = TRUE)
 order_tr <- read.transactions("data/order_df.csv", 
                               format = "single", 
                               sep = ",",
-                              cols = c("order","part_desc"))
+                              cols = c("order","part_desc"),
+                              header = TRUE)
 
 image(order_tr)
 
@@ -482,3 +497,98 @@ visNetwork(
       maxVelocity = 35,
       forceAtlas2Based = list(gravitationalConstant = -6000))
 ```
+
+
+# 수학 - 장바구니 표현 {#market-basket-analysis-math}
+
+## 글로 서술 {#mba-text}
+
+장바구니 A에 "김밥", "사과", "참치캔"을 구매해서 들고 있고,
+장바구니 B에 "라면", "배", "김밥"을 구매해서 들고 있는데 
+두 장바구니에 공통된 상품은 무엇이고 두 장바구니 통틀어 담긴 모든 상품은 무엇인지 알아보자.
+
+## 수학 표현 {#mba-math-basket}
+
+수학적으로 표현하면 다음과 같다.
+
+먼저, 장바구니 A, 장바구니 B에 담긴 상품은 집합기호를 사용해서 다음과 같이 표현한다.
+
+- $장바구니_A = \{ 김밥, 사과, 참치캔 \}$
+- $장바구니_B = \{ 라면, 배, 김밥 \}$
+
+그 다음 두 장바구니에 공통으로 담긴 상품을 파악하고, 두 장바구니 모두에 담긴 상품 전체를 살펴보자.
+이를 위해서 합집합($\cup$), 교집합($\cap$) 개념을 도입하여 수식을 전개한다.
+
+- $$장바구니_A \cap 장바구니_B = \{ 깁밥\}$$
+- $$장바구니_A \cup 장바구니_B = \{ 김밥, 사과, 참치캔, 라면, 배 \}$$
+
+## R 코드 표현 {#mba-math-code}
+
+장바구니를 벡터로 가정하고 벡터의 원소를 편의점에서 구매한 상품이라고 간주하자.
+이를 `dplyr` 팩키지 `intersect()`, `union()` 함수를 사용해서 집합연산 작업을 수행할 수 있다.
+
+```{r mba-math}
+library(tidyverse)
+
+cart_A <- c("김밥", "사과", "참치캔")
+cart_B <- c("라면", "배", "김밥")
+
+dplyr::intersect(cart_A, cart_B)
+dplyr::union(cart_A, cart_B)
+```
+
+# 수학 - 장바구니 크기 {#market-basket-analysis-size}
+
+다음으로 상품이 $N$개 있는 경우, $n$개를 고른 장바구니가 얼마나 존재하는지 수학적으로 파악해 보자.
+$N$개에서 $n$개를 뽑는 조합의 수를 계산하는 것과 같다. 
+
+$${ N\choose n} = \frac{N!}{(N-n)!n!}$$
+
+그런데 $n$를 `0`에서부터 `N`개를 뽑는 모든 경우의 수를 따져야 하기 때문에 다음과 같이 가능한 모든  장바구니를 표현할 수 있다. [Newton's Binomial Theorem](https://www.whitman.edu/mathematics/cgt_online/book/section03.01.html)에 따라 다음과 같이 정리할 수 있다.
+
+$$ \sum_{n=0}^{N} { N\choose n} = 2^n$$
+
+예를 들어, 전체 판매 상품이 4개인 경우, 2개 상품을 골라 장바구니 넣는 경우의 수를 따져보자.
+
+$${4\choose 2} = \frac{4!}{(4-2)!2!} =  \frac{4 \times 3 \times 2 \times 1}{2 \times 2} = 6$$
+
+R 코드로 작성하면 다음과 같다. `choose()` 함수를 사용해서 조합의 수를 구할 수 있다.
+
+```{r baskets-size}
+total_items <- 4
+items_in_basket <- 2
+choose(total_items, items_in_basket)
+```
+
+전체 상품 4개에서 2개를 뽑는 경우를 살펴봤는데, 이번에는 모든 경우의 수를 따져보자.
+장바구니에 상품이 없는 경우와 4개 상품이 다양한 조합으로 담긴 경우와 모든 상품이 장바구니에 담긴 사례는 다음과 같이 `choose()` 함수와 `for` 루프를 조합시켜 모든 경우의 수에 대한 합을 계산한다. 이를 수식을 통해 확인해보자.
+
+$$2^4 = 16$$
+
+```{r all-possible-baskets}
+total_items <- 4
+combi_basket <- c()
+
+for(i in 0:total_items) {
+  combi_basket[i+1] <- choose(total_items, i)
+}
+
+(basket_cases <- tibble(basket_size = 0:total_items, combi_basket))
+
+basket_cases %>% 
+  summarise(basket_size = sum(combi_basket))
+```
+
+장바구니에 담기는 상품 조합을 전체 상품수에 맞춰 생기는 경우의 수를 시각화해보자.
+
+```{r basket-viz}
+total_items = 100
+choose_items = function(x) choose(total_items, x)
+
+tibble(x = 0) %>% 
+  ggplot(aes(x=x)) +
+    stat_function(fun = choose_items)+
+    xlim(0, total_items) +
+    labs(x="장바구니 크기", ylab="장바구니 빈도수")
+```
+
