@@ -85,6 +85,40 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 10px;}
 </div>
 
 
+## 주요 개념과 구성요소 {#association-rules-core-concept}
+
+{김밥} &rarr; {생수} 라는 연관 규칙을 찾았다고 하면 이에 따려오는 중요 개념은 다음과 같다.
+
+- {김밥}: 선행사건(antecedent)
+- {생수}: 결과(consequent)
+- 측도: 지지도, 신뢰도, 향상도
+
+연관분석결과 산출물에 인용되는 주요 용어에 대해 이해하고 넘어가야 된다.
+
+- 제품에 대한 인기도 
+    * 지지도(Support) : 확률 $Support(A) = P(A)$, 하나 이상의 빈발 제품 집합 식별에 활용됨, 물품 두개로 확장하게 되면 $S(X \rightarrow Y) = \frac{n(X \cap Y )}{N}$로 표현되며 전체 물품($N$) 중에서 $X, Y$가 모두 출현하는 횟수로 둘을 나누면 산출된다.
+- 연관규칙이 얼마나 많이 참인가?
+    * 신뢰도(Confidence) : 조건부 확률 $Confidence(A \rightarrow B) = \frac{P(A,B)}{P(A)}$, 제품 집합 간의 연관성 강도를 측정하는데 활용됨. 즉, $C(X \rightarrow Y) = \frac{n(X \cap Y )}{n(X)}$로 $X$가 포함된 거래중에서 $X, Y$가 모두 모함된 장바구니를 의미한다.
+- 연관관계가 얼마나 강한가?    
+    * 향상도(Lift) : $lift(A \rightarrow B) = \frac{P(A,B)}{P(A) \dot P(B)}$ 도출된 연관규칙의 효용성을 측정하는데 활용됨. 향상도는 $lift = \frac{\text{신뢰도}}{\text{지지도}}$로 계산되고 1이면 서로 독립으로 관련이 없는 것으로 판정하고 1보다 크거나 작으면 관련이 있는 것으로 파악한다. 즉, 향상도가 1보다 크면 A를 사면 B도 더 살 것이고, 1보다 작으면 A를 사면 B는 덜 살 것을 나타낸다.
+
+생성 가능한 모든 규칙을 생성하고, 지지도, 신뢰도, 향상도를 판단기준으로 놓고 가장 최선의 규칙을 선택하면 되지만, 현실적으로 제품개수가 증가하게 되면 컴퓨터 연산시간이 이를 감당하지 못한다. 대안으로 가장 빈발하는 제품집합만을 기준으로 삼아 연관규칙을 생성해 나간다.
+
+"Support of an item set never exceeds the support of its subsets, which is known as anti-monotoneproperty of support." 즉, 지지도 특성 중에 제품 집합 지지도는 절대로 하위집합 지지도를 넘어서지 못하는 특징이 있다. 이를 활용하여 빈발집합을 우선 고려하고, 지지도와 최소지지도를 
+모수로 적당한 값 예를 들어, 기준 지지도 30%, 기준 신뢰도 70%로 설정하여 연관규칙 도출에 필요한 연산시간을 급격히 줄인다. 
+**지지도(support)**는 좋은 규칙(빈도가 많은, 구성비가 높은)을 찾거나, 불필요한 연산을 줄일 때(pruning, 가지치기)의 기준으로 사용하고, **신뢰도(confidence)**가 높을 수록 유용한 규칙일 가능성 높다고 본다. 통계전문가나 기계학습 전문가의 경우 신뢰도(confidence)와 향상도(lift)가 높은 연관규칙을 선호하는 경향이 있는 반면, 매출과 이익을 책임져야 하는 현업의 실무 담당자의 경우는 **지지도(Support)**가 높아서 전체 거래 건수 중에서 해당 연관규칙이 포함된 거래건수가 많아야 높은 매출 증가를 기대할 수 있기 때문에 지지도를 중요한 지표로 여긴다.
+
+Apriori 알고리즘이 대표적인 연관규칙 도출 알고리즘이고, `apriori()` 함수 기본디폴트 설정값은 다음과 같다.
+
+|  매개변수  | 기본디폴트 설정값  |      의미          |
+|------------|--------------------|--------------------|
+| `support`  |        0.1         | 연관규칙 최소 지지도   |
+| `confidence` | 0.8              | 연관규칙의 최소 신뢰도 |
+| `minlen`  |     1               | 연관 규칙에 포함되는 최소 물품 수 |
+| `maxlen`  |        10           | 연관규칙에 포함되는 최대 물품 수  |
+| `smax`    |   1                 | 연관규칙의 최대 지지도 |
+
+
 # 수학 - 장바구니 표현 {#market-basket-analysis-math}
 
 ## 글로 서술 {#mba-text}
@@ -193,7 +227,7 @@ tibble(x = 0) %>%
 
 <img src="fig/market-basket-analysis-dataset.png" alt="카트 데이터 자료형" width="100%" />
 
-## 데이터프레임 &rarr; 장바구니 데이터 - `wide` [^market-basket-dataframe] {#dataframe-to-market-basket-data}
+## DF &rarr; 장바구니 데이터 - `wide` [^market-basket-dataframe] {#dataframe-to-market-basket-data}
 
 [^market-basket-dataframe]: [Working with arules transactions and read.transactions](http://www.learnbymarketing.com/1043/working-with-arules-transactions-and-read-transactions/)
 
@@ -250,7 +284,7 @@ data(Groceries)
 
 `library(datasets)` 팩키지에 `Groceries` 데이터가 기본으로 포함되어 있어, 이를 바로 활용해도 좋다.
 
-## 데이터프레임 &rarr; 장바구니 데이터 - `long` {#dataframe-to-market-basket-data-long}
+## DF &rarr; 장바구니 데이터 - `long` {#dataframe-to-market-basket-data-long}
 
 혹은 데이터가 이와는 달리 다음과 같은 형태로 긴(long) 텍스트 데이터 형태로 구성되는 경우도 있다. [How to prep transaction data into basket for arules](https://stackoverflow.com/questions/32997410/how-to-prep-transaction-data-into-basket-for-arules)에 나와있는 데이터가 좋은 형태가 된다.
 
@@ -261,7 +295,7 @@ data(Groceries)
 거래ID(transaction ID)는 "order", 아이템명은 "part_desc"로 지정한다. 이를 `image()` 함수로 시각화하고 이를 다시 `inspect()` 함수로 제대로 되었는지 확인한다.
 두가지 작업 흐름이 있지만 데이터프레임을 `.csv` 파일로 떨어뜨리고 이를 `read.transactions()` 함수로 불러오는 경우를 살펴본다. 하지만, 한글로 된 경우 가능하면 `split()` 함수를 사용하는 것이 직접 한글문자가 들어있는 `.csv` 파일을 불러 읽어들이는 것보다 문자가 깨지는 문제를 겪게되지 않을 가능성이 크다.
 
-### `csv` 파일로 떨어 뜨려 읽어오는 경우 {#dataframe-to-market-basket-data-long-csv}
+### `csv` 파일 읽어오는 경우 {#dataframe-to-market-basket-data-long-csv}
 
 데이터프레임으로 거래 장바구니 데이터를 불러온 후에 `read.transactions()` 함수를 사용해서 즉접 `transactions` 객체로 전환시켜서 후속 연관분석용 데이터를 준비한다.
 
@@ -333,42 +367,6 @@ library(arulesViz)
 library(wordcloud)
 library(tidyverse)
 ```
-
-
-# 연관분석 핵심 개념 {#association-rules-core-concept}
-
-## 연관분석 주요 구성요소 {#association-rules-core-component}
-
-{김밥} &rarr; {생수} 라는 연관 규칙을 찾았다고 하면 이에 따려오는 중요 개념은 다음과 같다.
-
-- {김밥}: 선행사건(antecedent)
-- {생수}: 결과(consequent)
-- 측도: 지지도, 신뢰도, 향상도
-
-연관분석결과 산출물에 인용되는 주요 용어에 대해 이해하고 넘어가야 된다.
-
-- 제품에 대한 인기도 
-    * 지지도(Support) : 확률 $Support(A) = P(A)$, 하나 이상의 빈발 제품 집합 식별에 활용됨, 물품 두개로 확장하게 되면 $S(X \rightarrow Y) = \frac{n(X \cap Y )}{N}$로 표현되며 전체 물품($N$) 중에서 $X, Y$가 모두 출현하는 횟수로 둘을 나누면 산출된다.
-- 연관규칙이 얼마나 많이 참인가?
-    * 신뢰도(Confidence) : 조건부 확률 $Confidence(A \rightarrow B) = \frac{P(A,B)}{P(A)}$, 제품 집합 간의 연관성 강도를 측정하는데 활용됨. 즉, $C(X \rightarrow Y) = \frac{n(X \cap Y )}{n(X)}$로 $X$가 포함된 거래중에서 $X, Y$가 모두 모함된 장바구니를 의미한다.
-- 연관관계가 얼마나 강한가?    
-    * 향상도(Lift) : $lift(A \rightarrow B) = \frac{P(A,B)}{P(A) \dot P(B)}$ 도출된 연관규칙의 효용성을 측정하는데 활용됨. 향상도는 $lift = \frac{\text{신뢰도}}{\text{지지도}}$로 계산되고 1이면 서로 독립으로 관련이 없는 것으로 판정하고 1보다 크거나 작으면 관련이 있는 것으로 파악한다. 즉, 향상도가 1보다 크면 A를 사면 B도 더 살 것이고, 1보다 작으면 A를 사면 B는 덜 살 것을 나타낸다.
-
-생성 가능한 모든 규칙을 생성하고, 지지도, 신뢰도, 향상도를 판단기준으로 놓고 가장 최선의 규칙을 선택하면 되지만, 현실적으로 제품개수가 증가하게 되면 컴퓨터 연산시간이 이를 감당하지 못한다. 대안으로 가장 빈발하는 제품집합만을 기준으로 삼아 연관규칙을 생성해 나간다.
-
-"Support of an item set never exceeds the support of its subsets, which is known as anti-monotoneproperty of support." 즉, 지지도 특성 중에 제품 집합 지지도는 절대로 하위집합 지지도를 넘어서지 못하는 특징이 있다. 이를 활용하여 빈발집합을 우선 고려하고, 지지도와 최소지지도를 
-모수로 적당한 값 예를 들어, 기준 지지도 30%, 기준 신뢰도 70%로 설정하여 연관규칙 도출에 필요한 연산시간을 급격히 줄인다. 
-**지지도(support)**는 좋은 규칙(빈도가 많은, 구성비가 높은)을 찾거나, 불필요한 연산을 줄일 때(pruning, 가지치기)의 기준으로 사용하고, **신뢰도(confidence)**가 높을 수록 유용한 규칙일 가능성 높다고 본다. 통계전문가나 기계학습 전문가의 경우 신뢰도(confidence)와 향상도(lift)가 높은 연관규칙을 선호하는 경향이 있는 반면, 매출과 이익을 책임져야 하는 현업의 실무 담당자의 경우는 **지지도(Support)**가 높아서 전체 거래 건수 중에서 해당 연관규칙이 포함된 거래건수가 많아야 높은 매출 증가를 기대할 수 있기 때문에 지지도를 중요한 지표로 여긴다.
-
-Apriori 알고리즘이 대표적인 연관규칙 도출 알고리즘이고, `apriori()` 함수 기본디폴트 설정값은 다음과 같다.
-
-|  매개변수  | 기본디폴트 설정값  |      의미          |
-|------------|--------------------|--------------------|
-| `support`  |        0.1         | 연관규칙 최소 지지도   |
-| `confidence` | 0.8              | 연관규칙의 최소 신뢰도 |
-| `minlen`  |     1               | 연관 규칙에 포함되는 최소 물품 수 |
-| `maxlen`  |        10           | 연관규칙에 포함되는 최대 물품 수  |
-| `smax`    |   1                 | 연관규칙의 최대 지지도 |
 
 
 # 장바구니 분석 {#association-rules-descriptive-stat}
@@ -469,6 +467,45 @@ rules <- sort(rules, by="confidence", decreasing=TRUE)
 inspect(rules[1:10])
 ```
 
+## 연관규칙 탐색: `subset` [^match-in] {#association-rules-explore-subset}
+
+[^match-in]: [R, Python 분석과 프로그래밍의 친구 (by R Friend)](https://rfriend.tistory.com/193)
+
+`subset()` 함수에 `subset =` 질의문을 조합하여 원하는 연관규칙을 뽑아낼 수 있다.
+특히, 
+
+- %in% : (select itemsets matching any given item) 즉, 적어도 하나의 제품이라도 존재하면 연관규칙을 뽑아서 가져온다.
+- %pin% : (partial matching) 즉, 부분 일치만 하더라도 가져온다.
+- %ain% : (select only itemsets matching all given item) 즉, 완전한 일치를 할 때만 연관규칙을 가져온다.
+
+``` {r ml-groceries-rules-sorting-subset}
+rules %>% 
+  subset(., subset = items %in% c("butter", "rice") & confidence >.95 & lift> 1.5) %>% 
+  head(5) %>% 
+  inspect(.)
+```
+
+## 연관규칙 정적 시각화 {#apriori-static-plot}
+
+연관규칙을 탐색하는데 정적 그래프로 `method="grouped"`를 사용하고, 색상의 강도를 `shading = "confidence"`을 사용해서 시각화한다. 물론 `measure=`값은 다른 측도로 변경이 가능하다.
+
+``` {r ml-groceries-eda-frequent-viz-01}
+plot(rules,
+     method = "grouped",
+     measure = "lift",
+     shading = "confidence")
+```
+
+연관규칙을 탐색하는데 병렬 정적 그래프로 `method="paracoord"`를 사용하고, 색상의 강도를 `shading = "confidence"`을 사용해서 시각화한다.
+
+``` {r ml-groceries-eda-frequent-viz-02}
+plot(rules,
+     method = "paracoord",
+     measure = "lift",
+     shading = "confidence")
+```
+
+
 # 인터랙티브 분석 {#association-rules-explore-interactive}
 
 ## 연관규칙 도우미: `DT` {#association-rules-explore-DT}
@@ -511,12 +548,82 @@ network_rules_html
 # saveAsGraph(rules, file = "data/rules.graphml")
 ```
 
+## 연관규칙 도우미: `shiny` {#association-rules-explore-shiny}
+
+스위스 군대 칼(swiss army knife)와 같은 역할을 하는 것이 `ruleExplorer()` 함수로 호출되는 shiny 기능이다. 단, 너무 규칙이 많으면 문제가 되니 표본을 추출하여 규칙을 만들어 `ruleExplorer()` 샤이니 기능을 사용한다.
+
+```{r shiny-ruleExplorer, eval=TRUE}
+## 데이터프레임 --> transaction 자료구조 변환
+cart_smpl_raw <- cart_df %>% 
+  sample_frac(0.01) %>% 
+  mutate(items = str_split(items, ",")) %>% 
+  select(tid=transaction_id, items) %>% 
+  unnest(items) 
+
+cart_smpl_split <- split(cart_smpl_raw$items, cart_smpl_raw$tid)
+cart_smpl_trx <- as(cart_smpl_split, "transactions")
+
+## apriori 연관규칙 도출
+smpl_rules <- apriori(cart_smpl_trx, parameter = list(supp = 0.001, conf = 0.8, minlen=2, maxlen=5))
+
+## shiny
+# ruleExplorer(smpl_rules)
+```
+
+![연관규칙 `shiny` 탐색기](fig/shiny_arules.png){#id .class width="100%"}
+
+# 연관규칙 모형 {#association-rules-model}
+
+## 측도 모수 선정 {#association-rules-model-parameters}
+
+지지도를 특정값으로 고정시킨 후에 신뢰도를 변화시켜 연관규칙수를 적절히 찾은 후에 이를 바탕으로 후속작업을 이어나간다. 이런 경우 연산량이 많기 때문에 `cart_smpl_trx`와 같은 임의표본추출된 작은 데이터셋을 사용한다.
+
+```{r arules-metrics}
+## 신뢰도 설정
+conf_level <- seq(from=0.1, to=0.9, by =0.1)
+
+## 연관규칙 길이 
+length_arules <- NULL
+
+## Apriori 알고리즘 실행
+for (i in 1:length(conf_level)) {
+  
+  tmp_arule <- apriori(cart_smpl_trx,
+                       parameter=list(supp=0.02,
+                                      conf=conf_level[i],
+                                      target="rules"),
+                       control = list(verbose=FALSE))
+  length_arules[i] <- length(tmp_arule)
+}
+
+## 시각화
+tibble(conf_level, length_arules) %>% 
+  ggplot(aes(x=conf_level, y=length_arules)) +
+    geom_point() +
+    geom_line() +
+    scale_x_continuous(labels = scales::percent) +
+    labs(x="신뢰도(confidence)", y="연관규칙 수",
+         title="신뢰도 변화에 따른 적절한 연관규칙수 탐색",
+         subtitle="지지도 0.02로 고정한 후 신뢰도를 변화") +
+    theme_bw()
+```
 
 ## 중복 연관집합 제거 {#association-rules-remove}
 
-흔히, 연관규칙이 반복된다. 특정 제품이 거의 모든 연관규칙에 포함된 경우 해당 제품을
-데이터에서 제거하고 연관규칙을 찾아내는 것도 방법이고, 대안으로 생성된 중복규칙을 
-제거하는 것도 바람직하다.
+흔히, 연관규칙이 반복된다. 특정 제품이 거의 모든 연관규칙에 포함된 경우 해당 제품을 데이터에서 제거하고 연관규칙을 찾아내는 것도 방법이고, 대안으로 생성된 중복규칙을 제거하는 것도 바람직하다.
+
+
+종복 연관규칙은 더 높은 신뢰도(confidence)를 갖는 좀더 일반화된 규칙이 존재하는 경우 연관규칙이 중복되었다고 한다. `super-rule`은 RHS에 동일한 제품이 존재하지만, LHS에서 하나 혹은 그 이상 제품을 제거할 수 있는 경우가 여기에 해당된다. 예를 들어,
+
+- Super-rule: {A,B} --> {C}
+    - {A,B} --> {C}
+    - {A,B,D} --> {C}
+
+따라서 중복이 없는 연관규칙은 다음과 같이 정의된다.
+
+- 다른 모든 연관규칙은 해당 규칙에 Super-Rule이다.
+- 다른 모든 연관규칙이 더 낮은 신뢰도를 갖는다.
+
 
 ``` {r ml-groceries-rules-redundancy, eval=FALSE}
 #---------------------------------------------------------------------------------
@@ -524,8 +631,8 @@ network_rules_html
 #---------------------------------------------------------------------------------
 # 중복규칙 제거 -----
 rules
-rules <- rules[!is.redundant(rules)]
-rules
+rules_pruned <- rules[!is.redundant(rules)]
+rules_pruned
 ```
 
 ## 목표 제품 집중 분석 {#association-rules-analysis}
@@ -541,25 +648,29 @@ rules
 어렵지 않다. 즉, `lhs`, `rhs` 인자를 제어하면서 풀 수 있다.
 
 ``` {r ml-groceries-rules-target-before, warning=FALSE}
-rules_before <-apriori(data=Groceries, parameter=list(supp=0.001,conf = 0.08), 
-               appearance = list(default="lhs",rhs="whole milk"),
-               control = list(verbose=F))
+rules_before <- apriori(data=Groceries, parameter=list(supp=0.001,conf = 0.08), 
+                        appearance = list(default="lhs",rhs="whole milk"),
+                        control = list(verbose=FALSE))
+
 rules_before <-sort(rules_before , decreasing=TRUE,by="confidence")
+
 inspect(rules_before [1:5])
 ```
 
-`supp`, `conf` 인자를 조정하여 연관규칙이 적절히 도출되도록 제어한다.
-
+`supp`, `conf` 인자를 조정하여 연관규칙이 적절히 도출되도록 제어하고 반대의 경우도 살펴본다.
+즉, 왼편에 "whole milk"를 장바구니에 넣은 경우 다른 어떤 것을 또 장바구니에 넣는지 살펴보자.
 
 ``` {r ml-groceries-rules-target-after}
 rules_after <-apriori(data=Groceries, parameter=list(supp=0.001,conf = 0.15,minlen=2), 
-               appearance = list(default="rhs",lhs="whole milk"),
-               control = list(verbose=F))
+                      appearance = list(default="rhs", lhs="whole milk"),
+                      control = list(verbose=F))
+
 rules_after <-sort(rules_after , decreasing=TRUE,by="confidence")
+
 inspect(rules_after [1:5])
 ```
 
-# 시각화 {#association-rules-viz}
+# 전통적인 시각화 {#association-rules-viz}
 
 ## 단어구름 {#association-rules-wordcloud}
 
