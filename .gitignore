@@ -19,3 +19,4 @@ data/breast-cancer/
 data/next_order_clean.csv
 data/fundraising.txt
 *.csv
+.Rproj.user

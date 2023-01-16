@@ -56,14 +56,16 @@ knitr::opts_chunk$set(echo=TRUE, message=FALSE, warning=FALSE)
 | **실험 결과**  | 양성(Positive): Event      | TP(True Positive): A | FP(False Positive): B | 
 | (Predicted)    | 음성(Negative): No Event   | FN(False Negative): C| TN(True Negative): D  |
 
-<img src="fig/ml-precision-recall.svg" alt="정밀도와 재현율 도식화" width="25%"> [^wiki-walber]
+<center>
+<img src="fig/precision-recall.png" alt="정밀도와 재현율 도식화" width="50%"> [^wiki-walber]
+</center>
 
 [^wiki-walber]: [Precision and recall SVG 파일](https://commons.wikimedia.org/wiki/File:Precisionrecall.svg)
 
 범주형 자료를 목적으로 분류하는 기계학습 알고리즘의 경우 정확도, 정밀도, 재현율, 통상적인 추적 모니터링 대상 측도가 된다.
 
 * 정확도(Accuracy): 1 에서 빼면 오분류율이 된다. $$정확도 = \frac{TP+TN}{TP+TN+FP+FN}, 정확도 = \frac{A+D}{A+B+C+D}$$
-* 재현율(Recall) 혹은 민감도(Sensitivity): 예를 들어, 환자가 실제 암이 있는데, 양성으로 검진될 확률. 연관된 항목이 얼마나 많이 선택되었는지 측정. 
+* 재현율(Recall) 혹은 민감도(Sensitivity): 예를 들어, 환자가 실제 암이 있는데, 양성으로 검진될 확률. 연관된 항목이 얼마나 많이 선택되었는지 측정. Sensititivity는 Hit Rate로 알려져 있다.
 $$재현율 = \frac{TP}{TP+FN}, 민감도 = \frac{A}{A+C}$$
 * 특이성(Specificity): 예를 들어, 환자가 정상인데, 음성으로 검질될 확률. $$특이성 = \frac{TN} {TN+FP}, Specificity = \frac{D}{B+D}$$
 * 정밀도(Precision): 선택된 항목이 얼마나 연관성이 있나를 측정,  PPV(positive predictive value)로도 불림. $$정밀도 = \frac{TP}{TP+FP}$$
@@ -71,6 +73,13 @@ $$재현율 = \frac{TP}{TP+FN}, 민감도 = \frac{A}{A+C}$$
 이를 하나의 숫자로 바꾼것이 $F_1$ 점수($F_1$ Score, $F$-Score, $F$-Measure)로 불리는 것으로 정밀도와 재현율을 조화평균한 것이다.
 
 $$F_1 = \frac{2}{\frac{1}{정밀도}+\frac{1}{재현율}} = 2 \times \frac{정밀도 \times 재현율}{정밀도 + 재현율}$$
+
+실무에서는 recall(재현율)과 sensitivity(민감도)는 상호 교차하여 사용되지만 엄밀하게는 동일한 개념은 아니다.
+
+- Precision and Recall 은 양성을 얼마나 예측하는지 초점을 맞췄다.
+- Sensitivity and Specificity는 양성과 음성을 정확하게 분류하는데 초점을 맞췄다.
+    - Specificity = 1 - Sensitivity
+
 
 ## 범주형 예측 모형 평가 {#classification-category-performance}
 
